@@ -1,0 +1,27 @@
+{
+  "mcpServers": {
+    "swiss-shopping-mcp": {
+      "type": "local",
+      "command": "node",
+      "args": ["dist/index.js"],
+      "env": {
+        "LOG_LEVEL": "info"
+      },
+      "tools": ["*"]
+    },
+    "gemini-cli": {
+      "type": "local",
+      "command": "gemini-cli",
+      "args": [],
+      "env": {},
+      "tools": ["*"]
+    },
+    "mobile-mcp": {
+      "type": "local",
+      "command": "mobile-mcp",
+      "args": [],
+      "env": {},
+      "tools": ["*"]
+    }
+  }
+}
