@@ -1,0 +1,53 @@
+{
+  "name": "swiss-shopping-mcp",
+  "version": "0.1.0",
+  "description": "Swiss grocery and shopping MCP with multi-chain support, price comparison, and account integration",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "swiss-shopping-mcp": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc && node dist/index.js",
+    "watch": "tsc --watch",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage",
+    "lint": "eslint src --ext .ts",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "clean": "rm -rf dist"
+  },
+  "keywords": [
+    "mcp",
+    "grocery",
+    "shopping",
+    "switzerland",
+    "price-comparison",
+    "migros",
+    "coop",
+    "aldi",
+    "denner",
+    "lidl"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "zod": "^3.22.4",
+    "zod-to-json-schema": "^3.22.5"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@typescript-eslint/eslint-plugin": "^6.13.1",
+    "@typescript-eslint/parser": "^6.13.1",
+    "@vitest/ui": "^1.0.0",
+    "eslint": "^8.54.0",
+    "prettier": "^3.1.0",
+    "typescript": "^5.3.2",
+    "vitest": "^1.0.0"
+  }
+}

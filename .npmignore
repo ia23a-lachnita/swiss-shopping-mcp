@@ -1,0 +1,12 @@
+src/
+tests/
+.eslintrc.json
+.prettierrc.json
+vitest.config.ts
+tsconfig.json
+.git
+.github
+.gitignore
+*.md
+coverage/
+.nyc_output/

@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "swiss-shopping-mcp": {
+      "command": "node",
+      "args": ["dist/index.js"],
+      "env": {
+        "LOG_LEVEL": "info"
+      }
+    }
+  }
+}
