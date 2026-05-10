@@ -1,0 +1,69 @@
+{
+  "$schema": "https://raw.githubusercontent.com/modelcontextprotocol/spec/main/schema/schema.json",
+  "version": "1.0.0",
+  "description": "MCP configuration for swiss-shopping-mcp project (Copilot CLI)",
+  "mcpServers": {
+    "swiss-shopping-mcp": {
+      "command": "node",
+      "args": ["dist/index.js"],
+      "env": {
+        "LOG_LEVEL": "info"
+      },
+      "disabled": false,
+      "alwaysAllow": []
+    }
+  },
+  "plugins": {
+    "claude-mem": {
+      "enabled": true,
+      "description": "Enhanced memory management and context persistence"
+    },
+    "context-mode": {
+      "enabled": true,
+      "description": "Context window optimization and management"
+    },
+    "context7": {
+      "enabled": true,
+      "description": "Advanced context handling with hooks"
+    },
+    "firebase": {
+      "enabled": true,
+      "description": "Firebase integration and real-time data",
+      "config": {}
+    },
+    "superpowers": {
+      "enabled": true,
+      "description": "Enhanced capabilities and advanced features"
+    },
+    "token-optimizer": {
+      "enabled": true,
+      "description": "Token usage optimization and efficiency"
+    },
+    "caveman": {
+      "enabled": true,
+      "description": "Ultra-compressed communication mode (~75% token reduction)"
+    }
+  },
+  "additionalMcps": [
+    {
+      "name": "gemini-cli",
+      "description": "Google Gemini MCP for AI capabilities"
+    },
+    {
+      "name": "mobile-mcp",
+      "description": "Mobile development tools and emulation"
+    }
+  ],
+  "setupInstructions": {
+    "description": "Configuration for Copilot CLI (NOT Claude Desktop)",
+    "note": "MCPs and plugins are managed via commands in Copilot CLI interactive mode",
+    "steps": [
+      "1. Launch Copilot CLI: copilot",
+      "2. Install plugins: /plugin install claude-mem context-mode context7 firebase superpowers token-optimizer caveman",
+      "3. Add MCPs: /mcp add gemini-cli mobile-mcp",
+      "4. Verify setup: /env",
+      "5. Check plugin status: /plugin list"
+    ],
+    "alternativeApproach": "MCPs and plugins can also be configured in ~/.copilot/config.json manually, but CLI commands are preferred"
+  }
+}
