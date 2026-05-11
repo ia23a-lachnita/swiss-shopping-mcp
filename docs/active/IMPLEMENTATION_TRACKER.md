@@ -18,17 +18,18 @@ Phase: `V1 - core read/search foundation`
 | TypeScript scaffold | done | Base project and build scripts exist |
 | MCP bootstrap | done | `src/index.ts` server skeleton is running |
 | Domain types | done | `src/adapters/types.ts` established |
-| Adapter implementations | pending | No chain adapter modules yet |
-| Tool implementations | pending | Tool handlers still placeholder (`Unknown tool`) |
-| Test baseline | in_progress | Utility tests exist; adapter/tool tests missing |
+| Adapter implementations | done | Static multi-chain adapters implemented for all V1 chains |
+| Tool implementations | done | `search_products`, `find_stores`, `compare_prices` wired to service layer |
+| Test baseline | done | Adapter/service/tool-handler tests cover success/edge/error paths; MCP client↔server integration tests verify end-to-end tool retrieval over transport |
+| Store availability lookup | done | Added `get_store_availability_support` and `lookup_store_product_availability`; currently only Migros has static per-store availability in V1 adapters |
 | Copilot instruction architecture | done | Root and `.github` instruction files realigned |
 
 ## Next tasks
 
-1. Implement adapter interface + first concrete chain adapter
-2. Wire `search_products` and `find_stores` to real service layer
-3. Add tests for request validation and tool execution
-4. Add comparison tool for cross-chain pricing
+1. Expand static catalogs with real upstream per-store availability integrations for non-Migros chains
+2. Add normalized promotion ingestion and promotion-aware comparison
+3. Add richer store geospatial filtering (distance/radius)
+4. Prepare V2 account/cart integration foundation
 
 ## Decisions
 

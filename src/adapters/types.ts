@@ -1,4 +1,5 @@
 export type Chain = 'migros' | 'coop' | 'aldi' | 'denner' | 'lidl' | 'farmy' | 'volg' | 'ottos';
+export type DietaryPreference = 'vegan' | 'vegetarian' | 'gluten-free';
 
 export interface GeoPoint {
   latitude: number;
@@ -55,6 +56,71 @@ export interface NormalizedPromotion {
   validFrom: Date;
   validUntil: Date;
   applicableStores?: string[];
+}
+
+export interface ProductSearchFilters {
+  query: string;
+  chains?: Chain[];
+  maxPrice?: number;
+  category?: string;
+  tags?: string[];
+  excludeAllergens?: string[];
+  dietaryPreferences?: DietaryPreference[];
+  limit?: number;
+}
+
+export interface StoreSearchFilters {
+  location: string;
+  chains?: Chain[];
+  limit?: number;
+}
+
+export interface PriceComparisonFilters {
+  query: string;
+  chains?: Chain[];
+  maxPrice?: number;
+  quantity?: number;
+  limitPerChain?: number;
+}
+
+export interface StoreAvailabilitySupport {
+  chain: Chain;
+  supported: boolean;
+  reason?: string;
+}
+
+export interface StoreProductAvailabilityFilters {
+  query: string;
+  storeId: string;
+}
+
+export interface ProductAvailabilityMatch {
+  product: NormalizedProduct;
+  available: boolean;
+}
+
+export interface StoreProductAvailabilityResult {
+  chain: Chain;
+  storeId: string;
+  query: string;
+  supported: boolean;
+  reason?: string;
+  matches: ProductAvailabilityMatch[];
+  isAvailable: boolean;
+}
+
+export interface ChainCatalogData {
+  products: NormalizedProduct[];
+  stores: NormalizedStore[];
+  storeInventory?: Record<string, string[]>;
+}
+
+export interface ChainAdapter {
+  chain: Chain;
+  searchProducts(filters: ProductSearchFilters): Promise<Result<NormalizedProduct[]>>;
+  findStores(filters: StoreSearchFilters): Promise<Result<NormalizedStore[]>>;
+  getStoreAvailabilitySupport(): StoreAvailabilitySupport;
+  lookupStoreProductAvailability(filters: StoreProductAvailabilityFilters): Promise<Result<StoreProductAvailabilityResult>>;
 }
 
 export type Result<T> =

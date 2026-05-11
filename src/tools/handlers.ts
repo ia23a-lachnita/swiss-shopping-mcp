@@ -1,0 +1,292 @@
+import { CallToolRequest, CallToolResult, ListToolsResult } from '@modelcontextprotocol/sdk/types.js';
+import { z } from 'zod';
+
+import { Chain, DietaryPreference } from '../adapters/types.js';
+import { PriceComparisonService } from '../services/priceComparisonService.js';
+import { SearchService } from '../services/searchService.js';
+
+const CHAINS = ['migros', 'coop', 'aldi', 'denner', 'lidl', 'farmy', 'volg', 'ottos'] as const satisfies readonly Chain[];
+const DIETARY_PREFERENCES = ['vegan', 'vegetarian', 'gluten-free'] as const satisfies readonly DietaryPreference[];
+
+const chainEnum = z.enum(CHAINS);
+const dietaryPreferenceEnum = z.enum(DIETARY_PREFERENCES);
+
+const searchProductsInputSchema = z
+  .object({
+    query: z.string().trim().min(1),
+    chains: z.array(chainEnum).min(1).optional(),
+    maxPrice: z.number().positive().optional(),
+    category: z.string().trim().min(1).optional(),
+    tags: z.array(z.string().trim().min(1)).min(1).optional(),
+    excludeAllergens: z.array(z.string().trim().min(1)).min(1).optional(),
+    dietaryPreferences: z.array(dietaryPreferenceEnum).min(1).optional(),
+    limit: z.number().int().positive().max(100).optional(),
+  })
+  .strict();
+
+const findStoresInputSchema = z
+  .object({
+    location: z.string().trim().min(1),
+    chains: z.array(chainEnum).min(1).optional(),
+    limit: z.number().int().positive().max(100).optional(),
+  })
+  .strict();
+
+const comparePricesInputSchema = z
+  .object({
+    query: z.string().trim().min(1),
+    chains: z.array(chainEnum).min(1).optional(),
+    maxPrice: z.number().positive().optional(),
+    quantity: z.number().positive().optional(),
+    limitPerChain: z.number().int().positive().max(50).optional(),
+  })
+  .strict();
+
+const availabilitySupportInputSchema = z
+  .object({
+    chains: z.array(chainEnum).min(1).optional(),
+  })
+  .strict();
+
+const lookupStoreAvailabilityInputSchema = z
+  .object({
+    chain: chainEnum,
+    storeId: z.string().trim().min(1),
+    query: z.string().trim().min(1),
+  })
+  .strict();
+
+const TOOL_NAMES = [
+  'search_products',
+  'find_stores',
+  'compare_prices',
+  'get_store_availability_support',
+  'lookup_store_product_availability',
+] as const;
+
+type ToolName = (typeof TOOL_NAMES)[number];
+
+export interface ToolDependencies {
+  searchService: SearchService;
+  priceComparisonService: PriceComparisonService;
+}
+
+function toolError(code: string, message: string): CallToolResult {
+  return {
+    isError: true,
+    content: [{ type: 'text', text: `${code}: ${message}` }],
+    structuredContent: { error: { code, message } },
+  };
+}
+
+function toolSuccess(payload: Record<string, unknown>): CallToolResult {
+  return {
+    content: [{ type: 'text', text: JSON.stringify(payload) }],
+    structuredContent: payload,
+  };
+}
+
+function getValidationErrorMessage(error: z.ZodError): string {
+  return error.issues
+    .map((issue) => {
+      const path = issue.path.length > 0 ? issue.path.join('.') : 'input';
+      return `${path}: ${issue.message}`;
+    })
+    .join('; ');
+}
+
+type ToolInputSchema = {
+  type: 'object';
+  properties?: Record<string, object>;
+  required?: string[];
+  additionalProperties?: boolean;
+  [key: string]: unknown;
+};
+
+function getInputSchemaForTool(name: ToolName): ToolInputSchema {
+  if (name === 'search_products') {
+    return {
+      type: 'object',
+      properties: {
+        query: { type: 'string', description: 'Product search query' },
+        chains: {
+          type: 'array',
+          items: { type: 'string', enum: CHAINS },
+          description: 'Restrict search to specific chains',
+        },
+        maxPrice: { type: 'number', description: 'Maximum product price in CHF' },
+        category: { type: 'string', description: 'Product category filter' },
+        tags: { type: 'array', items: { type: 'string' }, description: 'Required product tags' },
+        excludeAllergens: {
+          type: 'array',
+          items: { type: 'string' },
+          description: 'Exclude products with these allergens',
+        },
+        dietaryPreferences: {
+          type: 'array',
+          items: { type: 'string', enum: DIETARY_PREFERENCES },
+          description: 'Dietary preferences to match',
+        },
+        limit: { type: 'integer', minimum: 1, maximum: 100, description: 'Maximum returned products' },
+      },
+      required: ['query'],
+      additionalProperties: false,
+    };
+  }
+
+  if (name === 'find_stores') {
+    return {
+      type: 'object',
+      properties: {
+        location: { type: 'string', description: 'City, ZIP code, or location term' },
+        chains: {
+          type: 'array',
+          items: { type: 'string', enum: CHAINS },
+          description: 'Restrict store lookup to specific chains',
+        },
+        limit: { type: 'integer', minimum: 1, maximum: 100, description: 'Maximum returned stores' },
+      },
+      required: ['location'],
+      additionalProperties: false,
+    };
+  }
+
+  if (name === 'get_store_availability_support') {
+    return {
+      type: 'object',
+      properties: {
+        chains: {
+          type: 'array',
+          items: { type: 'string', enum: CHAINS },
+          description: 'Restrict support lookup to specific chains',
+        },
+      },
+      additionalProperties: false,
+    };
+  }
+
+  if (name === 'lookup_store_product_availability') {
+    return {
+      type: 'object',
+      properties: {
+        chain: { type: 'string', enum: CHAINS, description: 'Chain where the store belongs' },
+        storeId: { type: 'string', description: 'Store identifier from find_stores' },
+        query: { type: 'string', description: 'Product query to check for in the selected store' },
+      },
+      required: ['chain', 'storeId', 'query'],
+      additionalProperties: false,
+    };
+  }
+
+  return {
+    type: 'object',
+    properties: {
+      query: { type: 'string', description: 'Product query to compare between chains' },
+      chains: {
+        type: 'array',
+        items: { type: 'string', enum: CHAINS },
+        description: 'Restrict comparison to specific chains',
+      },
+      maxPrice: { type: 'number', description: 'Maximum product price in CHF' },
+      quantity: { type: 'number', minimum: 0.01, description: 'Requested quantity multiplier' },
+      limitPerChain: { type: 'integer', minimum: 1, maximum: 50, description: 'Candidates evaluated per chain' },
+    },
+    required: ['query'],
+    additionalProperties: false,
+  };
+}
+
+export function listTools(): ListToolsResult {
+  return {
+    tools: TOOL_NAMES.map((name) => ({
+      name,
+      description:
+        name === 'search_products'
+          ? 'Search for products across Swiss grocery chains'
+          : name === 'find_stores'
+            ? 'Find grocery stores by city, ZIP code, or location keywords'
+            : name === 'get_store_availability_support'
+              ? 'List store-level product availability support by chain'
+              : name === 'lookup_store_product_availability'
+                ? 'Check whether products matching a query are available in a specific store'
+             : 'Compare cross-chain prices for matching products',
+      inputSchema: getInputSchemaForTool(name),
+    })),
+  };
+}
+
+function isSupportedToolName(name: string): name is ToolName {
+  return (TOOL_NAMES as readonly string[]).includes(name);
+}
+
+export async function executeToolCall(
+  params: CallToolRequest['params'],
+  dependencies: ToolDependencies,
+): Promise<CallToolResult> {
+  if (!isSupportedToolName(params.name)) {
+    return toolError('UNKNOWN_TOOL', `Unknown tool: ${params.name}`);
+  }
+
+  if (params.name === 'search_products') {
+    const parsedInput = searchProductsInputSchema.safeParse(params.arguments ?? {});
+    if (!parsedInput.success) {
+      return toolError('INVALID_ARGUMENTS', getValidationErrorMessage(parsedInput.error));
+    }
+
+    const result = await dependencies.searchService.searchProducts(parsedInput.data);
+    if (!result.ok) {
+      return toolError(result.error.code, result.error.message ?? 'Product search failed.');
+    }
+    return toolSuccess({ products: result.data });
+  }
+
+  if (params.name === 'find_stores') {
+    const parsedInput = findStoresInputSchema.safeParse(params.arguments ?? {});
+    if (!parsedInput.success) {
+      return toolError('INVALID_ARGUMENTS', getValidationErrorMessage(parsedInput.error));
+    }
+
+    const result = await dependencies.searchService.findStores(parsedInput.data);
+    if (!result.ok) {
+      return toolError(result.error.code, result.error.message ?? 'Store search failed.');
+    }
+    return toolSuccess({ stores: result.data });
+  }
+
+  if (params.name === 'get_store_availability_support') {
+    const parsedInput = availabilitySupportInputSchema.safeParse(params.arguments ?? {});
+    if (!parsedInput.success) {
+      return toolError('INVALID_ARGUMENTS', getValidationErrorMessage(parsedInput.error));
+    }
+
+    const support = dependencies.searchService.getStoreAvailabilitySupport(parsedInput.data.chains);
+    return toolSuccess({ support });
+  }
+
+  if (params.name === 'lookup_store_product_availability') {
+    const parsedInput = lookupStoreAvailabilityInputSchema.safeParse(params.arguments ?? {});
+    if (!parsedInput.success) {
+      return toolError('INVALID_ARGUMENTS', getValidationErrorMessage(parsedInput.error));
+    }
+
+    const result = await dependencies.searchService.lookupStoreProductAvailability(parsedInput.data.chain, {
+      storeId: parsedInput.data.storeId,
+      query: parsedInput.data.query,
+    });
+    if (!result.ok) {
+      return toolError(result.error.code, result.error.message ?? 'Store product availability lookup failed.');
+    }
+    return toolSuccess({ availability: result.data });
+  }
+
+  const parsedInput = comparePricesInputSchema.safeParse(params.arguments ?? {});
+  if (!parsedInput.success) {
+    return toolError('INVALID_ARGUMENTS', getValidationErrorMessage(parsedInput.error));
+  }
+
+  const result = await dependencies.priceComparisonService.comparePrices(parsedInput.data);
+  if (!result.ok) {
+    return toolError(result.error.code, result.error.message ?? 'Price comparison failed.');
+  }
+  return toolSuccess({ comparison: result.data });
+}

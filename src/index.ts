@@ -3,45 +3,27 @@ import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import {
   CallToolRequestSchema,
-  ListToolsRequestSchema,
-  ListPromptsRequestSchema,
   GetPromptRequestSchema,
+  ListPromptsRequestSchema,
+  ListToolsRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
 
+import { createDefaultAdapters } from './adapters/index.js';
+import { PriceComparisonService } from './services/priceComparisonService.js';
+import { SearchService } from './services/searchService.js';
+import { executeToolCall, listTools } from './tools/handlers.js';
 import { logger } from './util/log.js';
 
 export async function createServer(): Promise<Server> {
+  const adapters = createDefaultAdapters();
+  const searchService = new SearchService(adapters);
+  const priceComparisonService = new PriceComparisonService(adapters);
   const server = new Server(
     { name: 'swiss-shopping-mcp', version: '0.1.0' },
     { capabilities: { tools: {}, prompts: {} } },
   );
 
-  server.setRequestHandler(ListToolsRequestSchema, async () => ({
-    tools: [
-      {
-        name: 'search_products',
-        description: 'Search for products across Swiss grocery chains',
-        inputSchema: {
-          type: 'object',
-          properties: {
-            query: { type: 'string', description: 'Product search query' },
-          },
-          required: ['query'],
-        },
-      },
-      {
-        name: 'find_stores',
-        description: 'Find grocery stores by location',
-        inputSchema: {
-          type: 'object',
-          properties: {
-            location: { type: 'string', description: 'ZIP code or city name' },
-          },
-          required: ['location'],
-        },
-      },
-    ],
-  }));
+  server.setRequestHandler(ListToolsRequestSchema, async () => listTools());
 
   server.setRequestHandler(ListPromptsRequestSchema, async () => ({
     prompts: [],
@@ -51,9 +33,9 @@ export async function createServer(): Promise<Server> {
     throw new Error(`Unknown prompt: ${req.params.name}`);
   });
 
-  server.setRequestHandler(CallToolRequestSchema, async (req) => {
-    throw new Error(`Unknown tool: ${req.params.name}`);
-  });
+  server.setRequestHandler(CallToolRequestSchema, async (req) =>
+    executeToolCall(req.params, { searchService, priceComparisonService }),
+  );
 
   return server;
 }
@@ -81,7 +63,9 @@ async function main(): Promise<void> {
   process.on('SIGTERM', () => shutdown('SIGTERM'));
 }
 
-main().catch((e) => {
-  logger.error('Fatal error:', e);
-  process.exit(1);
-});
+if (import.meta.url === `file://${process.argv[1]}`) {
+  main().catch((e) => {
+    logger.error('Fatal error:', e);
+    process.exit(1);
+  });
+}
