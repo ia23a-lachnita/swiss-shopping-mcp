@@ -1,70 +1,27 @@
-# Copilot CLI Configuration for swiss-shopping-mcp
+# Repository-wide Copilot Instructions
 
-## Setup Instructions
+Follow `CLAUDE.md` first, then `docs/active/IMPLEMENTATION_TRACKER.md`.
 
-This project requires additional MCPs and plugins for full functionality.
+## Scope rules
 
-### 1. Add MCP Servers
+- Build swiss-shopping-mcp as a TypeScript MCP server for Swiss shopping discovery/comparison.
+- Keep implementation focused on adapters, normalization, search/comparison tools, and tests.
+- Do not introduce unrelated infrastructure (mobile automation, firebase ops, unrelated account MCPs) unless explicitly requested.
 
-Run these commands from within a Copilot CLI interactive session:
+## Implementation rules
 
-```bash
-/mcp add
-```
+- Preserve strict typing and explicit domain contracts.
+- Reuse `src/adapters/types.ts` shared models.
+- Keep tool schemas explicit and version-safe.
+- Propagate meaningful errors; do not swallow them.
+- Add tests with any behavior change.
 
-Then add the following servers:
+## Validation rules
 
-- **swiss-shopping-mcp** (Local/STDIO)
-  - Command: `node dist/index.js`
-  - Environment: `{"LOG_LEVEL": "info"}`
-  - Tools: `*`
-
-- **gemini-cli** (Local/STDIO)
-  - Command: `gemini-cli`
-  - Tools: `*`
-
-- **mobile-mcp** (Local/STDIO)
-  - Command: `mobile-mcp`
-  - Tools: `*`
-
-Or copy the `.github/mcp-config.json` to `~/.copilot/mcp-config.json` and merge with existing MCPs.
-
-### 2. Install Plugins
+Before closing a task, run:
 
 ```bash
-/plugin install claude-mem context-mode context7 firebase superpowers token-optimizer caveman
+pnpm lint
+pnpm test
+pnpm build
 ```
-
-### 3. Verify Setup
-
-```bash
-/env
-/mcp show
-/plugin list
-```
-
-## Development Guidelines
-
-- Use TypeScript strict mode
-- Run tests: `! pnpm test`
-- Format code: `! pnpm format`
-- Lint: `! pnpm lint`
-- Build: `! pnpm build`
-
-## Architecture Overview
-
-See `CLAUDE.md` and `.claude/PLAN.md` for complete documentation.
-
-**Key Points:**
-- Adapter pattern for multi-chain support (Migros, Coop, Aldi, Denner, Lidl, Farmy, Volg, Otto's)
-- Normalized types across all chains
-- Account integration planned for V2
-- 80%+ test coverage target
-
-## Code Standards
-
-- TypeScript strict mode required
-- All public types fully typed
-- Tests required for new features
-- Comments only for non-obvious logic
-- Follow existing patterns in `src/adapters/`

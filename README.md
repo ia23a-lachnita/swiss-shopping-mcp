@@ -2,6 +2,18 @@
 
 An advanced Model Context Protocol (MCP) server for Swiss grocery and retail shopping with multi-chain price comparison, smart purchasing strategies, and optional account integration.
 
+## Requirements
+
+- Node.js 20+
+- pnpm 9+
+- Copilot CLI (for development workflow)
+
+### Recommended Copilot development MCPs
+
+- context7
+- context-mode
+- gemini-cli (optional reviewer)
+
 ## Features
 
 ### V1 (Enhanced swissgroceries-mcp)
@@ -27,7 +39,7 @@ An advanced Model Context Protocol (MCP) server for Swiss grocery and retail sho
 ## Installation
 
 ### Prerequisites
-- Node.js 18+
+- Node.js 20+
 - pnpm (or npm/yarn)
 
 ### Setup

@@ -1,25 +1,23 @@
 {
   "mcpServers": {
-    "swiss-shopping-mcp": {
+    "context7": {
       "type": "local",
-      "command": "node",
-      "args": ["dist/index.js"],
-      "env": {
-        "LOG_LEVEL": "info"
-      },
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp"],
+      "env": {},
+      "tools": ["*"]
+    },
+    "context-mode": {
+      "type": "local",
+      "command": "npx",
+      "args": ["-y", "context-mode"],
+      "env": {},
       "tools": ["*"]
     },
     "gemini-cli": {
       "type": "local",
-      "command": "gemini-cli",
-      "args": [],
-      "env": {},
-      "tools": ["*"]
-    },
-    "mobile-mcp": {
-      "type": "local",
-      "command": "mobile-mcp",
-      "args": [],
+      "command": "npx",
+      "args": ["-y", "gemini-mcp-tool"],
       "env": {},
       "tools": ["*"]
     }
