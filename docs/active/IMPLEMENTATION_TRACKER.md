@@ -20,7 +20,7 @@ Phase: `V1 - core read/search foundation`
 | Domain types | done | `src/adapters/types.ts` established |
 | Adapter implementations | done | Static multi-chain adapters implemented for all V1 chains |
 | Tool implementations | done | `search_products`, `find_stores`, `compare_prices` wired to service layer |
-| Test baseline | done | Adapter, service, and tool handler tests cover success/edge/error paths |
+| Test baseline | done | Adapter/service/tool-handler tests cover success/edge/error paths; MCP client↔server integration tests verify end-to-end tool retrieval over transport |
 | Store availability lookup | done | Added `get_store_availability_support` and `lookup_store_product_availability`; currently only Migros has static per-store availability in V1 adapters |
 | Copilot instruction architecture | done | Root and `.github` instruction files realigned |
 
