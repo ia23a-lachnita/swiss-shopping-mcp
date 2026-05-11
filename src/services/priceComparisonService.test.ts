@@ -7,11 +7,11 @@ describe('PriceComparisonService', () => {
   const service = new PriceComparisonService(createDefaultAdapters());
 
   it('compares prices across chains and computes savings', async () => {
-    const result = await service.comparePrices({ query: 'pasta', quantity: 2 });
+    const result = await service.comparePrices({ query: 'pantry', quantity: 2 });
 
     expect(result.ok).toBe(true);
     if (result.ok) {
-      expect(result.data.offers.length).toBeGreaterThanOrEqual(3);
+      expect(result.data.offers.length).toBeGreaterThanOrEqual(5);
       expect(result.data.cheapestOffer?.chain).toBe('ottos');
       expect(result.data.cheapestOffer?.totalPrice).toBe(2);
       expect(result.data.savingsVsMostExpensive).toBeGreaterThan(0);

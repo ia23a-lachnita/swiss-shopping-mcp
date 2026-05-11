@@ -31,7 +31,7 @@ describe('tool handlers', () => {
 
   it('executes search_products successfully', async () => {
     const result = await executeToolCall(
-      { name: 'search_products', arguments: { query: 'pasta', limit: 2 } },
+      { name: 'search_products', arguments: { query: 'pantry', limit: 2 } },
       dependencies,
     );
 

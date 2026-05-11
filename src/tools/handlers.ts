@@ -5,8 +5,8 @@ import { Chain, DietaryPreference } from '../adapters/types.js';
 import { PriceComparisonService } from '../services/priceComparisonService.js';
 import { SearchService } from '../services/searchService.js';
 
-const CHAINS: Chain[] = ['migros', 'coop', 'aldi', 'denner', 'lidl', 'farmy', 'volg', 'ottos'];
-const DIETARY_PREFERENCES: DietaryPreference[] = ['vegan', 'vegetarian', 'gluten-free'];
+const CHAINS = ['migros', 'coop', 'aldi', 'denner', 'lidl', 'farmy', 'volg', 'ottos'] as const satisfies readonly Chain[];
+const DIETARY_PREFERENCES = ['vegan', 'vegetarian', 'gluten-free'] as const satisfies readonly DietaryPreference[];
 
 const chainEnum = z.enum(CHAINS);
 const dietaryPreferenceEnum = z.enum(DIETARY_PREFERENCES);
@@ -42,13 +42,9 @@ const comparePricesInputSchema = z
   })
   .strict();
 
-const toolSchemas = {
-  search_products: searchProductsInputSchema,
-  find_stores: findStoresInputSchema,
-  compare_prices: comparePricesInputSchema,
-} as const;
+const TOOL_NAMES = ['search_products', 'find_stores', 'compare_prices'] as const;
 
-type ToolName = keyof typeof toolSchemas;
+type ToolName = (typeof TOOL_NAMES)[number];
 
 export interface ToolDependencies {
   searchService: SearchService;
@@ -79,7 +75,15 @@ function getValidationErrorMessage(error: z.ZodError): string {
     .join('; ');
 }
 
-function getInputSchemaForTool(name: ToolName): Record<string, unknown> {
+type ToolInputSchema = {
+  type: 'object';
+  properties?: Record<string, object>;
+  required?: string[];
+  additionalProperties?: boolean;
+  [key: string]: unknown;
+};
+
+function getInputSchemaForTool(name: ToolName): ToolInputSchema {
   if (name === 'search_products') {
     return {
       type: 'object',
@@ -147,7 +151,7 @@ function getInputSchemaForTool(name: ToolName): Record<string, unknown> {
 
 export function listTools(): ListToolsResult {
   return {
-    tools: (Object.keys(toolSchemas) as ToolName[]).map((name) => ({
+    tools: TOOL_NAMES.map((name) => ({
       name,
       description:
         name === 'search_products'
@@ -161,7 +165,7 @@ export function listTools(): ListToolsResult {
 }
 
 function isSupportedToolName(name: string): name is ToolName {
-  return name in toolSchemas;
+  return (TOOL_NAMES as readonly string[]).includes(name);
 }
 
 export async function executeToolCall(
@@ -172,13 +176,12 @@ export async function executeToolCall(
     return toolError('UNKNOWN_TOOL', `Unknown tool: ${params.name}`);
   }
 
-  const parser = toolSchemas[params.name];
-  const parsedInput = parser.safeParse(params.arguments ?? {});
-  if (!parsedInput.success) {
-    return toolError('INVALID_ARGUMENTS', getValidationErrorMessage(parsedInput.error));
-  }
-
   if (params.name === 'search_products') {
+    const parsedInput = searchProductsInputSchema.safeParse(params.arguments ?? {});
+    if (!parsedInput.success) {
+      return toolError('INVALID_ARGUMENTS', getValidationErrorMessage(parsedInput.error));
+    }
+
     const result = await dependencies.searchService.searchProducts(parsedInput.data);
     if (!result.ok) {
       return toolError(result.error.code, result.error.message ?? 'Product search failed.');
@@ -187,11 +190,21 @@ export async function executeToolCall(
   }
 
   if (params.name === 'find_stores') {
+    const parsedInput = findStoresInputSchema.safeParse(params.arguments ?? {});
+    if (!parsedInput.success) {
+      return toolError('INVALID_ARGUMENTS', getValidationErrorMessage(parsedInput.error));
+    }
+
     const result = await dependencies.searchService.findStores(parsedInput.data);
     if (!result.ok) {
       return toolError(result.error.code, result.error.message ?? 'Store search failed.');
     }
     return toolSuccess({ stores: result.data });
+  }
+
+  const parsedInput = comparePricesInputSchema.safeParse(params.arguments ?? {});
+  if (!parsedInput.success) {
+    return toolError('INVALID_ARGUMENTS', getValidationErrorMessage(parsedInput.error));
   }
 
   const result = await dependencies.priceComparisonService.comparePrices(parsedInput.data);

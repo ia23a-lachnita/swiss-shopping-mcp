@@ -7,13 +7,13 @@ describe('SearchService', () => {
   const service = new SearchService(createDefaultAdapters());
 
   it('searches across chains and returns price-sorted products', async () => {
-    const result = await service.searchProducts({ query: 'pasta' });
+    const result = await service.searchProducts({ query: 'pantry' });
 
     expect(result.ok).toBe(true);
     if (result.ok) {
-      expect(result.data.length).toBeGreaterThanOrEqual(3);
+      expect(result.data.length).toBeGreaterThanOrEqual(5);
       expect(result.data[0].chain).toBe('ottos');
-      expect(result.data[1].chain).toBe('denner');
+      expect(result.data[1].chain).toBe('lidl');
     }
   });
 
