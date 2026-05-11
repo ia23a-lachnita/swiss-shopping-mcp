@@ -4,8 +4,12 @@ import {
   ChainCatalogData,
   NormalizedProduct,
   NormalizedStore,
+  ProductAvailabilityMatch,
   ProductSearchFilters,
   Result,
+  StoreAvailabilitySupport,
+  StoreProductAvailabilityFilters,
+  StoreProductAvailabilityResult,
   StoreSearchFilters,
 } from './types.js';
 
@@ -25,6 +29,45 @@ function sortProducts(a: NormalizedProduct, b: NormalizedProduct): number {
   }
   return a.name.localeCompare(b.name);
 }
+
+const STORE_AVAILABILITY_SUPPORT_BY_CHAIN: Record<Chain, StoreAvailabilitySupport> = {
+  migros: { chain: 'migros', supported: true },
+  coop: {
+    chain: 'coop',
+    supported: false,
+    reason: 'Store-level product availability is not exposed in this chain adapter.',
+  },
+  aldi: {
+    chain: 'aldi',
+    supported: false,
+    reason: 'Store-level product availability is not exposed in this chain adapter.',
+  },
+  denner: {
+    chain: 'denner',
+    supported: false,
+    reason: 'Store-level product availability is not exposed in this chain adapter.',
+  },
+  lidl: {
+    chain: 'lidl',
+    supported: false,
+    reason: 'Store-level product availability is not exposed in this chain adapter.',
+  },
+  farmy: {
+    chain: 'farmy',
+    supported: false,
+    reason: 'Store-level product availability is not exposed in this chain adapter.',
+  },
+  volg: {
+    chain: 'volg',
+    supported: false,
+    reason: 'Store-level product availability is not exposed in this chain adapter.',
+  },
+  ottos: {
+    chain: 'ottos',
+    supported: false,
+    reason: 'Store-level product availability is not exposed in this chain adapter.',
+  },
+};
 
 export class StaticChainAdapter implements ChainAdapter {
   public readonly chain: Chain;
@@ -115,5 +158,78 @@ export class StaticChainAdapter implements ChainAdapter {
     }
 
     return { ok: true, data: matchingStores };
+  }
+
+  public getStoreAvailabilitySupport(): StoreAvailabilitySupport {
+    return STORE_AVAILABILITY_SUPPORT_BY_CHAIN[this.chain];
+  }
+
+  public async lookupStoreProductAvailability(
+    filters: StoreProductAvailabilityFilters,
+  ): Promise<Result<StoreProductAvailabilityResult>> {
+    const query = filters.query.trim();
+    if (!query) {
+      return { ok: false, error: { code: 'INVALID_QUERY', message: 'Query must be a non-empty string.' } };
+    }
+
+    const storeId = filters.storeId.trim();
+    if (!storeId) {
+      return { ok: false, error: { code: 'INVALID_STORE_ID', message: 'Store ID must be a non-empty string.' } };
+    }
+
+    const store = this.catalog.stores.find((candidate) => candidate.id === storeId);
+    if (!store) {
+      return {
+        ok: false,
+        error: { code: 'STORE_NOT_FOUND', message: `Store not found for chain ${this.chain}: ${storeId}` },
+      };
+    }
+
+    const support = this.getStoreAvailabilitySupport();
+    if (!support.supported) {
+      return {
+        ok: true,
+        data: {
+          chain: this.chain,
+          storeId,
+          query,
+          supported: false,
+          reason: support.reason,
+          matches: [],
+          isAvailable: false,
+        },
+      };
+    }
+
+    const inventory = new Set(this.catalog.storeInventory?.[storeId] ?? []);
+    const matches: ProductAvailabilityMatch[] = this.catalog.products
+      .filter((product) => {
+        const searchable = [
+          product.name,
+          product.brand ?? '',
+          product.category ?? '',
+          ...(product.tags ?? []),
+        ]
+          .join(' ')
+          .toLowerCase();
+        return includesAllTokens(searchable, query);
+      })
+      .sort(sortProducts)
+      .map((product) => ({
+        product,
+        available: inventory.has(product.id),
+      }));
+
+    return {
+      ok: true,
+      data: {
+        chain: this.chain,
+        storeId,
+        query,
+        supported: true,
+        matches,
+        isAvailable: matches.some((match) => match.available),
+      },
+    };
   }
 }

@@ -23,6 +23,7 @@ An advanced Model Context Protocol (MCP) server for Swiss grocery and retail sho
 - **Nutrition filtering**: Standardized nutrition data across chains
 - **Allergen & dietary**: Vegan, vegetarian, gluten-free, and more
 - **Store locator**: Find nearby stores with opening hours
+- **Store product availability**: Query product availability for a specific store (currently supported for Migros in this adapter set; other chains report explicit unsupported status)
 
 ### V2 (Account Integration)
 - **Authenticated cart**: Add/remove items from multiple store baskets

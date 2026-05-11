@@ -1,9 +1,13 @@
 import {
+  Chain,
   ChainAdapter,
   NormalizedProduct,
   NormalizedStore,
   ProductSearchFilters,
   Result,
+  StoreAvailabilitySupport,
+  StoreProductAvailabilityFilters,
+  StoreProductAvailabilityResult,
   StoreSearchFilters,
 } from '../adapters/types.js';
 
@@ -84,5 +88,25 @@ export class SearchService {
     }
 
     return { ok: true, data: stores };
+  }
+
+  public getStoreAvailabilitySupport(chains?: Chain[]): StoreAvailabilitySupport[] {
+    const requestedChains = new Set(chains ?? this.adapters.map((adapter) => adapter.chain));
+    return this.adapters
+      .filter((adapter) => requestedChains.has(adapter.chain))
+      .map((adapter) => adapter.getStoreAvailabilitySupport())
+      .sort((a, b) => a.chain.localeCompare(b.chain));
+  }
+
+  public async lookupStoreProductAvailability(
+    chain: Chain,
+    filters: StoreProductAvailabilityFilters,
+  ): Promise<Result<StoreProductAvailabilityResult>> {
+    const adapter = this.adapters.find((candidate) => candidate.chain === chain);
+    if (!adapter) {
+      return { ok: false, error: { code: 'CHAIN_NOT_SUPPORTED', message: `Unsupported chain: ${chain}` } };
+    }
+
+    return adapter.lookupStoreProductAvailability(filters);
   }
 }

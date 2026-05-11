@@ -36,6 +36,9 @@ export const STATIC_CHAIN_CATALOG: Record<Chain, ChainCatalogData> = {
         openingHours: 'Mon-Sat 07:00-22:00',
       },
     ],
+    storeInventory: {
+      'migros-zurich-1': ['migros-milk-1l'],
+    },
   },
   coop: {
     products: [

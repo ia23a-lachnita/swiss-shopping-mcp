@@ -42,7 +42,27 @@ const comparePricesInputSchema = z
   })
   .strict();
 
-const TOOL_NAMES = ['search_products', 'find_stores', 'compare_prices'] as const;
+const availabilitySupportInputSchema = z
+  .object({
+    chains: z.array(chainEnum).min(1).optional(),
+  })
+  .strict();
+
+const lookupStoreAvailabilityInputSchema = z
+  .object({
+    chain: chainEnum,
+    storeId: z.string().trim().min(1),
+    query: z.string().trim().min(1),
+  })
+  .strict();
+
+const TOOL_NAMES = [
+  'search_products',
+  'find_stores',
+  'compare_prices',
+  'get_store_availability_support',
+  'lookup_store_product_availability',
+] as const;
 
 type ToolName = (typeof TOOL_NAMES)[number];
 
@@ -131,6 +151,33 @@ function getInputSchemaForTool(name: ToolName): ToolInputSchema {
     };
   }
 
+  if (name === 'get_store_availability_support') {
+    return {
+      type: 'object',
+      properties: {
+        chains: {
+          type: 'array',
+          items: { type: 'string', enum: CHAINS },
+          description: 'Restrict support lookup to specific chains',
+        },
+      },
+      additionalProperties: false,
+    };
+  }
+
+  if (name === 'lookup_store_product_availability') {
+    return {
+      type: 'object',
+      properties: {
+        chain: { type: 'string', enum: CHAINS, description: 'Chain where the store belongs' },
+        storeId: { type: 'string', description: 'Store identifier from find_stores' },
+        query: { type: 'string', description: 'Product query to check for in the selected store' },
+      },
+      required: ['chain', 'storeId', 'query'],
+      additionalProperties: false,
+    };
+  }
+
   return {
     type: 'object',
     properties: {
@@ -158,7 +205,11 @@ export function listTools(): ListToolsResult {
           ? 'Search for products across Swiss grocery chains'
           : name === 'find_stores'
             ? 'Find grocery stores by city, ZIP code, or location keywords'
-            : 'Compare cross-chain prices for matching products',
+            : name === 'get_store_availability_support'
+              ? 'List store-level product availability support by chain'
+              : name === 'lookup_store_product_availability'
+                ? 'Check whether products matching a query are available in a specific store'
+             : 'Compare cross-chain prices for matching products',
       inputSchema: getInputSchemaForTool(name),
     })),
   };
@@ -200,6 +251,32 @@ export async function executeToolCall(
       return toolError(result.error.code, result.error.message ?? 'Store search failed.');
     }
     return toolSuccess({ stores: result.data });
+  }
+
+  if (params.name === 'get_store_availability_support') {
+    const parsedInput = availabilitySupportInputSchema.safeParse(params.arguments ?? {});
+    if (!parsedInput.success) {
+      return toolError('INVALID_ARGUMENTS', getValidationErrorMessage(parsedInput.error));
+    }
+
+    const support = dependencies.searchService.getStoreAvailabilitySupport(parsedInput.data.chains);
+    return toolSuccess({ support });
+  }
+
+  if (params.name === 'lookup_store_product_availability') {
+    const parsedInput = lookupStoreAvailabilityInputSchema.safeParse(params.arguments ?? {});
+    if (!parsedInput.success) {
+      return toolError('INVALID_ARGUMENTS', getValidationErrorMessage(parsedInput.error));
+    }
+
+    const result = await dependencies.searchService.lookupStoreProductAvailability(parsedInput.data.chain, {
+      storeId: parsedInput.data.storeId,
+      query: parsedInput.data.query,
+    });
+    if (!result.ok) {
+      return toolError(result.error.code, result.error.message ?? 'Store product availability lookup failed.');
+    }
+    return toolSuccess({ availability: result.data });
   }
 
   const parsedInput = comparePricesInputSchema.safeParse(params.arguments ?? {});

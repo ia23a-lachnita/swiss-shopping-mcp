@@ -21,11 +21,12 @@ Phase: `V1 - core read/search foundation`
 | Adapter implementations | done | Static multi-chain adapters implemented for all V1 chains |
 | Tool implementations | done | `search_products`, `find_stores`, `compare_prices` wired to service layer |
 | Test baseline | done | Adapter, service, and tool handler tests cover success/edge/error paths |
+| Store availability lookup | done | Added `get_store_availability_support` and `lookup_store_product_availability`; currently only Migros has static per-store availability in V1 adapters |
 | Copilot instruction architecture | done | Root and `.github` instruction files realigned |
 
 ## Next tasks
 
-1. Expand static catalogs with real upstream adapter integrations per chain
+1. Expand static catalogs with real upstream per-store availability integrations for non-Migros chains
 2. Add normalized promotion ingestion and promotion-aware comparison
 3. Add richer store geospatial filtering (distance/radius)
 4. Prepare V2 account/cart integration foundation

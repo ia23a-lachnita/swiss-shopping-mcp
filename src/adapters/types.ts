@@ -83,15 +83,44 @@ export interface PriceComparisonFilters {
   limitPerChain?: number;
 }
 
+export interface StoreAvailabilitySupport {
+  chain: Chain;
+  supported: boolean;
+  reason?: string;
+}
+
+export interface StoreProductAvailabilityFilters {
+  query: string;
+  storeId: string;
+}
+
+export interface ProductAvailabilityMatch {
+  product: NormalizedProduct;
+  available: boolean;
+}
+
+export interface StoreProductAvailabilityResult {
+  chain: Chain;
+  storeId: string;
+  query: string;
+  supported: boolean;
+  reason?: string;
+  matches: ProductAvailabilityMatch[];
+  isAvailable: boolean;
+}
+
 export interface ChainCatalogData {
   products: NormalizedProduct[];
   stores: NormalizedStore[];
+  storeInventory?: Record<string, string[]>;
 }
 
 export interface ChainAdapter {
   chain: Chain;
   searchProducts(filters: ProductSearchFilters): Promise<Result<NormalizedProduct[]>>;
   findStores(filters: StoreSearchFilters): Promise<Result<NormalizedStore[]>>;
+  getStoreAvailabilitySupport(): StoreAvailabilitySupport;
+  lookupStoreProductAvailability(filters: StoreProductAvailabilityFilters): Promise<Result<StoreProductAvailabilityResult>>;
 }
 
 export type Result<T> =

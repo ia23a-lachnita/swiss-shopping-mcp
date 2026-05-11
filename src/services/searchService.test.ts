@@ -53,4 +53,50 @@ describe('SearchService', () => {
       expect(result.error.code).toBe('INVALID_LOCATION');
     }
   });
+
+  it('lists store availability support across chains', () => {
+    const result = service.getStoreAvailabilitySupport(['migros', 'coop']);
+    expect(result).toEqual([
+      { chain: 'coop', supported: false, reason: expect.any(String) },
+      { chain: 'migros', supported: true },
+    ]);
+  });
+
+  it('looks up product availability for a specific store', async () => {
+    const result = await service.lookupStoreProductAvailability('migros', {
+      storeId: 'migros-zurich-1',
+      query: 'milk',
+    });
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data.supported).toBe(true);
+      expect(result.data.isAvailable).toBe(true);
+    }
+  });
+
+  it('returns unsupported availability metadata for chains without stock support', async () => {
+    const result = await service.lookupStoreProductAvailability('coop', {
+      storeId: 'coop-basel-1',
+      query: 'milk',
+    });
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data.supported).toBe(false);
+      expect(result.data.reason).toBeTruthy();
+    }
+  });
+
+  it('returns explicit error for missing store in availability lookup', async () => {
+    const result = await service.lookupStoreProductAvailability('migros', {
+      storeId: 'missing-store',
+      query: 'milk',
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error.code).toBe('STORE_NOT_FOUND');
+    }
+  });
 });

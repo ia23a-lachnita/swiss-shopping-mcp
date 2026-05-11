@@ -16,6 +16,8 @@ describe('tool handlers', () => {
       'search_products',
       'find_stores',
       'compare_prices',
+      'get_store_availability_support',
+      'lookup_store_product_availability',
     ]);
   });
 
@@ -63,5 +65,55 @@ describe('tool handlers', () => {
     };
     expect(structured.comparison.offers.length).toBeGreaterThan(0);
     expect(structured.comparison.cheapestOffer?.chain).toBe('migros');
+  });
+
+  it('executes get_store_availability_support successfully', async () => {
+    const result = await executeToolCall(
+      { name: 'get_store_availability_support', arguments: { chains: ['migros', 'coop'] } },
+      dependencies,
+    );
+
+    expect(result.isError).not.toBe(true);
+    const structured = result.structuredContent as { support: Array<{ chain: string; supported: boolean }> };
+    expect(structured.support).toEqual([
+      { chain: 'coop', supported: false, reason: expect.any(String) },
+      { chain: 'migros', supported: true },
+    ]);
+  });
+
+  it('executes lookup_store_product_availability successfully', async () => {
+    const result = await executeToolCall(
+      {
+        name: 'lookup_store_product_availability',
+        arguments: { chain: 'migros', storeId: 'migros-zurich-1', query: 'milk' },
+      },
+      dependencies,
+    );
+
+    expect(result.isError).not.toBe(true);
+    const structured = result.structuredContent as {
+      availability: { chain: string; supported: boolean; isAvailable: boolean };
+    };
+    expect(structured.availability.chain).toBe('migros');
+    expect(structured.availability.supported).toBe(true);
+    expect(structured.availability.isAvailable).toBe(true);
+  });
+
+  it('returns unsupported availability response for chains without store stock support', async () => {
+    const result = await executeToolCall(
+      {
+        name: 'lookup_store_product_availability',
+        arguments: { chain: 'coop', storeId: 'coop-basel-1', query: 'milk' },
+      },
+      dependencies,
+    );
+
+    expect(result.isError).not.toBe(true);
+    const structured = result.structuredContent as {
+      availability: { supported: boolean; isAvailable: boolean; reason?: string };
+    };
+    expect(structured.availability.supported).toBe(false);
+    expect(structured.availability.isAvailable).toBe(false);
+    expect(structured.availability.reason).toBeTruthy();
   });
 });
