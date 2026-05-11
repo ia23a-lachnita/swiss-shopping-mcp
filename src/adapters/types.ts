@@ -1,4 +1,5 @@
 export type Chain = 'migros' | 'coop' | 'aldi' | 'denner' | 'lidl' | 'farmy' | 'volg' | 'ottos';
+export type DietaryPreference = 'vegan' | 'vegetarian' | 'gluten-free';
 
 export interface GeoPoint {
   latitude: number;
@@ -55,6 +56,42 @@ export interface NormalizedPromotion {
   validFrom: Date;
   validUntil: Date;
   applicableStores?: string[];
+}
+
+export interface ProductSearchFilters {
+  query: string;
+  chains?: Chain[];
+  maxPrice?: number;
+  category?: string;
+  tags?: string[];
+  excludeAllergens?: string[];
+  dietaryPreferences?: DietaryPreference[];
+  limit?: number;
+}
+
+export interface StoreSearchFilters {
+  location: string;
+  chains?: Chain[];
+  limit?: number;
+}
+
+export interface PriceComparisonFilters {
+  query: string;
+  chains?: Chain[];
+  maxPrice?: number;
+  quantity?: number;
+  limitPerChain?: number;
+}
+
+export interface ChainCatalogData {
+  products: NormalizedProduct[];
+  stores: NormalizedStore[];
+}
+
+export interface ChainAdapter {
+  chain: Chain;
+  searchProducts(filters: ProductSearchFilters): Promise<Result<NormalizedProduct[]>>;
+  findStores(filters: StoreSearchFilters): Promise<Result<NormalizedStore[]>>;
 }
 
 export type Result<T> =
