@@ -18,6 +18,7 @@ export async function createServer(): Promise<Server> {
   const adapters = createDefaultAdapters();
   const searchService = new SearchService(adapters);
   const priceComparisonService = new PriceComparisonService(adapters);
+
   const server = new Server(
     { name: 'swiss-shopping-mcp', version: '0.1.0' },
     { capabilities: { tools: {}, prompts: {} } },
@@ -25,9 +26,7 @@ export async function createServer(): Promise<Server> {
 
   server.setRequestHandler(ListToolsRequestSchema, async () => listTools());
 
-  server.setRequestHandler(ListPromptsRequestSchema, async () => ({
-    prompts: [],
-  }));
+  server.setRequestHandler(ListPromptsRequestSchema, async () => ({ prompts: [] }));
 
   server.setRequestHandler(GetPromptRequestSchema, async (req) => {
     throw new Error(`Unknown prompt: ${req.params.name}`);
