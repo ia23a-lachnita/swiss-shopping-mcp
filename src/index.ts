@@ -8,6 +8,8 @@ import {
   ListToolsRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
 
+import { fileURLToPath } from 'url';
+
 import { createDefaultAdapters } from './adapters/index.js';
 import { PriceComparisonService } from './services/priceComparisonService.js';
 import { SearchService } from './services/searchService.js';
@@ -62,7 +64,7 @@ async function main(): Promise<void> {
   process.on('SIGTERM', () => shutdown('SIGTERM'));
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] !== undefined && fileURLToPath(import.meta.url) === process.argv[1]) {
   main().catch((e) => {
     logger.error('Fatal error:', e);
     process.exit(1);
