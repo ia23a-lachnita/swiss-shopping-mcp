@@ -10,6 +10,8 @@ const DIETARY_PREFERENCES = ['vegan', 'vegetarian', 'gluten-free'] as const sati
 
 const chainEnum = z.enum(CHAINS);
 const dietaryPreferenceEnum = z.enum(DIETARY_PREFERENCES);
+const matchModeEnum = z.enum(['balanced', 'literal']);
+const comparisonBasisEnum = z.enum(['packPrice', 'unitPrice']);
 
 const searchProductsInputSchema = z
   .object({
@@ -21,6 +23,7 @@ const searchProductsInputSchema = z
     excludeAllergens: z.array(z.string().trim().min(1)).min(1).optional(),
     dietaryPreferences: z.array(dietaryPreferenceEnum).min(1).optional(),
     limit: z.number().int().positive().max(100).optional(),
+    matchMode: matchModeEnum.optional(),
   })
   .strict();
 
@@ -39,6 +42,8 @@ const comparePricesInputSchema = z
     maxPrice: z.number().positive().optional(),
     quantity: z.number().positive().optional(),
     limitPerChain: z.number().int().positive().max(50).optional(),
+    comparisonBasis: comparisonBasisEnum.optional(),
+    matchMode: matchModeEnum.optional(),
   })
   .strict();
 
@@ -53,6 +58,7 @@ const lookupStoreAvailabilityInputSchema = z
     chain: chainEnum,
     storeId: z.string().trim().min(1),
     query: z.string().trim().min(1),
+    matchMode: matchModeEnum.optional(),
   })
   .strict();
 
@@ -128,6 +134,11 @@ function getInputSchemaForTool(name: ToolName): ToolInputSchema {
           description: 'Dietary preferences to match',
         },
         limit: { type: 'integer', minimum: 1, maximum: 100, description: 'Maximum returned products' },
+        matchMode: {
+          type: 'string',
+          enum: ['balanced', 'literal'],
+          description: "Matching strategy: 'balanced' (default) allows generic-to-specific aliases like pasta -> penne; 'literal' enforces exact token matching.",
+        },
       },
       required: ['query'],
       additionalProperties: false,
@@ -172,6 +183,11 @@ function getInputSchemaForTool(name: ToolName): ToolInputSchema {
         chain: { type: 'string', enum: CHAINS, description: 'Chain where the store belongs' },
         storeId: { type: 'string', description: 'Store identifier from find_stores' },
         query: { type: 'string', description: 'Product query to check for in the selected store' },
+        matchMode: {
+          type: 'string',
+          enum: ['balanced', 'literal'],
+          description: "Matching strategy: 'balanced' (default) allows generic-to-specific aliases; 'literal' enforces exact token matching.",
+        },
       },
       required: ['chain', 'storeId', 'query'],
       additionalProperties: false,
@@ -189,7 +205,22 @@ function getInputSchemaForTool(name: ToolName): ToolInputSchema {
       },
       maxPrice: { type: 'number', description: 'Maximum product price in CHF' },
       quantity: { type: 'number', minimum: 0.01, description: 'Requested quantity multiplier' },
-      limitPerChain: { type: 'integer', minimum: 1, maximum: 50, description: 'Candidates evaluated per chain' },
+      limitPerChain: {
+        type: 'integer',
+        minimum: 1,
+        maximum: 50,
+        description: 'Number of candidates evaluated and returned per chain (default 1). Increasing this reveals alternative products.',
+      },
+      comparisonBasis: {
+        type: 'string',
+        enum: ['packPrice', 'unitPrice'],
+        description: "Whether to rank by 'packPrice' (total price for the product, default) or 'unitPrice' (price per kg/l/piece).",
+      },
+      matchMode: {
+        type: 'string',
+        enum: ['balanced', 'literal'],
+        description: "Matching strategy: 'balanced' (default) allows generic-to-specific aliases; 'literal' enforces exact token matching.",
+      },
     },
     required: ['query'],
     additionalProperties: false,
@@ -272,6 +303,7 @@ export async function executeToolCall(
     const result = await dependencies.searchService.lookupStoreProductAvailability(parsedInput.data.chain, {
       storeId: parsedInput.data.storeId,
       query: parsedInput.data.query,
+      matchMode: parsedInput.data.matchMode,
     });
     if (!result.ok) {
       return toolError(result.error.code, result.error.message ?? 'Store product availability lookup failed.');

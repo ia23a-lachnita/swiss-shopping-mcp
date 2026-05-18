@@ -1,16 +1,25 @@
 import {
   Chain,
   ChainAdapter,
+  ComparisonBasis,
   NormalizedProduct,
   PriceComparisonFilters,
   Result,
 } from '../adapters/types.js';
+import { getBaseUnitPrice } from '../util/units.js';
 
 export interface ChainPriceOffer {
   chain: Chain;
   product: NormalizedProduct;
   unitPrice?: number;
   totalPrice: number;
+  baseUnitPrice?: number;
+  baseUnit?: string;
+  comparisonPrice?: number;
+  comparisonUnit?: string;
+  comparisonEligible: boolean;
+  isEligibleForUnitComparison: boolean;
+  ineligibleReason?: string;
 }
 
 export interface PriceComparisonResult {
@@ -20,6 +29,8 @@ export interface PriceComparisonResult {
   cheapestOffer?: ChainPriceOffer;
   mostExpensiveOffer?: ChainPriceOffer;
   savingsVsMostExpensive?: number;
+  comparisonBasis: ComparisonBasis;
+  comparisonUnit?: string;
 }
 
 function roundCurrency(value: number): number {
@@ -28,17 +39,118 @@ function roundCurrency(value: number): number {
 
 function createOffer(product: NormalizedProduct, quantity: number): ChainPriceOffer {
   const unitValue = product.price.unit?.value;
-  const unitPrice =
-    typeof unitValue === 'number' && unitValue > 0
-      ? roundCurrency(product.price.current / unitValue)
-      : undefined;
+  const per = product.price.unit?.per;
+
+  let unitPrice: number | undefined;
+  let baseUnitPrice: number | undefined;
+  let baseUnit: string | undefined;
+  let isEligibleForUnitComparison = false;
+
+  if (typeof unitValue === 'number' && unitValue > 0) {
+    unitPrice = roundCurrency(product.price.current / unitValue);
+
+    if (per) {
+      const normalized = getBaseUnitPrice(product.price.current, unitValue, per);
+      if (normalized) {
+        baseUnitPrice = roundCurrency(normalized.price);
+        baseUnit = normalized.unit;
+        isEligibleForUnitComparison = true;
+      }
+    }
+  }
 
   return {
     chain: product.chain,
     product,
     unitPrice,
     totalPrice: roundCurrency(product.price.current * quantity),
+    baseUnitPrice,
+    baseUnit,
+    comparisonEligible: false,
+    isEligibleForUnitComparison,
   };
+}
+
+function getPrimaryUnit(offers: ChainPriceOffer[]): string | undefined {
+  const counts = new Map<string, number>();
+  for (const offer of offers) {
+    if (offer.baseUnit) {
+      counts.set(offer.baseUnit, (counts.get(offer.baseUnit) ?? 0) + 1);
+    }
+  }
+
+  return Array.from(counts.entries())
+    .sort((a, b) => {
+      if (a[1] !== b[1]) return b[1] - a[1];
+      return a[0].localeCompare(b[0]);
+    })
+    .at(0)?.[0];
+}
+
+function prepareOffersForComparison(
+  offers: ChainPriceOffer[],
+  comparisonBasis: ComparisonBasis,
+): { offers: ChainPriceOffer[]; comparisonUnit?: string } {
+  if (comparisonBasis === 'packPrice') {
+    return {
+      offers: offers.map((offer) => ({
+        ...offer,
+        comparisonPrice: offer.totalPrice,
+        comparisonUnit: 'pack',
+        comparisonEligible: true,
+      })),
+      comparisonUnit: 'pack',
+    };
+  }
+
+  const primaryUnit = getPrimaryUnit(offers);
+  return {
+    offers: offers.map((offer) => {
+      if (!offer.baseUnit || offer.baseUnitPrice === undefined) {
+        return {
+          ...offer,
+          comparisonEligible: false,
+          isEligibleForUnitComparison: false,
+          ineligibleReason: 'Missing normalized unit price.',
+        };
+      }
+
+      if (primaryUnit && offer.baseUnit !== primaryUnit) {
+        return {
+          ...offer,
+          comparisonEligible: false,
+          isEligibleForUnitComparison: false,
+          ineligibleReason: `Unit ${offer.baseUnit} is not comparable with ${primaryUnit}.`,
+        };
+      }
+
+      return {
+        ...offer,
+        comparisonPrice: offer.baseUnitPrice,
+        comparisonUnit: offer.baseUnit,
+        comparisonEligible: true,
+        isEligibleForUnitComparison: true,
+      };
+    }),
+    comparisonUnit: primaryUnit,
+  };
+}
+
+function sortOffers(a: ChainPriceOffer, b: ChainPriceOffer, comparisonBasis: ComparisonBasis): number {
+  if (comparisonBasis === 'unitPrice') {
+    if (a.comparisonEligible !== b.comparisonEligible) {
+      return a.comparisonEligible ? -1 : 1;
+    }
+
+    if (a.comparisonEligible && b.comparisonEligible && a.comparisonPrice !== b.comparisonPrice) {
+      return (a.comparisonPrice ?? 0) - (b.comparisonPrice ?? 0);
+    }
+  }
+
+  if (a.totalPrice !== b.totalPrice) {
+    return a.totalPrice - b.totalPrice;
+  }
+  return a.product.name.localeCompare(b.product.name);
 }
 
 export class PriceComparisonService {
@@ -59,9 +171,13 @@ export class PriceComparisonService {
       return { ok: false, error: { code: 'INVALID_QUANTITY', message: 'Quantity must be greater than zero.' } };
     }
 
+    const matchMode = filters.matchMode ?? 'balanced';
+    const comparisonBasis = filters.comparisonBasis ?? 'packPrice';
     const requestedChains = new Set(filters.chains ?? this.adapters.map((adapter) => adapter.chain));
     const relevantAdapters = this.adapters.filter((adapter) => requestedChains.has(adapter.chain));
-    const limitPerChain = typeof filters.limitPerChain === 'number' ? filters.limitPerChain : 10;
+
+    // Default to 1 candidate per chain unless specified otherwise.
+    const limitPerChain = typeof filters.limitPerChain === 'number' ? filters.limitPerChain : 1;
 
     const perChainResults = await Promise.all(
       relevantAdapters.map(async (adapter) => {
@@ -69,6 +185,7 @@ export class PriceComparisonService {
           query,
           maxPrice: filters.maxPrice,
           limit: limitPerChain,
+          matchMode,
         });
 
         if (!productsResult.ok) {
@@ -91,22 +208,34 @@ export class PriceComparisonService {
       }
     }
 
-    const offers = perChainResults
-      .flatMap((chainResult) => (chainResult.ok ? chainResult.products.slice(0, 1) : []))
-      .map((product) => createOffer(product, quantity))
-      .sort((a, b) => {
-        if (a.totalPrice !== b.totalPrice) {
-          return a.totalPrice - b.totalPrice;
-        }
-        return a.product.name.localeCompare(b.product.name);
-      });
+    const rawOffers = perChainResults
+      .flatMap((chainResult) => (chainResult.ok ? chainResult.products : []))
+      .map((product) => createOffer(product, quantity));
+
+    const prepared = prepareOffersForComparison(rawOffers, comparisonBasis);
+    const offers = prepared.offers.sort((a, b) => sortOffers(a, b, comparisonBasis));
 
     const cheapestOffer = offers.at(0);
-    const mostExpensiveOffer = offers.length > 0 ? offers[offers.length - 1] : undefined;
-    const savingsVsMostExpensive =
-      cheapestOffer && mostExpensiveOffer
-        ? roundCurrency(mostExpensiveOffer.totalPrice - cheapestOffer.totalPrice)
-        : undefined;
+    const eligibleForSavings =
+      comparisonBasis === 'unitPrice' ? offers.filter((offer) => offer.comparisonEligible) : offers;
+    const mostExpensiveOffer =
+      eligibleForSavings.length > 0 ? eligibleForSavings[eligibleForSavings.length - 1] : undefined;
+
+    let savingsVsMostExpensive: number | undefined;
+    if (cheapestOffer && mostExpensiveOffer && cheapestOffer !== mostExpensiveOffer) {
+      if (
+        comparisonBasis === 'unitPrice' &&
+        cheapestOffer.comparisonEligible &&
+        mostExpensiveOffer.comparisonEligible &&
+        cheapestOffer.comparisonUnit === mostExpensiveOffer.comparisonUnit
+      ) {
+        savingsVsMostExpensive = roundCurrency(
+          (mostExpensiveOffer.comparisonPrice ?? 0) - (cheapestOffer.comparisonPrice ?? 0),
+        );
+      } else if (comparisonBasis === 'packPrice') {
+        savingsVsMostExpensive = roundCurrency(mostExpensiveOffer.totalPrice - cheapestOffer.totalPrice);
+      }
+    }
 
     return {
       ok: true,
@@ -117,6 +246,8 @@ export class PriceComparisonService {
         cheapestOffer,
         mostExpensiveOffer,
         savingsVsMostExpensive,
+        comparisonBasis,
+        comparisonUnit: prepared.comparisonUnit,
       },
     };
   }

@@ -93,6 +93,25 @@ describe('MCP server integration', () => {
       .comparison;
     expect(comparison.cheapestOffer?.chain).toBe('migros');
 
+    const pastaResult = await client.callTool({
+      name: 'search_products',
+      arguments: { query: 'pasta' },
+    });
+    expect(pastaResult.isError).not.toBe(true);
+    expect((pastaResult.structuredContent as { products: Array<{ id: string }> }).products.map((product) => product.id))
+      .toEqual(['migros-pasta-500g', 'ottos-pasta-500g', 'denner-pasta-500g']);
+
+    const unitCompareResult = await client.callTool({
+      name: 'compare_prices',
+      arguments: { query: 'pasta', comparisonBasis: 'unitPrice' },
+    });
+    expect(unitCompareResult.isError).not.toBe(true);
+    const unitComparison = unitCompareResult.structuredContent as {
+      comparison: { cheapestOffer?: { product: { id: string } }; comparisonUnit?: string };
+    };
+    expect(unitComparison.comparison.cheapestOffer?.product.id).toBe('ottos-pasta-500g');
+    expect(unitComparison.comparison.comparisonUnit).toBe('kg');
+
     const availabilitySupportResult = await client.callTool({
       name: 'get_store_availability_support',
       arguments: { chains: ['migros', 'coop'] },

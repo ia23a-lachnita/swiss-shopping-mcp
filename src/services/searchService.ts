@@ -10,13 +10,7 @@ import {
   StoreProductAvailabilityResult,
   StoreSearchFilters,
 } from '../adapters/types.js';
-
-function sortProducts(a: NormalizedProduct, b: NormalizedProduct): number {
-  if (a.price.current !== b.price.current) {
-    return a.price.current - b.price.current;
-  }
-  return a.name.localeCompare(b.name);
-}
+import { sortProducts } from '../util/matcher.js';
 
 function sortStores(a: NormalizedStore, b: NormalizedStore): number {
   return a.name.localeCompare(b.name);
@@ -35,11 +29,12 @@ export class SearchService {
       return { ok: false, error: { code: 'INVALID_QUERY', message: 'Query must be a non-empty string.' } };
     }
 
+    const matchMode = filters.matchMode ?? 'balanced';
     const requestedChains = new Set(filters.chains ?? this.adapters.map((adapter) => adapter.chain));
     const relevantAdapters = this.adapters.filter((adapter) => requestedChains.has(adapter.chain));
 
     const adapterResults = await Promise.all(
-      relevantAdapters.map((adapter) => adapter.searchProducts({ ...filters, query })),
+      relevantAdapters.map((adapter) => adapter.searchProducts({ ...filters, query, matchMode })),
     );
 
     for (const result of adapterResults) {
@@ -49,7 +44,7 @@ export class SearchService {
     }
 
     const products = adapterResults.flatMap((result) => (result.ok ? result.data : []));
-    products.sort(sortProducts);
+    products.sort((a, b) => sortProducts(a, b, query, matchMode));
 
     if (typeof filters.limit === 'number') {
       return { ok: true, data: products.slice(0, filters.limit) };

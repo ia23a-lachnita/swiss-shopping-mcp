@@ -25,6 +25,13 @@ An advanced Model Context Protocol (MCP) server for Swiss grocery and retail sho
 - **Store locator**: Find nearby stores with opening hours
 - **Store product availability**: Query product availability for a specific store (currently supported for Migros in this adapter set; other chains report explicit unsupported status)
 
+### Search and comparison behavior
+
+- `search_products` uses `matchMode: "balanced"` by default for the static catalog. Balanced mode keeps exact filters deterministic while allowing narrow product-family aliases such as `pasta` matching `Penne Rigate` and `Spaghetti`. Use `matchMode: "literal"` to keep strict token matching.
+- `compare_prices` uses `comparisonBasis: "packPrice"` by default for backward-compatible pack-total ranking. Use `comparisonBasis: "unitPrice"` to rank by normalized CHF/kg, CHF/l, or CHF/piece where units are comparable.
+- `limitPerChain` defaults to one returned offer per chain. Increasing it returns in-chain alternatives up to the requested limit.
+- Unit-price comparison marks missing or incompatible units as ineligible instead of mixing unlike unit dimensions in the ranking.
+
 ### V2 (Account Integration)
 - **Authenticated cart**: Add/remove items from multiple store baskets
 - **Loyalty programs**: Cumulus (Migros), Coop, Denner loyalty integration

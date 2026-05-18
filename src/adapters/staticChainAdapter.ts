@@ -2,6 +2,7 @@ import {
   Chain,
   ChainAdapter,
   ChainCatalogData,
+  MatchMode,
   NormalizedProduct,
   NormalizedStore,
   ProductAvailabilityMatch,
@@ -12,23 +13,7 @@ import {
   StoreProductAvailabilityResult,
   StoreSearchFilters,
 } from './types.js';
-
-function normalize(value: string): string {
-  return value.trim().toLowerCase();
-}
-
-function includesAllTokens(candidate: string, query: string): boolean {
-  const normalizedQuery = normalize(query);
-  const tokens = normalizedQuery.split(/\s+/).filter((token) => token.length > 0);
-  return tokens.every((token) => candidate.includes(token));
-}
-
-function sortProducts(a: NormalizedProduct, b: NormalizedProduct): number {
-  if (a.price.current !== b.price.current) {
-    return a.price.current - b.price.current;
-  }
-  return a.name.localeCompare(b.name);
-}
+import { calculateMatchStrength, isExactProductMatch, normalize, sortProducts } from '../util/matcher.js';
 
 const STORE_AVAILABILITY_SUPPORT_BY_CHAIN: Record<Chain, StoreAvailabilitySupport> = {
   migros: { chain: 'migros', supported: true },
@@ -84,22 +69,14 @@ export class StaticChainAdapter implements ChainAdapter {
       return { ok: false, error: { code: 'INVALID_QUERY', message: 'Query must be a non-empty string.' } };
     }
 
+    const matchMode = filters.matchMode ?? 'balanced';
     const requestedTags = (filters.tags ?? []).map((tag) => normalize(tag));
     const excludedAllergens = new Set((filters.excludeAllergens ?? []).map((allergen) => normalize(allergen)));
     const dietaryPreferences = (filters.dietaryPreferences ?? []).map((preference) => normalize(preference));
 
     const results = this.catalog.products
       .filter((product) => {
-        const searchable = [
-          product.name,
-          product.brand ?? '',
-          product.category ?? '',
-          ...(product.tags ?? []),
-        ]
-          .join(' ')
-          .toLowerCase();
-
-        if (!includesAllTokens(searchable, query)) {
+        if (calculateMatchStrength(product, query, matchMode) === 0) {
           return false;
         }
 
@@ -127,7 +104,7 @@ export class StaticChainAdapter implements ChainAdapter {
 
         return true;
       })
-      .sort(sortProducts);
+      .sort((a, b) => sortProducts(a, b, query, matchMode));
 
     if (typeof filters.limit === 'number') {
       return { ok: true, data: results.slice(0, filters.limit) };
@@ -202,23 +179,26 @@ export class StaticChainAdapter implements ChainAdapter {
     }
 
     const inventory = new Set(this.catalog.storeInventory?.[storeId] ?? []);
-    const matches: ProductAvailabilityMatch[] = this.catalog.products
-      .filter((product) => {
-        const searchable = [
-          product.name,
-          product.brand ?? '',
-          product.category ?? '',
-          ...(product.tags ?? []),
-        ]
-          .join(' ')
-          .toLowerCase();
-        return includesAllTokens(searchable, query);
-      })
-      .sort(sortProducts)
+    const matchMode: MatchMode = filters.matchMode ?? 'balanced';
+
+    const scoredMatches = this.catalog.products
       .map((product) => ({
         product,
-        available: inventory.has(product.id),
-      }));
+        strength: calculateMatchStrength(product, query, matchMode),
+        exactProductMatch: isExactProductMatch(product, query, matchMode),
+      }))
+      .filter((match) => match.strength > 0)
+      .sort((a, b) => sortProducts(a.product, b.product, query, matchMode));
+
+    const matches: ProductAvailabilityMatch[] = scoredMatches.map((match) => ({
+      product: match.product,
+      available: inventory.has(match.product.id),
+    }));
+
+    const exactMatches = scoredMatches.filter((match) => match.exactProductMatch);
+    const availabilityBasis = exactMatches.length > 0 ? exactMatches : scoredMatches;
+
+    const isAvailable = availabilityBasis.some((match) => inventory.has(match.product.id));
 
     return {
       ok: true,
@@ -228,7 +208,7 @@ export class StaticChainAdapter implements ChainAdapter {
         query,
         supported: true,
         matches,
-        isAvailable: matches.some((match) => match.available),
+        isAvailable,
       },
     };
   }

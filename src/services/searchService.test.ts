@@ -30,6 +30,28 @@ describe('SearchService', () => {
     }
   });
 
+  it('uses balanced matching by default for generic product families', async () => {
+    const result = await service.searchProducts({ query: 'pasta' });
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data.map((product) => product.id)).toEqual([
+        'migros-pasta-500g',
+        'ottos-pasta-500g',
+        'denner-pasta-500g',
+      ]);
+    }
+  });
+
+  it('can preserve literal product matching when requested', async () => {
+    const result = await service.searchProducts({ query: 'pasta', matchMode: 'literal' });
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data.map((product) => product.id)).toEqual(['migros-pasta-500g']);
+    }
+  });
+
   it('returns an explicit error when query is empty', async () => {
     const result = await service.searchProducts({ query: '   ' });
     expect(result.ok).toBe(false);

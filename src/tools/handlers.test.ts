@@ -67,6 +67,44 @@ describe('tool handlers', () => {
     expect(structured.comparison.cheapestOffer?.chain).toBe('migros');
   });
 
+  it('executes compare_prices with comparisonBasis unitPrice successfully', async () => {
+    const result = await executeToolCall(
+      {
+        name: 'compare_prices',
+        arguments: { query: 'pasta', comparisonBasis: 'unitPrice', chains: ['migros', 'denner'] },
+      },
+      dependencies,
+    );
+
+    expect(result.isError).not.toBe(true);
+    const structured = result.structuredContent as {
+      comparison: { cheapestOffer?: { product: { id: string } } };
+    };
+    // denner penne (2.40/kg) is cheaper than migros pasta (3.40/kg)
+    expect(structured.comparison.cheapestOffer?.product.id).toBe('denner-pasta-500g');
+  });
+
+  it('executes search_products with matchMode successfully', async () => {
+    const result = await executeToolCall(
+      { name: 'search_products', arguments: { query: 'pasta', matchMode: 'balanced', chains: ['ottos'] } },
+      dependencies,
+    );
+
+    expect(result.isError).not.toBe(true);
+    const structured = result.structuredContent as { products: Array<{ name: string }> };
+    // ottos has Spaghetti which is a balanced match for pasta
+    expect(structured.products).toHaveLength(1);
+    expect(structured.products[0].name).toBe('Spaghetti');
+
+    const literalResult = await executeToolCall(
+      { name: 'search_products', arguments: { query: 'pasta', matchMode: 'literal', chains: ['ottos'] } },
+      dependencies,
+    );
+    expect(literalResult.isError).not.toBe(true);
+    const literalStructured = literalResult.structuredContent as { products: unknown[] };
+    expect(literalStructured.products).toHaveLength(0);
+  });
+
   it('executes get_store_availability_support successfully', async () => {
     const result = await executeToolCall(
       { name: 'get_store_availability_support', arguments: { chains: ['migros', 'coop'] } },

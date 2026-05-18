@@ -1,5 +1,9 @@
 export type Chain = 'migros' | 'coop' | 'aldi' | 'denner' | 'lidl' | 'farmy' | 'volg' | 'ottos';
 export type DietaryPreference = 'vegan' | 'vegetarian' | 'gluten-free';
+export type ProductMatchMode = 'balanced' | 'literal';
+export type PriceComparisonBasis = 'packPrice' | 'unitPrice';
+export type MatchMode = ProductMatchMode;
+export type ComparisonBasis = PriceComparisonBasis;
 
 export interface GeoPoint {
   latitude: number;
@@ -60,6 +64,7 @@ export interface NormalizedPromotion {
 
 export interface ProductSearchFilters {
   query: string;
+  matchMode?: ProductMatchMode;
   chains?: Chain[];
   maxPrice?: number;
   category?: string;
@@ -77,6 +82,8 @@ export interface StoreSearchFilters {
 
 export interface PriceComparisonFilters {
   query: string;
+  matchMode?: ProductMatchMode;
+  comparisonBasis?: PriceComparisonBasis;
   chains?: Chain[];
   maxPrice?: number;
   quantity?: number;
@@ -92,6 +99,7 @@ export interface StoreAvailabilitySupport {
 export interface StoreProductAvailabilityFilters {
   query: string;
   storeId: string;
+  matchMode?: ProductMatchMode;
 }
 
 export interface ProductAvailabilityMatch {
