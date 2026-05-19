@@ -7,13 +7,19 @@ import {
   NormalizedStore,
   ProductAvailabilityMatch,
   ProductSearchFilters,
+  PromotionSearchFilters,
   Result,
   StoreAvailabilitySupport,
   StoreProductAvailabilityFilters,
   StoreProductAvailabilityResult,
   StoreSearchFilters,
 } from './types.js';
-import { calculateMatchStrength, isExactProductMatch, normalize, sortProducts } from '../util/matcher.js';
+import {
+  calculateMatchStrength,
+  isExactProductMatch,
+  normalize,
+  sortProducts,
+} from '../util/matcher.js';
 
 const STORE_AVAILABILITY_SUPPORT_BY_CHAIN: Record<Chain, StoreAvailabilitySupport> = {
   migros: { chain: 'migros', supported: true },
@@ -66,13 +72,20 @@ export class StaticChainAdapter implements ChainAdapter {
   public async searchProducts(filters: ProductSearchFilters): Promise<Result<NormalizedProduct[]>> {
     const query = filters.query.trim();
     if (!query) {
-      return { ok: false, error: { code: 'INVALID_QUERY', message: 'Query must be a non-empty string.' } };
+      return {
+        ok: false,
+        error: { code: 'INVALID_QUERY', message: 'Query must be a non-empty string.' },
+      };
     }
 
     const matchMode = filters.matchMode ?? 'balanced';
     const requestedTags = (filters.tags ?? []).map((tag) => normalize(tag));
-    const excludedAllergens = new Set((filters.excludeAllergens ?? []).map((allergen) => normalize(allergen)));
-    const dietaryPreferences = (filters.dietaryPreferences ?? []).map((preference) => normalize(preference));
+    const excludedAllergens = new Set(
+      (filters.excludeAllergens ?? []).map((allergen) => normalize(allergen))
+    );
+    const dietaryPreferences = (filters.dietaryPreferences ?? []).map((preference) =>
+      normalize(preference)
+    );
 
     const results = this.catalog.products
       .filter((product) => {
@@ -97,7 +110,9 @@ export class StaticChainAdapter implements ChainAdapter {
           return false;
         }
 
-        const productAllergens = new Set((product.allergens ?? []).map((allergen) => normalize(allergen)));
+        const productAllergens = new Set(
+          (product.allergens ?? []).map((allergen) => normalize(allergen))
+        );
         if (Array.from(excludedAllergens).some((allergen) => productAllergens.has(allergen))) {
           return false;
         }
@@ -111,6 +126,18 @@ export class StaticChainAdapter implements ChainAdapter {
     }
 
     return { ok: true, data: results };
+  }
+
+  public async searchPromotions(filters: PromotionSearchFilters): Promise<Result<never[]>> {
+    const query = filters.query.trim();
+    if (!query) {
+      return {
+        ok: false,
+        error: { code: 'INVALID_QUERY', message: 'Query must be a non-empty string.' },
+      };
+    }
+
+    return { ok: true, data: [] };
   }
 
   public async findStores(filters: StoreSearchFilters): Promise<Result<NormalizedStore[]>> {
@@ -142,23 +169,32 @@ export class StaticChainAdapter implements ChainAdapter {
   }
 
   public async lookupStoreProductAvailability(
-    filters: StoreProductAvailabilityFilters,
+    filters: StoreProductAvailabilityFilters
   ): Promise<Result<StoreProductAvailabilityResult>> {
     const query = filters.query.trim();
     if (!query) {
-      return { ok: false, error: { code: 'INVALID_QUERY', message: 'Query must be a non-empty string.' } };
+      return {
+        ok: false,
+        error: { code: 'INVALID_QUERY', message: 'Query must be a non-empty string.' },
+      };
     }
 
     const storeId = filters.storeId.trim();
     if (!storeId) {
-      return { ok: false, error: { code: 'INVALID_STORE_ID', message: 'Store ID must be a non-empty string.' } };
+      return {
+        ok: false,
+        error: { code: 'INVALID_STORE_ID', message: 'Store ID must be a non-empty string.' },
+      };
     }
 
     const store = this.catalog.stores.find((candidate) => candidate.id === storeId);
     if (!store) {
       return {
         ok: false,
-        error: { code: 'STORE_NOT_FOUND', message: `Store not found for chain ${this.chain}: ${storeId}` },
+        error: {
+          code: 'STORE_NOT_FOUND',
+          message: `Store not found for chain ${this.chain}: ${storeId}`,
+        },
       };
     }
 

@@ -4,8 +4,10 @@ import {
   Chain,
   ChainAdapter,
   NormalizedProduct,
+  NormalizedPromotion,
   NormalizedStore,
   ProductSearchFilters,
+  PromotionSearchFilters,
   Result,
   ResultMetadata,
   SourceWarningCode,
@@ -17,11 +19,21 @@ import {
 import { createDefaultAdapters } from '../adapters/index.js';
 import { PriceComparisonService } from './priceComparisonService.js';
 
-function adapterWithProducts(chain: Chain, products: NormalizedProduct[], metadata?: ResultMetadata): ChainAdapter {
+function adapterWithProducts(
+  chain: Chain,
+  products: NormalizedProduct[],
+  metadata?: ResultMetadata,
+  promotions: NormalizedPromotion[] = []
+): ChainAdapter {
   return {
     chain,
     async searchProducts(filters: ProductSearchFilters): Promise<Result<NormalizedProduct[]>> {
       return { ok: true, data: products.slice(0, filters.limit), metadata };
+    },
+    async searchPromotions(
+      filters: PromotionSearchFilters
+    ): Promise<Result<NormalizedPromotion[]>> {
+      return { ok: true, data: promotions.slice(0, filters.limit), metadata };
     },
     async findStores(_filters: StoreSearchFilters): Promise<Result<NormalizedStore[]>> {
       return { ok: true, data: [] };
@@ -30,7 +42,7 @@ function adapterWithProducts(chain: Chain, products: NormalizedProduct[], metada
       return { chain, supported: false };
     },
     async lookupStoreProductAvailability(
-      filters: StoreProductAvailabilityFilters,
+      filters: StoreProductAvailabilityFilters
     ): Promise<Result<StoreProductAvailabilityResult>> {
       return {
         ok: true,
@@ -53,6 +65,11 @@ function failingAdapter(chain: Chain, code: string): ChainAdapter {
     async searchProducts(_filters: ProductSearchFilters): Promise<Result<NormalizedProduct[]>> {
       return { ok: false, error: { code, message: `${chain} failed.` } };
     },
+    async searchPromotions(
+      _filters: PromotionSearchFilters
+    ): Promise<Result<NormalizedPromotion[]>> {
+      return { ok: true, data: [] };
+    },
     async findStores(_filters: StoreSearchFilters): Promise<Result<NormalizedStore[]>> {
       return { ok: true, data: [] };
     },
@@ -60,7 +77,7 @@ function failingAdapter(chain: Chain, code: string): ChainAdapter {
       return { chain, supported: false };
     },
     async lookupStoreProductAvailability(
-      filters: StoreProductAvailabilityFilters,
+      filters: StoreProductAvailabilityFilters
     ): Promise<Result<StoreProductAvailabilityResult>> {
       return {
         ok: true,
@@ -77,13 +94,36 @@ function failingAdapter(chain: Chain, code: string): ChainAdapter {
   };
 }
 
-function product(id: string, chain: Chain, current: number, unit?: { value: number; per: string }): NormalizedProduct {
+function product(
+  id: string,
+  chain: Chain,
+  current: number,
+  unit?: { value: number; per: string }
+): NormalizedProduct {
   return {
     id,
     chain,
     name: id,
     category: 'pantry',
     price: { current, unit },
+  };
+}
+
+function promotion(
+  id: string,
+  chain: Chain,
+  title: string,
+  current: number,
+  unit?: { value: number; per: string }
+): NormalizedPromotion {
+  return {
+    id,
+    chain,
+    title,
+    productName: title,
+    price: { current, unit },
+    validFrom: new Date('2026-05-19T00:00:00.000Z'),
+    validUntil: new Date('2026-05-20T23:59:59.999Z'),
   };
 }
 
@@ -156,13 +196,55 @@ describe('PriceComparisonService', () => {
 
     expect(result.ok).toBe(true);
     if (result.ok) {
-      expect(result.data.offers.map((offer) => offer.product.id)).toEqual(['migros-first', 'migros-second']);
+      expect(result.data.offers.map((offer) => offer.product.id)).toEqual([
+        'migros-first',
+        'migros-second',
+      ]);
+    }
+  });
+
+  it('keeps promotion offers out by default and ranks them by effective price when requested', async () => {
+    const customService = new PriceComparisonService([
+      adapterWithProducts(
+        'denner',
+        [product('denner-orange-juice-static', 'denner', 4)],
+        undefined,
+        [promotion('denner-orange-juice-promo', 'denner', 'Orange Juice', 2)]
+      ),
+      adapterWithProducts('coop', [product('coop-orange-juice', 'coop', 3)]),
+    ]);
+
+    const defaultResult = await customService.comparePrices({ query: 'orange juice' });
+    expect(defaultResult.ok).toBe(true);
+    if (defaultResult.ok) {
+      expect(defaultResult.data.cheapestOffer?.product.id).toBe('coop-orange-juice');
+      expect(defaultResult.data.offers.some((offer) => offer.priceBasis === 'promotion')).toBe(
+        false
+      );
+    }
+
+    const result = await customService.comparePrices({
+      query: 'orange juice',
+      includePromotions: true,
+    });
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data.cheapestOffer).toMatchObject({
+        chain: 'denner',
+        priceBasis: 'promotion',
+        effectivePrice: 2,
+        totalPrice: 2,
+        promotion: { id: 'denner-orange-juice-promo' },
+      });
     }
   });
 
   it('marks mixed or missing unit prices ineligible for unit comparison', async () => {
     const customService = new PriceComparisonService([
-      adapterWithProducts('migros', [product('migros-500g', 'migros', 2, { value: 500, per: 'g' })]),
+      adapterWithProducts('migros', [
+        product('migros-500g', 'migros', 2, { value: 500, per: 'g' }),
+      ]),
       adapterWithProducts('coop', [product('coop-1kg', 'coop', 3, { value: 1, per: 'kg' })]),
       adapterWithProducts('aldi', [product('aldi-1l', 'aldi', 1, { value: 1, per: 'l' })]),
       adapterWithProducts('denner', [product('denner-no-unit', 'denner', 0.5)]),
@@ -184,7 +266,9 @@ describe('PriceComparisonService', () => {
       expect(mixedUnitOffer?.comparisonEligible).toBe(false);
       expect(mixedUnitOffer?.ineligibleReason).toContain('not comparable');
 
-      const missingUnitOffer = result.data.offers.find((offer) => offer.product.id === 'denner-no-unit');
+      const missingUnitOffer = result.data.offers.find(
+        (offer) => offer.product.id === 'denner-no-unit'
+      );
       expect(missingUnitOffer?.comparisonEligible).toBe(false);
       expect(missingUnitOffer?.ineligibleReason).toContain('Missing');
     }

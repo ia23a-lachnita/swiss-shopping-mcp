@@ -31,7 +31,10 @@ class LoopbackTransport implements Transport {
   }
 }
 
-function createLoopbackTransportPair(): { clientTransport: LoopbackTransport; serverTransport: LoopbackTransport } {
+function createLoopbackTransportPair(): {
+  clientTransport: LoopbackTransport;
+  serverTransport: LoopbackTransport;
+} {
   const clientTransport = new LoopbackTransport();
   const serverTransport = new LoopbackTransport();
   clientTransport.attachPeer(serverTransport);
@@ -52,6 +55,7 @@ describe('MCP server integration', () => {
     const tools = await client.listTools();
     expect(tools.tools.map((tool) => tool.name)).toEqual([
       'search_products',
+      'search_promotions',
       'find_stores',
       'compare_prices',
       'get_store_availability_support',
@@ -82,15 +86,25 @@ describe('MCP server integration', () => {
       arguments: { location: 'zürich', limit: 2 },
     });
     expect(storeResult.isError).not.toBe(true);
-    expect((storeResult.structuredContent as { stores: unknown[] }).stores.length).toBeGreaterThan(0);
+    expect((storeResult.structuredContent as { stores: unknown[] }).stores.length).toBeGreaterThan(
+      0
+    );
+
+    const promotionResult = await client.callTool({
+      name: 'search_promotions',
+      arguments: { query: 'milk', chains: ['denner'], limit: 1 },
+    });
+    expect(promotionResult.isError).not.toBe(true);
+    expect((promotionResult.structuredContent as { promotions: unknown[] }).promotions).toEqual([]);
 
     const compareResult = await client.callTool({
       name: 'compare_prices',
       arguments: { query: 'milk', quantity: 1 },
     });
     expect(compareResult.isError).not.toBe(true);
-    const comparison = (compareResult.structuredContent as { comparison: { cheapestOffer?: { chain: string } } })
-      .comparison;
+    const comparison = (
+      compareResult.structuredContent as { comparison: { cheapestOffer?: { chain: string } } }
+    ).comparison;
     expect(comparison.cheapestOffer?.chain).toBe('migros');
 
     const pastaResult = await client.callTool({
@@ -98,8 +112,11 @@ describe('MCP server integration', () => {
       arguments: { query: 'pasta' },
     });
     expect(pastaResult.isError).not.toBe(true);
-    expect((pastaResult.structuredContent as { products: Array<{ id: string }> }).products.map((product) => product.id))
-      .toEqual(['migros-pasta-500g', 'ottos-pasta-500g', 'denner-pasta-500g']);
+    expect(
+      (pastaResult.structuredContent as { products: Array<{ id: string }> }).products.map(
+        (product) => product.id
+      )
+    ).toEqual(['migros-pasta-500g', 'ottos-pasta-500g', 'denner-pasta-500g']);
 
     const unitCompareResult = await client.callTool({
       name: 'compare_prices',
@@ -117,7 +134,9 @@ describe('MCP server integration', () => {
       arguments: { chains: ['migros', 'coop'] },
     });
     expect(availabilitySupportResult.isError).not.toBe(true);
-    expect((availabilitySupportResult.structuredContent as { support: Array<{ chain: string }> }).support).toEqual([
+    expect(
+      (availabilitySupportResult.structuredContent as { support: Array<{ chain: string }> }).support
+    ).toEqual([
       { chain: 'coop', supported: false, reason: expect.any(String) },
       { chain: 'migros', supported: true },
     ]);

@@ -3,6 +3,7 @@ import {
   NormalizedProduct,
   NormalizedStore,
   ProductSearchFilters,
+  PromotionSearchFilters,
   Result,
   SourceProvenance,
   SourceWarningCode,
@@ -20,7 +21,11 @@ export interface AldiFixtureAdapterOptions {
   cacheExpiresAt?: string;
 }
 
-function productProvenance(product: AldiParsedProduct, observedAt: string, cacheExpiresAt?: string): SourceProvenance {
+function productProvenance(
+  product: AldiParsedProduct,
+  observedAt: string,
+  cacheExpiresAt?: string
+): SourceProvenance {
   return {
     provider: 'ALDI SUISSE',
     chain: 'aldi',
@@ -36,7 +41,7 @@ function productProvenance(product: AldiParsedProduct, observedAt: string, cache
 function toNormalizedProduct(
   product: AldiParsedProduct,
   observedAt: string,
-  cacheExpiresAt?: string,
+  cacheExpiresAt?: string
 ): NormalizedProduct {
   return {
     id: product.id,
@@ -59,14 +64,17 @@ export class AldiFixtureAdapter implements ChainAdapter {
 
   public constructor(options: AldiFixtureAdapterOptions) {
     this.products = options.products.map((product) =>
-      toNormalizedProduct(product, options.observedAt, options.cacheExpiresAt),
+      toNormalizedProduct(product, options.observedAt, options.cacheExpiresAt)
     );
   }
 
   public async searchProducts(filters: ProductSearchFilters): Promise<Result<NormalizedProduct[]>> {
     const query = filters.query.trim();
     if (!query) {
-      return { ok: false, error: { code: 'INVALID_QUERY', message: 'Query must be a non-empty string.' } };
+      return {
+        ok: false,
+        error: { code: 'INVALID_QUERY', message: 'Query must be a non-empty string.' },
+      };
     }
 
     const matchMode = filters.matchMode ?? 'balanced';
@@ -91,7 +99,10 @@ export class AldiFixtureAdapter implements ChainAdapter {
       })
       .sort((a, b) => sortProducts(a, b, query, matchMode));
 
-    return { ok: true, data: typeof filters.limit === 'number' ? products.slice(0, filters.limit) : products };
+    return {
+      ok: true,
+      data: typeof filters.limit === 'number' ? products.slice(0, filters.limit) : products,
+    };
   }
 
   public async findStores(_filters: StoreSearchFilters): Promise<Result<NormalizedStore[]>> {
@@ -99,7 +110,18 @@ export class AldiFixtureAdapter implements ChainAdapter {
       ok: false,
       error: {
         code: SourceWarningCode.RealSourceNotImplemented,
-        message: 'Aldi fixture adapter covers product search only; store lookup is not implemented.',
+        message:
+          'Aldi fixture adapter covers product search only; store lookup is not implemented.',
+      },
+    };
+  }
+
+  public async searchPromotions(_filters: PromotionSearchFilters): Promise<Result<never[]>> {
+    return {
+      ok: false,
+      error: {
+        code: SourceWarningCode.RealSourceNotImplemented,
+        message: 'Aldi fixture adapter covers product search only; promotions are not implemented.',
       },
     };
   }
@@ -113,7 +135,7 @@ export class AldiFixtureAdapter implements ChainAdapter {
   }
 
   public async lookupStoreProductAvailability(
-    filters: StoreProductAvailabilityFilters,
+    filters: StoreProductAvailabilityFilters
   ): Promise<Result<StoreProductAvailabilityResult>> {
     return {
       ok: true,

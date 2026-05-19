@@ -5,7 +5,12 @@ export type PriceComparisonBasis = 'packPrice' | 'unitPrice';
 export type MatchMode = ProductMatchMode;
 export type ComparisonBasis = PriceComparisonBasis;
 
-export type SourceType = 'official-api' | 'partner-api' | 'retailer-web' | 'third-party' | 'open-data';
+export type SourceType =
+  | 'official-api'
+  | 'partner-api'
+  | 'retailer-web'
+  | 'third-party'
+  | 'open-data';
 export type SourceFreshness = 'live' | 'cached' | 'stale';
 export type SourceConfidence = 'high' | 'medium' | 'low';
 export type MatchExplanationField =
@@ -125,6 +130,13 @@ export interface NormalizedPromotion {
   id: string;
   chain: Chain;
   title: string;
+  productName?: string;
+  brand?: string;
+  category?: string;
+  description?: string;
+  image?: string;
+  price?: NormalizedPrice;
+  originalPrice?: number;
   discount?: {
     type: 'percentage' | 'absolute';
     value: number;
@@ -157,10 +169,20 @@ export interface PriceComparisonFilters {
   query: string;
   matchMode?: ProductMatchMode;
   comparisonBasis?: PriceComparisonBasis;
+  includePromotions?: boolean;
   chains?: Chain[];
   maxPrice?: number;
   quantity?: number;
   limitPerChain?: number;
+}
+
+export interface PromotionSearchFilters {
+  query: string;
+  matchMode?: ProductMatchMode;
+  chains?: Chain[];
+  maxPrice?: number;
+  category?: string;
+  limit?: number;
 }
 
 export interface StoreAvailabilitySupport {
@@ -199,9 +221,12 @@ export interface ChainCatalogData {
 export interface ChainAdapter {
   chain: Chain;
   searchProducts(filters: ProductSearchFilters): Promise<Result<NormalizedProduct[]>>;
+  searchPromotions(filters: PromotionSearchFilters): Promise<Result<NormalizedPromotion[]>>;
   findStores(filters: StoreSearchFilters): Promise<Result<NormalizedStore[]>>;
   getStoreAvailabilitySupport(): StoreAvailabilitySupport;
-  lookupStoreProductAvailability(filters: StoreProductAvailabilityFilters): Promise<Result<StoreProductAvailabilityResult>>;
+  lookupStoreProductAvailability(
+    filters: StoreProductAvailabilityFilters
+  ): Promise<Result<StoreProductAvailabilityResult>>;
 }
 
 export type Result<T> =

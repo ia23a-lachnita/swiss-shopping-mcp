@@ -1,12 +1,29 @@
-import { CallToolRequest, CallToolResult, ListToolsResult } from '@modelcontextprotocol/sdk/types.js';
+import {
+  CallToolRequest,
+  CallToolResult,
+  ListToolsResult,
+} from '@modelcontextprotocol/sdk/types.js';
 import { z } from 'zod';
 
 import { Chain, DietaryPreference, ResultMetadata } from '../adapters/types.js';
 import { PriceComparisonService } from '../services/priceComparisonService.js';
 import { SearchService } from '../services/searchService.js';
 
-const CHAINS = ['migros', 'coop', 'aldi', 'denner', 'lidl', 'farmy', 'volg', 'ottos'] as const satisfies readonly Chain[];
-const DIETARY_PREFERENCES = ['vegan', 'vegetarian', 'gluten-free'] as const satisfies readonly DietaryPreference[];
+const CHAINS = [
+  'migros',
+  'coop',
+  'aldi',
+  'denner',
+  'lidl',
+  'farmy',
+  'volg',
+  'ottos',
+] as const satisfies readonly Chain[];
+const DIETARY_PREFERENCES = [
+  'vegan',
+  'vegetarian',
+  'gluten-free',
+] as const satisfies readonly DietaryPreference[];
 
 const chainEnum = z.enum(CHAINS);
 const dietaryPreferenceEnum = z.enum(DIETARY_PREFERENCES);
@@ -43,6 +60,18 @@ const comparePricesInputSchema = z
     quantity: z.number().positive().optional(),
     limitPerChain: z.number().int().positive().max(50).optional(),
     comparisonBasis: comparisonBasisEnum.optional(),
+    includePromotions: z.boolean().optional(),
+    matchMode: matchModeEnum.optional(),
+  })
+  .strict();
+
+const searchPromotionsInputSchema = z
+  .object({
+    query: z.string().trim().min(1),
+    chains: z.array(chainEnum).min(1).optional(),
+    maxPrice: z.number().positive().optional(),
+    category: z.string().trim().min(1).optional(),
+    limit: z.number().int().positive().max(100).optional(),
     matchMode: matchModeEnum.optional(),
   })
   .strict();
@@ -64,6 +93,7 @@ const lookupStoreAvailabilityInputSchema = z
 
 const TOOL_NAMES = [
   'search_products',
+  'search_promotions',
   'find_stores',
   'compare_prices',
   'get_store_availability_support',
@@ -92,7 +122,10 @@ function toolSuccess(payload: Record<string, unknown>): CallToolResult {
   };
 }
 
-function withMetadata(payload: Record<string, unknown>, metadata?: ResultMetadata): Record<string, unknown> {
+function withMetadata(
+  payload: Record<string, unknown>,
+  metadata?: ResultMetadata
+): Record<string, unknown> {
   if (!metadata) {
     return payload;
   }
@@ -146,11 +179,17 @@ function getInputSchemaForTool(name: ToolName): ToolInputSchema {
           items: { type: 'string', enum: DIETARY_PREFERENCES },
           description: 'Dietary preferences to match',
         },
-        limit: { type: 'integer', minimum: 1, maximum: 100, description: 'Maximum returned products' },
+        limit: {
+          type: 'integer',
+          minimum: 1,
+          maximum: 100,
+          description: 'Maximum returned products',
+        },
         matchMode: {
           type: 'string',
           enum: ['balanced', 'literal'],
-          description: "Matching strategy: 'balanced' (default) allows generic-to-specific aliases like pasta -> penne; 'literal' enforces exact token matching.",
+          description:
+            "Matching strategy: 'balanced' (default) allows generic-to-specific aliases like pasta -> penne; 'literal' enforces exact token matching.",
         },
       },
       required: ['query'],
@@ -168,9 +207,44 @@ function getInputSchemaForTool(name: ToolName): ToolInputSchema {
           items: { type: 'string', enum: CHAINS },
           description: 'Restrict store lookup to specific chains',
         },
-        limit: { type: 'integer', minimum: 1, maximum: 100, description: 'Maximum returned stores' },
+        limit: {
+          type: 'integer',
+          minimum: 1,
+          maximum: 100,
+          description: 'Maximum returned stores',
+        },
       },
       required: ['location'],
+      additionalProperties: false,
+    };
+  }
+
+  if (name === 'search_promotions') {
+    return {
+      type: 'object',
+      properties: {
+        query: { type: 'string', description: 'Promotion search query' },
+        chains: {
+          type: 'array',
+          items: { type: 'string', enum: CHAINS },
+          description: 'Restrict promotion search to specific chains',
+        },
+        maxPrice: { type: 'number', description: 'Maximum promotion price in CHF' },
+        category: { type: 'string', description: 'Promotion category filter' },
+        limit: {
+          type: 'integer',
+          minimum: 1,
+          maximum: 100,
+          description: 'Maximum returned promotions',
+        },
+        matchMode: {
+          type: 'string',
+          enum: ['balanced', 'literal'],
+          description:
+            "Matching strategy: 'balanced' (default) allows generic-to-specific aliases; 'literal' enforces exact token matching.",
+        },
+      },
+      required: ['query'],
       additionalProperties: false,
     };
   }
@@ -199,7 +273,8 @@ function getInputSchemaForTool(name: ToolName): ToolInputSchema {
         matchMode: {
           type: 'string',
           enum: ['balanced', 'literal'],
-          description: "Matching strategy: 'balanced' (default) allows generic-to-specific aliases; 'literal' enforces exact token matching.",
+          description:
+            "Matching strategy: 'balanced' (default) allows generic-to-specific aliases; 'literal' enforces exact token matching.",
         },
       },
       required: ['chain', 'storeId', 'query'],
@@ -222,17 +297,24 @@ function getInputSchemaForTool(name: ToolName): ToolInputSchema {
         type: 'integer',
         minimum: 1,
         maximum: 50,
-        description: 'Number of candidates evaluated and returned per chain (default 1). Increasing this reveals alternative products.',
+        description:
+          'Number of candidates evaluated and returned per chain (default 1). Increasing this reveals alternative products.',
       },
       comparisonBasis: {
         type: 'string',
         enum: ['packPrice', 'unitPrice'],
-        description: "Whether to rank by 'packPrice' (total price for the product, default) or 'unitPrice' (price per kg/l/piece).",
+        description:
+          "Whether to rank by 'packPrice' (total price for the product, default) or 'unitPrice' (price per kg/l/piece).",
+      },
+      includePromotions: {
+        type: 'boolean',
+        description: 'When true, include matching promotions as effective-price offers.',
       },
       matchMode: {
         type: 'string',
         enum: ['balanced', 'literal'],
-        description: "Matching strategy: 'balanced' (default) allows generic-to-specific aliases; 'literal' enforces exact token matching.",
+        description:
+          "Matching strategy: 'balanced' (default) allows generic-to-specific aliases; 'literal' enforces exact token matching.",
       },
     },
     required: ['query'],
@@ -247,13 +329,15 @@ export function listTools(): ListToolsResult {
       description:
         name === 'search_products'
           ? 'Search for products across Swiss grocery chains'
-          : name === 'find_stores'
-            ? 'Find grocery stores by city, ZIP code, or location keywords'
-            : name === 'get_store_availability_support'
-              ? 'List store-level product availability support by chain'
-              : name === 'lookup_store_product_availability'
-                ? 'Check whether products matching a query are available in a specific store'
-             : 'Compare cross-chain prices for matching products',
+          : name === 'search_promotions'
+            ? 'Search current promotions across Swiss grocery chains'
+            : name === 'find_stores'
+              ? 'Find grocery stores by city, ZIP code, or location keywords'
+              : name === 'get_store_availability_support'
+                ? 'List store-level product availability support by chain'
+                : name === 'lookup_store_product_availability'
+                  ? 'Check whether products matching a query are available in a specific store'
+                  : 'Compare cross-chain prices for matching products',
       inputSchema: getInputSchemaForTool(name),
     })),
   };
@@ -265,7 +349,7 @@ function isSupportedToolName(name: string): name is ToolName {
 
 export async function executeToolCall(
   params: CallToolRequest['params'],
-  dependencies: ToolDependencies,
+  dependencies: ToolDependencies
 ): Promise<CallToolResult> {
   if (!isSupportedToolName(params.name)) {
     return toolError('UNKNOWN_TOOL', `Unknown tool: ${params.name}`);
@@ -297,6 +381,19 @@ export async function executeToolCall(
     return toolSuccess(withMetadata({ stores: result.data }, result.metadata));
   }
 
+  if (params.name === 'search_promotions') {
+    const parsedInput = searchPromotionsInputSchema.safeParse(params.arguments ?? {});
+    if (!parsedInput.success) {
+      return toolError('INVALID_ARGUMENTS', getValidationErrorMessage(parsedInput.error));
+    }
+
+    const result = await dependencies.searchService.searchPromotions(parsedInput.data);
+    if (!result.ok) {
+      return toolError(result.error.code, result.error.message ?? 'Promotion search failed.');
+    }
+    return toolSuccess(withMetadata({ promotions: result.data }, result.metadata));
+  }
+
   if (params.name === 'get_store_availability_support') {
     const parsedInput = availabilitySupportInputSchema.safeParse(params.arguments ?? {});
     if (!parsedInput.success) {
@@ -313,13 +410,19 @@ export async function executeToolCall(
       return toolError('INVALID_ARGUMENTS', getValidationErrorMessage(parsedInput.error));
     }
 
-    const result = await dependencies.searchService.lookupStoreProductAvailability(parsedInput.data.chain, {
-      storeId: parsedInput.data.storeId,
-      query: parsedInput.data.query,
-      matchMode: parsedInput.data.matchMode,
-    });
+    const result = await dependencies.searchService.lookupStoreProductAvailability(
+      parsedInput.data.chain,
+      {
+        storeId: parsedInput.data.storeId,
+        query: parsedInput.data.query,
+        matchMode: parsedInput.data.matchMode,
+      }
+    );
     if (!result.ok) {
-      return toolError(result.error.code, result.error.message ?? 'Store product availability lookup failed.');
+      return toolError(
+        result.error.code,
+        result.error.message ?? 'Store product availability lookup failed.'
+      );
     }
     return toolSuccess({ availability: result.data });
   }

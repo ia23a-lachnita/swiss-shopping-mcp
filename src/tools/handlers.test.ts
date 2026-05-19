@@ -7,7 +7,9 @@ import { SearchService } from '../services/searchService.js';
 import { executeToolCall, listTools } from './handlers.js';
 
 const searchService = new SearchService(createDefaultAdapters({ dataMode: 'legacy-static' }));
-const priceComparisonService = new PriceComparisonService(createDefaultAdapters({ dataMode: 'legacy-static' }));
+const priceComparisonService = new PriceComparisonService(
+  createDefaultAdapters({ dataMode: 'legacy-static' })
+);
 const dependencies = { searchService, priceComparisonService };
 
 const sourceWarning = {
@@ -22,6 +24,7 @@ describe('tool handlers', () => {
     const result = listTools();
     expect(result.tools.map((tool) => tool.name)).toEqual([
       'search_products',
+      'search_promotions',
       'find_stores',
       'compare_prices',
       'get_store_availability_support',
@@ -42,7 +45,7 @@ describe('tool handlers', () => {
   it('executes search_products successfully', async () => {
     const result = await executeToolCall(
       { name: 'search_products', arguments: { query: 'pantry', limit: 2 } },
-      dependencies,
+      dependencies
     );
 
     expect(result.isError).not.toBe(true);
@@ -66,7 +69,7 @@ describe('tool handlers', () => {
 
     const result = await executeToolCall(
       { name: 'search_products', arguments: { query: 'milk' } },
-      customDependencies,
+      customDependencies
     );
 
     expect(result.isError).not.toBe(true);
@@ -79,12 +82,47 @@ describe('tool handlers', () => {
   it('executes find_stores successfully', async () => {
     const result = await executeToolCall(
       { name: 'find_stores', arguments: { location: 'zürich' } },
-      dependencies,
+      dependencies
     );
 
     expect(result.isError).not.toBe(true);
     const structured = result.structuredContent as { stores: unknown[] };
     expect(structured.stores.length).toBeGreaterThan(0);
+  });
+
+  it('executes search_promotions successfully', async () => {
+    const customDependencies = {
+      searchService: {
+        async searchPromotions() {
+          return {
+            ok: true,
+            data: [
+              {
+                id: 'denner-orange-juice-promo',
+                chain: 'denner',
+                title: 'Orange Juice',
+                price: { current: 2 },
+                validFrom: new Date('2026-05-19T00:00:00.000Z'),
+                validUntil: new Date('2026-05-20T23:59:59.999Z'),
+              },
+            ],
+            metadata: { sourceWarnings: [sourceWarning] },
+          } as const;
+        },
+      } as unknown as SearchService,
+      priceComparisonService,
+    };
+
+    const result = await executeToolCall(
+      { name: 'search_promotions', arguments: { query: 'orange', chains: ['denner'] } },
+      customDependencies
+    );
+
+    expect(result.isError).not.toBe(true);
+    expect(result.structuredContent).toMatchObject({
+      promotions: [{ id: 'denner-orange-juice-promo' }],
+      sourceWarnings: [sourceWarning],
+    });
   });
 
   it('includes source warnings from find_stores metadata', async () => {
@@ -103,7 +141,7 @@ describe('tool handlers', () => {
 
     const result = await executeToolCall(
       { name: 'find_stores', arguments: { location: 'zürich' } },
-      customDependencies,
+      customDependencies
     );
 
     expect(result.isError).not.toBe(true);
@@ -116,7 +154,7 @@ describe('tool handlers', () => {
   it('executes compare_prices successfully', async () => {
     const result = await executeToolCall(
       { name: 'compare_prices', arguments: { query: 'milk', quantity: 1 } },
-      dependencies,
+      dependencies
     );
 
     expect(result.isError).not.toBe(true);
@@ -148,7 +186,7 @@ describe('tool handlers', () => {
 
     const result = await executeToolCall(
       { name: 'compare_prices', arguments: { query: 'milk' } },
-      customDependencies,
+      customDependencies
     );
 
     expect(result.isError).not.toBe(true);
@@ -164,7 +202,7 @@ describe('tool handlers', () => {
         name: 'compare_prices',
         arguments: { query: 'pasta', comparisonBasis: 'unitPrice', chains: ['migros', 'denner'] },
       },
-      dependencies,
+      dependencies
     );
 
     expect(result.isError).not.toBe(true);
@@ -177,8 +215,11 @@ describe('tool handlers', () => {
 
   it('executes search_products with matchMode successfully', async () => {
     const result = await executeToolCall(
-      { name: 'search_products', arguments: { query: 'pasta', matchMode: 'balanced', chains: ['ottos'] } },
-      dependencies,
+      {
+        name: 'search_products',
+        arguments: { query: 'pasta', matchMode: 'balanced', chains: ['ottos'] },
+      },
+      dependencies
     );
 
     expect(result.isError).not.toBe(true);
@@ -188,8 +229,11 @@ describe('tool handlers', () => {
     expect(structured.products[0].name).toBe('Spaghetti');
 
     const literalResult = await executeToolCall(
-      { name: 'search_products', arguments: { query: 'pasta', matchMode: 'literal', chains: ['ottos'] } },
-      dependencies,
+      {
+        name: 'search_products',
+        arguments: { query: 'pasta', matchMode: 'literal', chains: ['ottos'] },
+      },
+      dependencies
     );
     expect(literalResult.isError).not.toBe(true);
     const literalStructured = literalResult.structuredContent as { products: unknown[] };
@@ -199,11 +243,13 @@ describe('tool handlers', () => {
   it('executes get_store_availability_support successfully', async () => {
     const result = await executeToolCall(
       { name: 'get_store_availability_support', arguments: { chains: ['migros', 'coop'] } },
-      dependencies,
+      dependencies
     );
 
     expect(result.isError).not.toBe(true);
-    const structured = result.structuredContent as { support: Array<{ chain: string; supported: boolean }> };
+    const structured = result.structuredContent as {
+      support: Array<{ chain: string; supported: boolean }>;
+    };
     expect(structured.support).toEqual([
       { chain: 'coop', supported: false, reason: expect.any(String) },
       { chain: 'migros', supported: true },
@@ -216,7 +262,7 @@ describe('tool handlers', () => {
         name: 'lookup_store_product_availability',
         arguments: { chain: 'migros', storeId: 'migros-zurich-1', query: 'milk' },
       },
-      dependencies,
+      dependencies
     );
 
     expect(result.isError).not.toBe(true);
@@ -234,7 +280,7 @@ describe('tool handlers', () => {
         name: 'lookup_store_product_availability',
         arguments: { chain: 'coop', storeId: 'coop-basel-1', query: 'milk' },
       },
-      dependencies,
+      dependencies
     );
 
     expect(result.isError).not.toBe(true);

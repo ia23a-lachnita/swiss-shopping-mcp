@@ -5,8 +5,10 @@ import {
   Chain,
   ChainAdapter,
   NormalizedProduct,
+  NormalizedPromotion,
   NormalizedStore,
   ProductSearchFilters,
+  PromotionSearchFilters,
   Result,
   ResultMetadata,
   SourceWarningCode,
@@ -21,10 +23,11 @@ function stubAdapter(
   chain: Chain,
   behavior: {
     products?: NormalizedProduct[];
+    promotions?: NormalizedPromotion[];
     stores?: NormalizedStore[];
     errorCode?: string;
     metadata?: ResultMetadata;
-  },
+  }
 ): ChainAdapter {
   return {
     chain,
@@ -32,19 +35,39 @@ function stubAdapter(
       if (behavior.errorCode) {
         return { ok: false, error: { code: behavior.errorCode, message: `${chain} failed.` } };
       }
-      return { ok: true, data: (behavior.products ?? []).slice(0, filters.limit), metadata: behavior.metadata };
+      return {
+        ok: true,
+        data: (behavior.products ?? []).slice(0, filters.limit),
+        metadata: behavior.metadata,
+      };
+    },
+    async searchPromotions(
+      filters: PromotionSearchFilters
+    ): Promise<Result<NormalizedPromotion[]>> {
+      if (behavior.errorCode) {
+        return { ok: false, error: { code: behavior.errorCode, message: `${chain} failed.` } };
+      }
+      return {
+        ok: true,
+        data: (behavior.promotions ?? []).slice(0, filters.limit),
+        metadata: behavior.metadata,
+      };
     },
     async findStores(filters: StoreSearchFilters): Promise<Result<NormalizedStore[]>> {
       if (behavior.errorCode) {
         return { ok: false, error: { code: behavior.errorCode, message: `${chain} failed.` } };
       }
-      return { ok: true, data: (behavior.stores ?? []).slice(0, filters.limit), metadata: behavior.metadata };
+      return {
+        ok: true,
+        data: (behavior.stores ?? []).slice(0, filters.limit),
+        metadata: behavior.metadata,
+      };
     },
     getStoreAvailabilitySupport(): StoreAvailabilitySupport {
       return { chain, supported: false };
     },
     async lookupStoreProductAvailability(
-      filters: StoreProductAvailabilityFilters,
+      filters: StoreProductAvailabilityFilters
     ): Promise<Result<StoreProductAvailabilityResult>> {
       return {
         ok: true,
@@ -77,6 +100,18 @@ function testStore(id: string, chain: Chain): NormalizedStore {
     name: id,
     address: 'Teststrasse 1, 8000 Zürich',
     location: { latitude: 47.3769, longitude: 8.5417 },
+  };
+}
+
+function testPromotion(id: string, chain: Chain, current: number): NormalizedPromotion {
+  return {
+    id,
+    chain,
+    title: id,
+    productName: id,
+    price: { current },
+    validFrom: new Date('2026-05-19T00:00:00.000Z'),
+    validUntil: new Date('2026-05-20T23:59:59.999Z'),
   };
 }
 
@@ -207,6 +242,37 @@ describe('SearchService', () => {
       expect(result.error.code).toBe('ALL_SOURCES_FAILED');
       expect(result.error.message).toContain('migros');
       expect(result.error.message).toContain('coop');
+    }
+  });
+
+  it('searches promotions across requested chains and sorts by current price', async () => {
+    const promotionService = new SearchService([
+      stubAdapter('denner', { promotions: [testPromotion('denner-orange', 'denner', 2)] }),
+      stubAdapter('coop', { promotions: [testPromotion('coop-orange', 'coop', 3)] }),
+    ]);
+
+    const result = await promotionService.searchPromotions({ query: 'orange' });
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data.map((promotion) => promotion.id)).toEqual([
+        'denner-orange',
+        'coop-orange',
+      ]);
+    }
+  });
+
+  it('keeps promotion relevance ahead of price when merging adapter results', async () => {
+    const promotionService = new SearchService([
+      stubAdapter('denner', { promotions: [testPromotion('orange', 'denner', 1)] }),
+      stubAdapter('coop', { promotions: [testPromotion('orange-juice', 'coop', 3)] }),
+    ]);
+
+    const result = await promotionService.searchPromotions({ query: 'orange juice' });
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data.map((promotion) => promotion.id)).toEqual(['orange-juice', 'orange']);
     }
   });
 

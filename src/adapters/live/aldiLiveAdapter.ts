@@ -1,11 +1,17 @@
 import { FileTtlCache } from '../../cache/fileTtlCache.js';
-import { AldiParsedProduct, AldiSitemapEntry, parseAldiProductPage, parseAldiProductSitemap } from '../../parsers/aldi.js';
+import {
+  AldiParsedProduct,
+  AldiSitemapEntry,
+  parseAldiProductPage,
+  parseAldiProductSitemap,
+} from '../../parsers/aldi.js';
 import { SourceClientError, SourceHttpClient } from '../../sources/sourceClient.js';
 import { calculateMatchStrength, normalize, sortProducts } from '../../util/matcher.js';
 import {
   ChainAdapter,
   NormalizedProduct,
   ProductSearchFilters,
+  PromotionSearchFilters,
   Result,
   ResultMetadata,
   SourceProvenance,
@@ -50,7 +56,7 @@ export interface AldiLiveAdapterOptions {
 }
 
 function cacheableProvenance(
-  provenance: SourceProvenance,
+  provenance: SourceProvenance
 ): Omit<SourceProvenance, 'observedAt' | 'freshness' | 'cacheExpiresAt'> {
   return {
     provider: provenance.provider,
@@ -61,21 +67,30 @@ function cacheableProvenance(
   };
 }
 
-function productProvenance(product: AldiParsedProduct, provenance: SourceProvenance): SourceProvenance {
+function productProvenance(
+  product: AldiParsedProduct,
+  provenance: SourceProvenance
+): SourceProvenance {
   return {
     ...provenance,
     sourceUrl: product.sourceUrl,
   };
 }
 
-function liveProvenanceWithCacheExpiry(provenance: SourceProvenance, cacheExpiresAt: string): SourceProvenance {
+function liveProvenanceWithCacheExpiry(
+  provenance: SourceProvenance,
+  cacheExpiresAt: string
+): SourceProvenance {
   return {
     ...provenance,
     cacheExpiresAt,
   };
 }
 
-function toNormalizedProduct(product: AldiParsedProduct, provenance: SourceProvenance): NormalizedProduct {
+function toNormalizedProduct(
+  product: AldiParsedProduct,
+  provenance: SourceProvenance
+): NormalizedProduct {
   return {
     id: product.id,
     chain: 'aldi',
@@ -126,7 +141,8 @@ function staleCacheWarning(provenance: SourceProvenance): SourceWarning {
 }
 
 function metadataFrom(provenances: SourceProvenance[], warnings: SourceWarning[]): ResultMetadata {
-  const primaryProvenance = provenances.find((provenance) => provenance.freshness === 'live') ?? provenances.at(0);
+  const primaryProvenance =
+    provenances.find((provenance) => provenance.freshness === 'live') ?? provenances.at(0);
   const sources: SourceStatus[] = [
     {
       chain: 'aldi',
@@ -183,7 +199,10 @@ export class AldiLiveAdapter implements ChainAdapter {
   public async searchProducts(filters: ProductSearchFilters): Promise<Result<NormalizedProduct[]>> {
     const query = filters.query.trim();
     if (!query) {
-      return { ok: false, error: { code: 'INVALID_QUERY', message: 'Query must be a non-empty string.' } };
+      return {
+        ok: false,
+        error: { code: 'INVALID_QUERY', message: 'Query must be a non-empty string.' },
+      };
     }
 
     const sitemap = await this.loadSitemap();
@@ -193,19 +212,24 @@ export class AldiLiveAdapter implements ChainAdapter {
 
     const terms = queryTerms(query);
     const productPageLimit = Math.min(Math.max((filters.limit ?? 1) * 5, 5), this.maxProductPages);
-    const candidates = sitemap.data.filter((entry) => isCandidateUrl(entry, terms)).slice(0, productPageLimit);
-    const productResults = await Promise.all(candidates.map((entry) => this.loadProduct(entry.loc)));
-    const warnings = [
-      ...sitemap.warnings,
-      ...productResults.flatMap((result) => result.warnings),
-    ];
+    const candidates = sitemap.data
+      .filter((entry) => isCandidateUrl(entry, terms))
+      .slice(0, productPageLimit);
+    const productResults = await Promise.all(
+      candidates.map((entry) => this.loadProduct(entry.loc))
+    );
+    const warnings = [...sitemap.warnings, ...productResults.flatMap((result) => result.warnings)];
     const products = productResults
       .filter((result): result is LoadSuccess<AldiParsedProduct> => result.ok)
       .map((result) => toNormalizedProduct(result.data, result.provenance))
       .filter((product) => this.productMatches(product, query, filters))
       .sort((a, b) => sortProducts(a, b, query, filters.matchMode ?? 'balanced'));
 
-    if (candidates.length > 0 && products.length === 0 && productResults.every((result) => !result.ok)) {
+    if (
+      candidates.length > 0 &&
+      products.length === 0 &&
+      productResults.every((result) => !result.ok)
+    ) {
       return {
         ok: false,
         error: {
@@ -217,9 +241,12 @@ export class AldiLiveAdapter implements ChainAdapter {
 
     const provenances = [
       sitemap.provenance,
-      ...productResults.filter((result): result is LoadSuccess<AldiParsedProduct> => result.ok).map((result) => result.provenance),
+      ...productResults
+        .filter((result): result is LoadSuccess<AldiParsedProduct> => result.ok)
+        .map((result) => result.provenance),
     ];
-    const limitedProducts = typeof filters.limit === 'number' ? products.slice(0, filters.limit) : products;
+    const limitedProducts =
+      typeof filters.limit === 'number' ? products.slice(0, filters.limit) : products;
     return {
       ok: true,
       data: limitedProducts,
@@ -232,7 +259,19 @@ export class AldiLiveAdapter implements ChainAdapter {
       ok: false,
       error: {
         code: SourceWarningCode.RealSourceNotImplemented,
-        message: 'Aldi live-beta adapter covers product search only; store lookup is not implemented.',
+        message:
+          'Aldi live-beta adapter covers product search only; store lookup is not implemented.',
+      },
+    };
+  }
+
+  public async searchPromotions(_filters: PromotionSearchFilters): Promise<Result<never[]>> {
+    return {
+      ok: false,
+      error: {
+        code: SourceWarningCode.RealSourceNotImplemented,
+        message:
+          'Aldi live-beta adapter covers product search only; promotions are not implemented.',
       },
     };
   }
@@ -246,7 +285,7 @@ export class AldiLiveAdapter implements ChainAdapter {
   }
 
   public async lookupStoreProductAvailability(
-    filters: StoreProductAvailabilityFilters,
+    filters: StoreProductAvailabilityFilters
   ): Promise<Result<StoreProductAvailabilityResult>> {
     return {
       ok: true,
@@ -262,7 +301,11 @@ export class AldiLiveAdapter implements ChainAdapter {
     };
   }
 
-  private productMatches(product: NormalizedProduct, query: string, filters: ProductSearchFilters): boolean {
+  private productMatches(
+    product: NormalizedProduct,
+    query: string,
+    filters: ProductSearchFilters
+  ): boolean {
     const matchMode = filters.matchMode ?? 'balanced';
     if (calculateMatchStrength(product, query, matchMode) === 0) {
       return false;
@@ -296,7 +339,12 @@ export class AldiLiveAdapter implements ChainAdapter {
         confidence: 'high',
       });
       const entries = parseAldiProductSitemap(result.data);
-      const record = await this.cache.set(cacheKey, entries, cacheableProvenance(result.provenance), this.cacheTtlMs);
+      const record = await this.cache.set(
+        cacheKey,
+        entries,
+        cacheableProvenance(result.provenance),
+        this.cacheTtlMs
+      );
       return {
         ok: true,
         data: entries,
@@ -304,7 +352,11 @@ export class AldiLiveAdapter implements ChainAdapter {
         warnings: [],
       };
     } catch (error) {
-      const warning = warningFromError(error, this.productSitemapUrl, 'Aldi product sitemap fetch failed');
+      const warning = warningFromError(
+        error,
+        this.productSitemapUrl,
+        'Aldi product sitemap fetch failed'
+      );
       if (cached) {
         return {
           ok: true,
@@ -337,7 +389,12 @@ export class AldiLiveAdapter implements ChainAdapter {
         confidence: 'medium',
       });
       const product = parseAldiProductPage(result.data, sourceUrl);
-      const record = await this.cache.set(cacheKey, product, cacheableProvenance(result.provenance), this.cacheTtlMs);
+      const record = await this.cache.set(
+        cacheKey,
+        product,
+        cacheableProvenance(result.provenance),
+        this.cacheTtlMs
+      );
       return {
         ok: true,
         data: product,

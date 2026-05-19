@@ -5,6 +5,7 @@ import {
   NormalizedProduct,
   NormalizedStore,
   ProductSearchFilters,
+  PromotionSearchFilters,
   Result,
   StoreAvailabilitySupport,
   StoreProductAvailabilityFilters,
@@ -160,6 +161,16 @@ export class MigrosAdapter implements ChainAdapter {
     }
   }
 
+  async searchPromotions(_filters: PromotionSearchFilters): Promise<Result<never[]>> {
+    return {
+      ok: false,
+      error: {
+        code: 'REAL_SOURCE_NOT_IMPLEMENTED',
+        message: 'Migros HTTP adapter does not implement promotions.',
+      },
+    };
+  }
+
   async findStores(filters: StoreSearchFilters): Promise<Result<NormalizedStore[]>> {
     const { location, limit } = filters;
     const url = `${BASE_URL}/v3/stores?q=${encodeURIComponent(location)}&lang=de${limit !== undefined ? `&limit=${limit}` : ''}`;
@@ -184,7 +195,7 @@ export class MigrosAdapter implements ChainAdapter {
   }
 
   async lookupStoreProductAvailability(
-    filters: StoreProductAvailabilityFilters,
+    filters: StoreProductAvailabilityFilters
   ): Promise<Result<StoreProductAvailabilityResult>> {
     return {
       ok: true,

@@ -3,6 +3,7 @@ import {
   ChainAdapter,
   ComparisonBasis,
   NormalizedProduct,
+  NormalizedPromotion,
   PriceComparisonFilters,
   Result,
   ResultMetadata,
@@ -13,6 +14,9 @@ import { getBaseUnitPrice } from '../util/units.js';
 export interface ChainPriceOffer {
   chain: Chain;
   product: NormalizedProduct;
+  promotion?: NormalizedPromotion;
+  priceBasis: 'product' | 'promotion';
+  effectivePrice: number;
   unitPrice?: number;
   totalPrice: number;
   baseUnitPrice?: number;
@@ -39,7 +43,10 @@ function roundCurrency(value: number): number {
   return Math.round(value * 100) / 100;
 }
 
-function mergeMetadata(metadataEntries: ResultMetadata[], sourceWarnings: ResultMetadata['sourceWarnings']): ResultMetadata | undefined {
+function mergeMetadata(
+  metadataEntries: ResultMetadata[],
+  sourceWarnings: ResultMetadata['sourceWarnings']
+): ResultMetadata | undefined {
   const warnings = [
     ...metadataEntries.flatMap((metadata) => metadata.sourceWarnings ?? []),
     ...(sourceWarnings ?? []),
@@ -86,6 +93,8 @@ function createOffer(product: NormalizedProduct, quantity: number): ChainPriceOf
   return {
     chain: product.chain,
     product,
+    priceBasis: 'product',
+    effectivePrice: product.price.current,
     unitPrice,
     totalPrice: roundCurrency(product.price.current * quantity),
     baseUnitPrice,
@@ -93,6 +102,64 @@ function createOffer(product: NormalizedProduct, quantity: number): ChainPriceOf
     comparisonEligible: false,
     isEligibleForUnitComparison,
   };
+}
+
+function promotionAsProduct(promotion: NormalizedPromotion): NormalizedProduct {
+  return {
+    id: `promotion:${promotion.id}`,
+    chain: promotion.chain,
+    name: promotion.productName ?? promotion.title,
+    brand: promotion.brand,
+    category: promotion.category,
+    size: promotion.description,
+    image: promotion.image,
+    price: promotion.price ?? { current: Number.POSITIVE_INFINITY },
+    tags: ['promotion'],
+    provenance: promotion.provenance,
+  };
+}
+
+function createPromotionOffer(
+  promotion: NormalizedPromotion,
+  quantity: number
+): ChainPriceOffer | undefined {
+  if (!promotion.price || !Number.isFinite(promotion.price.current)) {
+    return undefined;
+  }
+
+  return {
+    ...createOffer(promotionAsProduct(promotion), quantity),
+    promotion,
+    priceBasis: 'promotion',
+    effectivePrice: promotion.price.current,
+  };
+}
+
+function offerDedupeKey(offer: ChainPriceOffer): string {
+  const size = offer.product.size?.trim().toLowerCase() ?? offer.baseUnit ?? 'unknown-size';
+  return `${offer.chain}:${offer.product.name.trim().toLowerCase()}:${size}`;
+}
+
+function dedupeOffers(offers: ChainPriceOffer[]): ChainPriceOffer[] {
+  const byKey = new Map<string, ChainPriceOffer>();
+
+  for (const offer of offers) {
+    const key = offerDedupeKey(offer);
+    const existing = byKey.get(key);
+    if (!existing) {
+      byKey.set(key, offer);
+      continue;
+    }
+
+    if (
+      offer.totalPrice < existing.totalPrice ||
+      (offer.totalPrice === existing.totalPrice && offer.priceBasis === 'promotion')
+    ) {
+      byKey.set(key, offer);
+    }
+  }
+
+  return Array.from(byKey.values());
 }
 
 function getPrimaryUnit(offers: ChainPriceOffer[]): string | undefined {
@@ -113,7 +180,7 @@ function getPrimaryUnit(offers: ChainPriceOffer[]): string | undefined {
 
 function prepareOffersForComparison(
   offers: ChainPriceOffer[],
-  comparisonBasis: ComparisonBasis,
+  comparisonBasis: ComparisonBasis
 ): { offers: ChainPriceOffer[]; comparisonUnit?: string } {
   if (comparisonBasis === 'packPrice') {
     return {
@@ -160,7 +227,11 @@ function prepareOffersForComparison(
   };
 }
 
-function sortOffers(a: ChainPriceOffer, b: ChainPriceOffer, comparisonBasis: ComparisonBasis): number {
+function sortOffers(
+  a: ChainPriceOffer,
+  b: ChainPriceOffer,
+  comparisonBasis: ComparisonBasis
+): number {
   if (comparisonBasis === 'unitPrice') {
     if (a.comparisonEligible !== b.comparisonEligible) {
       return a.comparisonEligible ? -1 : 1;
@@ -184,23 +255,37 @@ export class PriceComparisonService {
     this.adapters = adapters;
   }
 
-  public async comparePrices(filters: PriceComparisonFilters): Promise<Result<PriceComparisonResult>> {
+  public async comparePrices(
+    filters: PriceComparisonFilters
+  ): Promise<Result<PriceComparisonResult>> {
     const query = filters.query.trim();
     if (!query) {
-      return { ok: false, error: { code: 'INVALID_QUERY', message: 'Query must be a non-empty string.' } };
+      return {
+        ok: false,
+        error: { code: 'INVALID_QUERY', message: 'Query must be a non-empty string.' },
+      };
     }
 
     const quantity = typeof filters.quantity === 'number' ? filters.quantity : 1;
     if (quantity <= 0) {
-      return { ok: false, error: { code: 'INVALID_QUANTITY', message: 'Quantity must be greater than zero.' } };
+      return {
+        ok: false,
+        error: { code: 'INVALID_QUANTITY', message: 'Quantity must be greater than zero.' },
+      };
     }
 
     const matchMode = filters.matchMode ?? 'balanced';
     const comparisonBasis = filters.comparisonBasis ?? 'packPrice';
-    const requestedChains = new Set(filters.chains ?? this.adapters.map((adapter) => adapter.chain));
+    const includePromotions = filters.includePromotions ?? false;
+    const requestedChains = new Set(
+      filters.chains ?? this.adapters.map((adapter) => adapter.chain)
+    );
     const relevantAdapters = this.adapters.filter((adapter) => requestedChains.has(adapter.chain));
     if (relevantAdapters.length === 0) {
-      return { ok: false, error: { code: 'CHAIN_NOT_SUPPORTED', message: 'No supported chains were requested.' } };
+      return {
+        ok: false,
+        error: { code: 'CHAIN_NOT_SUPPORTED', message: 'No supported chains were requested.' },
+      };
     }
 
     // Default to 1 candidate per chain unless specified otherwise.
@@ -219,30 +304,92 @@ export class PriceComparisonService {
           return { ok: false, chain: adapter.chain, error: productsResult.error } as const;
         }
 
-        return { ok: true, chain: adapter.chain, products: productsResult.data, metadata: productsResult.metadata } as const;
-      }),
+        return {
+          ok: true,
+          chain: adapter.chain,
+          products: productsResult.data,
+          metadata: productsResult.metadata,
+        } as const;
+      })
     );
+
+    const perChainPromotionResults = includePromotions
+      ? await Promise.all(
+          relevantAdapters.map(async (adapter) => {
+            const promotionsResult = await adapter.searchPromotions({
+              query,
+              maxPrice: filters.maxPrice,
+              limit: limitPerChain,
+              matchMode,
+            });
+
+            if (!promotionsResult.ok) {
+              return { ok: false, chain: adapter.chain, error: promotionsResult.error } as const;
+            }
+
+            return {
+              ok: true,
+              chain: adapter.chain,
+              promotions: promotionsResult.data,
+              metadata: promotionsResult.metadata,
+            } as const;
+          })
+        )
+      : [];
 
     const sourceWarnings = perChainResults
       .filter((chainResult) => !chainResult.ok)
       .map((chainResult) =>
-        sourceWarningFromError(chainResult.chain, chainResult.ok ? { code: 'UNKNOWN' } : chainResult.error),
+        sourceWarningFromError(
+          chainResult.chain,
+          chainResult.ok ? { code: 'UNKNOWN' } : chainResult.error
+        )
+      )
+      .concat(
+        perChainPromotionResults
+          .filter((chainResult) => !chainResult.ok)
+          .map((chainResult) =>
+            sourceWarningFromError(
+              chainResult.chain,
+              chainResult.ok ? { code: 'UNKNOWN' } : chainResult.error
+            )
+          )
       );
 
     const successfulResults = perChainResults.filter((chainResult) => chainResult.ok);
-    if (successfulResults.length === 0 && sourceWarnings.length > 0) {
+    const successfulPromotionResults = perChainPromotionResults.filter(
+      (chainResult) => chainResult.ok
+    );
+    if (
+      successfulResults.length === 0 &&
+      successfulPromotionResults.length === 0 &&
+      sourceWarnings.length > 0
+    ) {
       return {
         ok: false,
         error: {
           code: 'ALL_SOURCES_FAILED',
-          message: sourceWarnings.map((warning) => `${warning.chain}: ${warning.message}`).join('; '),
+          message: sourceWarnings
+            .map((warning) => `${warning.chain}: ${warning.message}`)
+            .join('; '),
         },
       };
     }
 
-    const rawOffers = successfulResults
+    const productOffers = successfulResults
       .flatMap((chainResult) => (chainResult.ok ? chainResult.products : []))
       .map((product) => createOffer(product, quantity));
+    const promotionOffers = successfulPromotionResults
+      .flatMap((chainResult) => (chainResult.ok ? chainResult.promotions : []))
+      .filter((promotion) => {
+        return (
+          typeof filters.maxPrice !== 'number' ||
+          (promotion.price?.current ?? Number.POSITIVE_INFINITY) <= filters.maxPrice
+        );
+      })
+      .map((promotion) => createPromotionOffer(promotion, quantity))
+      .filter((offer): offer is ChainPriceOffer => offer !== undefined);
+    const rawOffers = dedupeOffers([...productOffers, ...promotionOffers]);
 
     const prepared = prepareOffersForComparison(rawOffers, comparisonBasis);
     const offers = prepared.offers.sort((a, b) => sortOffers(a, b, comparisonBasis));
@@ -262,10 +409,12 @@ export class PriceComparisonService {
         cheapestOffer.comparisonUnit === mostExpensiveOffer.comparisonUnit
       ) {
         savingsVsMostExpensive = roundCurrency(
-          (mostExpensiveOffer.comparisonPrice ?? 0) - (cheapestOffer.comparisonPrice ?? 0),
+          (mostExpensiveOffer.comparisonPrice ?? 0) - (cheapestOffer.comparisonPrice ?? 0)
         );
       } else if (comparisonBasis === 'packPrice') {
-        savingsVsMostExpensive = roundCurrency(mostExpensiveOffer.totalPrice - cheapestOffer.totalPrice);
+        savingsVsMostExpensive = roundCurrency(
+          mostExpensiveOffer.totalPrice - cheapestOffer.totalPrice
+        );
       }
     }
 
@@ -282,10 +431,16 @@ export class PriceComparisonService {
         comparisonUnit: prepared.comparisonUnit,
       },
       metadata: mergeMetadata(
-        successfulResults.flatMap((chainResult) =>
-          chainResult.ok && chainResult.metadata ? [chainResult.metadata] : [],
-        ),
-        sourceWarnings,
+        successfulResults
+          .flatMap((chainResult) =>
+            chainResult.ok && chainResult.metadata ? [chainResult.metadata] : []
+          )
+          .concat(
+            successfulPromotionResults.flatMap((chainResult) =>
+              chainResult.ok && chainResult.metadata ? [chainResult.metadata] : []
+            )
+          ),
+        sourceWarnings
       ),
     };
   }
