@@ -42,7 +42,7 @@ function createLoopbackTransportPair(): { clientTransport: LoopbackTransport; se
 
 describe('MCP server integration', () => {
   it('lists all registered tools over MCP transport', async () => {
-    const server = await createServer();
+    const server = await createServer({ adapterOptions: { dataMode: 'legacy-static' } });
     const client = new Client({ name: 'swiss-shopping-mcp-tests', version: '1.0.0' });
     const { clientTransport, serverTransport } = createLoopbackTransportPair();
 
@@ -63,7 +63,7 @@ describe('MCP server integration', () => {
   });
 
   it('retrieves search/store/compare/availability results end-to-end via MCP', async () => {
-    const server = await createServer();
+    const server = await createServer({ adapterOptions: { dataMode: 'legacy-static' } });
     const client = new Client({ name: 'swiss-shopping-mcp-tests', version: '1.0.0' });
     const { clientTransport, serverTransport } = createLoopbackTransportPair();
 
@@ -139,7 +139,7 @@ describe('MCP server integration', () => {
   });
 
   it('returns explicit MCP errors for invalid and unknown tool requests', async () => {
-    const server = await createServer();
+    const server = await createServer({ adapterOptions: { dataMode: 'legacy-static' } });
     const client = new Client({ name: 'swiss-shopping-mcp-tests', version: '1.0.0' });
     const { clientTransport, serverTransport } = createLoopbackTransportPair();
 

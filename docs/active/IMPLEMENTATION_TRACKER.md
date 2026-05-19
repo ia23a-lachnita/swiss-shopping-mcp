@@ -27,17 +27,20 @@ Phase: `V1 - core read/search foundation`
 | Store availability lookup | done | `get_store_availability_support` and `lookup_store_product_availability`; static Migros adapter supports per-store availability |
 | Search usability improvements | done | `matchMode` balanced/literal matching added; pasta-family recall fixed for static catalog |
 | Unit-aware price comparison | done | `comparisonBasis` pack/unit ranking, normalized unit eligibility, and `limitPerChain` alternatives implemented |
+| Real data migration plan | implementation-started | `docs/active/REAL_DATA_IMPLEMENTATION_PLAN.md` drafted and Gemini-reviewed with GREEN LIGHT on 2026-05-18; Phase 0/1 slice underway |
+| Chain source audit | in-progress | `docs/active/SOURCE_AUDIT.md` created with initial audit for all eight chains; Aldi is the recommended first catalog candidate, Denner a promotions candidate, Farmy blocked |
+| Aldi fixture-backed parser/adapter | done | Product sitemap/product-page parsers, small real-source fixtures, fixture-backed product adapter, and `docs/active/ALDI_FIXTURE_ADAPTER.md` added; `npm run lint`, `npm test -- --run`, `npm run build`, and `npm run test:live` pass; Gemini review found no blocking findings |
+| Aldi live-beta adapter | done | Runtime Aldi product search now uses the live-beta adapter path with source text fetching, file TTL cache, provenance, stale-cache warnings, deterministic legacy-static test mode, unit tests, opt-in live smoke coverage, and `docs/active/ALDI_LIVE_BETA_ADAPTER.md`; `npm run lint`, `npm test -- --run`, `npm run build`, `npm run test:live`, and `LIVE_SOURCE_TESTS=1 npm run test:live` pass |
+| Real data infrastructure | done | Provenance/source-warning domain types, file TTL cache, source HTTP client, source health service, partial-warning propagation, and validated opt-in `test:live` script added; `npm run lint`, `npm test -- --run`, and `npm run build` pass |
+| Real data infrastructure test cases | done | Additional cache/client/service/tool metadata cases added and documented in `docs/active/REAL_DATA_TEST_CASES.md`; `npm run lint`, `npm test -- --run`, `npm run build`, and `npm run test:live` pass; Gemini review found no blocking findings |
 | Copilot instruction architecture | done | Root and `.github` instruction files realigned |
 | Live MCP manual test pass | done | Original 31/31 baseline plus 6/6 follow-up regression cases pass; see `docs/active/MCP_TEST_REPORT.md` (2026-05-18) |
 
 ## Next tasks
 
-1. Expand the static taxonomy beyond the initial narrow aliases as more real catalog terms are observed
-2. Expand static catalogs or add real upstream API integration for non-Migros chains
-3. Activate `MigrosAdapter` (HTTP) in `createDefaultAdapters` when Migros API key/auth is ready
-4. Add normalized promotion ingestion and promotion-aware comparison
-5. Add richer store geospatial filtering (distance/radius)
-6. Prepare V2 account/cart integration foundation
+1. Add normalized promotion ingestion and promotion-aware comparison
+2. Add richer store geospatial filtering (distance/radius)
+3. Prepare V2 account/cart integration foundation
 
 ## Decisions
 
@@ -48,4 +51,7 @@ Phase: `V1 - core read/search foundation`
 - Partial adapter failure (HTTP adapter) returns whatever succeeded; all-fail returns error
 - Static catalog product search defaults to balanced deterministic matching; callers can request `matchMode: "literal"` for strict token matching
 - `compare_prices` defaults to pack-price ranking for compatibility; callers can request `comparisonBasis: "unitPrice"` for normalized unit ranking
-- Verification on 2026-05-18: live MCP follow-up regression cases passed; `npm run lint`, `npm test -- --run`, and `npm run build` passed
+- Verification on 2026-05-18: live MCP follow-up regression cases passed; `npm run lint`, `npm test -- --run`, and `npm run build` passed before and after the real-data infrastructure slice
+- Real-data migration must prove each chain independently; unsolved chains should return explicit source warnings instead of static fallback data
+- Real-data infrastructure should remain backward compatible until a chain source audit chooses the first live-beta adapter
+- Aldi product search is the first live-beta runtime path; deterministic tests use `createDefaultAdapters({ dataMode: "legacy-static" })` when they need the old static catalog behavior

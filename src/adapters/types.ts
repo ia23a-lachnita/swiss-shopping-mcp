@@ -5,6 +5,75 @@ export type PriceComparisonBasis = 'packPrice' | 'unitPrice';
 export type MatchMode = ProductMatchMode;
 export type ComparisonBasis = PriceComparisonBasis;
 
+export type SourceType = 'official-api' | 'partner-api' | 'retailer-web' | 'third-party' | 'open-data';
+export type SourceFreshness = 'live' | 'cached' | 'stale';
+export type SourceConfidence = 'high' | 'medium' | 'low';
+export type MatchExplanationField =
+  | 'name'
+  | 'brand'
+  | 'category'
+  | 'tag'
+  | 'taxonomy'
+  | 'barcode'
+  | 'provider-rank';
+
+export enum SourceWarningCode {
+  RealSourceNotImplemented = 'REAL_SOURCE_NOT_IMPLEMENTED',
+  SourceUnavailable = 'SOURCE_UNAVAILABLE',
+  SourceRateLimited = 'SOURCE_RATE_LIMITED',
+  SourceParseFailed = 'SOURCE_PARSE_FAILED',
+  SourceStaleCacheUsed = 'SOURCE_STALE_CACHE_USED',
+  SourceTermsBlocked = 'SOURCE_TERMS_BLOCKED',
+}
+
+export interface SourceProvenance {
+  provider: string;
+  chain?: Chain;
+  sourceType: SourceType;
+  sourceUrl?: string;
+  observedAt: string;
+  freshness: SourceFreshness;
+  cacheExpiresAt?: string;
+  confidence: SourceConfidence;
+}
+
+export interface MatchExplanation {
+  strength: number;
+  matchedBy: MatchExplanationField[];
+  matchedTerms: string[];
+}
+
+export interface SourceWarning {
+  code: SourceWarningCode;
+  message: string;
+  chain?: Chain;
+  provider?: string;
+  sourceUrl?: string;
+  observedAt?: string;
+}
+
+export interface SourceStatus {
+  chain: Chain;
+  status:
+    | 'static-v1'
+    | 'source-auditing'
+    | 'blocked'
+    | 'fixture-backed'
+    | 'live-beta'
+    | 'live-stable'
+    | 'degraded';
+  provider?: string;
+  sourceType?: SourceType;
+  lastObservedAt?: string;
+  warning?: SourceWarning;
+}
+
+export interface ResultMetadata {
+  sourceWarnings?: SourceWarning[];
+  sources?: SourceStatus[];
+  summary?: string;
+}
+
 export interface GeoPoint {
   latitude: number;
   longitude: number;
@@ -38,6 +107,8 @@ export interface NormalizedProduct {
     sugar?: number;
   };
   allergens?: string[];
+  provenance?: SourceProvenance;
+  matchExplanation?: MatchExplanation;
 }
 
 export interface NormalizedStore {
@@ -47,6 +118,7 @@ export interface NormalizedStore {
   address: string;
   location: GeoPoint;
   openingHours?: string;
+  provenance?: SourceProvenance;
 }
 
 export interface NormalizedPromotion {
@@ -60,6 +132,7 @@ export interface NormalizedPromotion {
   validFrom: Date;
   validUntil: Date;
   applicableStores?: string[];
+  provenance?: SourceProvenance;
 }
 
 export interface ProductSearchFilters {
@@ -132,5 +205,5 @@ export interface ChainAdapter {
 }
 
 export type Result<T> =
-  | { ok: true; data: T }
+  | { ok: true; data: T; metadata?: ResultMetadata }
   | { ok: false; error: { code: string; message?: string } };

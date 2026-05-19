@@ -5,7 +5,9 @@ import {
   NormalizedProduct,
   PriceComparisonFilters,
   Result,
+  ResultMetadata,
 } from '../adapters/types.js';
+import { sourceWarningFromError } from '../sources/warnings.js';
 import { getBaseUnitPrice } from '../util/units.js';
 
 export interface ChainPriceOffer {
@@ -35,6 +37,28 @@ export interface PriceComparisonResult {
 
 function roundCurrency(value: number): number {
   return Math.round(value * 100) / 100;
+}
+
+function mergeMetadata(metadataEntries: ResultMetadata[], sourceWarnings: ResultMetadata['sourceWarnings']): ResultMetadata | undefined {
+  const warnings = [
+    ...metadataEntries.flatMap((metadata) => metadata.sourceWarnings ?? []),
+    ...(sourceWarnings ?? []),
+  ];
+  const sources = metadataEntries.flatMap((metadata) => metadata.sources ?? []);
+  const summary = metadataEntries
+    .map((metadata) => metadata.summary)
+    .filter((entry): entry is string => entry !== undefined)
+    .join(' ');
+
+  if (warnings.length === 0 && sources.length === 0 && !summary) {
+    return undefined;
+  }
+
+  return {
+    ...(warnings.length > 0 ? { sourceWarnings: warnings } : {}),
+    ...(sources.length > 0 ? { sources } : {}),
+    ...(summary ? { summary } : {}),
+  };
 }
 
 function createOffer(product: NormalizedProduct, quantity: number): ChainPriceOffer {
@@ -175,6 +199,9 @@ export class PriceComparisonService {
     const comparisonBasis = filters.comparisonBasis ?? 'packPrice';
     const requestedChains = new Set(filters.chains ?? this.adapters.map((adapter) => adapter.chain));
     const relevantAdapters = this.adapters.filter((adapter) => requestedChains.has(adapter.chain));
+    if (relevantAdapters.length === 0) {
+      return { ok: false, error: { code: 'CHAIN_NOT_SUPPORTED', message: 'No supported chains were requested.' } };
+    }
 
     // Default to 1 candidate per chain unless specified otherwise.
     const limitPerChain = typeof filters.limitPerChain === 'number' ? filters.limitPerChain : 1;
@@ -192,23 +219,28 @@ export class PriceComparisonService {
           return { ok: false, chain: adapter.chain, error: productsResult.error } as const;
         }
 
-        return { ok: true, chain: adapter.chain, products: productsResult.data } as const;
+        return { ok: true, chain: adapter.chain, products: productsResult.data, metadata: productsResult.metadata } as const;
       }),
     );
 
-    for (const chainResult of perChainResults) {
-      if (!chainResult.ok) {
-        return {
-          ok: false,
-          error: {
-            code: `CHAIN_${chainResult.chain.toUpperCase()}_${chainResult.error.code}`,
-            message: chainResult.error.message,
-          },
-        };
-      }
+    const sourceWarnings = perChainResults
+      .filter((chainResult) => !chainResult.ok)
+      .map((chainResult) =>
+        sourceWarningFromError(chainResult.chain, chainResult.ok ? { code: 'UNKNOWN' } : chainResult.error),
+      );
+
+    const successfulResults = perChainResults.filter((chainResult) => chainResult.ok);
+    if (successfulResults.length === 0 && sourceWarnings.length > 0) {
+      return {
+        ok: false,
+        error: {
+          code: 'ALL_SOURCES_FAILED',
+          message: sourceWarnings.map((warning) => `${warning.chain}: ${warning.message}`).join('; '),
+        },
+      };
     }
 
-    const rawOffers = perChainResults
+    const rawOffers = successfulResults
       .flatMap((chainResult) => (chainResult.ok ? chainResult.products : []))
       .map((product) => createOffer(product, quantity));
 
@@ -249,6 +281,12 @@ export class PriceComparisonService {
         comparisonBasis,
         comparisonUnit: prepared.comparisonUnit,
       },
+      metadata: mergeMetadata(
+        successfulResults.flatMap((chainResult) =>
+          chainResult.ok && chainResult.metadata ? [chainResult.metadata] : [],
+        ),
+        sourceWarnings,
+      ),
     };
   }
 }

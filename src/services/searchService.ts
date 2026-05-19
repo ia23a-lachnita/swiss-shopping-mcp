@@ -5,15 +5,39 @@ import {
   NormalizedStore,
   ProductSearchFilters,
   Result,
+  ResultMetadata,
   StoreAvailabilitySupport,
   StoreProductAvailabilityFilters,
   StoreProductAvailabilityResult,
   StoreSearchFilters,
 } from '../adapters/types.js';
+import { sourceWarningFromError } from '../sources/warnings.js';
 import { sortProducts } from '../util/matcher.js';
 
 function sortStores(a: NormalizedStore, b: NormalizedStore): number {
   return a.name.localeCompare(b.name);
+}
+
+function mergeMetadata(metadataEntries: ResultMetadata[], sourceWarnings: ResultMetadata['sourceWarnings']): ResultMetadata | undefined {
+  const warnings = [
+    ...metadataEntries.flatMap((metadata) => metadata.sourceWarnings ?? []),
+    ...(sourceWarnings ?? []),
+  ];
+  const sources = metadataEntries.flatMap((metadata) => metadata.sources ?? []);
+  const summary = metadataEntries
+    .map((metadata) => metadata.summary)
+    .filter((entry): entry is string => entry !== undefined)
+    .join(' ');
+
+  if (warnings.length === 0 && sources.length === 0 && !summary) {
+    return undefined;
+  }
+
+  return {
+    ...(warnings.length > 0 ? { sourceWarnings: warnings } : {}),
+    ...(sources.length > 0 ? { sources } : {}),
+    ...(summary ? { summary } : {}),
+  };
 }
 
 export class SearchService {
@@ -32,25 +56,44 @@ export class SearchService {
     const matchMode = filters.matchMode ?? 'balanced';
     const requestedChains = new Set(filters.chains ?? this.adapters.map((adapter) => adapter.chain));
     const relevantAdapters = this.adapters.filter((adapter) => requestedChains.has(adapter.chain));
+    if (relevantAdapters.length === 0) {
+      return { ok: false, error: { code: 'CHAIN_NOT_SUPPORTED', message: 'No supported chains were requested.' } };
+    }
 
     const adapterResults = await Promise.all(
-      relevantAdapters.map((adapter) => adapter.searchProducts({ ...filters, query, matchMode })),
+      relevantAdapters.map(async (adapter) => ({
+        chain: adapter.chain,
+        result: await adapter.searchProducts({ ...filters, query, matchMode }),
+      })),
     );
 
-    for (const result of adapterResults) {
-      if (!result.ok) {
-        return result;
-      }
+    const sourceWarnings = adapterResults
+      .filter((entry) => !entry.result.ok)
+      .map((entry) => sourceWarningFromError(entry.chain, entry.result.ok ? { code: 'UNKNOWN' } : entry.result.error));
+
+    const successfulResults = adapterResults.filter((entry) => entry.result.ok);
+    if (successfulResults.length === 0 && sourceWarnings.length > 0) {
+      return {
+        ok: false,
+        error: {
+          code: 'ALL_SOURCES_FAILED',
+          message: sourceWarnings.map((warning) => `${warning.chain}: ${warning.message}`).join('; '),
+        },
+      };
     }
 
-    const products = adapterResults.flatMap((result) => (result.ok ? result.data : []));
+    const products = successfulResults.flatMap((entry) => (entry.result.ok ? entry.result.data : []));
     products.sort((a, b) => sortProducts(a, b, query, matchMode));
+    const metadata = mergeMetadata(
+      successfulResults.flatMap((entry) => (entry.result.ok && entry.result.metadata ? [entry.result.metadata] : [])),
+      sourceWarnings,
+    );
 
     if (typeof filters.limit === 'number') {
-      return { ok: true, data: products.slice(0, filters.limit) };
+      return { ok: true, data: products.slice(0, filters.limit), metadata };
     }
 
-    return { ok: true, data: products };
+    return { ok: true, data: products, metadata };
   }
 
   public async findStores(filters: StoreSearchFilters): Promise<Result<NormalizedStore[]>> {
@@ -64,25 +107,44 @@ export class SearchService {
 
     const requestedChains = new Set(filters.chains ?? this.adapters.map((adapter) => adapter.chain));
     const relevantAdapters = this.adapters.filter((adapter) => requestedChains.has(adapter.chain));
+    if (relevantAdapters.length === 0) {
+      return { ok: false, error: { code: 'CHAIN_NOT_SUPPORTED', message: 'No supported chains were requested.' } };
+    }
 
     const adapterResults = await Promise.all(
-      relevantAdapters.map((adapter) => adapter.findStores({ ...filters, location })),
+      relevantAdapters.map(async (adapter) => ({
+        chain: adapter.chain,
+        result: await adapter.findStores({ ...filters, location }),
+      })),
     );
 
-    for (const result of adapterResults) {
-      if (!result.ok) {
-        return result;
-      }
+    const sourceWarnings = adapterResults
+      .filter((entry) => !entry.result.ok)
+      .map((entry) => sourceWarningFromError(entry.chain, entry.result.ok ? { code: 'UNKNOWN' } : entry.result.error));
+
+    const successfulResults = adapterResults.filter((entry) => entry.result.ok);
+    if (successfulResults.length === 0 && sourceWarnings.length > 0) {
+      return {
+        ok: false,
+        error: {
+          code: 'ALL_SOURCES_FAILED',
+          message: sourceWarnings.map((warning) => `${warning.chain}: ${warning.message}`).join('; '),
+        },
+      };
     }
 
-    const stores = adapterResults.flatMap((result) => (result.ok ? result.data : []));
+    const stores = successfulResults.flatMap((entry) => (entry.result.ok ? entry.result.data : []));
     stores.sort(sortStores);
+    const metadata = mergeMetadata(
+      successfulResults.flatMap((entry) => (entry.result.ok && entry.result.metadata ? [entry.result.metadata] : [])),
+      sourceWarnings,
+    );
 
     if (typeof filters.limit === 'number') {
-      return { ok: true, data: stores.slice(0, filters.limit) };
+      return { ok: true, data: stores.slice(0, filters.limit), metadata };
     }
 
-    return { ok: true, data: stores };
+    return { ok: true, data: stores, metadata };
   }
 
   public getStoreAvailabilitySupport(chains?: Chain[]): StoreAvailabilitySupport[] {

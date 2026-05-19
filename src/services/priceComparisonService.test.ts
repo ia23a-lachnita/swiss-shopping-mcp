@@ -7,6 +7,8 @@ import {
   NormalizedStore,
   ProductSearchFilters,
   Result,
+  ResultMetadata,
+  SourceWarningCode,
   StoreAvailabilitySupport,
   StoreProductAvailabilityFilters,
   StoreProductAvailabilityResult,
@@ -15,11 +17,41 @@ import {
 import { createDefaultAdapters } from '../adapters/index.js';
 import { PriceComparisonService } from './priceComparisonService.js';
 
-function adapterWithProducts(chain: Chain, products: NormalizedProduct[]): ChainAdapter {
+function adapterWithProducts(chain: Chain, products: NormalizedProduct[], metadata?: ResultMetadata): ChainAdapter {
   return {
     chain,
     async searchProducts(filters: ProductSearchFilters): Promise<Result<NormalizedProduct[]>> {
-      return { ok: true, data: products.slice(0, filters.limit) };
+      return { ok: true, data: products.slice(0, filters.limit), metadata };
+    },
+    async findStores(_filters: StoreSearchFilters): Promise<Result<NormalizedStore[]>> {
+      return { ok: true, data: [] };
+    },
+    getStoreAvailabilitySupport(): StoreAvailabilitySupport {
+      return { chain, supported: false };
+    },
+    async lookupStoreProductAvailability(
+      filters: StoreProductAvailabilityFilters,
+    ): Promise<Result<StoreProductAvailabilityResult>> {
+      return {
+        ok: true,
+        data: {
+          chain,
+          storeId: filters.storeId,
+          query: filters.query,
+          supported: false,
+          matches: [],
+          isAvailable: false,
+        },
+      };
+    },
+  };
+}
+
+function failingAdapter(chain: Chain, code: string): ChainAdapter {
+  return {
+    chain,
+    async searchProducts(_filters: ProductSearchFilters): Promise<Result<NormalizedProduct[]>> {
+      return { ok: false, error: { code, message: `${chain} failed.` } };
     },
     async findStores(_filters: StoreSearchFilters): Promise<Result<NormalizedStore[]>> {
       return { ok: true, data: [] };
@@ -56,7 +88,7 @@ function product(id: string, chain: Chain, current: number, unit?: { value: numb
 }
 
 describe('PriceComparisonService', () => {
-  const service = new PriceComparisonService(createDefaultAdapters());
+  const service = new PriceComparisonService(createDefaultAdapters({ dataMode: 'legacy-static' }));
 
   it('compares prices across chains and computes savings', async () => {
     const result = await service.comparePrices({ query: 'pantry', quantity: 2 });
@@ -155,6 +187,76 @@ describe('PriceComparisonService', () => {
       const missingUnitOffer = result.data.offers.find((offer) => offer.product.id === 'denner-no-unit');
       expect(missingUnitOffer?.comparisonEligible).toBe(false);
       expect(missingUnitOffer?.ineligibleReason).toContain('Missing');
+    }
+  });
+
+  it('returns offers with source warnings when one chain fails', async () => {
+    const customService = new PriceComparisonService([
+      adapterWithProducts('migros', [product('migros-milk', 'migros', 1)]),
+      failingAdapter('coop', 'HTTP_503'),
+    ]);
+
+    const result = await customService.comparePrices({ query: 'milk' });
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data.offers.map((offer) => offer.product.id)).toEqual(['migros-milk']);
+      expect(result.metadata?.sourceWarnings).toEqual([
+        expect.objectContaining({
+          chain: 'coop',
+          code: 'SOURCE_UNAVAILABLE',
+          message: 'coop failed.',
+        }),
+      ]);
+    }
+  });
+
+  it('propagates metadata from successful product adapters', async () => {
+    const sourceWarning = {
+      chain: 'aldi' as const,
+      code: SourceWarningCode.SourceStaleCacheUsed,
+      message: 'Using stale cache.',
+      observedAt: '2026-05-18T10:00:00.000Z',
+    };
+    const customService = new PriceComparisonService([
+      adapterWithProducts('aldi', [product('aldi-bread', 'aldi', 2)], {
+        sourceWarnings: [sourceWarning],
+        sources: [
+          {
+            chain: 'aldi',
+            status: 'degraded',
+            provider: 'ALDI SUISSE',
+            sourceType: 'retailer-web',
+            lastObservedAt: '2026-05-18T10:00:00.000Z',
+          },
+        ],
+        summary: 'Aldi cache used.',
+      }),
+    ]);
+
+    const result = await customService.comparePrices({ query: 'bread' });
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.metadata?.sourceWarnings).toEqual([sourceWarning]);
+      expect(result.metadata?.sources?.[0]).toMatchObject({ chain: 'aldi', status: 'degraded' });
+      expect(result.metadata?.summary).toBe('Aldi cache used.');
+    }
+  });
+
+  it('returns an all-sources error when every comparison source fails', async () => {
+    const customService = new PriceComparisonService([
+      failingAdapter('migros', 'HTTP_503'),
+      failingAdapter('coop', 'HTTP_429'),
+    ]);
+
+    const result = await customService.comparePrices({ query: 'milk' });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error.code).toBe('ALL_SOURCES_FAILED');
+      expect(result.error.message).toContain('migros');
+      expect(result.error.message).toContain('coop');
     }
   });
 });

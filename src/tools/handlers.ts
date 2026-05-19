@@ -1,7 +1,7 @@
 import { CallToolRequest, CallToolResult, ListToolsResult } from '@modelcontextprotocol/sdk/types.js';
 import { z } from 'zod';
 
-import { Chain, DietaryPreference } from '../adapters/types.js';
+import { Chain, DietaryPreference, ResultMetadata } from '../adapters/types.js';
 import { PriceComparisonService } from '../services/priceComparisonService.js';
 import { SearchService } from '../services/searchService.js';
 
@@ -89,6 +89,19 @@ function toolSuccess(payload: Record<string, unknown>): CallToolResult {
   return {
     content: [{ type: 'text', text: JSON.stringify(payload) }],
     structuredContent: payload,
+  };
+}
+
+function withMetadata(payload: Record<string, unknown>, metadata?: ResultMetadata): Record<string, unknown> {
+  if (!metadata) {
+    return payload;
+  }
+
+  return {
+    ...payload,
+    ...(metadata.sourceWarnings ? { sourceWarnings: metadata.sourceWarnings } : {}),
+    ...(metadata.sources ? { sources: metadata.sources } : {}),
+    ...(metadata.summary ? { summary: metadata.summary } : {}),
   };
 }
 
@@ -268,7 +281,7 @@ export async function executeToolCall(
     if (!result.ok) {
       return toolError(result.error.code, result.error.message ?? 'Product search failed.');
     }
-    return toolSuccess({ products: result.data });
+    return toolSuccess(withMetadata({ products: result.data }, result.metadata));
   }
 
   if (params.name === 'find_stores') {
@@ -281,7 +294,7 @@ export async function executeToolCall(
     if (!result.ok) {
       return toolError(result.error.code, result.error.message ?? 'Store search failed.');
     }
-    return toolSuccess({ stores: result.data });
+    return toolSuccess(withMetadata({ stores: result.data }, result.metadata));
   }
 
   if (params.name === 'get_store_availability_support') {
@@ -320,5 +333,5 @@ export async function executeToolCall(
   if (!result.ok) {
     return toolError(result.error.code, result.error.message ?? 'Price comparison failed.');
   }
-  return toolSuccess({ comparison: result.data });
+  return toolSuccess(withMetadata({ comparison: result.data }, result.metadata));
 }

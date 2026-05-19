@@ -10,14 +10,18 @@ import {
 
 import { fileURLToPath } from 'url';
 
-import { createDefaultAdapters } from './adapters/index.js';
+import { createDefaultAdapters, CreateDefaultAdaptersOptions } from './adapters/index.js';
 import { PriceComparisonService } from './services/priceComparisonService.js';
 import { SearchService } from './services/searchService.js';
 import { executeToolCall, listTools } from './tools/handlers.js';
 import { logger } from './util/log.js';
 
-export async function createServer(): Promise<Server> {
-  const adapters = createDefaultAdapters();
+export interface CreateServerOptions {
+  adapterOptions?: CreateDefaultAdaptersOptions;
+}
+
+export async function createServer(options: CreateServerOptions = {}): Promise<Server> {
+  const adapters = createDefaultAdapters(options.adapterOptions);
   const searchService = new SearchService(adapters);
   const priceComparisonService = new PriceComparisonService(adapters);
 
