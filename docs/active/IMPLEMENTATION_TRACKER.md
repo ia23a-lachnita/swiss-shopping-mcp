@@ -34,6 +34,7 @@ Phase: `V1 - core read/search foundation`
 | Denner promotions engine            | done                   | `docs/active/DENNER_PROMOTIONS_IMPLEMENTATION_PLAN.md` drafted and Gemini-reviewed on 2026-05-19; Denner fixture-backed parser, live-beta promotions adapter, `search_promotions` tool, and opt-in `compare_prices.includePromotions` effective-price ranking added; post-implementation Gemini blocker fixed and follow-up review found no blockers; `npm run lint`, `npm test -- --run`, and `npm run build` pass |
 | Real data infrastructure            | done                   | Provenance/source-warning domain types, file TTL cache, source HTTP client, source health service, partial-warning propagation, and validated opt-in `test:live` script added; `npm run lint`, `npm test -- --run`, and `npm run build` pass                                                                                                                                                                        |
 | Real data infrastructure test cases | done                   | Additional cache/client/service/tool metadata cases added and documented in `docs/active/REAL_DATA_TEST_CASES.md`; `npm run lint`, `npm test -- --run`, `npm run build`, and `npm run test:live` pass; Gemini review found no blocking findings                                                                                                                                                                     |
+| Production readiness audit          | done                   | `docs/active/PRODUCTION_READINESS_AUDIT.md` added on 2026-06-15 after repo audit and Gemini second-pass review requested with `gemini-3.1-pro-preview`; conclusion: default runtime is not production-ready while static catalog data can power product/store/availability responses, and live multi-chain product search needs a realistic source/index/provider architecture before production claims |
 | Copilot instruction architecture    | done                   | Root and `.github` instruction files realigned                                                                                                                                                                                                                                                                                                                                                                      |
 | Live MCP manual test pass           | done                   | Original 31/31 baseline plus 6/6 follow-up regression cases pass; see `docs/active/MCP_TEST_REPORT.md` (2026-05-18)                                                                                                                                                                                                                                                                                                 |
 
@@ -43,6 +44,8 @@ Phase: `V1 - core read/search foundation`
 2. Add runtime static cutover/source status policy tooling
 3. Prepare Lidl live-beta catalog feasibility slice
 4. Prepare V2 account/cart integration foundation
+5. Remove static catalog data from default production runtime, or gate it as test/demo-only with explicit source warnings
+6. Decide whether live product search requires an approved provider/central index instead of local runtime crawling
 
 ## Decisions
 

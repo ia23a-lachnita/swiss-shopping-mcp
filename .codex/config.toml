@@ -1,0 +1,6 @@
+[mcp_servers.swiss-shopping-mcp]
+args = ['C:\Users\xursc\projects\swiss-shopping-mcp\dist\index.js']
+command = "node"
+
+[mcp_servers.swiss-shopping-mcp.env]
+LOG_LEVEL = "info"
