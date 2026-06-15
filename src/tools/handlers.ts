@@ -26,6 +26,16 @@ const DIETARY_PREFERENCES = [
   'gluten-free',
 ] as const satisfies readonly DietaryPreference[];
 
+export const TOOL_TIMEOUT_MS: Record<string, number> = {
+  search_products: 8_000,
+  search_promotions: 8_000,
+  find_stores: 8_000,
+  compare_prices: 10_000,
+  get_source_status: 1_000,
+  get_store_availability_support: 1_000,
+  lookup_store_product_availability: 8_000,
+};
+
 const chainEnum = z.enum(CHAINS);
 const dietaryPreferenceEnum = z.enum(DIETARY_PREFERENCES);
 const matchModeEnum = z.enum(['balanced', 'literal']);
