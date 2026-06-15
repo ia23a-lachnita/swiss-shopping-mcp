@@ -1,103 +1,107 @@
 # swiss-shopping-mcp
 
-An advanced Model Context Protocol (MCP) server for Swiss grocery and retail shopping with multi-chain price comparison, smart purchasing strategies, and optional account integration.
+A Model Context Protocol (MCP) server for Swiss grocery and retail shopping — price comparison, promotions, and store discovery across supported Swiss chains.
+
+> **Data trust policy:** This server does not return demo or invented grocery data in default runtime.
+> If a source is missing, blocked, or degraded, tools return explicit source warnings or errors.
+> Call `get_source_status` to see current capability support before using other tools.
+
+## Source Support Matrix
+
+| Chain  | Product Search        | Promotions       | Store Search  | Availability |
+|--------|-----------------------|------------------|---------------|--------------|
+| Aldi   | live-beta (constrained) | unsupported    | unsupported   | unsupported  |
+| Denner | unsupported           | live-beta        | unsupported   | unsupported  |
+| Migros | blocked / pending provider | blocked     | source-auditing | unsupported |
+| Coop   | blocked               | blocked          | source-auditing | unsupported |
+| Lidl   | source-auditing       | unsupported      | source-auditing | unsupported |
+| Farmy  | blocked (ceased)      | blocked (ceased) | blocked (ceased) | blocked   |
+| Volg   | blocked               | source-auditing  | source-auditing | unsupported |
+| Otto's | source-auditing       | source-auditing  | source-auditing | unsupported |
+
+Status meanings:
+- **live-beta** — real source, tested, may break on upstream changes
+- **source-auditing** — feasibility under review, not yet implemented
+- **blocked** — source audited and found unsuitable or ceased
+- **unsupported** — no source planned yet
 
 ## Requirements
 
 - Node.js 20+
-- pnpm 9+
-- Copilot CLI (for development workflow)
+- npm (pnpm has compatibility issues with Node 20.20.0 + corepack)
 
-### Recommended Copilot development MCPs
+## MCP Tools
 
-- context7
-- context-mode
-- gemini-cli (optional reviewer)
-
-## Features
-
-### V1 (Enhanced swissgroceries-mcp)
-- **Multi-chain support**: Migros, Coop, Aldi, Denner, Lidl, Farmy, Volg, Otto's
-- **Price comparison**: Cross-chain unit pricing, promotion tracking
-- **Smart planning**: Single-store, split-cart, and cost-optimized shopping strategies
-- **Nutrition filtering**: Standardized nutrition data across chains
-- **Allergen & dietary**: Vegan, vegetarian, gluten-free, and more
-- **Store locator**: Find nearby stores with opening hours
-- **Store product availability**: Query product availability for a specific store (currently supported for Migros in this adapter set; other chains report explicit unsupported status)
-
-### Search and comparison behavior
-
-- `search_products` uses `matchMode: "balanced"` by default for the static catalog. Balanced mode keeps exact filters deterministic while allowing narrow product-family aliases such as `pasta` matching `Penne Rigate` and `Spaghetti`. Use `matchMode: "literal"` to keep strict token matching.
-- `compare_prices` uses `comparisonBasis: "packPrice"` by default for backward-compatible pack-total ranking. Use `comparisonBasis: "unitPrice"` to rank by normalized CHF/kg, CHF/l, or CHF/piece where units are comparable.
-- `limitPerChain` defaults to one returned offer per chain. Increasing it returns in-chain alternatives up to the requested limit.
-- Unit-price comparison marks missing or incompatible units as ineligible instead of mixing unlike unit dimensions in the ranking.
-
-### V2 (Account Integration)
-- **Authenticated cart**: Add/remove items from multiple store baskets
-- **Loyalty programs**: Cumulus (Migros), Coop, Denner loyalty integration
-- **Order history**: Track spending and purchase patterns
-- **Personalized deals**: Account-specific promotions and rewards
-
-### V3+ (Expansion)
-- **Beyond groceries**: Pharmacies, drugstores, hardware stores
-- **Price history**: Track trends and get notifications
-- **Meal planning**: Recipe integration and bulk buying optimization
-- **Sustainability**: Carbon footprint tracking
+| Tool | Description |
+|------|-------------|
+| `get_source_status` | Capability status matrix for all chains — start here |
+| `search_products` | Search products (Aldi live-beta, others unsupported) |
+| `search_promotions` | Search current promotions (Denner live-beta, others unsupported) |
+| `find_stores` | Find stores by location (all chains currently unsupported) |
+| `compare_prices` | Cross-chain price comparison (source-backed chains only) |
+| `get_store_availability_support` | Per-chain store availability support |
+| `lookup_store_product_availability` | Product availability in a specific store |
 
 ## Installation
 
-### Prerequisites
-- Node.js 20+
-- pnpm (or npm/yarn)
-
-### Setup
 ```bash
-pnpm install
-pnpm build
-pnpm dev
+npm install
+npm run build
 ```
 
-### Testing
+## Running
+
 ```bash
-pnpm test          # Run tests
-pnpm test:ui       # Interactive UI
-pnpm test:coverage # Coverage report
+node dist/index.js
+```
+
+Or configure in your MCP client's settings:
+
+```json
+{
+  "mcpServers": {
+    "swiss-shopping": {
+      "command": "node",
+      "args": ["/path/to/swiss-shopping-mcp/dist/index.js"]
+    }
+  }
+}
 ```
 
 ## Development
 
 ```bash
-pnpm watch         # Watch TypeScript
-pnpm lint          # ESLint
-pnpm format        # Prettier
+npm test          # Run tests
+npm run lint      # ESLint
+npm run build     # TypeScript compile
+npm run test:live # Opt-in live source smoke tests (requires LIVE_SOURCE_TESTS=1)
 ```
 
 ## Architecture
 
 ```
 src/
-├── adapters/       # Chain-specific integrations (Migros, Coop, etc.)
-├── services/       # Core business logic (matching, planning, strategy)
-├── tools/          # MCP tool handlers
-├── util/           # Utilities (logging, geocoding, HTTP)
-└── index.ts        # MCP server entry point
+├── adapters/           # Chain-specific adapters
+│   ├── index.ts        # Default adapter factory (live adapters + UnsupportedChainAdapter)
+│   ├── sourceRegistry.ts  # Per-chain per-capability status matrix
+│   ├── unsupportedAdapter.ts  # Explicit unsupported adapter (replaces static catalog)
+│   ├── live/           # Live-beta adapters (Aldi, Denner)
+│   └── types.ts        # Domain model: NormalizedProduct, NormalizedStore, etc.
+├── services/           # Core logic (search fan-out, price comparison)
+├── sources/            # HTTP client, source warnings
+├── parsers/            # HTML/XML parsers for live sources
+├── cache/              # File-based TTL cache
+├── tools/              # MCP tool schemas and handlers
+└── util/               # Matching, units, logging
 ```
 
-## Contributing
+## Data Architecture Decisions
 
-Contributions welcome! Please:
-1. Add tests for new features
-2. Follow TypeScript strict mode
-3. Use prettier/eslint format
-4. Update README for new tools
+- **No static catalog** in production runtime. All product/store/promotion data comes from real sources or returns explicit unsupported errors.
+- **Aldi product search** uses a live-beta sitemap + product-page scraping path. Cold-cache latency applies; recall is limited to sitemap-indexed products.
+- **Denner promotions** fetches the live promotions page with a 6-hour file cache.
+- **All other chains** return `REAL_SOURCE_NOT_IMPLEMENTED` until a provider, API, or maintained index is selected. See `docs/active/SOURCE_PROVIDER_DECISION_RECORD.md`.
 
 ## License
 
 MIT
-
-## Roadmap
-
-- [ ] V1: Enhanced multi-chain shopping (copy from swissgroceries-mcp with improvements)
-- [ ] V2: Account integration across all supported chains
-- [ ] V3: Non-grocery expansion (pharma, hardware, etc.)
-- [ ] V3+: Price history, meal planning, sustainability tracking

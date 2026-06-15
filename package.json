@@ -17,7 +17,7 @@
     "test:coverage": "vitest --coverage",
     "lint": "eslint src --ext .ts",
     "format": "prettier --write \"src/**/*.ts\"",
-    "clean": "rm -rf dist"
+    "clean": "node -e \"require('fs').rmSync('dist', { recursive: true, force: true })\""
   },
   "keywords": [
     "mcp",
@@ -31,8 +31,9 @@
     "denner",
     "lidl"
   ],
-  "author": "Your Name",
+  "author": "Project maintainers",
   "license": "MIT",
+  "files": ["dist", "README.md", "LICENSE"],
   "engines": {
     "node": ">=20.0.0"
   },

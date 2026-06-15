@@ -69,7 +69,7 @@ export class UnsupportedChainAdapter implements ChainAdapter {
   private reason(capability: SourceCapability): string {
     return (
       this.reasons[capability] ??
-      `${this.chain} ${capability} is not backed by a real source. ${SUPPORTED_HINT}`
+      `${this.chain} ${capability} is not backed by a real source.`
     );
   }
 
@@ -79,7 +79,7 @@ export class UnsupportedChainAdapter implements ChainAdapter {
       ok: false,
       error: {
         code: SourceWarningCode.RealSourceNotImplemented,
-        message: `${this.chain} ${capability} is unsupported: ${reason}`,
+        message: `${this.chain} ${capability} is unsupported: ${reason} ${SUPPORTED_HINT}`,
       },
     };
   }
