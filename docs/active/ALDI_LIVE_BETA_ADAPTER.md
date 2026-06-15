@@ -2,8 +2,31 @@
 
 Date: 2026-05-19
 Status: implemented and verified
+Last updated: 2026-06-16
 
-## Scope
+## Scope Decision (2026-06-16)
+
+Aldi product search remains live-beta with the following constraints:
+
+- **Query recall is URL-term based**: the adapter matches normalized query tokens
+  against product URLs in the sitemap, not a full-text product catalog index.
+  Broad queries ("food", "products") return empty or misleading results.
+- **Not a broad catalog search**: this is URL-keyword lookup, not semantic search.
+  Callers expecting full Aldi product catalog coverage must wait for a provider/index
+  decision (see `docs/active/SOURCE_PROVIDER_DECISION_RECORD.md`).
+- **Cold-cache latency**: first request fetches sitemap (large XML) + product pages
+  in serial with 1-second rate-limit gaps. Cached results are served within budget.
+- **Rate-limit behavior**: 1-second inter-request delay per host. No retry on 429.
+- **Unit price/size**: parsed from product pages where present. Missing unit info
+  marks the offer as ineligible for unit-price comparison.
+- **Source warnings on partial page failures**: parse failures per page are surfaced
+  as `SOURCE_PARSE_FAILED` warnings, not silently dropped.
+
+Aldi remains enabled because the above constraints are documented and source warnings
+are returned on failure. It will be replaced or supplemented if a provider/index
+decision is made.
+
+## Original Scope
 
 This slice turns the Aldi fixture-backed parser path into a runtime live-beta
 product search adapter.
@@ -14,9 +37,8 @@ product search adapter.
 - Runtime product results include Aldi `retailer-web` provenance.
 - Stale cache use is explicit through `SOURCE_STALE_CACHE_USED`; source fetch or
   parse failures are not hidden behind static Aldi fallback data.
-- `createDefaultAdapters()` now uses the Aldi live-beta adapter by default and
-  keeps static adapters for the other V1 chains until their own source work is
-  complete.
+- `createDefaultAdapters()` uses the Aldi live-beta adapter by default; other
+  chains use `UnsupportedChainAdapter` until their own source work is complete.
 
 ## Source Path
 
