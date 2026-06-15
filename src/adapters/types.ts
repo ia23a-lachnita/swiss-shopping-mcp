@@ -181,6 +181,9 @@ export interface StoreSearchFilters {
   location: string;
   chains?: Chain[];
   limit?: number;
+  latitude?: number;
+  longitude?: number;
+  radiusKm?: number;
 }
 
 export interface PriceComparisonFilters {
