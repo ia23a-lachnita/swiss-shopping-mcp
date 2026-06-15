@@ -5,7 +5,8 @@ import {
 } from '@modelcontextprotocol/sdk/types.js';
 import { z } from 'zod';
 
-import { Chain, DietaryPreference, ResultMetadata } from '../adapters/types.js';
+import { getAllCapabilityStatuses } from '../adapters/sourceRegistry.js';
+import { Chain, DietaryPreference, ResultMetadata, SourceCapability } from '../adapters/types.js';
 import { PriceComparisonService } from '../services/priceComparisonService.js';
 import { SearchService } from '../services/searchService.js';
 
@@ -91,6 +92,21 @@ const lookupStoreAvailabilityInputSchema = z
   })
   .strict();
 
+const SOURCE_CAPABILITIES = [
+  'productSearch',
+  'promotions',
+  'storeSearch',
+  'availability',
+  'nutrition',
+] as const satisfies readonly SourceCapability[];
+
+const sourceStatusInputSchema = z
+  .object({
+    chains: z.array(chainEnum).min(1).optional(),
+    capabilities: z.array(z.enum(SOURCE_CAPABILITIES)).min(1).optional(),
+  })
+  .strict();
+
 const TOOL_NAMES = [
   'search_products',
   'search_promotions',
@@ -98,6 +114,7 @@ const TOOL_NAMES = [
   'compare_prices',
   'get_store_availability_support',
   'lookup_store_product_availability',
+  'get_source_status',
 ] as const;
 
 type ToolName = (typeof TOOL_NAMES)[number];
@@ -282,6 +299,25 @@ function getInputSchemaForTool(name: ToolName): ToolInputSchema {
     };
   }
 
+  if (name === 'get_source_status') {
+    return {
+      type: 'object',
+      properties: {
+        chains: {
+          type: 'array',
+          items: { type: 'string', enum: CHAINS },
+          description: 'Restrict status to specific chains (defaults to all)',
+        },
+        capabilities: {
+          type: 'array',
+          items: { type: 'string', enum: SOURCE_CAPABILITIES },
+          description: 'Restrict status to specific capabilities (defaults to all)',
+        },
+      },
+      additionalProperties: false,
+    };
+  }
+
   return {
     type: 'object',
     properties: {
@@ -337,7 +373,9 @@ export function listTools(): ListToolsResult {
                 ? 'List store-level product availability support by chain'
                 : name === 'lookup_store_product_availability'
                   ? 'Check whether products matching a query are available in a specific store'
-                  : 'Compare cross-chain prices for matching products',
+                  : name === 'get_source_status'
+                    ? 'Get the source capability status matrix for all supported Swiss chains'
+                    : 'Compare cross-chain prices for matching products',
       inputSchema: getInputSchemaForTool(name),
     })),
   };
@@ -425,6 +463,19 @@ export async function executeToolCall(
       );
     }
     return toolSuccess({ availability: result.data });
+  }
+
+  if (params.name === 'get_source_status') {
+    const parsedInput = sourceStatusInputSchema.safeParse(params.arguments ?? {});
+    if (!parsedInput.success) {
+      return toolError('INVALID_ARGUMENTS', getValidationErrorMessage(parsedInput.error));
+    }
+
+    const statuses = getAllCapabilityStatuses(
+      parsedInput.data.chains,
+      parsedInput.data.capabilities as SourceCapability[] | undefined
+    );
+    return toolSuccess({ statuses });
   }
 
   const parsedInput = comparePricesInputSchema.safeParse(params.arguments ?? {});

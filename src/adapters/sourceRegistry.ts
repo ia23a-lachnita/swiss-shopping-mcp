@@ -1,0 +1,283 @@
+import { ALL_CHAINS } from './index.js';
+import { CapabilitySourceStatus, Chain, SourceCapability } from './types.js';
+
+export const SOURCE_REGISTRY: Record<Chain, CapabilitySourceStatus[]> = {
+  aldi: [
+    {
+      chain: 'aldi',
+      capability: 'productSearch',
+      status: 'live-beta',
+      provider: 'ALDI SUISSE',
+      sourceType: 'retailer-web',
+    },
+    {
+      chain: 'aldi',
+      capability: 'promotions',
+      status: 'unsupported',
+      reason: 'No approved Aldi promotions source is implemented.',
+    },
+    {
+      chain: 'aldi',
+      capability: 'storeSearch',
+      status: 'unsupported',
+      reason: 'No approved Aldi store source is implemented.',
+    },
+    {
+      chain: 'aldi',
+      capability: 'availability',
+      status: 'unsupported',
+      reason: 'No store-level Aldi availability source is implemented.',
+    },
+    {
+      chain: 'aldi',
+      capability: 'nutrition',
+      status: 'unsupported',
+      reason: 'No Aldi nutrition enrichment source is implemented.',
+    },
+  ],
+  denner: [
+    {
+      chain: 'denner',
+      capability: 'promotions',
+      status: 'live-beta',
+      provider: 'Denner',
+      sourceType: 'retailer-web',
+    },
+    {
+      chain: 'denner',
+      capability: 'productSearch',
+      status: 'unsupported',
+      reason: 'No approved Denner catalog source is implemented.',
+    },
+    {
+      chain: 'denner',
+      capability: 'storeSearch',
+      status: 'unsupported',
+      reason: 'No approved Denner store source is implemented.',
+    },
+    {
+      chain: 'denner',
+      capability: 'availability',
+      status: 'unsupported',
+      reason: 'No Denner store-level availability source is implemented.',
+    },
+    {
+      chain: 'denner',
+      capability: 'nutrition',
+      status: 'unsupported',
+      reason: 'No Denner nutrition enrichment source is implemented.',
+    },
+  ],
+  coop: [
+    {
+      chain: 'coop',
+      capability: 'productSearch',
+      status: 'blocked',
+      reason: 'Source audit found search endpoints blocked or unsuitable.',
+    },
+    {
+      chain: 'coop',
+      capability: 'promotions',
+      status: 'blocked',
+      reason: 'No approved Coop promotions source is implemented.',
+    },
+    {
+      chain: 'coop',
+      capability: 'storeSearch',
+      status: 'source-auditing',
+      reason: 'Store source requires endpoint audit.',
+    },
+    {
+      chain: 'coop',
+      capability: 'availability',
+      status: 'unsupported',
+      reason: 'No Coop store-level availability source is implemented.',
+    },
+    {
+      chain: 'coop',
+      capability: 'nutrition',
+      status: 'unsupported',
+      reason: 'No Coop nutrition enrichment source is implemented.',
+    },
+  ],
+  farmy: [
+    {
+      chain: 'farmy',
+      capability: 'productSearch',
+      status: 'blocked',
+      reason: 'Source audit found Farmy operations ceased.',
+    },
+    {
+      chain: 'farmy',
+      capability: 'promotions',
+      status: 'blocked',
+      reason: 'Source audit found Farmy operations ceased.',
+    },
+    {
+      chain: 'farmy',
+      capability: 'storeSearch',
+      status: 'blocked',
+      reason: 'Source audit found Farmy operations ceased.',
+    },
+    {
+      chain: 'farmy',
+      capability: 'availability',
+      status: 'blocked',
+      reason: 'Source audit found Farmy operations ceased.',
+    },
+    {
+      chain: 'farmy',
+      capability: 'nutrition',
+      status: 'blocked',
+      reason: 'Source audit found Farmy operations ceased.',
+    },
+  ],
+  lidl: [
+    {
+      chain: 'lidl',
+      capability: 'productSearch',
+      status: 'source-auditing',
+      reason: 'Product sitemap feasibility still needs parser and source review.',
+    },
+    {
+      chain: 'lidl',
+      capability: 'promotions',
+      status: 'unsupported',
+      reason: 'No approved Lidl promotions source is implemented.',
+    },
+    {
+      chain: 'lidl',
+      capability: 'storeSearch',
+      status: 'source-auditing',
+      reason: 'Store finder sitemap requires audit.',
+    },
+    {
+      chain: 'lidl',
+      capability: 'availability',
+      status: 'unsupported',
+      reason: 'No Lidl store-level availability source is implemented.',
+    },
+    {
+      chain: 'lidl',
+      capability: 'nutrition',
+      status: 'unsupported',
+      reason: 'No Lidl nutrition enrichment source is implemented.',
+    },
+  ],
+  migros: [
+    {
+      chain: 'migros',
+      capability: 'productSearch',
+      status: 'blocked',
+      reason:
+        'Source audit found product search source blocked or unsuitable without provider/index decision.',
+    },
+    {
+      chain: 'migros',
+      capability: 'promotions',
+      status: 'blocked',
+      reason: 'Source audit found promotion paths blocked.',
+    },
+    {
+      chain: 'migros',
+      capability: 'storeSearch',
+      status: 'source-auditing',
+      reason: 'Public store source requires audit before runtime use.',
+    },
+    {
+      chain: 'migros',
+      capability: 'availability',
+      status: 'unsupported',
+      reason: 'No Migros store-level availability source is implemented.',
+    },
+    {
+      chain: 'migros',
+      capability: 'nutrition',
+      status: 'source-auditing',
+      reason: 'Open-data or provider enrichment decision required.',
+    },
+  ],
+  ottos: [
+    {
+      chain: 'ottos',
+      capability: 'productSearch',
+      status: 'source-auditing',
+      reason: "Category/product pages need high-caution audit.",
+    },
+    {
+      chain: 'ottos',
+      capability: 'promotions',
+      status: 'source-auditing',
+      reason: 'Promotion source needs high-caution audit.',
+    },
+    {
+      chain: 'ottos',
+      capability: 'storeSearch',
+      status: 'source-auditing',
+      reason: 'Store source requires audit.',
+    },
+    {
+      chain: 'ottos',
+      capability: 'availability',
+      status: 'unsupported',
+      reason: "No Otto's store-level availability source is implemented.",
+    },
+    {
+      chain: 'ottos',
+      capability: 'nutrition',
+      status: 'unsupported',
+      reason: "No Otto's nutrition enrichment source is implemented.",
+    },
+  ],
+  volg: [
+    {
+      chain: 'volg',
+      capability: 'productSearch',
+      status: 'blocked',
+      reason: 'Source audit found no product catalog or price source.',
+    },
+    {
+      chain: 'volg',
+      capability: 'promotions',
+      status: 'source-auditing',
+      reason: 'Promotion source requires audit.',
+    },
+    {
+      chain: 'volg',
+      capability: 'storeSearch',
+      status: 'source-auditing',
+      reason: 'Store locator source requires audit.',
+    },
+    {
+      chain: 'volg',
+      capability: 'availability',
+      status: 'unsupported',
+      reason: 'No Volg store-level availability source is implemented.',
+    },
+    {
+      chain: 'volg',
+      capability: 'nutrition',
+      status: 'unsupported',
+      reason: 'No Volg nutrition enrichment source is implemented.',
+    },
+  ],
+};
+
+export function getCapabilityStatuses(
+  chain: Chain,
+  capabilities?: SourceCapability[]
+): CapabilitySourceStatus[] {
+  const statuses = SOURCE_REGISTRY[chain] ?? [];
+  if (!capabilities || capabilities.length === 0) {
+    return statuses;
+  }
+  return statuses.filter((status) => capabilities.includes(status.capability));
+}
+
+export function getAllCapabilityStatuses(
+  chains?: Chain[],
+  capabilities?: SourceCapability[]
+): CapabilitySourceStatus[] {
+  const targetChains = chains ?? ALL_CHAINS;
+  return targetChains.flatMap((chain) => getCapabilityStatuses(chain, capabilities));
+}

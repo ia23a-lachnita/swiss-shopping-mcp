@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { createDefaultAdapters } from '../adapters/index.js';
+import { UnsupportedChainAdapter } from '../adapters/unsupportedAdapter.js';
 import {
   Chain,
   ChainAdapter,
@@ -116,59 +116,26 @@ function testPromotion(id: string, chain: Chain, current: number): NormalizedPro
 }
 
 describe('SearchService', () => {
-  const service = new SearchService(createDefaultAdapters({ dataMode: 'legacy-static' }));
-
-  it('searches across chains and returns price-sorted products', async () => {
-    const result = await service.searchProducts({ query: 'pantry' });
-
-    expect(result.ok).toBe(true);
-    if (result.ok) {
-      expect(result.data.length).toBeGreaterThanOrEqual(5);
-      expect(result.data[0].chain).toBe('ottos');
-      expect(result.data[1].chain).toBe('lidl');
-    }
-  });
-
-  it('supports chain-restricted product search', async () => {
-    const result = await service.searchProducts({
-      query: 'milk',
-      chains: ['migros'],
-    });
-
-    expect(result.ok).toBe(true);
-    if (result.ok) {
-      expect(result.data).toHaveLength(1);
-      expect(result.data[0].chain).toBe('migros');
-    }
-  });
-
-  it('uses balanced matching by default for generic product families', async () => {
-    const result = await service.searchProducts({ query: 'pasta' });
-
-    expect(result.ok).toBe(true);
-    if (result.ok) {
-      expect(result.data.map((product) => product.id)).toEqual([
-        'migros-pasta-500g',
-        'ottos-pasta-500g',
-        'denner-pasta-500g',
-      ]);
-    }
-  });
-
-  it('can preserve literal product matching when requested', async () => {
-    const result = await service.searchProducts({ query: 'pasta', matchMode: 'literal' });
-
-    expect(result.ok).toBe(true);
-    if (result.ok) {
-      expect(result.data.map((product) => product.id)).toEqual(['migros-pasta-500g']);
-    }
-  });
-
   it('returns an explicit error when query is empty', async () => {
+    const service = new SearchService([stubAdapter('aldi', {})]);
     const result = await service.searchProducts({ query: '   ' });
     expect(result.ok).toBe(false);
     if (!result.ok) {
       expect(result.error.code).toBe('INVALID_QUERY');
+    }
+  });
+
+  it('returns products from a source-backed adapter', async () => {
+    const service = new SearchService([
+      stubAdapter('aldi', { products: [testProduct('aldi-bread', 'aldi')] }),
+    ]);
+
+    const result = await service.searchProducts({ query: 'bread' });
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data).toHaveLength(1);
+      expect(result.data[0].id).toBe('aldi-bread');
     }
   });
 
@@ -190,6 +157,44 @@ describe('SearchService', () => {
           message: 'coop failed.',
         }),
       ]);
+    }
+  });
+
+  it('surfaces REAL_SOURCE_NOT_IMPLEMENTED warning when UnsupportedChainAdapter is requested alongside a live adapter', async () => {
+    const service = new SearchService([
+      stubAdapter('aldi', { products: [testProduct('aldi-bread', 'aldi')] }),
+      new UnsupportedChainAdapter('coop', {
+        productSearch: 'No approved Coop product source is implemented.',
+      }),
+    ]);
+
+    const result = await service.searchProducts({ query: 'bread', chains: ['aldi', 'coop'] });
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data).toHaveLength(1);
+      expect(result.metadata?.sourceWarnings).toEqual([
+        expect.objectContaining({
+          chain: 'coop',
+          code: SourceWarningCode.RealSourceNotImplemented,
+        }),
+      ]);
+    }
+  });
+
+  it('returns ALL_SOURCES_FAILED when only unsupported chains are requested', async () => {
+    const service = new SearchService([
+      new UnsupportedChainAdapter('coop', {
+        productSearch: 'No approved Coop product source is implemented.',
+      }),
+    ]);
+
+    const result = await service.searchProducts({ query: 'bread', chains: ['coop'] });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error.code).toBe('ALL_SOURCES_FAILED');
+      expect(result.error.message).toContain('coop');
     }
   });
 
@@ -276,14 +281,6 @@ describe('SearchService', () => {
     }
   });
 
-  it('finds stores across matching chains', async () => {
-    const result = await service.findStores({ location: 'zürich' });
-    expect(result.ok).toBe(true);
-    if (result.ok) {
-      expect(result.data.map((store) => store.chain)).toEqual(['farmy', 'migros']);
-    }
-  });
-
   it('returns successful stores with source warnings when one chain fails', async () => {
     const partialService = new SearchService([
       stubAdapter('migros', { stores: [testStore('migros-zurich', 'migros')] }),
@@ -322,6 +319,7 @@ describe('SearchService', () => {
   });
 
   it('returns an explicit error when store location is empty', async () => {
+    const service = new SearchService([stubAdapter('aldi', {})]);
     const result = await service.findStores({ location: '' });
     expect(result.ok).toBe(false);
     if (!result.ok) {
@@ -329,28 +327,22 @@ describe('SearchService', () => {
     }
   });
 
-  it('lists store availability support across chains', () => {
+  it('lists store availability support as unsupported for UnsupportedChainAdapter', () => {
+    const service = new SearchService([
+      new UnsupportedChainAdapter('migros'),
+      new UnsupportedChainAdapter('coop'),
+    ]);
+
     const result = service.getStoreAvailabilitySupport(['migros', 'coop']);
     expect(result).toEqual([
       { chain: 'coop', supported: false, reason: expect.any(String) },
-      { chain: 'migros', supported: true },
+      { chain: 'migros', supported: false, reason: expect.any(String) },
     ]);
   });
 
-  it('looks up product availability for a specific store', async () => {
-    const result = await service.lookupStoreProductAvailability('migros', {
-      storeId: 'migros-zurich-1',
-      query: 'milk',
-    });
-
-    expect(result.ok).toBe(true);
-    if (result.ok) {
-      expect(result.data.supported).toBe(true);
-      expect(result.data.isAvailable).toBe(true);
-    }
-  });
-
   it('returns unsupported availability metadata for chains without stock support', async () => {
+    const service = new SearchService([new UnsupportedChainAdapter('coop')]);
+
     const result = await service.lookupStoreProductAvailability('coop', {
       storeId: 'coop-basel-1',
       query: 'milk',
@@ -360,18 +352,6 @@ describe('SearchService', () => {
     if (result.ok) {
       expect(result.data.supported).toBe(false);
       expect(result.data.reason).toBeTruthy();
-    }
-  });
-
-  it('returns explicit error for missing store in availability lookup', async () => {
-    const result = await service.lookupStoreProductAvailability('migros', {
-      storeId: 'missing-store',
-      query: 'milk',
-    });
-
-    expect(result.ok).toBe(false);
-    if (!result.ok) {
-      expect(result.error.code).toBe('STORE_NOT_FOUND');
     }
   });
 });

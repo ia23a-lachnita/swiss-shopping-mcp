@@ -6,8 +6,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { FileTtlCache } from '../../cache/fileTtlCache.js';
 import { SourceHttpClient } from '../../sources/sourceClient.js';
-import { STATIC_CHAIN_CATALOG } from '../staticCatalog.js';
-import { StaticChainAdapter } from '../staticChainAdapter.js';
+import { UnsupportedChainAdapter } from '../unsupportedAdapter.js';
 import { SourceWarningCode } from '../types.js';
 import { DennerPromotionsAdapter } from './dennerPromotionsAdapter.js';
 
@@ -34,12 +33,20 @@ async function readPromotionsHtml(): Promise<string> {
   );
 }
 
+function makeDelegate(): UnsupportedChainAdapter {
+  return new UnsupportedChainAdapter('denner', {
+    productSearch: 'Denner product catalog search is not backed by a real source yet.',
+    storeSearch: 'Denner store lookup is not backed by a real source yet.',
+    availability: 'Denner store-level availability is not backed by a real source.',
+  });
+}
+
 async function createAdapter(
   fetchImpl: typeof fetch,
   options: { cacheTtlMs?: number; clock?: { now(): Date }; now?: () => Date } = {}
 ): Promise<DennerPromotionsAdapter> {
   return new DennerPromotionsAdapter({
-    delegate: new StaticChainAdapter('denner', STATIC_CHAIN_CATALOG.denner),
+    delegate: makeDelegate(),
     cache: await createCache(options.clock),
     sourceClient: new SourceHttpClient({ fetchImpl, retries: 0, rateLimitPerHostMs: 0 }),
     cacheTtlMs: options.cacheTtlMs ?? 60_000,
@@ -122,15 +129,15 @@ describe('DennerPromotionsAdapter', () => {
     }
   });
 
-  it('delegates Denner product search to the wrapped static adapter', async () => {
+  it('delegates Denner product search to the unsupported adapter', async () => {
     const fetchImpl = vi.fn(async () => textResponse('not used')) as unknown as typeof fetch;
     const adapter = await createAdapter(fetchImpl);
 
     const result = await adapter.searchProducts({ query: 'pasta' });
 
-    expect(result.ok).toBe(true);
-    if (result.ok) {
-      expect(result.data[0].id).toBe('denner-pasta-500g');
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error.code).toBe(SourceWarningCode.RealSourceNotImplemented);
     }
     expect(vi.mocked(fetchImpl)).not.toHaveBeenCalled();
   });

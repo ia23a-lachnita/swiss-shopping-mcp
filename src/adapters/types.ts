@@ -1,4 +1,10 @@
 export type Chain = 'migros' | 'coop' | 'aldi' | 'denner' | 'lidl' | 'farmy' | 'volg' | 'ottos';
+export type SourceCapability =
+  | 'productSearch'
+  | 'promotions'
+  | 'storeSearch'
+  | 'availability'
+  | 'nutrition';
 export type DietaryPreference = 'vegan' | 'vegetarian' | 'gluten-free';
 export type ProductMatchMode = 'balanced' | 'literal';
 export type PriceComparisonBasis = 'packPrice' | 'unitPrice';
@@ -71,6 +77,18 @@ export interface SourceStatus {
   sourceType?: SourceType;
   lastObservedAt?: string;
   warning?: SourceWarning;
+}
+
+export interface CapabilitySourceStatus {
+  chain: Chain;
+  capability: SourceCapability;
+  status: 'unsupported' | 'blocked' | 'source-auditing' | 'live-beta' | 'live-stable' | 'degraded';
+  provider?: string;
+  sourceType?: SourceType;
+  sourceUrl?: string;
+  lastObservedAt?: string;
+  warning?: SourceWarning;
+  reason?: string;
 }
 
 export interface ResultMetadata {

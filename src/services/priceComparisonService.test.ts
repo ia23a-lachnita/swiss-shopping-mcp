@@ -16,7 +16,6 @@ import {
   StoreProductAvailabilityResult,
   StoreSearchFilters,
 } from '../adapters/types.js';
-import { createDefaultAdapters } from '../adapters/index.js';
 import { PriceComparisonService } from './priceComparisonService.js';
 
 function adapterWithProducts(
@@ -128,21 +127,31 @@ function promotion(
 }
 
 describe('PriceComparisonService', () => {
-  const service = new PriceComparisonService(createDefaultAdapters({ dataMode: 'legacy-static' }));
+  it('compares prices across chains and returns cheapest offer', async () => {
+    const service = new PriceComparisonService([
+      adapterWithProducts('migros', [product('migros-milk', 'migros', 1.85)]),
+      adapterWithProducts('aldi', [product('aldi-milk', 'aldi', 1.5)]),
+      adapterWithProducts('coop', [product('coop-milk', 'coop', 2.1)]),
+    ]);
 
-  it('compares prices across chains and computes savings', async () => {
-    const result = await service.comparePrices({ query: 'pantry', quantity: 2 });
+    const result = await service.comparePrices({ query: 'milk', quantity: 2 });
 
     expect(result.ok).toBe(true);
     if (result.ok) {
-      expect(result.data.offers.length).toBeGreaterThanOrEqual(5);
-      expect(result.data.cheapestOffer?.chain).toBe('ottos');
-      expect(result.data.cheapestOffer?.totalPrice).toBe(2);
+      expect(result.data.offers.length).toBe(3);
+      expect(result.data.cheapestOffer?.chain).toBe('aldi');
+      expect(result.data.cheapestOffer?.totalPrice).toBe(3);
       expect(result.data.savingsVsMostExpensive).toBeGreaterThan(0);
     }
   });
 
   it('supports limiting comparison to selected chains', async () => {
+    const service = new PriceComparisonService([
+      adapterWithProducts('migros', [product('migros-milk', 'migros', 1.85)]),
+      adapterWithProducts('coop', [product('coop-milk', 'coop', 2.1)]),
+      adapterWithProducts('aldi', [product('aldi-milk', 'aldi', 1.5)]),
+    ]);
+
     const result = await service.comparePrices({
       query: 'milk',
       chains: ['migros', 'coop'],
@@ -157,19 +166,23 @@ describe('PriceComparisonService', () => {
   });
 
   it('supports ranking by unit price', async () => {
-    // ottos spaghetti: 1.00 for 500g -> 2.00/kg (cheapest)
-    // denner penne: 1.20 for 500g -> 2.40/kg
-    // migros pasta: 1.70 for 500g -> 3.40/kg
+    const service = new PriceComparisonService([
+      adapterWithProducts('migros', [
+        product('migros-pasta', 'migros', 1.7, { value: 500, per: 'g' }),
+      ]),
+      adapterWithProducts('aldi', [product('aldi-pasta', 'aldi', 1.0, { value: 500, per: 'g' })]),
+      adapterWithProducts('coop', [product('coop-pasta', 'coop', 1.2, { value: 500, per: 'g' })]),
+    ]);
+
     const result = await service.comparePrices({
       query: 'pasta',
       comparisonBasis: 'unitPrice',
-      chains: ['ottos', 'denner', 'migros'],
     });
 
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.data.comparisonBasis).toBe('unitPrice');
-      expect(result.data.cheapestOffer?.product.id).toBe('ottos-pasta-500g');
+      expect(result.data.cheapestOffer?.product.id).toBe('aldi-pasta');
       expect(result.data.cheapestOffer?.baseUnitPrice).toBe(2);
       expect(result.data.cheapestOffer?.baseUnit).toBe('kg');
     }

@@ -1,3 +1,5 @@
+import { readFile } from 'node:fs/promises';
+
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { MessageExtraInfo, JSONRPCMessage } from '@modelcontextprotocol/sdk/types.js';
 import { Transport } from '@modelcontextprotocol/sdk/shared/transport.js';
@@ -43,9 +45,62 @@ function createLoopbackTransportPair(): {
   return { clientTransport, serverTransport };
 }
 
+const PRODUCT_URL =
+  'https://www.aldi-suisse.ch/de/produkt/backbox-toskanabrot-000000000000101698';
+const SITEMAP_XML = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset>
+  <url>
+    <loc>${PRODUCT_URL}</loc>
+    <lastmod>2026-05-18</lastmod>
+  </url>
+</urlset>`;
+
+async function createFakeFetch(): Promise<typeof fetch> {
+  const aldiProductHtml = await readFile(
+    new URL(
+      '../fixtures/live-sources/aldi/product-toskanabrot.sample.html',
+      import.meta.url
+    ),
+    'utf8'
+  );
+  const dennerHtml = await readFile(
+    new URL(
+      '../fixtures/live-sources/denner/current-actions.sample.html',
+      import.meta.url
+    ),
+    'utf8'
+  );
+
+  return async (input: string | URL | Request): Promise<Response> => {
+    const url = input.toString();
+    if (url.endsWith('/sitemap_products.xml')) {
+      return new Response(SITEMAP_XML, {
+        status: 200,
+        headers: { 'content-type': 'text/xml' },
+      });
+    }
+    if (url === PRODUCT_URL) {
+      return new Response(aldiProductHtml, {
+        status: 200,
+        headers: { 'content-type': 'text/html' },
+      });
+    }
+    if (url.includes('denner.ch')) {
+      return new Response(dennerHtml, {
+        status: 200,
+        headers: { 'content-type': 'text/html' },
+      });
+    }
+    return new Response('Not Found', { status: 404 });
+  };
+}
+
 describe('MCP server integration', () => {
   it('lists all registered tools over MCP transport', async () => {
-    const server = await createServer({ adapterOptions: { dataMode: 'legacy-static' } });
+    const fakeFetch = await createFakeFetch();
+    const server = await createServer({
+      adapterOptions: { cacheDirectory: 'test-cache', fetchImpl: fakeFetch },
+    });
     const client = new Client({ name: 'swiss-shopping-mcp-tests', version: '1.0.0' });
     const { clientTransport, serverTransport } = createLoopbackTransportPair();
 
@@ -60,105 +115,18 @@ describe('MCP server integration', () => {
       'compare_prices',
       'get_store_availability_support',
       'lookup_store_product_availability',
+      'get_source_status',
     ]);
-
-    await client.close();
-    await server.close();
-  });
-
-  it('retrieves search/store/compare/availability results end-to-end via MCP', async () => {
-    const server = await createServer({ adapterOptions: { dataMode: 'legacy-static' } });
-    const client = new Client({ name: 'swiss-shopping-mcp-tests', version: '1.0.0' });
-    const { clientTransport, serverTransport } = createLoopbackTransportPair();
-
-    await server.connect(serverTransport);
-    await client.connect(clientTransport);
-
-    const searchResult = await client.callTool({
-      name: 'search_products',
-      arguments: { query: 'milk', limit: 1 },
-    });
-    expect(searchResult.isError).not.toBe(true);
-    expect((searchResult.structuredContent as { products: unknown[] }).products).toHaveLength(1);
-
-    const storeResult = await client.callTool({
-      name: 'find_stores',
-      arguments: { location: 'zürich', limit: 2 },
-    });
-    expect(storeResult.isError).not.toBe(true);
-    expect((storeResult.structuredContent as { stores: unknown[] }).stores.length).toBeGreaterThan(
-      0
-    );
-
-    const promotionResult = await client.callTool({
-      name: 'search_promotions',
-      arguments: { query: 'milk', chains: ['denner'], limit: 1 },
-    });
-    expect(promotionResult.isError).not.toBe(true);
-    expect((promotionResult.structuredContent as { promotions: unknown[] }).promotions).toEqual([]);
-
-    const compareResult = await client.callTool({
-      name: 'compare_prices',
-      arguments: { query: 'milk', quantity: 1 },
-    });
-    expect(compareResult.isError).not.toBe(true);
-    const comparison = (
-      compareResult.structuredContent as { comparison: { cheapestOffer?: { chain: string } } }
-    ).comparison;
-    expect(comparison.cheapestOffer?.chain).toBe('migros');
-
-    const pastaResult = await client.callTool({
-      name: 'search_products',
-      arguments: { query: 'pasta' },
-    });
-    expect(pastaResult.isError).not.toBe(true);
-    expect(
-      (pastaResult.structuredContent as { products: Array<{ id: string }> }).products.map(
-        (product) => product.id
-      )
-    ).toEqual(['migros-pasta-500g', 'ottos-pasta-500g', 'denner-pasta-500g']);
-
-    const unitCompareResult = await client.callTool({
-      name: 'compare_prices',
-      arguments: { query: 'pasta', comparisonBasis: 'unitPrice' },
-    });
-    expect(unitCompareResult.isError).not.toBe(true);
-    const unitComparison = unitCompareResult.structuredContent as {
-      comparison: { cheapestOffer?: { product: { id: string } }; comparisonUnit?: string };
-    };
-    expect(unitComparison.comparison.cheapestOffer?.product.id).toBe('ottos-pasta-500g');
-    expect(unitComparison.comparison.comparisonUnit).toBe('kg');
-
-    const availabilitySupportResult = await client.callTool({
-      name: 'get_store_availability_support',
-      arguments: { chains: ['migros', 'coop'] },
-    });
-    expect(availabilitySupportResult.isError).not.toBe(true);
-    expect(
-      (availabilitySupportResult.structuredContent as { support: Array<{ chain: string }> }).support
-    ).toEqual([
-      { chain: 'coop', supported: false, reason: expect.any(String) },
-      { chain: 'migros', supported: true },
-    ]);
-
-    const availabilityResult = await client.callTool({
-      name: 'lookup_store_product_availability',
-      arguments: { chain: 'migros', storeId: 'migros-zurich-1', query: 'milk' },
-    });
-    expect(availabilityResult.isError).not.toBe(true);
-    const availability = availabilityResult.structuredContent as {
-      availability: { chain: string; supported: boolean; isAvailable: boolean };
-    };
-    expect(availability.availability.chain).toBe('migros');
-    expect(availability.availability.supported).toBe(true);
-    expect(availability.availability.isAvailable).toBe(true);
 
     await client.close();
     await server.close();
   });
 
   it('returns explicit MCP errors for invalid and unknown tool requests', async () => {
-    const server = await createServer({ adapterOptions: { dataMode: 'legacy-static' } });
+    const fakeFetch = await createFakeFetch();
+    const server = await createServer({
+      adapterOptions: { cacheDirectory: 'test-cache', fetchImpl: fakeFetch },
+    });
     const client = new Client({ name: 'swiss-shopping-mcp-tests', version: '1.0.0' });
     const { clientTransport, serverTransport } = createLoopbackTransportPair();
 
@@ -184,6 +152,60 @@ describe('MCP server integration', () => {
     if (unknownToolResult.content[0].type === 'text') {
       expect(unknownToolResult.content[0].text).toContain('UNKNOWN_TOOL');
     }
+
+    await client.close();
+    await server.close();
+  });
+
+  it('returns source status for all chains via get_source_status', async () => {
+    const fakeFetch = await createFakeFetch();
+    const server = await createServer({
+      adapterOptions: { cacheDirectory: 'test-cache', fetchImpl: fakeFetch },
+    });
+    const client = new Client({ name: 'swiss-shopping-mcp-tests', version: '1.0.0' });
+    const { clientTransport, serverTransport } = createLoopbackTransportPair();
+
+    await server.connect(serverTransport);
+    await client.connect(clientTransport);
+
+    const result = await client.callTool({ name: 'get_source_status', arguments: {} });
+    expect(result.isError).not.toBe(true);
+    const structured = result.structuredContent as {
+      statuses: Array<{ chain: string; capability: string; status: string }>;
+    };
+    expect(structured.statuses.length).toBeGreaterThan(0);
+
+    const chains = new Set(structured.statuses.map((s) => s.chain));
+    expect(chains.has('aldi')).toBe(true);
+    expect(chains.has('denner')).toBe(true);
+    expect(chains.has('migros')).toBe(true);
+    expect(chains.has('coop')).toBe(true);
+
+    await client.close();
+    await server.close();
+  });
+
+  it('does not use StaticChainAdapter in default runtime', async () => {
+    const fakeFetch = await createFakeFetch();
+    const server = await createServer({
+      adapterOptions: { cacheDirectory: 'test-cache', fetchImpl: fakeFetch },
+    });
+
+    const client = new Client({ name: 'swiss-shopping-mcp-tests', version: '1.0.0' });
+    const { clientTransport, serverTransport } = createLoopbackTransportPair();
+
+    await server.connect(serverTransport);
+    await client.connect(clientTransport);
+
+    const result = await client.callTool({
+      name: 'get_source_status',
+      arguments: { chains: ['migros'] },
+    });
+    expect(result.isError).not.toBe(true);
+    const structured = result.structuredContent as {
+      statuses: Array<{ chain: string; status: string }>;
+    };
+    expect(structured.statuses.every((s) => s.status !== 'static-v1')).toBe(true);
 
     await client.close();
     await server.close();
