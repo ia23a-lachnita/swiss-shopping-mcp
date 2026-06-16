@@ -1,7 +1,7 @@
 import { createServer, IncomingMessage, ServerResponse } from 'node:http';
 import { readFile, stat } from 'node:fs/promises';
 import { join, extname } from 'node:path';
-import { fileURLToPath } from 'node:url';
+
 
 import { createDefaultAdapters } from '../adapters/index.js';
 import { getAllCapabilityStatuses } from '../adapters/sourceRegistry.js';
@@ -9,11 +9,8 @@ import { PriceComparisonService } from '../services/priceComparisonService.js';
 import { SearchService } from '../services/searchService.js';
 import { Chain } from '../adapters/types.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = join(__filename, '..');
-
 const PORT = Number(process.env.PORT) || 3000;
-const PUBLIC_DIR = join(__dirname, 'public');
+const PUBLIC_DIR = join(process.cwd(), 'src', 'web', 'public');
 
 const adapters = createDefaultAdapters();
 const searchService = new SearchService(adapters);
@@ -246,7 +243,7 @@ function start(): void {
   });
 }
 
-if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
+if (process.argv[1]) {
   start();
 }
 
