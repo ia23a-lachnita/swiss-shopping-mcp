@@ -45,10 +45,10 @@ describe('sourceRegistry', () => {
     expect(statuses.every((s) => s.status === 'blocked')).toBe(true);
   });
 
-  it('returns blocked for migros productSearch', () => {
+  it('returns live-beta for migros productSearch', () => {
     const statuses = getCapabilityStatuses('migros');
     const productSearch = statuses.find((s) => s.capability === 'productSearch');
-    expect(productSearch?.status).toBe('blocked');
+    expect(productSearch?.status).toBe('live-beta');
   });
 
   it('filters by capability', () => {

@@ -1,4 +1,12 @@
+import * as cheerio from 'cheerio';
 import { NormalizedPromotion, NormalizedPrice } from '../adapters/types.js';
+import {
+  decodeHtml,
+  stripHtml,
+  parsePrice,
+  parsePercentage,
+  parseSwissDate,
+} from '../util/html.js';
 
 export interface DennerParsedPromotion {
   id: string;
@@ -17,65 +25,10 @@ export interface DennerParsedPromotion {
   validUntil: Date;
 }
 
-function decodeHtml(value: string): string {
-  return value
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&apos;/g, "'");
-}
-
-function stripHtml(value: string | undefined): string | undefined {
-  const stripped = decodeHtml(
-    (value ?? '')
-      .replace(/<[^>]*>/g, ' ')
-      .replace(/\s+/g, ' ')
-      .trim()
-  );
-  return stripped || undefined;
-}
-
-function parsePrice(value: string | undefined): number | undefined {
-  const match = value?.replace(/'/g, '').match(/(\d+(?:[.,]\d{1,2})?)/);
-  if (!match) {
-    return undefined;
-  }
-
-  const parsed = Number(match[1].replace(',', '.'));
-  return Number.isFinite(parsed) ? parsed : undefined;
-}
-
-function parsePercentage(value: string | undefined): number | undefined {
-  const match = value?.match(/(\d+(?:[.,]\d+)?)\s*%/);
-  if (!match) {
-    return undefined;
-  }
-
-  const parsed = Number(match[1].replace(',', '.'));
-  return Number.isFinite(parsed) ? parsed : undefined;
-}
-
-function parseSwissDate(value: string): Date | undefined {
-  const match = value.match(/(\d{1,2})\.(\d{1,2})\.(\d{4})/);
-  if (!match) {
-    return undefined;
-  }
-
-  const day = Number(match[1]);
-  const month = Number(match[2]);
-  const year = Number(match[3]);
-  if (!Number.isInteger(day) || !Number.isInteger(month) || !Number.isInteger(year)) {
-    return undefined;
-  }
-
-  return new Date(Date.UTC(year, month - 1, day, 23, 59, 59, 999));
-}
-
 function normalizeUnit(unit: string): string {
   const normalized = unit.toLowerCase();
   if (normalized === 'liter' || normalized === 'litre') return 'l';
+  if (normalized === 'cl') return 'cl';
   if (normalized === 'stück' || normalized === 'stuck') return 'piece';
   return normalized;
 }
@@ -123,101 +76,77 @@ function idFromUrl(sourceUrl: string): string | undefined {
   return slug ? [slug, variant].filter(Boolean).join(':') : undefined;
 }
 
-interface ValidityOffset {
-  position: number;
-  validUntil: Date;
-}
 
-function findValidityOffsets(html: string): ValidityOffset[] {
-  return [...html.matchAll(/Bis\s+(\d{1,2}\.\d{1,2}\.\d{4})/gi)].flatMap((match) => {
-    const validUntil = parseSwissDate(match[1]);
-    if (!validUntil || match.index === undefined) {
-      return [];
-    }
-
-    return [{ position: match.index, validUntil }];
-  });
-}
-
-function findPreviousValidity(
-  validityOffsets: ValidityOffset[],
-  position: number
-): Date | undefined {
-  let previous: Date | undefined;
-  for (const offset of validityOffsets) {
-    if (offset.position > position) {
-      break;
-    }
-    previous = offset.validUntil;
-  }
-  return previous;
-}
-
-function extractCardField(card: string, className: string): string | undefined {
-  const pattern = new RegExp(
-    `class=["'][^"']*${className}[^"']*["'][^>]*>([\\s\\S]*?)<\\/(?:div|a|span|p|h\\d)\\s*>`,
-    'i'
-  );
-  return stripHtml(card.match(pattern)?.[1]);
-}
-
-function extractImage(card: string): string | undefined {
-  const imageTag = card.match(/<img[^>]+class=["'][^"']*product-item__image[^"']*["'][^>]*>/i)?.[0];
-  const source = imageTag?.match(/\ssrc=["']([^"']+)["']/i)?.[1];
-  return source ? decodeHtml(source) : undefined;
-}
 
 export function parseDennerPromotionsPage(
   html: string,
   sourceUrl: string
 ): DennerParsedPromotion[] {
-  const cardStarts = [...html.matchAll(/<div class=["']product-item stretch-link/gi)].map(
-    (match) => match.index ?? 0
-  );
-  const validityOffsets = findValidityOffsets(html);
+  const $ = cheerio.load(html);
   const promotions: DennerParsedPromotion[] = [];
+  let currentValidUntil: Date | undefined;
+  const dateRegex = /Bis\s+(\d{1,2}\.\d{1,2}\.\d{4})/gi;
 
-  for (let index = 0; index < cardStarts.length; index += 1) {
-    const start = cardStarts[index];
-    const end = cardStarts[index + 1] ?? html.length;
-    const card = html.slice(start, end);
+  $('body').find('*').each((_index, element) => {
+    const el = $(element);
+    const text = el.text();
 
-    const href = card.match(/href=["']([^"']+)["']/i)?.[1];
-    const title = extractCardField(card, 'product-item__title');
-    const price = parsePrice(extractCardField(card, 'price-tag__final-price'));
-    const validUntil = findPreviousValidity(validityOffsets, start);
-    if (!href || !title || price === undefined || !validUntil) {
-      continue;
+    let match;
+    dateRegex.lastIndex = 0;
+    while ((match = dateRegex.exec(text)) !== null) {
+      const validUntil = parseSwissDate(match[1]);
+      if (validUntil) {
+        currentValidUntil = validUntil;
+      }
     }
 
-    const promotionSourceUrl = resolveUrl(sourceUrl, href);
-    const id = idFromUrl(promotionSourceUrl);
-    if (!id) {
-      continue;
+    if (el.hasClass('product-item')) {
+      const card = el;
+
+      const titleAnchor = card.find('.product-item__title');
+      const href = titleAnchor.attr('href');
+      const title = stripHtml(titleAnchor.text());
+      const price = parsePrice(stripHtml(card.find('.price-tag__final-price').text()));
+      if (!href || !title || price === undefined) {
+        return;
+      }
+
+      const promotionSourceUrl = resolveUrl(sourceUrl, href);
+      const id = idFromUrl(promotionSourceUrl);
+      if (!id) {
+        return;
+      }
+
+      const validUntil = currentValidUntil;
+      if (!validUntil) {
+        return;
+      }
+
+      const description = stripHtml(card.find('.product-item__subline').text());
+      const originalPrice = parsePrice(stripHtml(card.find('.price-tag__instead').text()));
+      const discountValue = parsePercentage(stripHtml(card.find('.price-tag__discount').text()));
+      const image = card.find('img.product-item__image').attr('src');
+      const decodedImage = image ? decodeHtml(image) : undefined;
+
+      promotions.push({
+        id,
+        sourceUrl: promotionSourceUrl,
+        title,
+        productName: title,
+        description,
+        image: decodedImage,
+        price: {
+          current: price,
+          unit: parseUnit(description),
+        },
+        originalPrice,
+        discount:
+          discountValue === undefined ? undefined : { type: 'percentage', value: discountValue },
+        validFrom: new Date(0),
+        validUntil,
+      });
     }
-
-    const description = extractCardField(card, 'product-item__subline');
-    const originalPrice = parsePrice(extractCardField(card, 'price-tag__instead'));
-    const discountValue = parsePercentage(extractCardField(card, 'price-tag__discount'));
-
-    promotions.push({
-      id,
-      sourceUrl: promotionSourceUrl,
-      title,
-      productName: title,
-      description,
-      image: extractImage(card),
-      price: {
-        current: price,
-        unit: parseUnit(description),
-      },
-      originalPrice,
-      discount:
-        discountValue === undefined ? undefined : { type: 'percentage', value: discountValue },
-      validFrom: new Date(0),
-      validUntil,
-    });
-  }
+  });
 
   if (promotions.length === 0) {
     throw new Error('Denner promotions page did not contain parseable product promotion cards.');

@@ -6,6 +6,41 @@ import {
   SourceWarningCode,
 } from '../adapters/types.js';
 
+const BLOCKED_HOSTS = new Set(['localhost', '127.0.0.1', '::1', '0.0.0.0']);
+const PRIVATE_IP_RANGES = [
+  /^10\./,
+  /^172\.(1[6-9]|2\d|3[01])\./,
+  /^192\.168\./,
+  /^fc00:/i,
+  /^fe80:/i,
+];
+
+function validateUrl(url: string): void {
+  const parsed = new URL(url);
+  if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') {
+    throw new SourceClientError(
+      SourceWarningCode.SourceTermsBlocked,
+      `Blocked URL with non-http(s) protocol: ${parsed.protocol}`,
+      url
+    );
+  }
+  const hostname = parsed.hostname;
+  if (BLOCKED_HOSTS.has(hostname)) {
+    throw new SourceClientError(
+      SourceWarningCode.SourceTermsBlocked,
+      `Blocked request to private host: ${hostname}`,
+      url
+    );
+  }
+  if (PRIVATE_IP_RANGES.some((range) => range.test(hostname))) {
+    throw new SourceClientError(
+      SourceWarningCode.SourceTermsBlocked,
+      `Blocked request to private IP: ${hostname}`,
+      url
+    );
+  }
+}
+
 export interface SourceFetchOptions {
   provider: string;
   sourceType: SourceType;
@@ -71,10 +106,12 @@ export class SourceHttpClient {
   }
 
   public async fetchJson<T>(url: string, options: SourceFetchOptions): Promise<SourceFetchResult<T>> {
+    validateUrl(url);
     return this.fetchWithProvenance(url, options, async () => this.fetchJsonOnce<T>(url, options.init));
   }
 
   public async fetchText(url: string, options: SourceFetchOptions): Promise<SourceFetchResult<string>> {
+    validateUrl(url);
     return this.fetchWithProvenance(url, options, async () =>
       this.fetchTextOnce(url, options.init, 'text/html,application/xhtml+xml,application/xml,text/xml;q=0.9,*/*;q=0.8'),
     );

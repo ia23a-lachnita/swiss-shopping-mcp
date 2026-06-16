@@ -421,7 +421,7 @@ describe('3. search_products', () => {
     expect(data.sourceWarnings).toBeDefined();
     const coopWarnings = data.sourceWarnings!.filter((w) => w.chain === 'coop');
     expect(coopWarnings.length).toBeGreaterThan(0);
-    expect(coopWarnings[0].code).toBe(SourceWarningCode.RealSourceNotImplemented);
+    expect(coopWarnings[0].code).toBe(SourceWarningCode.SourceUnavailable);
   });
 
   it('returns ALL_SOURCES_FAILED when all requested chains are unsupported', async () => {
@@ -1420,8 +1420,8 @@ describe('15. Source Warning Codes & Error Patterns', () => {
     expect(data.sourceWarnings).toBeDefined();
     const coopWarning = data.sourceWarnings!.find((w) => w.chain === 'coop');
     expect(coopWarning).toBeDefined();
-    expect(coopWarning!.code).toBe(SourceWarningCode.RealSourceNotImplemented);
-    expect(coopWarning!.message).toContain('coop');
+    expect(coopWarning!.code).toBe(SourceWarningCode.SourceUnavailable);
+    expect(coopWarning!.message.toLowerCase()).toContain('coop');
   });
 
   it('partial failure: denner succeeds, farmy fails with warning', async () => {

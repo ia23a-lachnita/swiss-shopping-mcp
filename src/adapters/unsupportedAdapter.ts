@@ -16,7 +16,7 @@ import {
 } from './types.js';
 
 const SUPPORTED_HINT =
-  'Call get_source_status for current chain support. Current source-backed capabilities are Denner promotions and constrained Aldi product search.';
+  'Call get_source_status for current chain support. Supported: Migros, Coop, Aldi, Denner, Lidl, Otto\'s, Volg.';
 
 export class UnsupportedChainAdapter implements ChainAdapter {
   public readonly chain: Chain;

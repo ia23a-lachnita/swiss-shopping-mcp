@@ -1,7 +1,12 @@
 import { describe, expect, it } from 'vitest';
 
 import { AldiLiveAdapter } from './live/aldiLiveAdapter.js';
+import { CoopLiveAdapter } from './live/coopLiveAdapter.js';
 import { DennerPromotionsAdapter } from './live/dennerPromotionsAdapter.js';
+import { LidlLiveAdapter } from './live/lidlLiveAdapter.js';
+import { MigrosLiveAdapter } from './live/migrosLiveAdapter.js';
+import { OttosLiveAdapter } from './live/ottosLiveAdapter.js';
+import { VolgLiveAdapter } from './live/volgLiveAdapter.js';
 import { createDefaultAdapters } from './index.js';
 
 describe('createDefaultAdapters', () => {
@@ -19,6 +24,41 @@ describe('createDefaultAdapters', () => {
     expect(dennerAdapter).toBeInstanceOf(DennerPromotionsAdapter);
   });
 
+  it('uses the Migros live-beta adapter by default', () => {
+    const adapters = createDefaultAdapters({ cacheDirectory: 'test-cache' });
+    const migrosAdapter = adapters.find((adapter) => adapter.chain === 'migros');
+
+    expect(migrosAdapter).toBeInstanceOf(MigrosLiveAdapter);
+  });
+
+  it('uses the Coop live-beta adapter by default', () => {
+    const adapters = createDefaultAdapters({ cacheDirectory: 'test-cache' });
+    const coopAdapter = adapters.find((adapter) => adapter.chain === 'coop');
+
+    expect(coopAdapter).toBeInstanceOf(CoopLiveAdapter);
+  });
+
+  it('uses the Lidl live-beta adapter by default', () => {
+    const adapters = createDefaultAdapters({ cacheDirectory: 'test-cache' });
+    const lidlAdapter = adapters.find((adapter) => adapter.chain === 'lidl');
+
+    expect(lidlAdapter).toBeInstanceOf(LidlLiveAdapter);
+  });
+
+  it("uses the Otto's live-beta adapter by default", () => {
+    const adapters = createDefaultAdapters({ cacheDirectory: 'test-cache' });
+    const ottosAdapter = adapters.find((adapter) => adapter.chain === 'ottos');
+
+    expect(ottosAdapter).toBeInstanceOf(OttosLiveAdapter);
+  });
+
+  it('uses the Volg live-beta adapter by default', () => {
+    const adapters = createDefaultAdapters({ cacheDirectory: 'test-cache' });
+    const volgAdapter = adapters.find((adapter) => adapter.chain === 'volg');
+
+    expect(volgAdapter).toBeInstanceOf(VolgLiveAdapter);
+  });
+
   it('does not expose legacy static mode in default adapter creation', () => {
     const adapters = createDefaultAdapters({ cacheDirectory: 'test-cache' });
 
@@ -26,15 +66,10 @@ describe('createDefaultAdapters', () => {
     expect(adapters.map((adapter) => adapter.constructor.name)).not.toContain('StaticChainAdapter');
   });
 
-  it('returns an UnsupportedChainAdapter for chains without a live source', () => {
+  it('returns an UnsupportedChainAdapter only for farmy', () => {
     const adapters = createDefaultAdapters({ cacheDirectory: 'test-cache' });
-    const unsupportedChains = ['migros', 'coop', 'lidl', 'farmy', 'volg', 'ottos'];
+    const farmyAdapter = adapters.find((a) => a.chain === 'farmy');
 
-    for (const chain of unsupportedChains) {
-      const adapter = adapters.find((a) => a.chain === chain);
-      expect(adapter?.constructor.name, `${chain} should use UnsupportedChainAdapter`).toBe(
-        'UnsupportedChainAdapter'
-      );
-    }
+    expect(farmyAdapter?.constructor.name).toBe('UnsupportedChainAdapter');
   });
 });

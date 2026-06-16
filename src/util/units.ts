@@ -35,11 +35,14 @@ export function getBaseUnitPrice(
   if (p === 'ml') {
     return { price: currentPrice / (unitValue * 0.001), unit: 'l' };
   }
-  const volumeMatch = p.match(/^(\d+(?:\.\d+)?)(ml|l)$/);
+  if (p === 'cl') {
+    return { price: currentPrice / (unitValue * 0.01), unit: 'l' };
+  }
+  const volumeMatch = p.match(/^(\d+(?:\.\d+)?)(ml|cl|l)$/);
   if (volumeMatch) {
     const amount = Number(volumeMatch[1]);
     const unit = volumeMatch[2];
-    const multiplier = unit === 'l' ? amount : amount * 0.001;
+    const multiplier = unit === 'l' ? amount : unit === 'cl' ? amount * 0.01 : amount * 0.001;
     return { price: currentPrice / (unitValue * multiplier), unit: 'l' };
   }
 

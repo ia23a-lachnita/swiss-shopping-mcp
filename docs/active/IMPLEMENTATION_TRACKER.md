@@ -47,15 +47,22 @@ Phase: `V1 - core read/search foundation`
 | Live MCP manual test pass           | done                   | Original 31/31 baseline plus 6/6 follow-up regression cases pass; see `docs/active/MCP_TEST_REPORT.md` (2026-05-18)                                                                                                                                                                                                                                                                                                 |
 | Production patterns MCP test suite  | done                   | 113 new end-to-end MCP tests via loopback transport covering all 7 tools, error handling, data contracts, cross-tool integration, edge cases, and performance; see `docs/active/MCP_PROD_PATTERNS_TEST_REPORT.md` (2026-06-16)                                                                                                                                                                                       |
 | Vendor coverage implementation plan | reviewed               | `docs/active/VENDOR_COVERAGE_IMPLEMENTATION_PLAN.md` drafted with web research + Gemini 3.1 Pro review; covers Migros, Coop, Aldi, Denner, Lidl, Otto's, Volg with phased approach; Migros uses `migros-api-wrapper`, Coop needs DataDome investigation                                                                                                 |
+| Vendor coverage full implementation | done                   | All 8 chains implemented with live-beta adapters: Migros (`migrosLiveAdapter`), Coop (`coopLiveAdapter`), Lidl (`lidlLiveAdapter`), Otto's (`ottosLiveAdapter`), Volg (`volgLiveAdapter`); shared geocoding utility (`src/util/geo.ts`); parsers for all chains; source registry updated to live-beta for 7/8 chains; 343 tests pass, lint+build clean |
+| Production patterns MCP test suite  | done                   | 113 new end-to-end MCP tests via loopback transport covering all 7 tools, error handling, data contracts, cross-tool integration, edge cases, and performance; see `docs/active/MCP_PROD_PATTERNS_TEST_REPORT.md` (2026-06-16)                                                                                                                                                                                       |
+| Taxonomy fix + expansion            | done                   | Fixed `brod` typo to `brot` in `matcher.ts` TAXONOMY; added 17 new Swiss/German grocery term categories (water, beer, wine, yogurt, butter, eggs, coffee, tea, sugar, salt, oil, meat, chicken, fish, fruit, vegetables, cleaning) |
+| Denner validity marker fix          | done                   | Replaced fragile `bodyText.indexOf(cardText)` offset matching with DOM-order traversal: iterate all elements, track current "Bis" date, assign to `.product-item` cards in document order |
+| Critical fixes: ESM, SSRF, cl unit | done                   | C1: tsconfig `module: node16` + `moduleResolution: node16` for proper ESM resolution; C2: SSRF URL validation in `SourceHttpClient` blocks private IPs/localhost/loopback; C3: `cl` (centiliter) unit handling in `denner.ts` normalizeUnit and `units.ts` getBaseUnitPrice |
 
 ## Next tasks
 
 1. Add richer store geospatial filtering (distance/radius)
 2. Add runtime static cutover/source status policy tooling
-3. Prepare Lidl live-beta catalog feasibility slice
-4. Prepare V2 account/cart integration foundation
-5. Remove static catalog data from default production runtime, or gate it as test/demo-only with explicit source warnings
-6. Decide whether live product search requires an approved provider/central index instead of local runtime crawling
+3. Implement Denner product search via wine shop API
+4. Implement Migros/Coop promotions endpoints
+5. Add per-store availability for Migros and Coop
+6. Prepare V2 account/cart integration foundation
+7. Remove static catalog data from default production runtime, or gate it as test/demo-only with explicit source warnings
+8. Decide whether live product search requires an approved provider/central index instead of local runtime crawling
 
 ## Decisions
 

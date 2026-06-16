@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Swiss Shopping MCP - Manual Testing</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue: #0057b8;
+      --blue-light: #e8f0fe;
+      --blue-dark: #003d82;
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-300: #d1d5db;
+      --gray-500: #6b7280;
+      --gray-700: #374151;
+      --gray-900: #111827;
+      --green: #16a34a;
+      --red: #dc2626;
+      --radius: 8px;
+      --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+      --shadow-md: 0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.06);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: var(--gray-50);
+      color: var(--gray-900);
+      line-height: 1.5;
+    }
+
+    header {
+      background: var(--blue);
+      color: #fff;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: var(--shadow-md);
+    }
+
+    header h1 { font-size: 20px; font-weight: 600; }
+    header span { font-size: 13px; opacity: 0.85; margin-left: auto; }
+
+    .tabs {
+      display: flex;
+      background: #fff;
+      border-bottom: 2px solid var(--gray-200);
+      padding: 0 24px;
+      gap: 4px;
+      overflow-x: auto;
+    }
+
+    .tab-btn {
+      padding: 12px 20px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--gray-500);
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      white-space: nowrap;
+      transition: color 0.15s, border-color 0.15s;
+    }
+
+    .tab-btn:hover { color: var(--blue); }
+    .tab-btn.active { color: var(--blue); border-bottom-color: var(--blue); }
+
+    .tab-content { display: none; padding: 24px; max-width: 1200px; margin: 0 auto; }
+    .tab-content.active { display: block; }
+
+    .panel {
+      background: #fff;
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .panel h3 {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: var(--gray-700);
+    }
+
+    .form-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: flex-end;
+    }
+
+    .form-group { display: flex; flex-direction: column; gap: 4px; }
+    .form-group label { font-size: 12px; font-weight: 500; color: var(--gray-500); text-transform: uppercase; letter-spacing: 0.05em; }
+
+    input[type="text"], input[type="number"], select {
+      padding: 8px 12px;
+      border: 1px solid var(--gray-300);
+      border-radius: 6px;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    input:focus, select:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(0,87,184,0.1); }
+
+    .chain-filters { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+
+    .chain-checkbox {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 13px;
+      color: var(--gray-700);
+      cursor: pointer;
+    }
+
+    .chain-checkbox input { accent-color: var(--blue); cursor: pointer; }
+
+    .btn {
+      padding: 8px 20px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .btn-primary { background: var(--blue); color: #fff; }
+    .btn-primary:hover { background: var(--blue-dark); }
+    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .results-info { font-size: 13px; color: var(--gray-500); margin-bottom: 12px; }
+
+    .error-box {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: var(--red);
+      padding: 12px 16px;
+      border-radius: 6px;
+      font-size: 14px;
+      margin-bottom: 12px;
+    }
+
+    .loading { display: flex; align-items: center; gap: 8px; color: var(--gray-500); font-size: 14px; padding: 12px 0; }
+    .spinner { width: 18px; height: 18px; border: 2px solid var(--gray-200); border-top-color: var(--blue); border-radius: 50%; animation: spin 0.6s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+
+    .product-card {
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      background: #fff;
+      transition: box-shadow 0.15s;
+    }
+
+    .product-card:hover { box-shadow: var(--shadow-md); }
+
+    .product-card .chain-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      align-self: flex-start;
+    }
+
+    .chain-migros { background: #fef3cd; color: #92400e; }
+    .chain-coop { background: #fee2e2; color: #991b1b; }
+    .chain-aldi { background: #dbeafe; color: #1e40af; }
+    .chain-denner { background: #fce7f3; color: #9d174d; }
+    .chain-lidl { background: #dbeafe; color: #1e40af; }
+    .chain-ottos { background: #d1fae5; color: #065f46; }
+    .chain-volg { background: #e0e7ff; color: #3730a3; }
+
+    .product-card .name { font-weight: 600; font-size: 14px; }
+    .product-card .brand { font-size: 12px; color: var(--gray-500); }
+    .product-card .category { font-size: 12px; color: var(--gray-500); }
+    .product-card .price { font-size: 18px; font-weight: 700; color: var(--blue); margin-top: auto; padding-top: 8px; }
+    .product-card .price .original { font-size: 13px; color: var(--gray-500); font-weight: 400; text-decoration: line-through; margin-left: 6px; }
+
+    .store-list { display: flex; flex-direction: column; gap: 12px; }
+
+    .store-card {
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      background: #fff;
+    }
+
+    .store-card .name { font-weight: 600; font-size: 14px; }
+    .store-card .address { font-size: 13px; color: var(--gray-500); }
+    .store-card .coords { font-size: 12px; color: var(--gray-500); font-family: monospace; }
+
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    .comparison-table th {
+      text-align: left;
+      padding: 10px 12px;
+      background: var(--gray-100);
+      font-weight: 600;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--gray-500);
+      border-bottom: 2px solid var(--gray-200);
+    }
+
+    .comparison-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--gray-200);
+    }
+
+    .comparison-table tr.cheapest { background: #f0fdf4; }
+    .comparison-table tr.most-expensive { background: #fef2f2; }
+
+    .source-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; }
+
+    .source-card {
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius);
+      padding: 12px 16px;
+      background: #fff;
+    }
+
+    .source-card .chain { font-weight: 600; font-size: 14px; margin-bottom: 8px; }
+
+    .capability-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 4px 0;
+      font-size: 13px;
+    }
+
+    .status-badge {
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .status-live-beta { background: #d1fae5; color: #065f46; }
+    .status-live-stable { background: #d1fae5; color: #065f46; }
+    .status-unsupported { background: var(--gray-100); color: var(--gray-500); }
+    .status-blocked { background: #fef2f2; color: #991b1b; }
+    .status-degraded { background: #fef3cd; color: #92400e; }
+    .status-source-auditing { background: #e0e7ff; color: #3730a3; }
+
+    @media (max-width: 640px) {
+      .form-row { flex-direction: column; }
+      .product-grid { grid-template-columns: 1fr; }
+      .source-grid { grid-template-columns: 1fr; }
+      .tabs { padding: 0 12px; }
+      .tab-content { padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Swiss Shopping MCP</h1>
+    <span>Manual Testing UI</span>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab-btn active" data-tab="search">Product Search</button>
+    <button class="tab-btn" data-tab="stores">Store Finder</button>
+    <button class="tab-btn" data-tab="compare">Price Comparison</button>
+    <button class="tab-btn" data-tab="status">Source Status</button>
+  </nav>
+
+  <!-- Product Search Tab -->
+  <section id="tab-search" class="tab-content active">
+    <div class="panel">
+      <h3>Search Products</h3>
+      <div class="form-row">
+        <div class="form-group" style="flex:1;min-width:200px;">
+          <label for="search-query">Query</label>
+          <input type="text" id="search-query" placeholder="e.g. milk, bread, cheese...">
+        </div>
+        <div class="form-group">
+          <label for="search-max-price">Max Price (CHF)</label>
+          <input type="number" id="search-max-price" placeholder="optional" min="0" step="0.10">
+        </div>
+        <div class="form-group">
+          <label for="search-limit">Limit</label>
+          <select id="search-limit">
+            <option value="5">5</option>
+            <option value="10" selected>10</option>
+            <option value="20">20</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" id="search-btn">Search</button>
+      </div>
+      <div class="chain-filters" id="search-chains"></div>
+    </div>
+    <div id="search-loading" class="loading" style="display:none"><div class="spinner"></div>Searching...</div>
+    <div id="search-error" class="error-box" style="display:none"></div>
+    <div id="search-results" class="product-grid"></div>
+  </section>
+
+  <!-- Store Finder Tab -->
+  <section id="tab-stores" class="tab-content">
+    <div class="panel">
+      <h3>Find Stores</h3>
+      <div class="form-row">
+        <div class="form-group" style="flex:1;min-width:200px;">
+          <label for="store-location">Location (city or ZIP)</label>
+          <input type="text" id="store-location" placeholder="e.g. Zurich, 8001">
+        </div>
+        <div class="form-group">
+          <label for="store-limit">Limit</label>
+          <select id="store-limit">
+            <option value="5">5</option>
+            <option value="10" selected>10</option>
+            <option value="20">20</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" id="store-btn">Find Stores</button>
+      </div>
+      <div class="chain-filters" id="store-chains"></div>
+    </div>
+    <div id="store-loading" class="loading" style="display:none"><div class="spinner"></div>Finding stores...</div>
+    <div id="store-error" class="error-box" style="display:none"></div>
+    <div id="store-results" class="store-list"></div>
+  </section>
+
+  <!-- Price Comparison Tab -->
+  <section id="tab-compare" class="tab-content">
+    <div class="panel">
+      <h3>Compare Prices</h3>
+      <div class="form-row">
+        <div class="form-group" style="flex:1;min-width:200px;">
+          <label for="compare-query">Query</label>
+          <input type="text" id="compare-query" placeholder="e.g. milk, bread, cheese...">
+        </div>
+        <div class="form-group">
+          <label for="compare-quantity">Quantity</label>
+          <input type="number" id="compare-quantity" value="1" min="1" max="100">
+        </div>
+        <button class="btn btn-primary" id="compare-btn">Compare</button>
+      </div>
+      <div class="chain-filters" id="compare-chains"></div>
+    </div>
+    <div id="compare-loading" class="loading" style="display:none"><div class="spinner"></div>Comparing prices...</div>
+    <div id="compare-error" class="error-box" style="display:none"></div>
+    <div id="compare-results"></div>
+  </section>
+
+  <!-- Source Status Tab -->
+  <section id="tab-status" class="tab-content">
+    <div class="panel">
+      <h3>Source & Capability Status</h3>
+      <p style="font-size:13px;color:var(--gray-500);margin-bottom:4px;">Overview of all chain adapters and their current capability status.</p>
+    </div>
+    <div id="status-loading" class="loading" style="display:none"><div class="spinner"></div>Loading status...</div>
+    <div id="status-error" class="error-box" style="display:none"></div>
+    <div id="status-results" class="source-grid"></div>
+  </section>
+
+  <script>
+    const ALL_CHAINS = ['migros','coop','aldi','denner','lidl','ottos','volg'];
+
+    const CAPABILITY_LABELS = {
+      productSearch: 'Product Search',
+      promotions: 'Promotions',
+      storeSearch: 'Store Search',
+      availability: 'Availability',
+      nutrition: 'Nutrition'
+    };
+
+    function formatPrice(value) {
+      return 'CHF ' + Number(value).toFixed(2);
+    }
+
+    function chainBadgeClass(chain) {
+      return 'chain-' + chain;
+    }
+
+    function statusBadgeClass(status) {
+      return 'status-' + status;
+    }
+
+    function showError(containerId, message) {
+      const el = document.getElementById(containerId);
+      el.textContent = message;
+      el.style.display = 'block';
+    }
+
+    function hideError(containerId) {
+      const el = document.getElementById(containerId);
+      el.style.display = 'none';
+    }
+
+    function showLoading(containerId) {
+      document.getElementById(containerId).style.display = 'flex';
+    }
+
+    function hideLoading(containerId) {
+      document.getElementById(containerId).style.display = 'none';
+    }
+
+    function getSelectedChains(containerId) {
+      const checkboxes = document.querySelectorAll('#' + containerId + ' input[type="checkbox"]');
+      const selected = [];
+      checkboxes.forEach(cb => { if (cb.checked) selected.push(cb.value); });
+      return selected.length > 0 ? selected : undefined;
+    }
+
+    function renderChainFilters(containerId) {
+      const container = document.getElementById(containerId);
+      ALL_CHAINS.forEach(chain => {
+        const label = document.createElement('label');
+        label.className = 'chain-checkbox';
+        label.innerHTML = '<input type="checkbox" value="' + chain + '" checked> ' + chain.charAt(0).toUpperCase() + chain.slice(1);
+        container.appendChild(label);
+      });
+    }
+
+    async function apiPost(path, body) {
+      const res = await fetch(path, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      return res.json();
+    }
+
+    async function apiGet(path) {
+      const res = await fetch(path);
+      return res.json();
+    }
+
+    // Tab switching
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+
+        if (btn.dataset.tab === 'status') loadSourceStatus();
+      });
+    });
+
+    // Product Search
+    document.getElementById('search-btn').addEventListener('click', async () => {
+      const query = document.getElementById('search-query').value.trim();
+      if (!query) { showError('search-error', 'Please enter a search query.'); return; }
+
+      hideError('search-error');
+      document.getElementById('search-results').innerHTML = '';
+      showLoading('search-loading');
+
+      const chains = getSelectedChains('search-chains');
+      const maxPrice = parseFloat(document.getElementById('search-max-price').value) || undefined;
+      const limit = parseInt(document.getElementById('search-limit').value, 10);
+
+      try {
+        const result = await apiPost('/api/search-products', { query, chains, maxPrice, limit });
+        hideLoading('search-loading');
+
+        if (!result.ok) {
+          showError('search-error', result.error?.message || 'Search failed.');
+          return;
+        }
+
+        const products = result.data || [];
+        if (products.length === 0) {
+          showError('search-error', 'No products found.');
+          return;
+        }
+
+        const grid = document.getElementById('search-results');
+        products.forEach(p => {
+          const card = document.createElement('div');
+          card.className = 'product-card';
+          card.innerHTML =
+            '<span class="chain-badge ' + chainBadgeClass(p.chain) + '">' + p.chain + '</span>' +
+            '<div class="name">' + escapeHtml(p.name) + '</div>' +
+            (p.brand ? '<div class="brand">' + escapeHtml(p.brand) + '</div>' : '') +
+            (p.category ? '<div class="category">' + escapeHtml(p.category) + '</div>' : '') +
+            '<div class="price">' + formatPrice(p.price.current) +
+            (p.price.original ? '<span class="original">' + formatPrice(p.price.original) + '</span>' : '') +
+            '</div>';
+          grid.appendChild(card);
+        });
+      } catch (e) {
+        hideLoading('search-loading');
+        showError('search-error', 'Network error: ' + e.message);
+      }
+    });
+
+    // Store Finder
+    document.getElementById('store-btn').addEventListener('click', async () => {
+      const location = document.getElementById('store-location').value.trim();
+      if (!location) { showError('store-error', 'Please enter a location.'); return; }
+
+      hideError('store-error');
+      document.getElementById('store-results').innerHTML = '';
+      showLoading('store-loading');
+
+      const chains = getSelectedChains('store-chains');
+      const limit = parseInt(document.getElementById('store-limit').value, 10);
+
+      try {
+        const result = await apiPost('/api/find-stores', { location, chains, limit });
+        hideLoading('store-loading');
+
+        if (!result.ok) {
+          showError('store-error', result.error?.message || 'Store search failed.');
+          return;
+        }
+
+        const stores = result.data || [];
+        if (stores.length === 0) {
+          showError('store-error', 'No stores found.');
+          return;
+        }
+
+        const list = document.getElementById('store-results');
+        stores.forEach(s => {
+          const card = document.createElement('div');
+          card.className = 'store-card';
+          card.innerHTML =
+            '<span class="chain-badge ' + chainBadgeClass(s.chain) + '">' + s.chain + '</span>' +
+            '<div class="name">' + escapeHtml(s.name) + '</div>' +
+            '<div class="address">' + escapeHtml(s.address) + '</div>' +
+            (s.location ? '<div class="coords">' + s.location.latitude.toFixed(5) + ', ' + s.location.longitude.toFixed(5) + '</div>' : '');
+          list.appendChild(card);
+        });
+      } catch (e) {
+        hideLoading('store-loading');
+        showError('store-error', 'Network error: ' + e.message);
+      }
+    });
+
+    // Price Comparison
+    document.getElementById('compare-btn').addEventListener('click', async () => {
+      const query = document.getElementById('compare-query').value.trim();
+      if (!query) { showError('compare-error', 'Please enter a query.'); return; }
+
+      hideError('compare-error');
+      document.getElementById('compare-results').innerHTML = '';
+      showLoading('compare-loading');
+
+      const chains = getSelectedChains('compare-chains');
+      const quantity = parseInt(document.getElementById('compare-quantity').value, 10) || 1;
+
+      try {
+        const result = await apiPost('/api/compare-prices', { query, chains, quantity });
+        hideLoading('compare-loading');
+
+        if (!result.ok) {
+          showError('compare-error', result.error?.message || 'Comparison failed.');
+          return;
+        }
+
+        const data = result.data;
+        const offers = data.offers || [];
+
+        if (offers.length === 0) {
+          showError('compare-error', 'No offers found.');
+          return;
+        }
+
+        let infoText = '<div class="results-info">Query: ' + escapeHtml(data.query) + ' | Quantity: ' + data.quantity;
+        if (data.comparisonUnit) infoText += ' | Unit: ' + data.comparisonUnit;
+        if (data.savingsVsMostExpensive !== undefined) infoText += ' | Savings: ' + formatPrice(data.savingsVsMostExpensive);
+        infoText += '</div>';
+
+        let tableHtml = infoText + '<div style="overflow-x:auto"><table class="comparison-table">' +
+          '<thead><tr><th>Chain</th><th>Product</th><th>Price</th><th>Total</th><th>Basis</th></tr></thead><tbody>';
+
+        offers.forEach(o => {
+          let rowClass = '';
+          if (data.cheapestOffer && o.chain === data.cheapestOffer.chain) rowClass = 'cheapest';
+          if (data.mostExpensiveOffer && o.chain === data.mostExpensiveOffer.chain && rowClass !== 'cheapest') rowClass = 'most-expensive';
+
+          tableHtml += '<tr class="' + rowClass + '">' +
+            '<td><span class="chain-badge ' + chainBadgeClass(o.chain) + '">' + o.chain + '</span></td>' +
+            '<td>' + escapeHtml(o.product.name) + (o.promotion ? ' <em>(promo)</em>' : '') + '</td>' +
+            '<td>' + formatPrice(o.effectivePrice) + (o.unitPrice ? ' <span style="color:var(--gray-500);font-size:12px;">(' + formatPrice(o.unitPrice) + ' / unit)</span>' : '') + '</td>' +
+            '<td><strong>' + formatPrice(o.totalPrice) + '</strong></td>' +
+            '<td>' + o.priceBasis + '</td>' +
+            '</tr>';
+        });
+
+        tableHtml += '</tbody></table></div>';
+        document.getElementById('compare-results').innerHTML = tableHtml;
+      } catch (e) {
+        hideLoading('compare-loading');
+        showError('compare-error', 'Network error: ' + e.message);
+      }
+    });
+
+    // Source Status
+    async function loadSourceStatus() {
+      showLoading('status-loading');
+      hideError('status-error');
+      document.getElementById('status-results').innerHTML = '';
+
+      try {
+        const result = await apiGet('/api/source-status');
+        hideLoading('status-loading');
+
+        if (!result.ok) {
+          showError('status-error', result.error?.message || 'Failed to load status.');
+          return;
+        }
+
+        const statuses = result.data || [];
+        const byChain = {};
+        statuses.forEach(s => {
+          if (!byChain[s.chain]) byChain[s.chain] = [];
+          byChain[s.chain].push(s);
+        });
+
+        const grid = document.getElementById('status-results');
+        Object.keys(byChain).sort().forEach(chain => {
+          const card = document.createElement('div');
+          card.className = 'source-card';
+          let html = '<div class="chain">' + chain.charAt(0).toUpperCase() + chain.slice(1) + '</div>';
+
+          byChain[chain].forEach(c => {
+            html += '<div class="capability-row">' +
+              '<span>' + (CAPABILITY_LABELS[c.capability] || c.capability) + '</span>' +
+              '<span class="status-badge ' + statusBadgeClass(c.status) + '">' + c.status + '</span>' +
+              '</div>';
+            if (c.provider) {
+              html += '<div style="font-size:11px;color:var(--gray-500);margin-top:-2px;margin-bottom:4px;padding-left:2px;">Provider: ' + escapeHtml(c.provider) + '</div>';
+            }
+          });
+
+          card.innerHTML = html;
+          grid.appendChild(card);
+        });
+      } catch (e) {
+        hideLoading('status-loading');
+        showError('status-error', 'Network error: ' + e.message);
+      }
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    // Initialize chain filters
+    renderChainFilters('search-chains');
+    renderChainFilters('store-chains');
+    renderChainFilters('compare-chains');
+  </script>
+</body>
+</html>

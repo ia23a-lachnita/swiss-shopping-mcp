@@ -399,7 +399,10 @@ export async function executeToolCall(
   params: CallToolRequest['params'],
   dependencies: ToolDependencies
 ): Promise<CallToolResult> {
-  if (!isSupportedToolName(params.name)) {
+  const timeoutMs = TOOL_TIMEOUT_MS[params.name];
+
+  const execute = async (): Promise<CallToolResult> => {
+    if (!isSupportedToolName(params.name)) {
     return toolError('UNKNOWN_TOOL', `Unknown tool: ${params.name}`);
   }
 
@@ -498,4 +501,16 @@ export async function executeToolCall(
     return toolError(result.error.code, result.error.message ?? 'Price comparison failed.');
   }
   return toolSuccess(withMetadata({ comparison: result.data }, result.metadata));
+  };
+
+  if (typeof timeoutMs === 'number') {
+    return Promise.race([
+      execute(),
+      new Promise<CallToolResult>((resolve) =>
+        setTimeout(() => resolve(toolError('TOOL_TIMEOUT', `Tool "${params.name}" exceeded ${timeoutMs}ms timeout.`)), timeoutMs)
+      ),
+    ]);
+  }
+
+  return execute();
 }

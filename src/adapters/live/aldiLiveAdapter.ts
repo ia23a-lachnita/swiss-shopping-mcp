@@ -5,18 +5,25 @@ import {
   parseAldiProductPage,
   parseAldiProductSitemap,
 } from '../../parsers/aldi.js';
-import { SourceClientError, SourceHttpClient } from '../../sources/sourceClient.js';
-import { calculateMatchStrength, normalize, sortProducts } from '../../util/matcher.js';
+import { SourceHttpClient } from '../../sources/sourceClient.js';
+import { normalize, sortProducts } from '../../util/matcher.js';
+import {
+  cacheableProvenance,
+  liveProvenanceWithCacheExpiry,
+  LoadResult,
+  LoadSuccess,
+  metadataFrom,
+  productMatches,
+  staleCacheWarning,
+  warningFromError,
+} from './baseLiveAdapter.js';
 import {
   ChainAdapter,
   NormalizedProduct,
   ProductSearchFilters,
   PromotionSearchFilters,
   Result,
-  ResultMetadata,
   SourceProvenance,
-  SourceStatus,
-  SourceWarning,
   SourceWarningCode,
   StoreAvailabilitySupport,
   StoreProductAvailabilityFilters,
@@ -29,42 +36,12 @@ const ALDI_PRODUCT_SITEMAP_URL = 'https://www.aldi-suisse.ch/de/sitemap_products
 const DEFAULT_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 const DEFAULT_MAX_PRODUCT_PAGES = 20;
 
-interface LoadSuccess<T> {
-  ok: true;
-  data: T;
-  provenance: SourceProvenance;
-  warnings: SourceWarning[];
-}
-
-interface LoadFailure {
-  ok: false;
-  error: {
-    code: SourceWarningCode;
-    message: string;
-  };
-  warnings: SourceWarning[];
-}
-
-type LoadResult<T> = LoadSuccess<T> | LoadFailure;
-
 export interface AldiLiveAdapterOptions {
   cache: FileTtlCache;
   sourceClient?: SourceHttpClient;
   productSitemapUrl?: string;
   cacheTtlMs?: number;
   maxProductPages?: number;
-}
-
-function cacheableProvenance(
-  provenance: SourceProvenance
-): Omit<SourceProvenance, 'observedAt' | 'freshness' | 'cacheExpiresAt'> {
-  return {
-    provider: provenance.provider,
-    chain: provenance.chain,
-    sourceType: provenance.sourceType,
-    sourceUrl: provenance.sourceUrl,
-    confidence: provenance.confidence,
-  };
 }
 
 function productProvenance(
@@ -74,16 +51,6 @@ function productProvenance(
   return {
     ...provenance,
     sourceUrl: product.sourceUrl,
-  };
-}
-
-function liveProvenanceWithCacheExpiry(
-  provenance: SourceProvenance,
-  cacheExpiresAt: string
-): SourceProvenance {
-  return {
-    ...provenance,
-    cacheExpiresAt,
   };
 }
 
@@ -106,69 +73,22 @@ function toNormalizedProduct(
   };
 }
 
-function warningFromError(error: unknown, sourceUrl: string, messagePrefix: string): SourceWarning {
-  if (error instanceof SourceClientError) {
-    return {
-      chain: 'aldi',
-      provider: ALDI_PROVIDER,
-      sourceUrl: error.sourceUrl,
-      code: error.code,
-      message: `${messagePrefix}: ${error.message}`,
-      observedAt: new Date().toISOString(),
-    };
-  }
-
-  const message = error instanceof Error ? error.message : String(error);
-  return {
-    chain: 'aldi',
-    provider: ALDI_PROVIDER,
-    sourceUrl,
-    code: SourceWarningCode.SourceParseFailed,
-    message: `${messagePrefix}: ${message}`,
-    observedAt: new Date().toISOString(),
-  };
-}
-
-function staleCacheWarning(provenance: SourceProvenance): SourceWarning {
-  return {
-    chain: 'aldi',
-    provider: ALDI_PROVIDER,
-    sourceUrl: provenance.sourceUrl,
-    code: SourceWarningCode.SourceStaleCacheUsed,
-    message: 'Using stale cached Aldi source data because the live source is unavailable.',
-    observedAt: new Date().toISOString(),
-  };
-}
-
-function metadataFrom(provenances: SourceProvenance[], warnings: SourceWarning[]): ResultMetadata {
-  const primaryProvenance =
-    provenances.find((provenance) => provenance.freshness === 'live') ?? provenances.at(0);
-  const sources: SourceStatus[] = [
-    {
-      chain: 'aldi',
-      status: primaryProvenance?.freshness === 'live' ? 'live-beta' : 'degraded',
-      provider: ALDI_PROVIDER,
-      sourceType: 'retailer-web',
-      lastObservedAt: primaryProvenance?.observedAt,
-      warning: warnings.at(0),
-    },
-  ];
-
-  return {
-    ...(warnings.length > 0 ? { sourceWarnings: warnings } : {}),
-    sources,
-    summary:
-      primaryProvenance?.freshness === 'live'
-        ? 'Aldi products are sourced from live retailer web pages.'
-        : 'Aldi products are sourced from cached retailer web observations.',
-  };
-}
-
 function queryTerms(query: string): string[] {
   return normalize(query)
     .split(/\s+/)
     .map((term) => term.trim())
     .filter((term) => term.length > 1);
+}
+
+async function batchAll<T>(
+  items: T[],
+  fn: (item: T) => Promise<unknown>,
+  concurrency: number
+): Promise<void> {
+  for (let i = 0; i < items.length; i += concurrency) {
+    const batch = items.slice(i, i + concurrency);
+    await Promise.all(batch.map(fn));
+  }
 }
 
 function isCandidateUrl(entry: AldiSitemapEntry, terms: string[]): boolean {
@@ -215,14 +135,20 @@ export class AldiLiveAdapter implements ChainAdapter {
     const candidates = sitemap.data
       .filter((entry) => isCandidateUrl(entry, terms))
       .slice(0, productPageLimit);
-    const productResults = await Promise.all(
-      candidates.map((entry) => this.loadProduct(entry.loc))
+    const productResults: LoadResult<AldiParsedProduct>[] = [];
+    await batchAll(
+      candidates,
+      async (entry) => {
+        const result = await this.loadProduct(entry.loc);
+        productResults.push(result);
+      },
+      5
     );
     const warnings = [...sitemap.warnings, ...productResults.flatMap((result) => result.warnings)];
     const products = productResults
       .filter((result): result is LoadSuccess<AldiParsedProduct> => result.ok)
       .map((result) => toNormalizedProduct(result.data, result.provenance))
-      .filter((product) => this.productMatches(product, query, filters))
+      .filter((product) => productMatches(product, query, filters))
       .sort((a, b) => sortProducts(a, b, query, filters.matchMode ?? 'balanced'));
 
     if (
@@ -250,7 +176,14 @@ export class AldiLiveAdapter implements ChainAdapter {
     return {
       ok: true,
       data: limitedProducts,
-      metadata: metadataFrom(provenances, warnings),
+      metadata: metadataFrom(
+        provenances,
+        warnings,
+        'aldi',
+        ALDI_PROVIDER,
+        'Aldi products are sourced from live retailer web pages.',
+        'Aldi products are sourced from cached retailer web observations.'
+      ),
     };
   }
 
@@ -301,29 +234,6 @@ export class AldiLiveAdapter implements ChainAdapter {
     };
   }
 
-  private productMatches(
-    product: NormalizedProduct,
-    query: string,
-    filters: ProductSearchFilters
-  ): boolean {
-    const matchMode = filters.matchMode ?? 'balanced';
-    if (calculateMatchStrength(product, query, matchMode) === 0) {
-      return false;
-    }
-
-    if (typeof filters.maxPrice === 'number' && product.price.current > filters.maxPrice) {
-      return false;
-    }
-
-    if (filters.category && normalize(product.category ?? '') !== normalize(filters.category)) {
-      return false;
-    }
-
-    const requestedTags = (filters.tags ?? []).map((tag) => normalize(tag));
-    const productTags = new Set((product.tags ?? []).map((tag) => normalize(tag)));
-    return requestedTags.every((tag) => productTags.has(tag));
-  }
-
   private async loadSitemap(): Promise<LoadResult<AldiSitemapEntry[]>> {
     const cacheKey = `aldi:product-sitemap:${this.productSitemapUrl}`;
     const cached = await this.cache.get<AldiSitemapEntry[]>(cacheKey, { allowStale: true });
@@ -355,14 +265,16 @@ export class AldiLiveAdapter implements ChainAdapter {
       const warning = warningFromError(
         error,
         this.productSitemapUrl,
-        'Aldi product sitemap fetch failed'
+        'Aldi product sitemap fetch failed',
+        'aldi',
+        ALDI_PROVIDER
       );
       if (cached) {
         return {
           ok: true,
           data: cached.data,
           provenance: cached.provenance,
-          warnings: [warning, staleCacheWarning(cached.provenance)],
+          warnings: [warning, staleCacheWarning(cached.provenance, 'aldi', ALDI_PROVIDER)],
         };
       }
 
@@ -402,13 +314,13 @@ export class AldiLiveAdapter implements ChainAdapter {
         warnings: [],
       };
     } catch (error) {
-      const warning = warningFromError(error, sourceUrl, 'Aldi product page fetch failed');
+      const warning = warningFromError(error, sourceUrl, 'Aldi product page fetch failed', 'aldi', ALDI_PROVIDER);
       if (cached) {
         return {
           ok: true,
           data: cached.data,
           provenance: cached.provenance,
-          warnings: [warning, staleCacheWarning(cached.provenance)],
+          warnings: [warning, staleCacheWarning(cached.provenance, 'aldi', ALDI_PROVIDER)],
         };
       }
 

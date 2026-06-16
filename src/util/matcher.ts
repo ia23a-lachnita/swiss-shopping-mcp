@@ -2,9 +2,26 @@ import { MatchMode, NormalizedProduct } from '../adapters/types.js';
 
 export const TAXONOMY: Record<string, string[]> = {
   pasta: ['pasta', 'penne', 'spaghetti', 'fusilli', 'nudeln', 'maccheroni', 'tagliatelle', 'pappardelle'],
-  bread: ['brod', 'bread', 'baguette', 'zopf', 'panini', 'semmel', 'gipfeli'],
+  bread: ['brot', 'bread', 'baguette', 'zopf', 'panini', 'semmel', 'gipfeli'],
   milk: ['milch', 'milk'],
   cheese: ['kase', 'cheese', 'gruyere', 'emmentaler', 'mozzarella', 'parmesan'],
+  water: ['wasser', 'water', 'mineralwasser'],
+  beer: ['bier', 'beer', 'lager', 'pils'],
+  wine: ['wein', 'wine'],
+  yogurt: ['joghurt', 'yogurt', 'yoghurt'],
+  butter: ['butter', 'margarine'],
+  eggs: ['eier', 'eggs', 'oeuf'],
+  coffee: ['kaffee', 'coffee', 'espresso'],
+  tea: ['tee', 'tea'],
+  sugar: ['zucker', 'sugar'],
+  salt: ['salz', 'salt'],
+  oil: ['oel', 'oil', 'olivenoel'],
+  meat: ['fleisch', 'meat', 'schweine', 'rind'],
+  chicken: ['huhn', 'chicken', 'poulet'],
+  fish: ['fisch', 'fish', 'lachs'],
+  fruit: ['obst', 'fruit', 'apfel', 'banane'],
+  vegetables: ['gemuse', 'vegetables', 'karotten', 'tomaten'],
+  cleaning: ['reinigung', 'cleaning', 'spulmittel'],
 };
 
 export function normalize(value: string): string {

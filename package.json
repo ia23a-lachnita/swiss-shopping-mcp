@@ -12,13 +12,14 @@
     "dev": "tsc && node dist/index.js",
     "watch": "tsc --watch",
     "test": "vitest",
-    "test:live": "vitest run --passWithNoTests src/adapters/live/aldiLiveAdapter.live.test.ts src/adapters/live/dennerPromotionsAdapter.live.test.ts",
+    "test:live": "LIVE_SOURCE_TESTS=1 vitest run --passWithNoTests src/adapters/live/*.live.test.ts",
     "test:live:denner": "vitest run --passWithNoTests src/adapters/live/dennerPromotionsAdapter.live.test.ts",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage",
     "lint": "eslint src --ext .ts",
     "format": "prettier --write \"src/**/*.ts\"",
-    "clean": "node -e \"require('fs').rmSync('dist', { recursive: true, force: true })\""
+    "clean": "node -e \"require('fs').rmSync('dist', { recursive: true, force: true })\"",
+    "start:web": "tsc && node dist/web/server.js"
   },
   "keywords": [
     "mcp",
@@ -34,12 +35,17 @@
   ],
   "author": "Project maintainers",
   "license": "MIT",
-  "files": ["dist", "README.md", "LICENSE"],
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "engines": {
     "node": ">=20.0.0"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",
+    "cheerio": "^1.2.0",
     "zod": "^3.22.4",
     "zod-to-json-schema": "^3.22.5"
   },
