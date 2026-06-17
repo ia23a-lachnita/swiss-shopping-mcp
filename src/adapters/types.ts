@@ -120,6 +120,7 @@ export interface NormalizedProduct {
   category?: string;
   size?: string;
   image?: string;
+  productUrl?: string;
   tags?: string[]; // e.g., "organic", "vegan", "budget"
   nutrition?: {
     energyKcal?: number;

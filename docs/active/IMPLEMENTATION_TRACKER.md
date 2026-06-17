@@ -58,6 +58,7 @@ Phase: `V1 - core read/search foundation`
 | SPA chain summary (Phase 3)        | done                   | SPA shows "X of Y chains responded" with failed chain names when some adapters fail; Product Search, Store Finder, and Price Comparison tabs updated |
 | Adapter/parser real-API fixes      | done                   | Migros rewritten (two-step search→details, `offer.price.effectiveValue`); Coop rewritten (path-param search, `resolveLocation()`, real field names); Lidl parser fixed (groups, array stores, storeKey); Otto's store URL + HTML stripping; all mocked unit tests updated; 18 test failures fixed; committed as `ebbcb97` |
 | GeoAdmin geocoding replacement     | done                   | Replaced static 270-entry ZIP database with async `resolveLocationAsync()` calling Swiss GeoAdmin SearchServer API; in-memory cache, 3s timeout, static DB fallback; Coop/Migros adapters updated; 6 new async tests with mocked fetch; 424 tests pass, build clean |
+| Product URL linking                | done                   | Added `productUrl` to `NormalizedProduct` type; propagated from Migros API (`url`), Coop API (`url`), Otto's (constructed from `code`), Volg (WooCommerce `permalink`), Aldi (existing `sourceUrl`); SPA product cards now clickable links to vendor pages; 424 tests pass, build clean |
 
 ## Next tasks
 

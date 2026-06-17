@@ -169,6 +169,25 @@
 
     .product-card:hover { box-shadow: var(--shadow-md); }
 
+    .product-card a {
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .product-card a:hover { text-decoration: none; }
+
+    .product-card .vendor-link {
+      font-size: 12px;
+      color: var(--blue);
+      text-decoration: none;
+      margin-top: 4px;
+    }
+
+    .product-card .vendor-link:hover { text-decoration: underline; }
+
     .product-card .chain-badge {
       display: inline-block;
       padding: 2px 8px;
@@ -193,6 +212,8 @@
     .product-card .category { font-size: 12px; color: var(--gray-500); }
     .product-card .price { font-size: 18px; font-weight: 700; color: var(--blue); margin-top: auto; padding-top: 8px; }
     .product-card .price .original { font-size: 13px; color: var(--gray-500); font-weight: 400; text-decoration: line-through; margin-left: 6px; }
+    .product-card .image { width: 100%; height: 160px; object-fit: contain; border-radius: 6px; background: var(--gray-50); margin-bottom: 4px; }
+    .product-card .no-image { width: 100%; height: 80px; display: flex; align-items: center; justify-content: center; color: var(--gray-300); font-size: 12px; background: var(--gray-50); border-radius: 6px; margin-bottom: 4px; }
 
     .store-list { display: flex; flex-direction: column; gap: 12px; }
 
@@ -209,6 +230,8 @@
     .store-card .name { font-weight: 600; font-size: 14px; }
     .store-card .address { font-size: 13px; color: var(--gray-500); }
     .store-card .coords { font-size: 12px; color: var(--gray-500); font-family: monospace; }
+    .store-card .map-link { display: inline-block; margin-top: 6px; font-size: 12px; color: var(--blue); text-decoration: none; }
+    .store-card .map-link:hover { text-decoration: underline; }
 
     .comparison-table {
       width: 100%;
@@ -510,7 +533,10 @@
         products.forEach(p => {
           const card = document.createElement('div');
           card.className = 'product-card';
-          card.innerHTML =
+          const imageHtml = p.image
+            ? '<img class="image" src="' + escapeHtml(p.image) + '" alt="" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'"><div class="no-image" style="display:none">No image</div>'
+            : '<div class="no-image">No image</div>';
+          const contentHtml = imageHtml +
             '<span class="chain-badge ' + chainBadgeClass(p.chain) + '">' + p.chain + '</span>' +
             '<div class="name">' + escapeHtml(p.name) + '</div>' +
             (p.brand ? '<div class="brand">' + escapeHtml(p.brand) + '</div>' : '') +
@@ -518,6 +544,14 @@
             '<div class="price">' + formatPrice(p.price.current) +
             (p.price.original ? '<span class="original">' + formatPrice(p.price.original) + '</span>' : '') +
             '</div>';
+          if (p.productUrl) {
+            card.innerHTML = '<a href="' + escapeHtml(p.productUrl) + '" target="_blank" rel="noopener">' +
+              contentHtml +
+              '<span class="vendor-link">View on ' + p.chain.charAt(0).toUpperCase() + p.chain.slice(1) + ' &rarr;</span>' +
+              '</a>';
+          } else {
+            card.innerHTML = contentHtml;
+          }
           grid.appendChild(card);
         });
       } catch (e) {
@@ -570,11 +604,16 @@
         stores.forEach(s => {
           const card = document.createElement('div');
           card.className = 'store-card';
+          const coords = s.location ? s.location.latitude.toFixed(5) + ', ' + s.location.longitude.toFixed(5) : '';
+          const mapUrl = s.location
+            ? 'https://www.openstreetmap.org/?mlat=' + s.location.latitude + '&mlon=' + s.location.longitude + '#map=16/' + s.location.latitude + '/' + s.location.longitude
+            : '';
           card.innerHTML =
             '<span class="chain-badge ' + chainBadgeClass(s.chain) + '">' + s.chain + '</span>' +
             '<div class="name">' + escapeHtml(s.name) + '</div>' +
             '<div class="address">' + escapeHtml(s.address) + '</div>' +
-            (s.location ? '<div class="coords">' + s.location.latitude.toFixed(5) + ', ' + s.location.longitude.toFixed(5) + '</div>' : '');
+            (coords ? '<div class="coords">' + coords + '</div>' : '') +
+            (mapUrl ? '<a class="map-link" href="' + mapUrl + '" target="_blank" rel="noopener">View on map</a>' : '');
           list.appendChild(card);
         });
       } catch (e) {

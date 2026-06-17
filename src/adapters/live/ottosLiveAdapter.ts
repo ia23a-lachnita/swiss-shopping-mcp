@@ -49,6 +49,7 @@ function toNormalizedProduct(product: OttosParsedProduct, provenance: import('..
     price: { current: product.price.current },
     category: product.category,
     image: product.image,
+    productUrl: 'https://www.ottos.ch/de/product/' + product.id,
     provenance: { ...provenance, sourceUrl: product.sourceUrl },
   };
 }

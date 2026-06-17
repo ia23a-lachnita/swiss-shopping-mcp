@@ -62,6 +62,7 @@ export interface CoopPromotion {
 export interface CoopParsedProduct {
   id: string;
   sourceUrl: string;
+  productUrl?: string;
   name: string;
   brand?: string;
   price: {
@@ -103,6 +104,10 @@ function parsePrice(product: CoopProduct): { current: number; currency: string }
   if (Number.isFinite(amount) && amount > 0) {
     return { current: amount, currency };
   }
+  // Accept zero prices (price on request) with a sentinel
+  if (Number.isFinite(amount) && amount === 0) {
+    return { current: 0, currency };
+  }
   return undefined;
 }
 
@@ -140,6 +145,7 @@ export function parseCoopSearchResponse(
       {
         id: product.code,
         sourceUrl,
+        productUrl: product.url || undefined,
         name: product.name,
         brand: product.brandName,
         price,

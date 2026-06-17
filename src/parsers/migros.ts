@@ -71,6 +71,7 @@ export interface MigrosPromotionsResponse {
 export interface MigrosParsedProduct {
   id: string;
   sourceUrl: string;
+  productUrl?: string;
   name: string;
   brand?: string;
   price: {
@@ -112,6 +113,10 @@ function parsePrice(value: unknown): { current: number; currency: string } | und
     if (Number.isFinite(amount) && amount > 0) {
       return { current: amount, currency };
     }
+    // Accept zero prices (price on request) with a sentinel
+    if (Number.isFinite(amount) && amount === 0) {
+      return { current: 0, currency };
+    }
   }
   return undefined;
 }
@@ -144,6 +149,7 @@ export function parseMigrosSearchResponse(
       {
         id,
         sourceUrl,
+        productUrl: product.url || undefined,
         name: product.name,
         brand: product.brand_name,
         price,

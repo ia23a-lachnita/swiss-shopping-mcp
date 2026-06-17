@@ -63,6 +63,7 @@ function toNormalizedProduct(
     },
     category: product.category,
     image: product.image,
+    productUrl: product.productUrl,
     nutrition: product.nutrition,
     allergens: product.allergens,
     provenance: { ...provenance, sourceUrl: product.sourceUrl },

@@ -68,6 +68,7 @@ function toNormalizedProduct(
     },
     category: product.category,
     image: product.image,
+    productUrl: product.sourceUrl,
     tags: product.availability?.endsWith('/InStock') ? ['in-stock'] : undefined,
     provenance: productProvenance(product, provenance),
   };

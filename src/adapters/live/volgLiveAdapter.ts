@@ -41,6 +41,7 @@ function toNormalizedProduct(product: VolgParsedProduct, provenance: import('../
     price: { current: product.price.current },
     category: product.category,
     image: product.image,
+    productUrl: product.productUrl,
     tags: product.tags,
     provenance: { ...provenance, sourceUrl: product.sourceUrl },
   };

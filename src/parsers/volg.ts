@@ -15,6 +15,7 @@ export interface VolgProduct {
 export interface VolgParsedProduct {
   id: string;
   sourceUrl: string;
+  productUrl?: string;
   name: string;
   brand?: string;
   price: {
@@ -115,6 +116,7 @@ export function parseVolgStoresResponse(
 export interface WooCommerceProduct {
   id: number | string;
   name: string;
+  permalink?: string;
   prices?: {
     price?: string;
     currency_code?: string;
@@ -161,6 +163,7 @@ export function parseVolgWooCommerceResponse(
     return [{
       id,
       sourceUrl,
+      productUrl: typeof product.permalink === 'string' ? product.permalink : undefined,
       name,
       price,
       category: typeof category === 'string' ? category : undefined,
