@@ -56,6 +56,7 @@ Phase: `V1 - core read/search foundation`
 | Real API URL fix plan + review     | done                   | `docs/active/REAL_API_URL_FIX_PLAN.md` drafted and Gemini-reviewed with GREEN; plan committed as `8de8595` |
 | Contract tests + test scripts (Phase 2) | done              | 5 contract test files (`*.contract.test.ts`) for Migros/Coop/Lidl/Volg/Ottos; `test:integration` and `test:contract` npm scripts added; Denner live test skip pattern fixed; 418 tests + 10 skipped contract tests |
 | SPA chain summary (Phase 3)        | done                   | SPA shows "X of Y chains responded" with failed chain names when some adapters fail; Product Search, Store Finder, and Price Comparison tabs updated |
+| Adapter/parser real-API fixes      | done                   | Migros rewritten (two-step search→details, `offer.price.effectiveValue`); Coop rewritten (path-param search, `resolveLocation()`, real field names); Lidl parser fixed (groups, array stores, storeKey); Otto's store URL + HTML stripping; all mocked unit tests updated; 18 test failures fixed; committed as `ebbcb97` |
 
 ## Next tasks
 
