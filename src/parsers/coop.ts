@@ -162,10 +162,18 @@ export function parseCoopStoresResponse(
   data: CoopStoresResponse | CoopStore[],
   _sourceUrl: string
 ): CoopParsedStore[] {
-  const stores = Array.isArray(data) ? data : data.locations ?? [];
+  let stores: CoopStore[];
+  if (Array.isArray(data)) {
+    stores = data;
+  } else {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const obj = data as any;
+    stores = obj.locations ?? obj.stores ?? obj.results ?? obj.items ?? obj.data ?? [];
+  }
   return stores.flatMap((store) => {
-    const lat = store.geoPoint?.latitude;
-    const lon = store.geoPoint?.longitude;
+    const gp = store.geoPoint as Record<string, unknown> | undefined;
+    const lat = typeof gp?.latitude === 'number' ? gp.latitude : typeof gp?.lat === 'number' ? gp.lat : undefined;
+    const lon = typeof gp?.longitude === 'number' ? gp.longitude : typeof gp?.lng === 'number' ? gp.lng : typeof gp?.lon === 'number' ? gp.lon : undefined;
     if (typeof lat !== 'number' || typeof lon !== 'number' || !Number.isFinite(lat) || !Number.isFinite(lon)) {
       return [];
     }

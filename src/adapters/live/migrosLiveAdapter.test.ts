@@ -193,8 +193,13 @@ describe('MigrosLiveAdapter', () => {
     it('returns stores on valid response', async () => {
       cache.get.mockResolvedValue(undefined);
       mocks.mockLoginGuestToken.mockResolvedValue({});
-      mocks.mockSearchStores.mockResolvedValue(mockStoresApiResponse);
       cache.set.mockResolvedValue(mockCacheRecord);
+
+      const fetchSpy = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => mockStoresApiResponse,
+      });
+      vi.stubGlobal('fetch', fetchSpy);
 
       const result = await adapter.findStores({ location: 'Zürich' });
 
@@ -206,6 +211,8 @@ describe('MigrosLiveAdapter', () => {
           name: 'Migros Zürich',
         });
       }
+
+      vi.restoreAllMocks();
     });
   });
 

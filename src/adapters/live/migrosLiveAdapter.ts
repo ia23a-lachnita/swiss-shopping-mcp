@@ -85,6 +85,24 @@ function toNormalizedStore(
   };
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function extractIdsFromNested(obj: Record<string, unknown>): number[] {
+  for (const key of Object.keys(obj)) {
+    const val = obj[key];
+    if (Array.isArray(val)) {
+      return val.map((item: unknown) => {
+        const r = item as Record<string, unknown>;
+        return (r.uid ?? r.id ?? r.productId ?? r.migrosId ?? r.migrosOnlineId) as number;
+      }).filter((id): id is number => typeof id === 'number');
+    }
+    if (val && typeof val === 'object' && !Array.isArray(val)) {
+      const nested = extractIdsFromNested(val as Record<string, unknown>);
+      if (nested.length > 0) return nested;
+    }
+  }
+  return [];
+}
+
 export class MigrosLiveAdapter implements ChainAdapter {
   public readonly chain = 'migros' as const;
   private readonly cache: FileTtlCache;
@@ -223,7 +241,9 @@ export class MigrosLiveAdapter implements ChainAdapter {
       (Array.isArray(searchRecord.productIds) ? searchRecord.productIds :
        Array.isArray(searchRecord.hits) ? searchRecord.hits.map((h: unknown) => (h as Record<string, unknown>).uid ?? (h as Record<string, unknown>).id) :
        Array.isArray(searchRecord.data) ? searchRecord.data.map((d: unknown) => (d as Record<string, unknown>).uid ?? (d as Record<string, unknown>).id) :
-       []) as number[];
+       Array.isArray(searchRecord.results) ? searchRecord.results.map((r: unknown) => (r as Record<string, unknown>).uid ?? (r as Record<string, unknown>).id ?? (r as Record<string, unknown>).productId) :
+       Array.isArray(searchRecord.items) ? searchRecord.items.map((i: unknown) => (i as Record<string, unknown>).uid ?? (i as Record<string, unknown>).id ?? (i as Record<string, unknown>).productId) :
+       extractIdsFromNested(searchRecord)) as number[];
     if (productIds.length === 0) return [];
 
     const uids = productIds.slice(0, limit).map(String);
@@ -338,13 +358,25 @@ export class MigrosLiveAdapter implements ChainAdapter {
 
     try {
       const token = await this.ensureAuth();
-      const storeParams: Record<string, unknown> = { query: location };
+      let storeResult: unknown;
       if (coords) {
-        storeParams.latitude = coords.latitude;
-        storeParams.longitude = coords.longitude;
-        storeParams.radius = 5000;
+        // Bypass wrapper — it ignores coordinates. Build URL directly.
+        const params = new URLSearchParams({ query: location });
+        params.set('latitude', String(coords.latitude));
+        params.set('longitude', String(coords.longitude));
+        params.set('radius', '5000');
+        const storeUrl = `${STORES_URL}?${params.toString()}`;
+        const response = await fetch(storeUrl, {
+          headers: {
+            accept: 'application/json, text/plain, */*',
+            authorization: `Bearer ${token}`,
+          },
+        });
+        if (!response.ok) throw new Error(`Migros store API returned ${response.status}`);
+        storeResult = await response.json();
+      } else {
+        storeResult = await this.api.stores.searchStores({ query: location } as any, token);
       }
-      const storeResult = await this.api.stores.searchStores(storeParams as any, token);
 
       const stores = this.extractStoresFromResult(storeResult);
       const provenance = this.buildProvenance(STORES_URL);
@@ -369,14 +401,25 @@ export class MigrosLiveAdapter implements ChainAdapter {
         this.invalidateAuth();
         try {
           const token = await this.ensureAuth();
-          const storeParamsRetry: Record<string, unknown> = { query: location };
+          let storeResultRetry: unknown;
           if (coords) {
-            storeParamsRetry.latitude = coords.latitude;
-            storeParamsRetry.longitude = coords.longitude;
-            storeParamsRetry.radius = 5000;
+            const params = new URLSearchParams({ query: location });
+            params.set('latitude', String(coords.latitude));
+            params.set('longitude', String(coords.longitude));
+            params.set('radius', '5000');
+            const storeUrl = `${STORES_URL}?${params.toString()}`;
+            const response = await fetch(storeUrl, {
+              headers: {
+                accept: 'application/json, text/plain, */*',
+                authorization: `Bearer ${token}`,
+              },
+            });
+            if (!response.ok) throw new Error(`Migros store API returned ${response.status}`);
+            storeResultRetry = await response.json();
+          } else {
+            storeResultRetry = await this.api.stores.searchStores({ query: location } as any, token);
           }
-          const storeResult = await this.api.stores.searchStores(storeParamsRetry as any, token);
-          const stores = this.extractStoresFromResult(storeResult);
+          const stores = this.extractStoresFromResult(storeResultRetry);
           const provenance = this.buildProvenance(STORES_URL);
           const record = await this.cache.set(cacheKey, { stores }, cacheableProvenance(provenance), this.cacheTtlMs);
           return this.parseStoreResult({ stores }, liveProvenanceWithCacheExpiry(provenance, record.expiresAt), [], limit);

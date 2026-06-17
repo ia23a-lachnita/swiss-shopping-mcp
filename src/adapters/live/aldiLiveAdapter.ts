@@ -302,6 +302,13 @@ export class AldiLiveAdapter implements ChainAdapter {
         confidence: 'medium',
       });
       const product = parseAldiProductPage(result.data, sourceUrl);
+      if (!product) {
+        return {
+          ok: false,
+          error: { code: SourceWarningCode.SourceParseFailed, message: 'Aldi product has no price information.' },
+          warnings: [],
+        };
+      }
       const record = await this.cache.set(
         cacheKey,
         product,

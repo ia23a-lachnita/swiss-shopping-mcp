@@ -139,7 +139,7 @@ export function parseAldiProductSitemap(xml: string): AldiSitemapEntry[] {
   );
 }
 
-export function parseAldiProductPage(html: string, sourceUrl?: string): AldiParsedProduct {
+export function parseAldiProductPage(html: string, sourceUrl?: string): AldiParsedProduct | undefined {
   const blocks = parseJsonLdBlocks(html);
   const product = findProductJsonLd(blocks);
   if (!product) {
@@ -165,13 +165,10 @@ export function parseAldiProductPage(html: string, sourceUrl?: string): AldiPars
 
   const price = typeof offer?.price === 'number' ? offer.price : Number(getString(offer?.price));
   if (!Number.isFinite(price)) {
-    throw new Error('Aldi product JSON-LD is missing numeric price.');
+    return undefined;
   }
 
-  const currency = getString(offer?.priceCurrency);
-  if (!currency) {
-    throw new Error('Aldi product JSON-LD is missing price currency.');
-  }
+  const currency = getString(offer?.priceCurrency) ?? 'CHF';
 
   return {
     id,

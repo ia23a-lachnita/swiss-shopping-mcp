@@ -70,15 +70,15 @@ describe('Aldi parsers', () => {
       'https://www.aldi-suisse.ch/de/produkt/probeprodukt-000000000000000001',
     );
 
-    expect(product.id).toBe('probeprodukt-000000000000000001');
-    expect(product.sourceUrl).toBe('https://www.aldi-suisse.ch/de/produkt/probeprodukt-000000000000000001');
+    expect(product!.id).toBe('probeprodukt-000000000000000001');
+    expect(product!.sourceUrl).toBe('https://www.aldi-suisse.ch/de/produkt/probeprodukt-000000000000000001');
   });
 
   it('throws a parse error when Product JSON-LD is missing', () => {
     expect(() => parseAldiProductPage('<html></html>')).toThrow('Product JSON-LD');
   });
 
-  it('throws a parse error when price is not numeric', () => {
+  it('returns undefined when price is not numeric', () => {
     const html = `
       <script type="application/ld+json">
         {
@@ -95,6 +95,6 @@ describe('Aldi parsers', () => {
       </script>
     `;
 
-    expect(() => parseAldiProductPage(html)).toThrow('numeric price');
+    expect(parseAldiProductPage(html)).toBeUndefined();
   });
 });
