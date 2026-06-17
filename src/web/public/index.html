@@ -488,6 +488,17 @@
         }
 
         const products = result.data || [];
+        const warnings = result.metadata?.sourceWarnings || [];
+        if (warnings.length > 0) {
+          const warnDiv = document.createElement('div');
+          warnDiv.className = 'error-box';
+          warnDiv.style.background = '#fef3cd';
+          warnDiv.style.borderColor = '#fecaca';
+          warnDiv.style.color = '#92400e';
+          warnDiv.innerHTML = warnings.map(w => '<strong>' + escapeHtml(w.chain) + ':</strong> ' + escapeHtml(w.message)).join('<br>');
+          document.getElementById('search-results').appendChild(warnDiv);
+        }
+
         if (products.length === 0) {
           showError('search-error', 'No products found.');
           return;
@@ -535,6 +546,17 @@
         }
 
         const stores = result.data || [];
+        const storeWarnings = result.metadata?.sourceWarnings || [];
+        if (storeWarnings.length > 0) {
+          const warnDiv = document.createElement('div');
+          warnDiv.className = 'error-box';
+          warnDiv.style.background = '#fef3cd';
+          warnDiv.style.borderColor = '#fecaca';
+          warnDiv.style.color = '#92400e';
+          warnDiv.innerHTML = storeWarnings.map(w => '<strong>' + escapeHtml(w.chain) + ':</strong> ' + escapeHtml(w.message)).join('<br>');
+          document.getElementById('store-results').appendChild(warnDiv);
+        }
+
         if (stores.length === 0) {
           showError('store-error', 'No stores found.');
           return;
@@ -580,6 +602,12 @@
 
         const data = result.data;
         const offers = data.offers || [];
+        const compareWarnings = result.metadata?.sourceWarnings || [];
+
+        if (offers.length === 0 && compareWarnings.length > 0) {
+          showError('compare-error', compareWarnings.map(w => w.chain + ': ' + w.message).join('\n'));
+          return;
+        }
 
         if (offers.length === 0) {
           showError('compare-error', 'No offers found.');
@@ -590,6 +618,11 @@
         if (data.comparisonUnit) infoText += ' | Unit: ' + data.comparisonUnit;
         if (data.savingsVsMostExpensive !== undefined) infoText += ' | Savings: ' + formatPrice(data.savingsVsMostExpensive);
         infoText += '</div>';
+
+        if (compareWarnings.length > 0) {
+          infoText += '<div class="error-box" style="background:#fef3cd;border-color:#fecaca;color:#92400e;margin-bottom:12px">' +
+            compareWarnings.map(w => '<strong>' + escapeHtml(w.chain) + ':</strong> ' + escapeHtml(w.message)).join('<br>') + '</div>';
+        }
 
         let tableHtml = infoText + '<div style="overflow-x:auto"><table class="comparison-table">' +
           '<thead><tr><th>Chain</th><th>Product</th><th>Price</th><th>Total</th><th>Basis</th></tr></thead><tbody>';

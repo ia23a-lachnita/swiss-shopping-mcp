@@ -185,17 +185,7 @@ async function handleRequest(req: IncomingMessage, res: ServerResponse): Promise
 
   const url = new URL(req.url ?? '/', `http://localhost:${PORT}`);
 
-  if (req.method === 'GET' && url.pathname === '/') {
-    await serveStaticFile(res, join(PUBLIC_DIR, 'index.html'));
-    return;
-  }
-
-  if (req.method === 'GET' && url.pathname.startsWith('/')) {
-    const filePath = join(PUBLIC_DIR, url.pathname);
-    await serveStaticFile(res, filePath);
-    return;
-  }
-
+  // API routes first — before static file catch-all
   if (req.method === 'POST' && url.pathname === '/api/search-products') {
     const body = await readBody(req);
     await handleSearchProducts(res, body);
@@ -216,6 +206,18 @@ async function handleRequest(req: IncomingMessage, res: ServerResponse): Promise
 
   if (req.method === 'GET' && url.pathname === '/api/source-status') {
     handleSourceStatus(res);
+    return;
+  }
+
+  // Static files
+  if (req.method === 'GET' && url.pathname === '/') {
+    await serveStaticFile(res, join(PUBLIC_DIR, 'index.html'));
+    return;
+  }
+
+  if (req.method === 'GET' && url.pathname.startsWith('/')) {
+    const filePath = join(PUBLIC_DIR, url.pathname);
+    await serveStaticFile(res, filePath);
     return;
   }
 
