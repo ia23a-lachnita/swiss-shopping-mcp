@@ -19,7 +19,7 @@ export const TAXONOMY: Record<string, string[]> = {
   meat: ['fleisch', 'meat', 'schweine', 'rind'],
   chicken: ['huhn', 'chicken', 'poulet'],
   fish: ['fisch', 'fish', 'lachs'],
-  fruit: ['obst', 'fruit', 'apfel', 'banane'],
+  fruit: ['obst', 'fruit', 'apfel', 'banane', 'orange', 'orangen', 'zitrone', 'citrus', 'apfelsine', 'mandarine', 'grapefruit', 'limette'],
   vegetables: ['gemuse', 'vegetables', 'karotten', 'tomaten'],
   cleaning: ['reinigung', 'cleaning', 'spulmittel'],
 };
