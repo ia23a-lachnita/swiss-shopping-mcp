@@ -4,7 +4,7 @@ import { CoopLiveAdapter } from './coopLiveAdapter.js';
 import { SourceWarningCode } from '../types.js';
 
 vi.mock('../../util/geo.js', () => ({
-  resolveLocation: vi.fn().mockReturnValue({ latitude: 47.3769, longitude: 8.5417 }),
+  resolveLocationAsync: vi.fn().mockResolvedValue({ latitude: 47.3769, longitude: 8.5417 }),
 }));
 
 vi.mock('../../sources/sourceClient.js', () => {

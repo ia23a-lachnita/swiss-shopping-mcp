@@ -1,6 +1,6 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 
-import { resolveLocation, findNearbyLocations, distanceBetween } from './geo.js';
+import { resolveLocation, resolveLocationAsync, clearAsyncCache, findNearbyLocations, distanceBetween } from './geo.js';
 
 describe('geo utility', () => {
   describe('resolveLocation', () => {
@@ -33,6 +33,91 @@ describe('geo utility', () => {
     it('resolves Basel correctly', () => {
       const result = resolveLocation('4000');
       expect(result).toEqual({ latitude: 47.5596, longitude: 7.5886 });
+    });
+  });
+
+  describe('resolveLocationAsync', () => {
+    let fetchSpy: ReturnType<typeof vi.fn>;
+
+    beforeEach(() => {
+      clearAsyncCache();
+      fetchSpy = vi.fn();
+      vi.stubGlobal('fetch', fetchSpy);
+    });
+
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    it('resolves via GeoAdmin API', async () => {
+      fetchSpy.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          results: [{
+            attrs: { lat: 47.4401, lon: 8.6259, label: '8303 - Bassersdorf' },
+          }],
+        }),
+      });
+
+      const result = await resolveLocationAsync('8303');
+      expect(result).toEqual({ latitude: 47.4401, longitude: 8.6259 });
+      expect(fetchSpy).toHaveBeenCalledOnce();
+      expect(fetchSpy.mock.calls[0][0]).toContain('searchText=8303');
+    });
+
+    it('resolves city name via API', async () => {
+      fetchSpy.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          results: [{
+            attrs: { lat: 47.4984, lon: 8.7291, label: 'Winterthur' },
+          }],
+        }),
+      });
+
+      const result = await resolveLocationAsync('Winterthur');
+      expect(result).toEqual({ latitude: 47.4984, longitude: 8.7291 });
+    });
+
+    it('falls back to static DB on API failure', async () => {
+      fetchSpy.mockRejectedValueOnce(new Error('network error'));
+
+      const result = await resolveLocationAsync('8001');
+      expect(result).toEqual({ latitude: 47.3769, longitude: 8.5417 });
+    });
+
+    it('falls back to static DB on non-OK response', async () => {
+      fetchSpy.mockResolvedValueOnce({ ok: false, status: 500 });
+
+      const result = await resolveLocationAsync('8001');
+      expect(result).toEqual({ latitude: 47.3769, longitude: 8.5417 });
+    });
+
+    it('falls back to static DB on empty results', async () => {
+      fetchSpy.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ results: [] }),
+      });
+
+      const result = await resolveLocationAsync('0000');
+      expect(result).toBeUndefined();
+    });
+
+    it('caches API results', async () => {
+      fetchSpy.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          results: [{
+            attrs: { lat: 47.4401, lon: 8.6259, label: '8303' },
+          }],
+        }),
+      });
+
+      const first = await resolveLocationAsync('8303');
+      const second = await resolveLocationAsync('8303');
+
+      expect(first).toEqual(second);
+      expect(fetchSpy).toHaveBeenCalledOnce();
     });
   });
 

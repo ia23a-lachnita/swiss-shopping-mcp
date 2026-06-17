@@ -211,6 +211,15 @@ const SWISS_ZIP_DATABASE: SwissZipEntry[] = [
   { zip: '8180', city: 'Bülach', latitude: 47.5218, longitude: 8.5416, canton: 'ZH' },
   { zip: '8200', city: 'Schaffhausen', latitude: 47.6973, longitude: 8.6356, canton: 'SH' },
   { zip: '8300', city: 'Winterthur', latitude: 47.4984, longitude: 8.7291, canton: 'ZH' },
+  { zip: '8301', city: 'Winterthur', latitude: 47.4984, longitude: 8.7291, canton: 'ZH' },
+  { zip: '8302', city: 'Winterthur', latitude: 47.4984, longitude: 8.7291, canton: 'ZH' },
+  { zip: '8303', city: 'Winterthur', latitude: 47.4984, longitude: 8.7291, canton: 'ZH' },
+  { zip: '8304', city: 'Winterthur', latitude: 47.4984, longitude: 8.7291, canton: 'ZH' },
+  { zip: '8305', city: 'Winterthur', latitude: 47.4984, longitude: 8.7291, canton: 'ZH' },
+  { zip: '8306', city: 'Winterthur', latitude: 47.4984, longitude: 8.7291, canton: 'ZH' },
+  { zip: '8307', city: 'Winterthur', latitude: 47.4984, longitude: 8.7291, canton: 'ZH' },
+  { zip: '8308', city: 'Winterthur', latitude: 47.4984, longitude: 8.7291, canton: 'ZH' },
+  { zip: '8309', city: 'Winterthur', latitude: 47.4984, longitude: 8.7291, canton: 'ZH' },
   { zip: '8400', city: 'Baden', latitude: 47.4733, longitude: 8.3063, canton: 'AG' },
   { zip: '8500', city: 'Frauenfeld', latitude: 47.5538, longitude: 8.8989, canton: 'TG' },
   { zip: '8600', city: 'Dübendorf', latitude: 47.3972, longitude: 8.6183, canton: 'ZH' },
@@ -325,6 +334,54 @@ export function resolveLocation(location: string): GeoPoint | undefined {
   }
 
   return undefined;
+}
+
+const GEOADMIN_SEARCH_URL = 'https://api3.geo.admin.ch/rest/services/api/SearchServer';
+const GEOADMIN_TIMEOUT_MS = 3000;
+const asyncCache = new Map<string, GeoPoint>();
+
+export function clearAsyncCache(): void {
+  asyncCache.clear();
+}
+
+export async function resolveLocationAsync(location: string): Promise<GeoPoint | undefined> {
+  const normalized = location.trim().toLowerCase();
+  const cached = asyncCache.get(normalized);
+  if (cached) {
+    return cached;
+  }
+
+  try {
+    const params = new URLSearchParams({
+      searchText: location.trim(),
+      type: 'locations',
+      origins: 'zipcode,gg25',
+      sr: '4326',
+      limit: '1',
+    });
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), GEOADMIN_TIMEOUT_MS);
+    const response = await fetch(`${GEOADMIN_SEARCH_URL}?${params.toString()}`, {
+      signal: controller.signal,
+    });
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      return resolveLocation(location);
+    }
+
+    const data = await response.json() as { results?: Array<{ attrs: { lat: number; lon: number } }> };
+    const first = data.results?.[0];
+    if (first?.attrs) {
+      const point: GeoPoint = { latitude: first.attrs.lat, longitude: first.attrs.lon };
+      asyncCache.set(normalized, point);
+      return point;
+    }
+
+    return resolveLocation(location);
+  } catch {
+    return resolveLocation(location);
+  }
 }
 
 export function findNearbyLocations(

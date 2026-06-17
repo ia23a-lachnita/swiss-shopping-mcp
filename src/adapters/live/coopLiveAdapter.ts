@@ -7,7 +7,7 @@ import {
   parseCoopSearchResponse,
   parseCoopStoresResponse,
 } from '../../parsers/coop.js';
-import { resolveLocation } from '../../util/geo.js';
+import { resolveLocationAsync } from '../../util/geo.js';
 import { SourceHttpClient } from '../../sources/sourceClient.js';
 import { sortProducts } from '../../util/matcher.js';
 import {
@@ -230,7 +230,7 @@ export class CoopLiveAdapter implements ChainAdapter {
       };
     }
 
-    const point = resolveLocation(location);
+    const point = await resolveLocationAsync(location);
     const lat = point?.latitude ?? 47.3769;
     const lon = point?.longitude ?? 8.5417;
     const storesUrl = `${BASE_URL}/locations/searchAroundCoordinates?latitude=${lat}&longitude=${lon}&radius=5000`;

@@ -3,6 +3,10 @@ import { FileTtlCache } from '../../cache/fileTtlCache.js';
 import { MigrosLiveAdapter } from './migrosLiveAdapter.js';
 import { SourceWarningCode } from '../types.js';
 
+vi.mock('../../util/geo.js', () => ({
+  resolveLocationAsync: vi.fn().mockResolvedValue({ latitude: 47.3769, longitude: 8.5417 }),
+}));
+
 vi.mock('migros-api-wrapper', () => {
   const mockSearchProduct = vi.fn();
   const mockGetProductDetails = vi.fn();

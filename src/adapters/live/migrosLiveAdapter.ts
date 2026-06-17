@@ -8,6 +8,7 @@ import {
   parseMigrosSearchResponse,
   parseMigrosStoresResponse,
 } from '../../parsers/migros.js';
+import { resolveLocationAsync } from '../../util/geo.js';
 import { sortProducts } from '../../util/matcher.js';
 import {
   cacheableProvenance,
@@ -216,7 +217,12 @@ export class MigrosLiveAdapter implements ChainAdapter {
     const searchResult = await this.api.products.productSearch.searchProduct(body, {}, token);
 
     // Search returns productIds, not full product data — fetch details
-    const productIds: number[] = (searchResult as Record<string, unknown>).productIds as number[] ?? [];
+    const searchRecord = searchResult as Record<string, unknown>;
+    const productIds: number[] =
+      (Array.isArray(searchRecord.productIds) ? searchRecord.productIds :
+       Array.isArray(searchRecord.hits) ? searchRecord.hits.map((h: unknown) => (h as Record<string, unknown>).uid ?? (h as Record<string, unknown>).id) :
+       Array.isArray(searchRecord.data) ? searchRecord.data.map((d: unknown) => (d as Record<string, unknown>).uid ?? (d as Record<string, unknown>).id) :
+       []) as number[];
     if (productIds.length === 0) return [];
 
     const uids = productIds.slice(0, limit).map(String);
@@ -326,9 +332,18 @@ export class MigrosLiveAdapter implements ChainAdapter {
       return this.parseStoreResult(cached.data, cached.provenance, [], limit);
     }
 
+    // Resolve location to coordinates for better search results
+    const coords = await resolveLocationAsync(location);
+
     try {
       const token = await this.ensureAuth();
-      const storeResult = await this.api.stores.searchStores({ query: location }, token);
+      const storeParams: Record<string, unknown> = { query: location };
+      if (coords) {
+        storeParams.latitude = coords.latitude;
+        storeParams.longitude = coords.longitude;
+        storeParams.radius = 5000;
+      }
+      const storeResult = await this.api.stores.searchStores(storeParams as any, token);
 
       const stores = this.extractStoresFromResult(storeResult);
       const provenance = this.buildProvenance(STORES_URL);
@@ -353,7 +368,13 @@ export class MigrosLiveAdapter implements ChainAdapter {
         this.invalidateAuth();
         try {
           const token = await this.ensureAuth();
-          const storeResult = await this.api.stores.searchStores({ query: location }, token);
+          const storeParamsRetry: Record<string, unknown> = { query: location };
+          if (coords) {
+            storeParamsRetry.latitude = coords.latitude;
+            storeParamsRetry.longitude = coords.longitude;
+            storeParamsRetry.radius = 5000;
+          }
+          const storeResult = await this.api.stores.searchStores(storeParamsRetry as any, token);
           const stores = this.extractStoresFromResult(storeResult);
           const provenance = this.buildProvenance(STORES_URL);
           const record = await this.cache.set(cacheKey, { stores }, cacheableProvenance(provenance), this.cacheTtlMs);
