@@ -24,6 +24,7 @@ export interface MigrosApiProduct {
   };
   allergens?: string[];
   url?: string;
+  quantity?: string;
 }
 
 export interface MigrosSearchResponse {

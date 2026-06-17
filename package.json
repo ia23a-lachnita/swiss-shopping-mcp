@@ -14,6 +14,8 @@
     "test": "vitest",
     "test:live": "LIVE_SOURCE_TESTS=1 vitest run --passWithNoTests src/adapters/live/*.live.test.ts",
     "test:live:denner": "vitest run --passWithNoTests src/adapters/live/dennerPromotionsAdapter.live.test.ts",
+    "test:integration": "vitest run --passWithNoTests src/**/*.integration.test.ts",
+    "test:contract": "RUN_CONTRACT_TESTS=1 vitest run --passWithNoTests src/**/*.contract.test.ts",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage",
     "lint": "eslint src --ext .ts",
@@ -46,6 +48,7 @@
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",
     "cheerio": "^1.2.0",
+    "migros-api-wrapper": "^1.1.37",
     "zod": "^3.22.4",
     "zod-to-json-schema": "^3.22.5"
   },

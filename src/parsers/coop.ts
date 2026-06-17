@@ -3,48 +3,47 @@ import { NormalizedPrice } from '../adapters/types.js';
 export interface CoopSearchResponse {
   products?: CoopProduct[];
   total?: number;
+  pagination?: { totalPages?: number; page?: number; pageSize?: number };
 }
 
 export interface CoopProduct {
-  id: string;
+  code: string;
   name: string;
-  brand?: string;
+  brandName?: string;
   price?: {
-    amount: number;
-    currency: string;
-    unit?: string;
+    value: number;
+    currencyIso: string;
+    formattedValue?: string;
   };
-  category?: string;
-  image_url?: string;
-  labels?: string[];
-  nutrition_facts?: {
-    energy_kcal?: number;
-    protein?: number;
-    carbohydrates?: number;
-    fat?: number;
-    fiber?: number;
-    sugar?: number;
-  };
-  allergens?: string[];
+  contentUnit?: string;
+  primaryCategory?: { name?: string };
+  images?: { url?: string }[];
   url?: string;
   description?: string;
+  glutenFree?: boolean;
+  lactoseFree?: boolean;
+  vegan?: boolean;
+  vegetarian?: boolean;
 }
 
 export interface CoopStore {
-  id: string;
-  name: string;
-  city?: string;
-  zip?: string;
-  street?: string;
-  street_number?: string;
-  latitude?: number;
-  longitude?: number;
-  opening_hours?: string;
-  type?: string;
+  vstId?: string;
+  name?: string;
+  address?: {
+    town?: string;
+    postalCode?: string;
+    line1?: string;
+    line2?: string;
+  };
+  geoPoint?: {
+    latitude?: number;
+    longitude?: number;
+  };
+  currentOpeningHours?: string;
 }
 
 export interface CoopStoresResponse {
-  stores: CoopStore[];
+  locations?: CoopStore[];
   total?: number;
 }
 
@@ -96,21 +95,20 @@ export interface CoopParsedStore {
   sourceUrl: string;
 }
 
-function parsePrice(value: unknown): { current: number; currency: string } | undefined {
-  if (typeof value === 'object' && value !== null) {
-    const priceObj = value as Record<string, unknown>;
-    const amount = typeof priceObj.amount === 'number' ? priceObj.amount : Number(priceObj.amount);
-    const currency = typeof priceObj.currency === 'string' ? priceObj.currency : 'CHF';
-    if (Number.isFinite(amount) && amount > 0) {
-      return { current: amount, currency };
-    }
+function parsePrice(product: CoopProduct): { current: number; currency: string } | undefined {
+  const priceObj = product.price;
+  if (!priceObj || typeof priceObj !== 'object') return undefined;
+  const amount = typeof priceObj.value === 'number' ? priceObj.value : Number(priceObj.value);
+  const currency = typeof priceObj.currencyIso === 'string' ? priceObj.currencyIso : 'CHF';
+  if (Number.isFinite(amount) && amount > 0) {
+    return { current: amount, currency };
   }
   return undefined;
 }
 
-function parseUnit(value: unknown): { value: number; per: string } | undefined {
-  if (typeof value === 'string') {
-    const match = value.match(/(\d+(?:\.\d+)?)\s*(kg|g|l|ml|cl|stk|piece)/i);
+function parseUnit(unitStr: string | undefined): { value: number; per: string } | undefined {
+  if (typeof unitStr === 'string') {
+    const match = unitStr.match(/(\d+(?:\.\d+)?)\s*(kg|g|l|ml|cl|stk|piece)/i);
     if (match) {
       return { value: Number(match[1]), per: match[2].toLowerCase() };
     }
@@ -124,34 +122,31 @@ export function parseCoopSearchResponse(
 ): CoopParsedProduct[] {
   const products = Array.isArray(data) ? data : data.products ?? [];
   return products.flatMap((product) => {
-    const price = parsePrice(product.price);
+    const price = parsePrice(product);
     if (!price) {
       return [];
     }
 
-    const unit = parseUnit(product.price?.unit);
+    const unit = parseUnit(product.contentUnit);
+    const image = product.images?.[0]?.url;
+    const category = product.primaryCategory?.name;
+    const allergens: string[] = [];
+    if (product.glutenFree) allergens.push('gluten-free');
+    if (product.lactoseFree) allergens.push('lactose-free');
+    if (product.vegan) allergens.push('vegan');
+    if (product.vegetarian) allergens.push('vegetarian');
 
     return [
       {
-        id: product.id,
+        id: product.code,
         sourceUrl,
         name: product.name,
-        brand: product.brand,
+        brand: product.brandName,
         price,
         unit,
-        category: product.category,
-        image: product.image_url,
-        nutrition: product.nutrition_facts
-          ? {
-              energyKcal: product.nutrition_facts.energy_kcal,
-              protein: product.nutrition_facts.protein,
-              carbs: product.nutrition_facts.carbohydrates,
-              fat: product.nutrition_facts.fat,
-              fiber: product.nutrition_facts.fiber,
-              sugar: product.nutrition_facts.sugar,
-            }
-          : undefined,
-        allergens: product.allergens,
+        category,
+        image,
+        allergens: allergens.length > 0 ? allergens : undefined,
       },
     ];
   });
@@ -161,26 +156,27 @@ export function parseCoopStoresResponse(
   data: CoopStoresResponse | CoopStore[],
   _sourceUrl: string
 ): CoopParsedStore[] {
-  const stores = Array.isArray(data) ? data : data.stores ?? [];
+  const stores = Array.isArray(data) ? data : data.locations ?? [];
   return stores.flatMap((store) => {
-    const lat = typeof store.latitude === 'number' ? store.latitude : Number(store.latitude);
-    const lon = typeof store.longitude === 'number' ? store.longitude : Number(store.longitude);
-    if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
+    const lat = store.geoPoint?.latitude;
+    const lon = store.geoPoint?.longitude;
+    if (typeof lat !== 'number' || typeof lon !== 'number' || !Number.isFinite(lat) || !Number.isFinite(lon)) {
       return [];
     }
 
-    const parts = [store.street, store.street_number, store.zip, store.city].filter(
+    const addr = store.address;
+    const parts = [addr?.line1, addr?.line2, addr?.postalCode, addr?.town].filter(
       (p): p is string => typeof p === 'string' && p.trim().length > 0
     );
 
     return [
       {
-        id: store.id,
-        name: store.name,
+        id: store.vstId ?? store.name ?? 'unknown',
+        name: store.name ?? 'Unknown Store',
         address: parts.join(', '),
         latitude: lat,
         longitude: lon,
-        openingHours: store.opening_hours,
+        openingHours: store.currentOpeningHours,
         sourceUrl: _sourceUrl,
       },
     ];

@@ -1,8 +1,30 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { FileTtlCache } from '../../cache/fileTtlCache.js';
-import { SourceHttpClient, SourceClientError } from '../../sources/sourceClient.js';
 import { LidlLiveAdapter } from './lidlLiveAdapter.js';
 import { SourceWarningCode } from '../types.js';
+
+vi.mock('../../sources/sourceClient.js', () => {
+  const mockFetchJson = vi.fn();
+  const mockFetchText = vi.fn();
+  return {
+    SourceHttpClient: vi.fn().mockImplementation(() => ({
+      fetchJson: mockFetchJson,
+      fetchText: mockFetchText,
+    })),
+    SourceClientError: class SourceClientError extends Error {
+      code: string;
+      sourceUrl: string;
+      status?: number;
+      constructor(code: string, message: string, sourceUrl: string, status?: number) {
+        super(message);
+        this.code = code;
+        this.sourceUrl = sourceUrl;
+        this.status = status;
+      }
+    },
+    __mocks: { mockFetchJson, mockFetchText },
+  };
+});
 
 function createMockCache() {
   return {
@@ -11,52 +33,51 @@ function createMockCache() {
   } as unknown as FileTtlCache;
 }
 
-function createMockSourceClient() {
-  return {
-    fetchJson: vi.fn(),
-    fetchText: vi.fn(),
-  } as unknown as SourceHttpClient;
-}
+const mockCampaignResponse = {
+  campaignGroups: [
+    {
+      name: 'This Week at Lidl',
+      items: [
+        {
+          id: 'lidl-001',
+          name: 'Lidl Vollmilch',
+          brand: 'Milbona',
+          price: 1.35,
+          category: 'Milchprodukte',
+          image: 'https://example.com/lidl-milk.jpg',
+        },
+        {
+          id: 'lidl-002',
+          name: 'Lidl Butter',
+          brand: 'Milbona',
+          price: 2.49,
+          category: 'Milchprodukte',
+        },
+      ],
+    },
+  ],
+};
 
-const LEAFLET_URL = 'https://www.lidl.ch/de/angebote';
-const STORES_URL = 'https://www.lidl.ch/de/filialfinder';
-
-const mockLeafletHtml = `
-<html>
-<body>
-  <div class="product-tile">
-    <div class="product-title">Lidl Milch</div>
-    <span>CHF 1.20</span>
-  </div>
-  <div class="product-tile">
-    <div class="product-title">Lidl Brot</div>
-    <span>CHF 2.50</span>
-  </div>
-</body>
-</html>
-`;
-
-const mockStoresHtml = `
-<html>
-<body>
-  <div class="store-item" data-lat="47.3769" data-lng="8.5417">
-    <div class="store-name">Lidl Zürich</div>
-    <div class="store-address">Bahnhofstrasse 1, 8001 Zürich</div>
-    <div class="store-hours">Mo-Fr 08:00-20:00</div>
-  </div>
-  <div class="store-item" data-lat="46.9480" data-lng="7.4474">
-    <div class="store-name">Lidl Bern</div>
-    <div class="store-address">Spitalgasse 5, 3011 Bern</div>
-  </div>
-</body>
-</html>
-`;
+const mockStoresResponse = {
+  stores: [
+    {
+      id: 'lidl-store-1',
+      name: 'Lidl Zürich',
+      city: 'Zürich',
+      zip: '8001',
+      street: 'Bahnhofstrasse',
+      latitude: 47.3769,
+      longitude: 8.5417,
+      openingHours: 'Mo-Fr 08:00-20:00',
+    },
+  ],
+};
 
 const mockProvenance = {
   provider: 'Lidl Schweiz',
   chain: 'lidl' as const,
   sourceType: 'retailer-web' as const,
-  sourceUrl: LEAFLET_URL,
+  sourceUrl: 'https://digital-leaflet.lidlplus.com/api/v1/CH/campaignGroups',
   observedAt: '2026-06-16T10:00:00.000Z',
   freshness: 'live' as const,
   confidence: 'medium' as const,
@@ -67,7 +88,7 @@ const mockCacheRecord = {
 };
 
 const mockStaleCacheHit = {
-  data: mockLeafletHtml,
+  data: mockCampaignResponse,
   provenance: { ...mockProvenance, freshness: 'stale' as const, cacheExpiresAt: '2026-06-15T10:00:00.000Z' },
   observedAt: '2026-06-15T10:00:00.000Z',
   expiresAt: '2026-06-15T10:00:00.000Z',
@@ -76,18 +97,18 @@ const mockStaleCacheHit = {
 
 describe('LidlLiveAdapter', () => {
   let cache: ReturnType<typeof createMockCache>;
-  let sourceClient: ReturnType<typeof createMockSourceClient>;
   let adapter: LidlLiveAdapter;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let mocks: any;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     cache = createMockCache();
-    sourceClient = createMockSourceClient();
-    adapter = new LidlLiveAdapter({
-      cache,
-      sourceClient,
-      leafletUrl: LEAFLET_URL,
-      storesUrl: STORES_URL,
-    });
+    adapter = new LidlLiveAdapter({ cache });
+
+    const sourceClientModule = await import('../../sources/sourceClient.js');
+    mocks = (sourceClientModule as unknown as { __mocks: { mockFetchJson: ReturnType<typeof vi.fn>; mockFetchText: ReturnType<typeof vi.fn> } }).__mocks;
+    mocks.mockFetchJson.mockReset();
+    mocks.mockFetchText.mockReset();
   });
 
   describe('searchProducts', () => {
@@ -99,10 +120,10 @@ describe('LidlLiveAdapter', () => {
       }
     });
 
-    it('returns products on valid HTML response', async () => {
+    it('returns products on valid API response', async () => {
       cache.get.mockResolvedValue(undefined);
-      sourceClient.fetchText.mockResolvedValue({
-        data: mockLeafletHtml,
+      mocks.mockFetchJson.mockResolvedValue({
+        data: mockCampaignResponse,
         provenance: mockProvenance,
       });
       cache.set.mockResolvedValue(mockCacheRecord);
@@ -114,31 +135,28 @@ describe('LidlLiveAdapter', () => {
         expect(result.data.length).toBeGreaterThan(0);
         expect(result.data[0]).toMatchObject({
           chain: 'lidl',
-          price: { current: 1.20 },
+          name: 'Lidl Vollmilch',
+          price: { current: 1.35 },
         });
       }
-      expect(sourceClient.fetchText).toHaveBeenCalled();
+      expect(mocks.mockFetchJson).toHaveBeenCalled();
     });
 
     it('returns error when fetch fails and no cache', async () => {
       cache.get.mockResolvedValue(undefined);
-      sourceClient.fetchText.mockRejectedValue(
-        new SourceClientError(SourceWarningCode.SourceUnavailable, 'HTTP 503: Service Unavailable', LEAFLET_URL, 503)
-      );
+      mocks.mockFetchJson.mockRejectedValue(new Error('HTTP 503: Service Unavailable'));
 
       const result = await adapter.searchProducts({ query: 'Milch' });
 
       expect(result.ok).toBe(false);
       if (!result.ok) {
-        expect(result.error.code).toBe(SourceWarningCode.SourceUnavailable);
+        expect(result.error.code).toBe(SourceWarningCode.SourceParseFailed);
       }
     });
 
     it('falls back to stale cache on fetch failure', async () => {
       cache.get.mockResolvedValue(mockStaleCacheHit);
-      sourceClient.fetchText.mockRejectedValue(
-        new SourceClientError(SourceWarningCode.SourceUnavailable, 'HTTP 503: Service Unavailable', LEAFLET_URL, 503)
-      );
+      mocks.mockFetchJson.mockRejectedValue(new Error('HTTP 503: Service Unavailable'));
 
       const result = await adapter.searchProducts({ query: 'Milch' });
 
@@ -159,11 +177,11 @@ describe('LidlLiveAdapter', () => {
       }
     });
 
-    it('returns stores on valid HTML response', async () => {
+    it('returns stores on valid response', async () => {
       cache.get.mockResolvedValue(undefined);
-      sourceClient.fetchText.mockResolvedValue({
-        data: mockStoresHtml,
-        provenance: { ...mockProvenance, sourceUrl: STORES_URL },
+      mocks.mockFetchJson.mockResolvedValue({
+        data: mockStoresResponse,
+        provenance: { ...mockProvenance, sourceUrl: 'https://stores.lidlplus.com/api/v2/CH' },
       });
       cache.set.mockResolvedValue(mockCacheRecord);
 
@@ -171,7 +189,7 @@ describe('LidlLiveAdapter', () => {
 
       expect(result.ok).toBe(true);
       if (result.ok) {
-        expect(result.data.length).toBe(2);
+        expect(result.data.length).toBe(1);
         expect(result.data[0]).toMatchObject({
           chain: 'lidl',
           name: 'Lidl Zürich',

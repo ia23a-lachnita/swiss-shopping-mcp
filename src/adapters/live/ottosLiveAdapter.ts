@@ -1,5 +1,12 @@
 import { FileTtlCache } from '../../cache/fileTtlCache.js';
-import { OttosParsedProduct, OttosParsedStore, OttosProduct, OttosStore, parseOttosSearchResponse, parseOttosStoresResponse } from '../../parsers/ottos.js';
+import {
+  OttosOccProduct,
+  OttosOccStore,
+  OttosParsedProduct,
+  OttosParsedStore,
+  parseOttosOccProduct,
+  parseOttosOccStore,
+} from '../../parsers/ottos.js';
 import { SourceHttpClient } from '../../sources/sourceClient.js';
 import { sortProducts } from '../../util/matcher.js';
 import {
@@ -15,7 +22,6 @@ import {
   ProductSearchFilters,
   PromotionSearchFilters,
   Result,
-  SourceProvenance,
   SourceWarningCode,
   StoreAvailabilitySupport,
   StoreProductAvailabilityFilters,
@@ -26,16 +32,15 @@ import {
 const OTTOS_PROVIDER = "Otto's";
 const DEFAULT_CACHE_TTL_MS = 6 * 60 * 60 * 1000;
 const DEFAULT_SEARCH_LIMIT = 20;
+const BASE_URL = 'https://api.ottos.ch/occ/v2/ottos';
+const IOS_SAFARI_UA = 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1';
 
 export interface OttosLiveAdapterOptions {
   cache: FileTtlCache;
-  sourceClient?: SourceHttpClient;
-  searchApiUrl?: string;
-  storesApiUrl?: string;
   cacheTtlMs?: number;
 }
 
-function toNormalizedProduct(product: OttosParsedProduct, provenance: SourceProvenance): NormalizedProduct {
+function toNormalizedProduct(product: OttosParsedProduct, provenance: import('../types.js').SourceProvenance): NormalizedProduct {
   return {
     id: product.id,
     chain: 'ottos',
@@ -48,7 +53,7 @@ function toNormalizedProduct(product: OttosParsedProduct, provenance: SourceProv
   };
 }
 
-function toNormalizedStore(store: OttosParsedStore, provenance: SourceProvenance): NormalizedStore {
+function toNormalizedStore(store: OttosParsedStore, provenance: import('../types.js').SourceProvenance): NormalizedStore {
   return {
     id: store.id,
     chain: 'ottos',
@@ -64,16 +69,12 @@ export class OttosLiveAdapter implements ChainAdapter {
   public readonly chain = 'ottos' as const;
   private readonly cache: FileTtlCache;
   private readonly sourceClient: SourceHttpClient;
-  private readonly searchApiUrl: string;
-  private readonly storesApiUrl: string;
   private readonly cacheTtlMs: number;
 
   public constructor(options: OttosLiveAdapterOptions) {
     this.cache = options.cache;
-    this.sourceClient = options.sourceClient ?? new SourceHttpClient({ rateLimitPerHostMs: 1_000 });
-    this.searchApiUrl = options.searchApiUrl ?? 'https://www.ottos.ch/de/search';
-    this.storesApiUrl = options.storesApiUrl ?? 'https://www.ottos.ch/de/store-finder';
     this.cacheTtlMs = options.cacheTtlMs ?? DEFAULT_CACHE_TTL_MS;
+    this.sourceClient = new SourceHttpClient({ rateLimitPerHostMs: 1_000, userAgent: IOS_SAFARI_UA });
   }
 
   public async searchProducts(filters: ProductSearchFilters): Promise<Result<NormalizedProduct[]>> {
@@ -82,22 +83,27 @@ export class OttosLiveAdapter implements ChainAdapter {
       return { ok: false, error: { code: 'INVALID_QUERY', message: 'Query must be a non-empty string.' } };
     }
 
-    const searchUrl = `${this.searchApiUrl}?q=${encodeURIComponent(query)}`;
+    const limit = typeof filters.limit === 'number' ? filters.limit : DEFAULT_SEARCH_LIMIT;
+    const searchUrl = `${BASE_URL}/products/search?query=${encodeURIComponent(query)}:relevance&pageSize=${limit}&fields=FULL`;
     const loaded = await loadJson(searchUrl, 'ottos:search', this.cache, this.sourceClient, this.cacheTtlMs, 'ottos', OTTOS_PROVIDER);
     if (!loaded.ok) {
       return { ok: false, error: loaded.error };
     }
 
-    const parsed = parseOttosSearchResponse(loaded.data as OttosProduct[], searchUrl);
+    const raw = loaded.data as { products?: OttosOccProduct[] };
+    const products = (raw.products ?? [])
+      .map((p) => parseOttosOccProduct(p, searchUrl))
+      .filter((p): p is OttosParsedProduct => p !== undefined);
+
     const matchMode = filters.matchMode ?? 'balanced';
-    const products = parsed
+    const normalized = products
       .map((p) => toNormalizedProduct(p, loaded.provenance))
       .filter((product) => productMatches(product, query, filters))
       .sort((a, b) => sortProducts(a, b, query, matchMode));
 
-    const limitedProducts = typeof filters.limit === 'number' ? products.slice(0, filters.limit) : products.slice(0, DEFAULT_SEARCH_LIMIT);
+    const limitedProducts = normalized.slice(0, limit);
 
-    return { ok: true, data: limitedProducts, metadata: metadataFrom([loaded.provenance], loaded.warnings, 'ottos', OTTOS_PROVIDER, "Otto's data is sourced from live retailer web pages.", "Otto's data is sourced from cached retailer observations.") };
+    return { ok: true, data: limitedProducts, metadata: metadataFrom([loaded.provenance], loaded.warnings, 'ottos', OTTOS_PROVIDER, "Otto's data is sourced from live retailer API endpoints.", "Otto's data is sourced from cached retailer observations.") };
   }
 
   public async searchPromotions(_filters: PromotionSearchFilters): Promise<Result<NormalizedPromotion[]>> {
@@ -110,17 +116,21 @@ export class OttosLiveAdapter implements ChainAdapter {
       return { ok: false, error: { code: 'INVALID_QUERY', message: 'Location must be a non-empty string.' } };
     }
 
-    const storesUrl = `${this.storesApiUrl}?q=${encodeURIComponent(location)}`;
+    const storesUrl = `${BASE_URL}/stores?query=${encodeURIComponent(location)}&fields=FULL`;
     const loaded = await loadJson(storesUrl, 'ottos:stores', this.cache, this.sourceClient, this.cacheTtlMs, 'ottos', OTTOS_PROVIDER);
     if (!loaded.ok) {
       return { ok: false, error: loaded.error };
     }
 
-    const parsed = parseOttosStoresResponse(loaded.data as OttosStore[], storesUrl);
-    const stores = parsed.map((s) => toNormalizedStore(s, loaded.provenance));
+    const raw = loaded.data as { stores?: OttosOccStore[] };
+    const stores = (raw.stores ?? [])
+      .map((s, i) => parseOttosOccStore(s, i, storesUrl))
+      .filter((s): s is OttosParsedStore => s !== undefined)
+      .map((s) => toNormalizedStore(s, loaded.provenance));
+
     const limitedStores = typeof filters.limit === 'number' ? stores.slice(0, filters.limit) : stores;
 
-    return { ok: true, data: limitedStores, metadata: metadataFrom([loaded.provenance], loaded.warnings, 'ottos', OTTOS_PROVIDER, "Otto's data is sourced from live retailer web pages.", "Otto's data is sourced from cached retailer observations.") };
+    return { ok: true, data: limitedStores, metadata: metadataFrom([loaded.provenance], loaded.warnings, 'ottos', OTTOS_PROVIDER, "Otto's data is sourced from live retailer API endpoints.", "Otto's data is sourced from cached retailer observations.") };
   }
 
   public getStoreAvailabilitySupport(): StoreAvailabilitySupport {
@@ -135,5 +145,4 @@ export class OttosLiveAdapter implements ChainAdapter {
       data: { chain: this.chain, storeId: filters.storeId, query: filters.query, supported: false, reason: "Otto's store-level product availability is not yet implemented.", matches: [], isAvailable: false },
     };
   }
-
 }

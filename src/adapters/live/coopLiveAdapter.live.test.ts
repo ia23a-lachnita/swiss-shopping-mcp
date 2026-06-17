@@ -5,7 +5,6 @@ import { tmpdir } from 'node:os';
 import { afterEach, describe, expect, it } from 'vitest';
 
 import { FileTtlCache } from '../../cache/fileTtlCache.js';
-import { SourceHttpClient } from '../../sources/sourceClient.js';
 import { CoopLiveAdapter } from './coopLiveAdapter.js';
 
 const cacheDirectories: string[] = [];
@@ -24,7 +23,6 @@ describe.skipIf(process.env.LIVE_SOURCE_TESTS !== '1')('CoopLiveAdapter live smo
   it('searches Coop live source for a known product term', async () => {
     const adapter = new CoopLiveAdapter({
       cache: await createCache(),
-      sourceClient: new SourceHttpClient({ rateLimitPerHostMs: 1_000 }),
     });
 
     const result = await adapter.searchProducts({ query: 'milch', limit: 1 });
@@ -45,7 +43,6 @@ describe.skipIf(process.env.LIVE_SOURCE_TESTS !== '1')('CoopLiveAdapter live smo
   it('finds Coop stores near Zürich', async () => {
     const adapter = new CoopLiveAdapter({
       cache: await createCache(),
-      sourceClient: new SourceHttpClient({ rateLimitPerHostMs: 1_000 }),
     });
 
     const result = await adapter.findStores({ location: 'Zürich', limit: 1 });

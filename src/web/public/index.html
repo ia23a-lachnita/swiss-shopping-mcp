@@ -499,6 +499,8 @@
           document.getElementById('search-results').appendChild(warnDiv);
         }
 
+        renderChainSummary(products, warnings, 'search-results', 'chains');
+
         if (products.length === 0) {
           showError('search-error', 'No products found.');
           return;
@@ -557,6 +559,8 @@
           document.getElementById('store-results').appendChild(warnDiv);
         }
 
+        renderChainSummary(stores, storeWarnings, 'store-results', 'chains');
+
         if (stores.length === 0) {
           showError('store-error', 'No stores found.');
           return;
@@ -614,6 +618,20 @@
           return;
         }
 
+        let summaryHtml = '';
+        const chainsWithData = new Set(offers.map(item => item.chain));
+        const chainsWithWarnings = new Set(compareWarnings.map(w => w.chain));
+        const totalQueried = chainsWithData.size + chainsWithWarnings.size;
+        if (totalQueried > 1) {
+          const failedChains = [...chainsWithWarnings].filter(c => !chainsWithData.has(c));
+          if (failedChains.length > 0) {
+            summaryHtml = '<div class="results-info">Showing <strong>' + chainsWithData.size + '</strong> of <strong>' + totalQueried + '</strong> chains responded. ' +
+              '<span style="color:var(--red)">' + failedChains.map(c => c.charAt(0).toUpperCase() + c.slice(1)).join(', ') + '</span> returned no results.</div>';
+          } else {
+            summaryHtml = '<div class="results-info"><strong>' + chainsWithData.size + '</strong> chains responded successfully.</div>';
+          }
+        }
+
         let infoText = '<div class="results-info">Query: ' + escapeHtml(data.query) + ' | Quantity: ' + data.quantity;
         if (data.comparisonUnit) infoText += ' | Unit: ' + data.comparisonUnit;
         if (data.savingsVsMostExpensive !== undefined) infoText += ' | Savings: ' + formatPrice(data.savingsVsMostExpensive);
@@ -624,7 +642,7 @@
             compareWarnings.map(w => '<strong>' + escapeHtml(w.chain) + ':</strong> ' + escapeHtml(w.message)).join('<br>') + '</div>';
         }
 
-        let tableHtml = infoText + '<div style="overflow-x:auto"><table class="comparison-table">' +
+        let tableHtml = summaryHtml + infoText + '<div style="overflow-x:auto"><table class="comparison-table">' +
           '<thead><tr><th>Chain</th><th>Product</th><th>Price</th><th>Total</th><th>Basis</th></tr></thead><tbody>';
 
         offers.forEach(o => {
@@ -699,6 +717,24 @@
     function escapeHtml(str) {
       if (!str) return '';
       return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function renderChainSummary(data, warnings, containerId, label) {
+      const chainsWithData = new Set(data.map(item => item.chain));
+      const chainsWithWarnings = new Set(warnings.map(w => w.chain));
+      const totalQueried = chainsWithData.size + chainsWithWarnings.size;
+      if (totalQueried <= 1) return;
+
+      const summaryDiv = document.createElement('div');
+      summaryDiv.className = 'results-info';
+      const failedChains = [...chainsWithWarnings].filter(c => !chainsWithData.has(c));
+      if (failedChains.length > 0) {
+        summaryDiv.innerHTML = 'Showing <strong>' + chainsWithData.size + '</strong> of <strong>' + totalQueried + '</strong> ' + label + ' responded. ' +
+          '<span style="color:var(--red)">' + failedChains.map(c => c.charAt(0).toUpperCase() + c.slice(1)).join(', ') + '</span> returned no results.';
+      } else {
+        summaryDiv.innerHTML = '<strong>' + chainsWithData.size + '</strong> ' + label + ' responded successfully.';
+      }
+      document.getElementById(containerId).appendChild(summaryDiv);
     }
 
     // Initialize chain filters

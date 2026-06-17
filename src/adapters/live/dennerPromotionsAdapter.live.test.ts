@@ -17,7 +17,7 @@ afterEach(async () => {
   );
 });
 
-describe.skipIf(!process.env.LIVE_SOURCE_TESTS)(
+describe.skipIf(process.env.LIVE_SOURCE_TESTS !== '1')(
   'DennerPromotionsAdapter live smoke test',
   () => {
     it('fetches real Denner promotions and parses at least one result', async () => {

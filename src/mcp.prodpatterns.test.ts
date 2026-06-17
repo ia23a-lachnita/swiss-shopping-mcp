@@ -410,7 +410,7 @@ describe('3. search_products', () => {
   it('unsupported chains return source warnings but do not block results', async () => {
     const result = await callTool(client, 'search_products', {
       query: 'Toskanabrot',
-      chains: ['aldi', 'coop'],
+      chains: ['aldi', 'farmy'],
     });
     expect(result.isError).not.toBe(true);
     const data = structured<{
@@ -419,15 +419,15 @@ describe('3. search_products', () => {
     }>(result);
     expect(data.products.length).toBeGreaterThan(0);
     expect(data.sourceWarnings).toBeDefined();
-    const coopWarnings = data.sourceWarnings!.filter((w) => w.chain === 'coop');
-    expect(coopWarnings.length).toBeGreaterThan(0);
-    expect(coopWarnings[0].code).toBe(SourceWarningCode.SourceUnavailable);
+    const farmyWarnings = data.sourceWarnings!.filter((w) => w.chain === 'farmy');
+    expect(farmyWarnings.length).toBeGreaterThan(0);
+    expect(farmyWarnings[0].code).toBe(SourceWarningCode.RealSourceNotImplemented);
   });
 
   it('returns ALL_SOURCES_FAILED when all requested chains are unsupported', async () => {
     const result = await callTool(client, 'search_products', {
       query: 'milk',
-      chains: ['coop', 'farmy'],
+      chains: ['farmy'],
     });
     expect(result.isError).toBe(true);
     expect(result.content[0].text).toContain('ALL_SOURCES_FAILED');
@@ -523,20 +523,20 @@ describe('5. find_stores', () => {
     expect(result.content[0].text).toContain('aldi');
   });
 
-  it('Coop store search returns ALL_SOURCES_FAILED (store lookup unsupported)', async () => {
+  it('Farmy store search returns ALL_SOURCES_FAILED (store lookup unsupported)', async () => {
     const result = await callTool(client, 'find_stores', {
       location: 'Zürich',
-      chains: ['coop'],
+      chains: ['farmy'],
     });
     expect(result.isError).toBe(true);
     expect(result.content[0].text).toContain('ALL_SOURCES_FAILED');
-    expect(result.content[0].text).toContain('coop');
+    expect(result.content[0].text).toContain('farmy');
   });
 
   it('ALL_SOURCES_FAILED when all requested chains unsupported', async () => {
     const result = await callTool(client, 'find_stores', {
       location: 'Bern',
-      chains: ['farmy', 'volg'],
+      chains: ['farmy'],
     });
     expect(result.isError).toBe(true);
     expect(result.content[0].text).toContain('ALL_SOURCES_FAILED');
@@ -548,14 +548,14 @@ describe('5. find_stores', () => {
     expect(result.content[0].text).toContain('INVALID_ARGUMENTS');
   });
 
-  it('Migros store search returns ALL_SOURCES_FAILED (store lookup unsupported)', async () => {
+  it('Farmy store search returns ALL_SOURCES_FAILED (chain unsupported)', async () => {
     const result = await callTool(client, 'find_stores', {
       location: 'Zürich',
-      chains: ['migros'],
+      chains: ['farmy'],
     });
     expect(result.isError).toBe(true);
     expect(result.content[0].text).toContain('ALL_SOURCES_FAILED');
-    expect(result.content[0].text).toContain('migros');
+    expect(result.content[0].text).toContain('farmy');
   });
 
   it('mixed supported/unsupported chains returns partial error with warnings', async () => {
@@ -727,7 +727,7 @@ describe('6. compare_prices', () => {
   it('compare_prices with unsupported chains produces warnings not errors', async () => {
     const result = await callTool(client, 'compare_prices', {
       query: 'Toskanabrot',
-      chains: ['aldi', 'coop'],
+      chains: ['aldi', 'farmy'],
     });
     expect(result.isError).not.toBe(true);
     const data = structured<{
@@ -736,7 +736,7 @@ describe('6. compare_prices', () => {
     }>(result);
     expect(data.comparison.offers.some((o) => o.chain === 'aldi')).toBe(true);
     expect(data.sourceWarnings).toBeDefined();
-    expect(data.sourceWarnings!.some((w) => w.chain === 'coop')).toBe(true);
+    expect(data.sourceWarnings!.some((w) => w.chain === 'farmy')).toBe(true);
   });
 });
 
@@ -995,7 +995,7 @@ describe('10. Cross-Tool Integration Scenarios', () => {
   it('unsupported chain status matches search_products error behavior', async () => {
     const searchResult = await callTool(client, 'search_products', {
       query: 'milk',
-      chains: ['migros'],
+      chains: ['farmy'],
     });
     expect(searchResult.isError).toBe(true);
     expect(searchResult.content[0].text).toContain('ALL_SOURCES_FAILED');
@@ -1382,7 +1382,7 @@ describe('15. Source Warning Codes & Error Patterns', () => {
   it('unsupported chain search returns REAL_SOURCE_NOT_IMPLEMENTED', async () => {
     const result = await callTool(client, 'search_products', {
       query: 'milk',
-      chains: ['coop'],
+      chains: ['farmy'],
     });
     expect(result.isError).toBe(true);
     expect(result.content[0].text).toContain('ALL_SOURCES_FAILED');
@@ -1391,7 +1391,7 @@ describe('15. Source Warning Codes & Error Patterns', () => {
   it('unsupported chain find_stores returns ALL_SOURCES_FAILED', async () => {
     const result = await callTool(client, 'find_stores', {
       location: 'Bern',
-      chains: ['coop'],
+      chains: ['farmy'],
     });
     expect(result.isError).toBe(true);
     expect(result.content[0].text).toContain('ALL_SOURCES_FAILED');
@@ -1406,10 +1406,10 @@ describe('15. Source Warning Codes & Error Patterns', () => {
     expect(result.content[0].text).toContain('ALL_SOURCES_FAILED');
   });
 
-  it('partial failure: aldi succeeds, coop fails with warning', async () => {
+  it('partial failure: aldi succeeds, farmy fails with warning', async () => {
     const result = await callTool(client, 'search_products', {
       query: 'Toskanabrot',
-      chains: ['aldi', 'coop'],
+      chains: ['aldi', 'farmy'],
     });
     expect(result.isError).not.toBe(true);
     const data = structured<{
@@ -1418,10 +1418,10 @@ describe('15. Source Warning Codes & Error Patterns', () => {
     }>(result);
     expect(data.products.length).toBeGreaterThan(0);
     expect(data.sourceWarnings).toBeDefined();
-    const coopWarning = data.sourceWarnings!.find((w) => w.chain === 'coop');
-    expect(coopWarning).toBeDefined();
-    expect(coopWarning!.code).toBe(SourceWarningCode.SourceUnavailable);
-    expect(coopWarning!.message.toLowerCase()).toContain('coop');
+    const farmyWarning = data.sourceWarnings!.find((w) => w.chain === 'farmy');
+    expect(farmyWarning).toBeDefined();
+    expect(farmyWarning!.code).toBe(SourceWarningCode.RealSourceNotImplemented);
+    expect(farmyWarning!.message.toLowerCase()).toContain('farmy');
   });
 
   it('partial failure: denner succeeds, farmy fails with warning', async () => {

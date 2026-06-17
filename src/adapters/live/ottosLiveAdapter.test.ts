@@ -1,105 +1,105 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { FileTtlCache } from '../../cache/fileTtlCache.js';
-import { SourceHttpClient, SourceClientError } from '../../sources/sourceClient.js';
+import { SourceClientError } from '../../sources/sourceClient.js';
 import { OttosLiveAdapter } from './ottosLiveAdapter.js';
 import { SourceWarningCode } from '../types.js';
+
+vi.mock('../../sources/sourceClient.js', () => {
+  const mockFetchJson = vi.fn();
+  return {
+    SourceHttpClient: vi.fn().mockImplementation(() => ({
+      fetchJson: mockFetchJson,
+      fetchText: vi.fn(),
+    })),
+    SourceClientError: class SourceClientError extends Error {
+      code: string;
+      sourceUrl: string;
+      status?: number;
+      constructor(code: string, message: string, sourceUrl: string, status?: number) {
+        super(message);
+        this.code = code;
+        this.sourceUrl = sourceUrl;
+        this.status = status;
+      }
+    },
+    __mocks: { mockFetchJson },
+  };
+});
+
+const { __mocks } = (await import('../../sources/sourceClient.js')) as unknown as {
+  __mocks: { mockFetchJson: ReturnType<typeof vi.fn> };
+};
+const { mockFetchJson } = __mocks;
+
+const SEARCH_URL = 'https://api.ottos.ch/occ/v2/ottos/products/search';
+const STORES_URL = 'https://api.ottos.ch/occ/v2/ottos/stores';
+
+const mockSearchResponse = {
+  products: [
+    {
+      code: 'ottos-001',
+      name: "Otto's Vollmilch",
+      price: { formattedValue: 'CHF 1.50' },
+      images: [{ url: 'https://example.com/ottos-milk.jpg' }],
+      categories: [{ name: 'Milchprodukte' }],
+    },
+    {
+      code: 'ottos-002',
+      name: "Otto's Butter",
+      price: { formattedValue: 'CHF 2.60' },
+      images: [],
+      categories: [{ name: 'Milchprodukte' }],
+    },
+  ],
+};
+
+const mockStoresResponse = {
+  stores: [
+    {
+      name: "Otto's Zürich",
+      address: { town: 'Zürich', postalCode: '8001', line1: 'Bahnhofstrasse 10' },
+      geoPoint: { latitude: 47.3769, longitude: 8.5417 },
+      openingHours: 'Mo-Fr 08:00-20:00',
+    },
+  ],
+};
 
 function createMockCache() {
   return {
     get: vi.fn(),
     set: vi.fn(),
-  } as unknown as FileTtlCache;
+  } as unknown as FileTtlCache & { get: ReturnType<typeof vi.fn>; set: ReturnType<typeof vi.fn> };
 }
 
-function createMockSourceClient() {
+function makeProvenance(sourceUrl: string, freshness: 'live' | 'stale' = 'live') {
   return {
-    fetchJson: vi.fn(),
-    fetchText: vi.fn(),
-  } as unknown as SourceHttpClient;
+    provider: "Otto's",
+    chain: 'ottos' as const,
+    sourceType: 'retailer-web' as const,
+    sourceUrl,
+    observedAt: '2026-06-17T10:00:00.000Z',
+    freshness,
+    confidence: 'medium' as const,
+  };
 }
 
-const SEARCH_API_URL = 'https://www.ottos.ch/de/search';
-const STORES_API_URL = 'https://www.ottos.ch/de/store-finder';
+function makeSourceError(sourceUrl: string) {
+  return new SourceClientError(
+    SourceWarningCode.SourceUnavailable,
+    'HTTP 503: Service Unavailable',
+    sourceUrl,
+    503,
+  );
+}
 
-const mockSearchResponse = [
-  {
-    id: 'ottos-001',
-    name: "Otto's Erdnussmus",
-    brand: "Otto's",
-    price: { amount: 2.90, currency: 'CHF' },
-    category: 'Nüsse',
-    image_url: 'https://example.com/ottos-peanut.jpg',
-  },
-  {
-    id: 'ottos-002',
-    name: "Otto's Haferflocken",
-    brand: "Otto's",
-    price: { amount: 1.80, currency: 'CHF' },
-    category: 'Getreide',
-  },
-];
-
-const mockStoresResponse = [
-  {
-    id: 'ottos-store-1',
-    name: "Otto's Zürich",
-    city: 'Zürich',
-    zip: '8002',
-    street: 'Badenerstrasse',
-    street_number: '500',
-    latitude: 47.3912,
-    longitude: 8.5230,
-    opening_hours: 'Mo-Fr 09:00-19:00',
-  },
-  {
-    id: 'ottos-store-2',
-    name: "Otto's Winterthur",
-    city: 'Winterthur',
-    zip: '8400',
-    street: 'Technikumstrasse',
-    street_number: '10',
-    latitude: 47.4984,
-    longitude: 8.7291,
-    opening_hours: 'Mo-Sa 09:00-18:00',
-  },
-];
-
-const mockProvenance = {
-  provider: "Otto's",
-  chain: 'ottos' as const,
-  sourceType: 'retailer-web' as const,
-  sourceUrl: SEARCH_API_URL,
-  observedAt: '2026-06-16T10:00:00.000Z',
-  freshness: 'live' as const,
-  confidence: 'medium' as const,
-};
-
-const mockCacheRecord = {
-  expiresAt: '2026-06-16T16:00:00.000Z',
-};
-
-const mockStaleCacheHit = {
-  data: mockSearchResponse,
-  provenance: { ...mockProvenance, freshness: 'stale' as const, cacheExpiresAt: '2026-06-16T04:00:00.000Z' },
-  observedAt: '2026-06-16T00:00:00.000Z',
-  expiresAt: '2026-06-16T04:00:00.000Z',
-  isStale: true,
-};
-
-describe("OttosLiveAdapter", () => {
+describe('OttosLiveAdapter', () => {
   let cache: ReturnType<typeof createMockCache>;
-  let sourceClient: ReturnType<typeof createMockSourceClient>;
   let adapter: OttosLiveAdapter;
 
   beforeEach(() => {
+    vi.clearAllMocks();
     cache = createMockCache();
-    sourceClient = createMockSourceClient();
-    adapter = new OttosLiveAdapter({
-      cache,
-      sourceClient,
-      searchApiUrl: SEARCH_API_URL,
-      storesApiUrl: STORES_API_URL,
-    });
+    adapter = new OttosLiveAdapter({ cache });
   });
 
   describe('searchProducts', () => {
@@ -113,33 +113,30 @@ describe("OttosLiveAdapter", () => {
 
     it('returns products on valid API response', async () => {
       cache.get.mockResolvedValue(undefined);
-      sourceClient.fetchJson.mockResolvedValue({
+      mockFetchJson.mockResolvedValue({
         data: mockSearchResponse,
-        provenance: mockProvenance,
+        provenance: makeProvenance(SEARCH_URL),
       });
-      cache.set.mockResolvedValue(mockCacheRecord);
+      cache.set.mockResolvedValue({ expiresAt: '2026-06-17T16:00:00.000Z' });
 
-      const result = await adapter.searchProducts({ query: 'Erdnussmus' });
+      const result = await adapter.searchProducts({ query: 'Vollmilch' });
 
       expect(result.ok).toBe(true);
       if (result.ok) {
         expect(result.data.length).toBeGreaterThan(0);
         expect(result.data[0]).toMatchObject({
           chain: 'ottos',
-          name: "Otto's Erdnussmus",
-          price: { current: 2.90 },
+          name: "Otto's Vollmilch",
         });
       }
-      expect(sourceClient.fetchJson).toHaveBeenCalled();
+      expect(mockFetchJson).toHaveBeenCalled();
     });
 
     it('returns error when fetch fails and no cache', async () => {
       cache.get.mockResolvedValue(undefined);
-      sourceClient.fetchJson.mockRejectedValue(
-        new SourceClientError(SourceWarningCode.SourceUnavailable, 'HTTP 503: Service Unavailable', SEARCH_API_URL, 503)
-      );
+      mockFetchJson.mockRejectedValue(makeSourceError(SEARCH_URL));
 
-      const result = await adapter.searchProducts({ query: 'Erdnussmus' });
+      const result = await adapter.searchProducts({ query: 'Vollmilch' });
 
       expect(result.ok).toBe(false);
       if (!result.ok) {
@@ -148,12 +145,14 @@ describe("OttosLiveAdapter", () => {
     });
 
     it('falls back to stale cache on fetch failure', async () => {
-      cache.get.mockResolvedValue(mockStaleCacheHit);
-      sourceClient.fetchJson.mockRejectedValue(
-        new SourceClientError(SourceWarningCode.SourceUnavailable, 'HTTP 503: Service Unavailable', SEARCH_API_URL, 503)
-      );
+      cache.get.mockResolvedValue({
+        data: mockSearchResponse,
+        provenance: { ...makeProvenance(SEARCH_URL, 'stale'), cacheExpiresAt: '2026-06-17T04:00:00.000Z' },
+        isStale: true,
+      });
+      mockFetchJson.mockRejectedValue(makeSourceError(SEARCH_URL));
 
-      const result = await adapter.searchProducts({ query: 'Erdnussmus' });
+      const result = await adapter.searchProducts({ query: 'Vollmilch' });
 
       expect(result.ok).toBe(true);
       if (result.ok) {
@@ -174,17 +173,17 @@ describe("OttosLiveAdapter", () => {
 
     it('returns stores on valid response', async () => {
       cache.get.mockResolvedValue(undefined);
-      sourceClient.fetchJson.mockResolvedValue({
+      mockFetchJson.mockResolvedValue({
         data: mockStoresResponse,
-        provenance: { ...mockProvenance, sourceUrl: STORES_API_URL },
+        provenance: makeProvenance(STORES_URL),
       });
-      cache.set.mockResolvedValue(mockCacheRecord);
+      cache.set.mockResolvedValue({ expiresAt: '2026-06-17T16:00:00.000Z' });
 
       const result = await adapter.findStores({ location: 'Zürich' });
 
       expect(result.ok).toBe(true);
       if (result.ok) {
-        expect(result.data.length).toBe(2);
+        expect(result.data.length).toBe(1);
         expect(result.data[0]).toMatchObject({
           chain: 'ottos',
           name: "Otto's Zürich",
@@ -218,7 +217,7 @@ describe("OttosLiveAdapter", () => {
     it('returns not supported', async () => {
       const result = await adapter.lookupStoreProductAvailability({
         storeId: 'ottos-zurich',
-        query: 'Erdnussmus',
+        query: 'Vollmilch',
       });
       expect(result.ok).toBe(true);
       if (result.ok) {

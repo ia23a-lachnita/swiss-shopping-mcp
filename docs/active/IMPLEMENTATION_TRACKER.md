@@ -52,6 +52,10 @@ Phase: `V1 - core read/search foundation`
 | Taxonomy fix + expansion            | done                   | Fixed `brod` typo to `brot` in `matcher.ts` TAXONOMY; added 17 new Swiss/German grocery term categories (water, beer, wine, yogurt, butter, eggs, coffee, tea, sugar, salt, oil, meat, chicken, fish, fruit, vegetables, cleaning) |
 | Denner validity marker fix          | done                   | Replaced fragile `bodyText.indexOf(cardText)` offset matching with DOM-order traversal: iterate all elements, track current "Bis" date, assign to `.product-item` cards in document order |
 | Critical fixes: ESM, SSRF, cl unit | done                   | C1: tsconfig `module: node16` + `moduleResolution: node16` for proper ESM resolution; C2: SSRF URL validation in `SourceHttpClient` blocks private IPs/localhost/loopback; C3: `cl` (centiliter) unit handling in `denner.ts` normalizeUnit and `units.ts` getBaseUnitPrice |
+| Real API URL fixes (Phase 1)       | done                   | All 5 broken adapter URLs fixed: Migros uses `migros-api-wrapper` (guest token auth + cache), Coop uses REST API with iOS Safari UA, Lidl uses Lidl Plus app API, Volg uses WooCommerce REST API, Otto's uses OCC v2 API; parsers updated; 418 tests pass |
+| Real API URL fix plan + review     | done                   | `docs/active/REAL_API_URL_FIX_PLAN.md` drafted and Gemini-reviewed with GREEN; plan committed as `8de8595` |
+| Contract tests + test scripts (Phase 2) | done              | 5 contract test files (`*.contract.test.ts`) for Migros/Coop/Lidl/Volg/Ottos; `test:integration` and `test:contract` npm scripts added; Denner live test skip pattern fixed; 418 tests + 10 skipped contract tests |
+| SPA chain summary (Phase 3)        | done                   | SPA shows "X of Y chains responded" with failed chain names when some adapters fail; Product Search, Store Finder, and Price Comparison tabs updated |
 
 ## Next tasks
 
@@ -63,6 +67,8 @@ Phase: `V1 - core read/search foundation`
 6. Prepare V2 account/cart integration foundation
 7. Remove static catalog data from default production runtime, or gate it as test/demo-only with explicit source warnings
 8. Decide whether live product search requires an approved provider/central index instead of local runtime crawling
+9. Run `RUN_CONTRACT_TESTS=1 pnpm test:contract` to validate real API endpoints (first time)
+10. Run `LIVE_SOURCE_TESTS=1 pnpm test:live` to validate live adapter smoke tests
 
 ## Decisions
 

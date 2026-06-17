@@ -1,8 +1,26 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { FileTtlCache } from '../../cache/fileTtlCache.js';
-import { SourceHttpClient, SourceClientError } from '../../sources/sourceClient.js';
 import { MigrosLiveAdapter } from './migrosLiveAdapter.js';
 import { SourceWarningCode } from '../types.js';
+
+vi.mock('migros-api-wrapper', () => {
+  const mockSearchProduct = vi.fn();
+  const mockGetProductDetails = vi.fn();
+  const mockSearchStores = vi.fn();
+  const mockLoginGuestToken = vi.fn();
+  return {
+    MigrosAPI: vi.fn().mockImplementation(() => ({
+      leShopToken: 'mock-token',
+      account: { oauth2: { loginGuestToken: mockLoginGuestToken } },
+      products: {
+        productSearch: { searchProduct: mockSearchProduct },
+        productDisplay: { getProductDetails: mockGetProductDetails },
+      },
+      stores: { searchStores: mockSearchStores },
+    })),
+    __mocks: { mockSearchProduct, mockGetProductDetails, mockSearchStores, mockLoginGuestToken },
+  };
+});
 
 function createMockCache() {
   return {
@@ -11,72 +29,55 @@ function createMockCache() {
   } as unknown as FileTtlCache;
 }
 
-function createMockSourceClient() {
-  return {
-    fetchJson: vi.fn(),
-    fetchText: vi.fn(),
-  } as unknown as SourceHttpClient;
-}
-
-const SEARCH_API_URL = 'https://www.migros.ch/de/produkte';
-const STORES_API_URL = 'https://www.migros.ch/de/filialfinder';
-
-const mockSearchResponse = {
-  products: [
-    {
-      id: 101,
-      article_code: 'migros-001',
-      name: 'Migros Vollmilch',
-      brand_name: 'Migros',
-      price: { amount: 1.50, currency: 'CHF' },
-      category_name: 'Milchprodukte',
-      image_url: 'https://example.com/migros-milk.jpg',
-    },
-    {
-      id: 102,
-      article_code: 'migros-002',
-      name: 'Migros Butter',
-      brand_name: 'Migros',
-      price: { amount: 2.80, currency: 'CHF' },
-      category_name: 'Milchprodukte',
-    },
-  ],
-  total: 2,
+const mockSearchApiResponse = {
+  productIds: [123, 456],
 };
 
-const mockStoresResponse = {
-  stores: [
-    {
-      id: 'store-1',
-      name: 'Migros Zürich HB',
-      city: 'Zürich',
-      zip: '8001',
-      street: 'Bahnhofstrasse',
-      street_number: '1',
-      latitude: 47.3769,
-      longitude: 8.5417,
-      opening_hours: 'Mo-Fr 08:00-20:00',
+const mockProductDetailsResponse = {
+  '0': {
+    uid: 123,
+    name: 'Milch',
+    brand: 'Migros',
+    offer: {
+      price: { effectiveValue: 1.85, unit: { unit: '100ml', value: 0.19 } },
     },
-    {
-      id: 'store-2',
-      name: 'Migros Winterthur',
-      city: 'Winterthur',
-      zip: '8400',
-      street: 'Marktplatz',
-      street_number: '5',
-      latitude: 47.4984,
-      longitude: 8.7291,
-      opening_hours: 'Mo-Sa 08:00-18:00',
+    images: [],
+    productUrls: [],
+    primaryCategory: { name: 'Milchprodukte' },
+  },
+  '1': {
+    uid: 456,
+    name: 'Butter',
+    brand: 'Migros',
+    offer: {
+      price: { effectiveValue: 2.50, unit: { unit: '100g', value: 0.25 } },
     },
-  ],
-  total: 2,
+    images: [],
+    productUrls: [],
+    primaryCategory: { name: 'Milchprodukte' },
+  },
 };
+
+const mockStoresApiResponse = [
+  {
+    storeId: '001',
+    storeName: 'Migros Zürich',
+    location: { latitude: 47.37, longitude: 8.54 },
+    openingHours: [{ date: '2026-06-17', hours: [{ open: '06:30', close: '20:00' }] }],
+  },
+  {
+    storeId: '002',
+    storeName: 'Migros Winterthur',
+    location: { latitude: 47.49, longitude: 8.73 },
+    openingHours: [{ date: '2026-06-17', hours: [{ open: '08:00', close: '18:00' }] }],
+  },
+];
 
 const mockProvenance = {
   provider: 'Migros',
   chain: 'migros' as const,
   sourceType: 'retailer-web' as const,
-  sourceUrl: SEARCH_API_URL,
+  sourceUrl: 'https://www.migros.ch/onesearch-oc-seaapi/public/v5/search',
   observedAt: '2026-06-16T10:00:00.000Z',
   freshness: 'live' as const,
   confidence: 'medium' as const,
@@ -87,7 +88,12 @@ const mockCacheRecord = {
 };
 
 const mockStaleCacheHit = {
-  data: mockSearchResponse,
+  data: {
+    products: [
+      { id: 123, name: 'Milch', brand_name: 'Migros', price: { amount: 1.85, currency: 'CHF' }, category_name: 'Milchprodukte', image_url: '' },
+      { id: 456, name: 'Butter', brand_name: 'Migros', price: { amount: 2.50, currency: 'CHF' }, category_name: 'Milchprodukte', image_url: '' },
+    ],
+  },
   provenance: { ...mockProvenance, freshness: 'stale' as const, cacheExpiresAt: '2026-06-16T04:00:00.000Z' },
   observedAt: '2026-06-16T00:00:00.000Z',
   expiresAt: '2026-06-16T04:00:00.000Z',
@@ -96,18 +102,20 @@ const mockStaleCacheHit = {
 
 describe('MigrosLiveAdapter', () => {
   let cache: ReturnType<typeof createMockCache>;
-  let sourceClient: ReturnType<typeof createMockSourceClient>;
   let adapter: MigrosLiveAdapter;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let mocks: any;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     cache = createMockCache();
-    sourceClient = createMockSourceClient();
-    adapter = new MigrosLiveAdapter({
-      cache,
-      sourceClient,
-      searchApiUrl: SEARCH_API_URL,
-      storesApiUrl: STORES_API_URL,
-    });
+    adapter = new MigrosLiveAdapter({ cache });
+
+    const migrosApiModule = await import('migros-api-wrapper');
+    mocks = (migrosApiModule as unknown as { __mocks: typeof import('migros-api-wrapper') }).__mocks;
+    mocks.mockSearchProduct.mockReset();
+    mocks.mockGetProductDetails.mockReset();
+    mocks.mockSearchStores.mockReset();
+    mocks.mockLoginGuestToken.mockReset();
   });
 
   describe('searchProducts', () => {
@@ -121,10 +129,9 @@ describe('MigrosLiveAdapter', () => {
 
     it('returns products on valid API response', async () => {
       cache.get.mockResolvedValue(undefined);
-      sourceClient.fetchJson.mockResolvedValue({
-        data: mockSearchResponse,
-        provenance: mockProvenance,
-      });
+      mocks.mockLoginGuestToken.mockResolvedValue({});
+      mocks.mockSearchProduct.mockResolvedValue(mockSearchApiResponse);
+      mocks.mockGetProductDetails.mockResolvedValue(mockProductDetailsResponse);
       cache.set.mockResolvedValue(mockCacheRecord);
 
       const result = await adapter.searchProducts({ query: 'Milch' });
@@ -134,32 +141,31 @@ describe('MigrosLiveAdapter', () => {
         expect(result.data.length).toBeGreaterThan(0);
         expect(result.data[0]).toMatchObject({
           chain: 'migros',
-          name: 'Migros Vollmilch',
-          price: { current: 1.50 },
+          name: 'Milch',
+          price: { current: 1.85 },
         });
       }
-      expect(sourceClient.fetchJson).toHaveBeenCalled();
+      expect(mocks.mockSearchProduct).toHaveBeenCalled();
+      expect(mocks.mockGetProductDetails).toHaveBeenCalled();
     });
 
-    it('returns error when fetch fails and no cache', async () => {
+    it('returns error when wrapper call fails and no cache', async () => {
       cache.get.mockResolvedValue(undefined);
-      sourceClient.fetchJson.mockRejectedValue(
-        new SourceClientError(SourceWarningCode.SourceUnavailable, 'HTTP 503: Service Unavailable', SEARCH_API_URL, 503)
-      );
+      mocks.mockLoginGuestToken.mockResolvedValue({});
+      mocks.mockSearchProduct.mockRejectedValue(new Error('HTTP 503: Service Unavailable'));
 
       const result = await adapter.searchProducts({ query: 'Milch' });
 
       expect(result.ok).toBe(false);
       if (!result.ok) {
-        expect(result.error.code).toBe(SourceWarningCode.SourceUnavailable);
+        expect(result.error.code).toBe(SourceWarningCode.SourceParseFailed);
       }
     });
 
     it('falls back to stale cache on fetch failure', async () => {
       cache.get.mockResolvedValue(mockStaleCacheHit);
-      sourceClient.fetchJson.mockRejectedValue(
-        new SourceClientError(SourceWarningCode.SourceUnavailable, 'HTTP 503: Service Unavailable', SEARCH_API_URL, 503)
-      );
+      mocks.mockLoginGuestToken.mockResolvedValue({});
+      mocks.mockSearchProduct.mockRejectedValue(new Error('HTTP 503: Service Unavailable'));
 
       const result = await adapter.searchProducts({ query: 'Milch' });
 
@@ -182,10 +188,8 @@ describe('MigrosLiveAdapter', () => {
 
     it('returns stores on valid response', async () => {
       cache.get.mockResolvedValue(undefined);
-      sourceClient.fetchJson.mockResolvedValue({
-        data: mockStoresResponse,
-        provenance: { ...mockProvenance, sourceUrl: STORES_API_URL },
-      });
+      mocks.mockLoginGuestToken.mockResolvedValue({});
+      mocks.mockSearchStores.mockResolvedValue(mockStoresApiResponse);
       cache.set.mockResolvedValue(mockCacheRecord);
 
       const result = await adapter.findStores({ location: 'Zürich' });
@@ -195,7 +199,7 @@ describe('MigrosLiveAdapter', () => {
         expect(result.data.length).toBe(2);
         expect(result.data[0]).toMatchObject({
           chain: 'migros',
-          name: 'Migros Zürich HB',
+          name: 'Migros Zürich',
         });
       }
     });

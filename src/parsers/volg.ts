@@ -111,3 +111,61 @@ export function parseVolgStoresResponse(
     ];
   });
 }
+
+export interface WooCommerceProduct {
+  id: number | string;
+  name: string;
+  prices?: {
+    price?: string;
+    currency_code?: string;
+    currency_minor_unit?: number;
+  };
+  images?: Array<{ src?: string }>;
+  categories?: Array<{ name?: string }>;
+  short_description?: string;
+  description?: string;
+  on_sale?: boolean;
+}
+
+function parseWooCommercePrice(prices: unknown): { current: number; currency: string } | undefined {
+  if (!prices || typeof prices !== 'object') return undefined;
+  const p = prices as Record<string, unknown>;
+  const priceStr = typeof p.price === 'string' ? p.price : typeof p.price === 'number' ? String(p.price) : undefined;
+  if (!priceStr) return undefined;
+  const minorUnit = typeof p.currency_minor_unit === 'number' ? p.currency_minor_unit : 2;
+  const amount = Number(priceStr) / Math.pow(10, minorUnit);
+  const currency = typeof p.currency_code === 'string' ? p.currency_code : 'CHF';
+  if (Number.isFinite(amount) && amount > 0) {
+    return { current: amount, currency };
+  }
+  return undefined;
+}
+
+export function parseVolgWooCommerceResponse(
+  data: unknown,
+  sourceUrl: string
+): VolgParsedProduct[] {
+  if (!Array.isArray(data)) return [];
+  return data.flatMap((item) => {
+    if (!item || typeof item !== 'object') return [];
+    const product = item as Record<string, unknown>;
+    const name = typeof product.name === 'string' ? product.name : '';
+    if (!name) return [];
+    const price = parseWooCommercePrice(product.prices);
+    if (!price) return [];
+    const images = Array.isArray(product.images) ? product.images : [];
+    const categories = Array.isArray(product.categories) ? product.categories : [];
+    const image = images.length > 0 && typeof images[0] === 'object' ? (images[0] as Record<string, unknown>).src : undefined;
+    const category = categories.length > 0 && typeof categories[0] === 'object' ? (categories[0] as Record<string, unknown>).name : undefined;
+    const id = typeof product.id === 'string' ? product.id : String(product.id ?? `volg-${Date.now()}`);
+    return [{
+      id,
+      sourceUrl,
+      name,
+      price,
+      category: typeof category === 'string' ? category : undefined,
+      image: typeof image === 'string' ? image : undefined,
+      tags: product.on_sale === true ? ['promotion'] : undefined,
+    }];
+  });
+}

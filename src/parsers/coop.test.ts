@@ -11,12 +11,12 @@ describe('Coop parser', () => {
     const data: CoopSearchResponse = {
       products: [
         {
-          id: 'coop-123',
+          code: 'coop-123',
           name: 'Coop Naturaplan Milch',
-          brand: 'Naturaplan',
-          price: { amount: 2.10, currency: 'CHF' },
-          category: 'Milchprodukte',
-          image_url: 'https://www.coop.ch/image.jpg',
+          brandName: 'Naturaplan',
+          price: { value: 2.10, currencyIso: 'CHF' },
+          primaryCategory: { name: 'Milchprodukte' },
+          images: [{ url: 'https://www.coop.ch/image.jpg' }],
         },
       ],
       total: 1,
@@ -37,8 +37,8 @@ describe('Coop parser', () => {
   it('filters products without prices', () => {
     const data: CoopSearchResponse = {
       products: [
-        { id: '1', name: 'With price', price: { amount: 3.0, currency: 'CHF' } },
-        { id: '2', name: 'Without price' },
+        { code: '1', name: 'With price', price: { value: 3.0, currencyIso: 'CHF' } },
+        { code: '2', name: 'Without price' },
       ],
     };
 
@@ -52,44 +52,34 @@ describe('Coop parser', () => {
     const data: CoopSearchResponse = {
       products: [
         {
-          id: '1',
+          code: '1',
           name: 'Bread',
-          price: { amount: 3.5, currency: 'CHF' },
-          nutrition_facts: {
-            energy_kcal: 250,
-            protein: 8,
-            carbohydrates: 45,
-            fat: 4,
-          },
+          price: { value: 3.5, currencyIso: 'CHF' },
         },
       ],
     };
 
     const result = parseCoopSearchResponse(data, 'https://example.com');
 
-    expect(result[0].nutrition).toEqual({
-      energyKcal: 250,
-      protein: 8,
-      carbs: 45,
-      fat: 4,
-      fiber: undefined,
-      sugar: undefined,
-    });
+    expect(result[0].nutrition).toBeUndefined();
   });
 
   it('parses stores response', () => {
     const data = {
-      stores: [
+      locations: [
         {
-          id: 'coop-store-1',
+          vstId: 'coop-store-1',
           name: 'Coop City Zürich',
-          city: 'Zürich',
-          zip: '8001',
-          street: 'Marktplatz',
-          street_number: '5',
-          latitude: 47.37,
-          longitude: 8.54,
-          opening_hours: 'Mo-Sa 08:00-20:00',
+          address: {
+            town: 'Zürich',
+            postalCode: '8001',
+            line1: 'Marktplatz 5',
+          },
+          geoPoint: {
+            latitude: 47.37,
+            longitude: 8.54,
+          },
+          currentOpeningHours: 'Mo-Sa 08:00-20:00',
         },
       ],
     };

@@ -54,24 +54,24 @@ function createDennerPromotionsAdapter(cache: FileTtlCache, sourceClient: Source
   return new DennerPromotionsAdapter({ delegate, cache, sourceClient });
 }
 
-function createMigrosLiveAdapter(cache: FileTtlCache, sourceClient: SourceHttpClient): ChainAdapter {
-  return new MigrosLiveAdapter({ cache, sourceClient });
+function createMigrosLiveAdapter(cache: FileTtlCache, _sourceClient: SourceHttpClient): ChainAdapter {
+  return new MigrosLiveAdapter({ cache });
 }
 
-function createCoopLiveAdapter(cache: FileTtlCache, sourceClient: SourceHttpClient): ChainAdapter {
-  return new CoopLiveAdapter({ cache, sourceClient });
+function createCoopLiveAdapter(cache: FileTtlCache, _sourceClient: SourceHttpClient): ChainAdapter {
+  return new CoopLiveAdapter({ cache });
 }
 
-function createLidlLiveAdapter(cache: FileTtlCache, sourceClient: SourceHttpClient): ChainAdapter {
-  return new LidlLiveAdapter({ cache, sourceClient });
+function createLidlLiveAdapter(cache: FileTtlCache, _sourceClient: SourceHttpClient): ChainAdapter {
+  return new LidlLiveAdapter({ cache });
 }
 
-function createOttosLiveAdapter(cache: FileTtlCache, sourceClient: SourceHttpClient): ChainAdapter {
-  return new OttosLiveAdapter({ cache, sourceClient });
+function createOttosLiveAdapter(cache: FileTtlCache, _sourceClient: SourceHttpClient): ChainAdapter {
+  return new OttosLiveAdapter({ cache });
 }
 
-function createVolgLiveAdapter(cache: FileTtlCache, sourceClient: SourceHttpClient): ChainAdapter {
-  return new VolgLiveAdapter({ cache, sourceClient });
+function createVolgLiveAdapter(cache: FileTtlCache, _sourceClient: SourceHttpClient): ChainAdapter {
+  return new VolgLiveAdapter({ cache });
 }
 
 export function createDefaultAdapters(options: CreateDefaultAdaptersOptions = {}): ChainAdapter[] {

@@ -48,6 +48,24 @@ export interface OttosParsedStore {
   openingHours?: string;
 }
 
+export interface OttosOccProduct {
+  code: string;
+  name: string;
+  brand?: string;
+  price?: { formattedValue?: string };
+  images?: Array<{ url?: string }>;
+  categories?: Array<{ name?: string }>;
+  stockLevel?: number;
+  description?: string;
+}
+
+export interface OttosOccStore {
+  name: string;
+  address?: { town?: string; postalCode?: string; line1?: string };
+  geoPoint?: { latitude?: number; longitude?: number };
+  openingHours?: string;
+}
+
 function parsePrice(value: unknown): { current: number; currency: string } | undefined {
   if (typeof value === 'object' && value !== null) {
     const priceObj = value as Record<string, unknown>;
@@ -58,6 +76,54 @@ function parsePrice(value: unknown): { current: number; currency: string } | und
     }
   }
   return undefined;
+}
+
+function stripHtml(str: string): string {
+  return str.replace(/<[^>]*>/g, '').trim();
+}
+
+export function parseFormattedPrice(formattedValue: string | undefined): { current: number; currency: string } | undefined {
+  if (!formattedValue) return undefined;
+  const match = formattedValue.match(/(?:CHF|EUR|\$)\s*([\d.,]+)/);
+  if (!match) return undefined;
+  const amount = Number(match[1].replace(',', '.'));
+  if (!Number.isFinite(amount) || amount <= 0) return undefined;
+  return { current: amount, currency: 'CHF' };
+}
+
+export function parseOttosOccProduct(product: OttosOccProduct, sourceUrl: string): OttosParsedProduct | undefined {
+  const price = parseFormattedPrice(product.price?.formattedValue);
+  if (!price) return undefined;
+
+  return {
+    id: product.code,
+    sourceUrl,
+    name: stripHtml(product.name),
+    brand: product.brand,
+    price,
+    category: product.categories?.[0]?.name,
+    image: product.images?.[0]?.url,
+    stockLevel: product.stockLevel,
+  };
+}
+
+export function parseOttosOccStore(store: OttosOccStore, index: number, _sourceUrl: string): OttosParsedStore | undefined {
+  const lat = typeof store.geoPoint?.latitude === 'number' ? store.geoPoint.latitude : Number(store.geoPoint?.latitude);
+  const lon = typeof store.geoPoint?.longitude === 'number' ? store.geoPoint.longitude : Number(store.geoPoint?.longitude);
+  if (!Number.isFinite(lat) || !Number.isFinite(lon)) return undefined;
+
+  const parts = [store.address?.line1, store.address?.postalCode, store.address?.town].filter(
+    (p): p is string => typeof p === 'string' && p.trim().length > 0
+  );
+
+  return {
+    id: `ottos-store-${index}`,
+    name: store.name,
+    address: parts.join(', '),
+    latitude: lat,
+    longitude: lon,
+    openingHours: store.openingHours,
+  };
 }
 
 export function parseOttosSearchResponse(

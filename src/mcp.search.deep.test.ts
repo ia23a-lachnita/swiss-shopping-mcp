@@ -1433,10 +1433,10 @@ describe('15. Product Data Integrity Across Multiple Results', () => {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 describe('16. Search with Multiple Chains — Partial Results', () => {
-  it('aldi + coop: aldi returns products, coop returns warning', async () => {
+  it('aldi + farmy: aldi returns products, farmy returns warning', async () => {
     const result = await callTool(client, 'search_products', {
       query: 'Toskanabrot',
-      chains: ['aldi', 'coop'],
+      chains: ['aldi', 'farmy'],
     });
     expect(result.isError).not.toBe(true);
     const data = structured<{
@@ -1445,7 +1445,7 @@ describe('16. Search with Multiple Chains — Partial Results', () => {
     }>(result);
     expect(data.products.length).toBeGreaterThan(0);
     expect(data.sourceWarnings).toBeDefined();
-    expect(data.sourceWarnings!.some((w) => w.chain === 'coop')).toBe(true);
+    expect(data.sourceWarnings!.some((w) => w.chain === 'farmy')).toBe(true);
   });
 
   it('denner + farmy: denner promotions, farmy warning', async () => {
@@ -1461,10 +1461,10 @@ describe('16. Search with Multiple Chains — Partial Results', () => {
     expect(data.sourceWarnings!.some((w) => w.chain === 'farmy')).toBe(true);
   });
 
-  it('compare with aldi + coop: aldi offers, coop warning', async () => {
+  it('compare with aldi + farmy: aldi offers, farmy warning', async () => {
     const result = await callTool(client, 'compare_prices', {
       query: 'Toskanabrot',
-      chains: ['aldi', 'coop'],
+      chains: ['aldi', 'farmy'],
     });
     expect(result.isError).not.toBe(true);
     const data = structured<{
@@ -1472,13 +1472,13 @@ describe('16. Search with Multiple Chains — Partial Results', () => {
       sourceWarnings?: Array<{ chain: string }>;
     }>(result);
     expect(data.comparison.offers.some((o) => o.chain === 'aldi')).toBe(true);
-    expect(data.sourceWarnings!.some((w) => w.chain === 'coop')).toBe(true);
+    expect(data.sourceWarnings!.some((w) => w.chain === 'farmy')).toBe(true);
   });
 
   it('all unsupported chains return ALL_SOURCES_FAILED', async () => {
     const result = await callTool(client, 'search_products', {
       query: 'milk',
-      chains: ['migros', 'farmy', 'volg'],
+      chains: ['farmy'],
     });
     expect(result.isError).toBe(true);
     expect(result.content[0].text).toContain('ALL_SOURCES_FAILED');
