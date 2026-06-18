@@ -16,6 +16,7 @@ export interface OttosProduct {
 export interface OttosParsedProduct {
   id: string;
   sourceUrl: string;
+  url?: string;
   name: string;
   brand?: string;
   price: {
@@ -51,6 +52,7 @@ export interface OttosParsedStore {
 export interface OttosOccProduct {
   code: string;
   name: string;
+  url?: string;
   brand?: string;
   price?: { formattedValue?: string };
   images?: Array<{ url?: string }>;
@@ -95,14 +97,18 @@ export function parseOttosOccProduct(product: OttosOccProduct, sourceUrl: string
   const price = parseFormattedPrice(product.price?.formattedValue);
   if (!price) return undefined;
 
+  const rawImage = product.images?.[0]?.url;
+  const image = rawImage?.startsWith('/') ? `https://www.ottos.ch${rawImage}` : rawImage;
+
   return {
     id: product.code,
     sourceUrl,
+    url: product.url,
     name: stripHtml(product.name),
     brand: product.brand,
     price,
     category: product.categories?.[0]?.name,
-    image: product.images?.[0]?.url,
+    image,
     stockLevel: product.stockLevel,
   };
 }

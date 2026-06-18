@@ -283,7 +283,7 @@ export class MigrosLiveAdapter implements ChainAdapter {
       name: raw.name ?? raw.title ?? '',
       brand_name: raw.brand ?? raw.brandName ?? '',
       price: {
-        amount: typeof priceData.effectiveValue === 'number' ? priceData.effectiveValue : Number(priceData.effectiveValue) || 0,
+        amount: typeof priceData.effectiveValue === 'number' ? priceData.effectiveValue : Number(priceData.effectiveValue) || undefined,
         currency: 'CHF',
         unit: typeof unitPriceData.unit === 'string' ? unitPriceData.unit : undefined,
       },
@@ -370,7 +370,7 @@ export class MigrosLiveAdapter implements ChainAdapter {
         const response = await fetch(storeUrl, {
           headers: {
             accept: 'application/json, text/plain, */*',
-            authorization: `Bearer ${token}`,
+            leshopch: token,
             'user-agent': IOS_SAFARI_UA,
           },
         });
@@ -413,7 +413,7 @@ export class MigrosLiveAdapter implements ChainAdapter {
             const response = await fetch(storeUrl, {
               headers: {
                 accept: 'application/json, text/plain, */*',
-                authorization: `Bearer ${token}`,
+                leshopch: token,
                 'user-agent': IOS_SAFARI_UA,
               },
             });
@@ -440,7 +440,7 @@ export class MigrosLiveAdapter implements ChainAdapter {
           const response = await fetch(fallbackUrl, {
             headers: {
               accept: 'application/json, text/plain, */*',
-              authorization: `Bearer ${token}`,
+              leshopch: token,
               'user-agent': IOS_SAFARI_UA,
             },
           });

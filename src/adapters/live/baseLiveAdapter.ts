@@ -142,6 +142,10 @@ export function productMatches(
     return false;
   }
 
+  if (product.price.current <= 0) {
+    return false;
+  }
+
   if (typeof filters.maxPrice === 'number' && product.price.current > filters.maxPrice) {
     return false;
   }

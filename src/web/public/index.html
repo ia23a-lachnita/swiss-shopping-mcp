@@ -650,7 +650,7 @@
             card.className = 'store-card';
             const coords = s.location ? s.location.latitude.toFixed(5) + ', ' + s.location.longitude.toFixed(5) : '';
             const mapUrl = s.location
-              ? 'https://www.openstreetmap.org/?mlat=' + s.location.latitude + '&mlon=' + s.location.longitude + '#map=16/' + s.location.latitude + '/' + s.location.longitude
+              ? 'https://www.google.com/maps/search/?api=1&query=' + s.location.latitude + ',' + s.location.longitude
               : '';
             card.innerHTML =
               '<div class="name">' + escapeHtml(s.name) + '</div>' +
@@ -748,9 +748,13 @@
           if (data.cheapestOffer && o.chain === data.cheapestOffer.chain) rowClass = 'cheapest';
           if (data.mostExpensiveOffer && o.chain === data.mostExpensiveOffer.chain && rowClass !== 'cheapest') rowClass = 'most-expensive';
 
+          const productNameHtml = o.product.productUrl
+            ? '<a href="' + escapeHtml(o.product.productUrl) + '" target="_blank" rel="noopener" style="color:inherit;text-decoration:none">' + escapeHtml(o.product.name) + '</a>'
+            : escapeHtml(o.product.name);
+
           tableHtml += '<tr class="' + rowClass + '">' +
             '<td><span class="chain-badge ' + chainBadgeClass(o.chain) + '">' + o.chain + '</span></td>' +
-            '<td>' + escapeHtml(o.product.name) + (o.promotion ? ' <em>(promo)</em>' : '') + '</td>' +
+            '<td>' + productNameHtml + (o.promotion ? ' <em>(promo)</em>' : '') + '</td>' +
             '<td>' + formatPrice(o.effectivePrice) + (o.unitPrice ? ' <span style="color:var(--gray-500);font-size:12px;">(' + formatPrice(o.unitPrice) + ' / unit)</span>' : '') + '</td>' +
             '<td><strong>' + formatPrice(o.totalPrice) + '</strong></td>' +
             '<td>' + o.priceBasis + '</td>' +
@@ -839,6 +843,17 @@
     renderChainFilters('search-chains');
     renderChainFilters('store-chains');
     renderChainFilters('compare-chains');
+
+    // Enter key triggers search
+    document.getElementById('search-query').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') document.getElementById('search-btn').click();
+    });
+    document.getElementById('store-location').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') document.getElementById('store-btn').click();
+    });
+    document.getElementById('compare-query').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') document.getElementById('compare-btn').click();
+    });
   </script>
 </body>
 </html>

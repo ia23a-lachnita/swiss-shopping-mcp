@@ -6,7 +6,7 @@ export interface MigrosApiProduct {
   name: string;
   brand_name?: string;
   price?: {
-    amount: number;
+    amount?: number;
     currency: string;
     unit?: string;
   };
@@ -112,10 +112,6 @@ function parsePrice(value: unknown): { current: number; currency: string } | und
     const currency = typeof priceObj.currency === 'string' ? priceObj.currency : 'CHF';
     if (Number.isFinite(amount) && amount > 0) {
       return { current: amount, currency };
-    }
-    // Accept zero prices (price on request) with a sentinel
-    if (Number.isFinite(amount) && amount === 0) {
-      return { current: 0, currency };
     }
   }
   return undefined;
