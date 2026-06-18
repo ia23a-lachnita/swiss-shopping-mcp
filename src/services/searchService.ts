@@ -15,6 +15,7 @@ import {
   StoreSearchFilters,
 } from '../adapters/types.js';
 import { sourceWarningFromError } from '../sources/warnings.js';
+import { buildTaxonomy } from '../util/taxonomyBuilder.js';
 import { calculateMatchStrength, sortProducts } from '../util/matcher.js';
 
 function sortStores(a: NormalizedStore, b: NormalizedStore): number {
@@ -38,11 +39,12 @@ function sortPromotions(
   a: NormalizedPromotion,
   b: NormalizedPromotion,
   query: string,
-  matchMode: MatchMode
+  matchMode: MatchMode,
+  dynamicTaxonomy?: Record<string, string[]>,
 ): number {
   const strengthDiff =
-    calculateMatchStrength(promotionAsProduct(b), query, matchMode) -
-    calculateMatchStrength(promotionAsProduct(a), query, matchMode);
+    calculateMatchStrength(promotionAsProduct(b), query, matchMode, dynamicTaxonomy) -
+    calculateMatchStrength(promotionAsProduct(a), query, matchMode, dynamicTaxonomy);
   if (strengthDiff !== 0) {
     return strengthDiff;
   }
@@ -141,7 +143,11 @@ export class SearchService {
     const products = successfulResults.flatMap((entry) =>
       entry.result.ok ? entry.result.data : []
     );
-    products.sort((a, b) => sortProducts(a, b, query, matchMode));
+
+    // Build dynamic taxonomy from the product data
+    const dynamicTaxonomy = buildTaxonomy(products);
+
+    products.sort((a, b) => sortProducts(a, b, query, matchMode, dynamicTaxonomy));
     const metadata = mergeMetadata(
       successfulResults.flatMap((entry) =>
         entry.result.ok && entry.result.metadata ? [entry.result.metadata] : []
@@ -276,7 +282,12 @@ export class SearchService {
     const promotions = successfulResults.flatMap((entry) =>
       entry.result.ok ? entry.result.data : []
     );
-    promotions.sort((a, b) => sortPromotions(a, b, query, matchMode));
+
+    // Build dynamic taxonomy from promotion data (use productName as product proxy)
+    const promoProducts = promotions.map((p) => promotionAsProduct(p));
+    const dynamicTaxonomy = buildTaxonomy(promoProducts);
+
+    promotions.sort((a, b) => sortPromotions(a, b, query, matchMode, dynamicTaxonomy));
     const metadata = mergeMetadata(
       successfulResults.flatMap((entry) =>
         entry.result.ok && entry.result.metadata ? [entry.result.metadata] : []

@@ -39,16 +39,18 @@ function tokenize(value: string): string[] {
   return normalized.length === 0 ? [] : normalized.split(' ');
 }
 
-export function getAliases(query: string): string[] {
+export function getAliases(query: string, dynamicTaxonomy?: Record<string, string[]>): string[] {
   const normalized = normalize(query);
-  return TAXONOMY[normalized] ?? [normalized];
+  const taxonomy = dynamicTaxonomy ?? TAXONOMY;
+  return taxonomy[normalized] ?? [normalized];
 }
 
-function getTokenAlternatives(token: string, matchMode: MatchMode): string[] {
+function getTokenAlternatives(token: string, matchMode: MatchMode, dynamicTaxonomy?: Record<string, string[]>): string[] {
   if (matchMode === 'literal') {
     return [token];
   }
-  return Array.from(new Set([token, ...(TAXONOMY[token] ?? [])]));
+  const taxonomy = dynamicTaxonomy ?? TAXONOMY;
+  return Array.from(new Set([token, ...(taxonomy[token] ?? [])]));
 }
 
 function productFields(product: NormalizedProduct): {
@@ -85,8 +87,9 @@ function taxonomyTokenStrength(
   token: string,
   fields: ReturnType<typeof productFields>,
   matchMode: MatchMode,
+  dynamicTaxonomy?: Record<string, string[]>,
 ): number | undefined {
-  for (const alternative of getTokenAlternatives(token, matchMode)) {
+  for (const alternative of getTokenAlternatives(token, matchMode, dynamicTaxonomy)) {
     if (alternative === token) continue;
     if (fieldIncludes(fields.name, alternative) || fieldIncludes(fields.brand, alternative)) return 40;
     if (fieldIncludes(fields.category, alternative) || fields.tags.some((tag) => fieldIncludes(tag, alternative))) {
@@ -96,11 +99,21 @@ function taxonomyTokenStrength(
   return undefined;
 }
 
-function tokenStrength(token: string, fields: ReturnType<typeof productFields>, matchMode: MatchMode): number | undefined {
-  return directTokenStrength(token, fields) ?? taxonomyTokenStrength(token, fields, matchMode);
+function tokenStrength(
+  token: string,
+  fields: ReturnType<typeof productFields>,
+  matchMode: MatchMode,
+  dynamicTaxonomy?: Record<string, string[]>,
+): number | undefined {
+  return directTokenStrength(token, fields) ?? taxonomyTokenStrength(token, fields, matchMode, dynamicTaxonomy);
 }
 
-export function calculateMatchStrength(product: NormalizedProduct, query: string, matchMode: MatchMode): number {
+export function calculateMatchStrength(
+  product: NormalizedProduct,
+  query: string,
+  matchMode: MatchMode,
+  dynamicTaxonomy?: Record<string, string[]>,
+): number {
   const normalizedQuery = normalize(query);
   if (!normalizedQuery) return 0;
 
@@ -108,19 +121,30 @@ export function calculateMatchStrength(product: NormalizedProduct, query: string
   if (fields.name === normalizedQuery || fields.brand === normalizedQuery) return 100;
   if (fields.name.includes(normalizedQuery) || fields.brand.includes(normalizedQuery)) return 90;
 
-  const strengths = tokenize(normalizedQuery).map((token) => tokenStrength(token, fields, matchMode));
+  const strengths = tokenize(normalizedQuery).map((token) => tokenStrength(token, fields, matchMode, dynamicTaxonomy));
   if (strengths.length === 0 || strengths.some((strength) => strength === undefined)) return 0;
   return Math.min(...(strengths as number[]));
 }
 
-export function isExactProductMatch(product: NormalizedProduct, query: string, matchMode: MatchMode): boolean {
-  return calculateMatchStrength(product, query, matchMode) >= 80;
+export function isExactProductMatch(
+  product: NormalizedProduct,
+  query: string,
+  matchMode: MatchMode,
+  dynamicTaxonomy?: Record<string, string[]>,
+): boolean {
+  return calculateMatchStrength(product, query, matchMode, dynamicTaxonomy) >= 80;
 }
 
-export function sortProducts(a: NormalizedProduct, b: NormalizedProduct, query?: string, matchMode: MatchMode = 'balanced'): number {
+export function sortProducts(
+  a: NormalizedProduct,
+  b: NormalizedProduct,
+  query?: string,
+  matchMode: MatchMode = 'balanced',
+  dynamicTaxonomy?: Record<string, string[]>,
+): number {
   if (query) {
-    const strengthA = calculateMatchStrength(a, query, matchMode);
-    const strengthB = calculateMatchStrength(b, query, matchMode);
+    const strengthA = calculateMatchStrength(a, query, matchMode, dynamicTaxonomy);
+    const strengthB = calculateMatchStrength(b, query, matchMode, dynamicTaxonomy);
 
     if (strengthA !== strengthB) {
       return strengthB - strengthA; // Higher strength first

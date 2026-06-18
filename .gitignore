@@ -16,3 +16,4 @@ yarn.lock
 *~
 .cache/
 .parcel-cache/
+test-cache-*/

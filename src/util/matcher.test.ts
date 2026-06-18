@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { calculateMatchStrength, normalize } from './matcher.js';
+import { calculateMatchStrength, normalize, sortProducts } from './matcher.js';
 import { NormalizedProduct } from '../adapters/types.js';
 
 function product(overrides: Partial<NormalizedProduct>): NormalizedProduct {
@@ -34,5 +34,47 @@ describe('product matcher', () => {
     );
 
     expect(result).toBeGreaterThan(0);
+  });
+
+  it('uses dynamic taxonomy when provided', () => {
+    const dynamicTaxonomy: Record<string, string[]> = {
+      zitrone: ['citrus', 'obst'],
+    };
+
+    const p = product({ name: 'Citrus Frucht' });
+    const withDynamic = calculateMatchStrength(p, 'zitrone', 'balanced', dynamicTaxonomy);
+
+    // Dynamic taxonomy should find "citrus" as an alias for "zitrone"
+    expect(withDynamic).toBeGreaterThan(0);
+  });
+
+  it('dynamic taxonomy overrides static taxonomy for same token', () => {
+    const dynamicTaxonomy: Record<string, string[]> = {
+      pasta: ['nudeln', 'teigwaren'],
+    };
+
+    const p = product({ name: 'Nudeln' });
+    const withDynamic = calculateMatchStrength(p, 'pasta', 'balanced', dynamicTaxonomy);
+
+    // Dynamic taxonomy maps "pasta" → ["nudeln", "teigwaren"]
+    expect(withDynamic).toBeGreaterThan(0);
+  });
+
+  it('sortProducts uses dynamic taxonomy for ranking', () => {
+    const dynamicTaxonomy: Record<string, string[]> = {
+      zitrone: ['citrus'],
+    };
+
+    const exact = product({ name: 'Zitrone' });
+    const alias = product({ name: 'Citrus Frucht' });
+    const unrelated = product({ name: 'Brot' });
+
+    const sorted = [exact, alias, unrelated].sort((a, b) =>
+      sortProducts(a, b, 'zitrone', 'balanced', dynamicTaxonomy)
+    );
+
+    // Zitrone should be first (direct match), then citrus (via dynamic taxonomy)
+    expect(sorted[0].name).toBe('Zitrone');
+    expect(sorted[1].name).toBe('Citrus Frucht');
   });
 });

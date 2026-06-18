@@ -233,6 +233,29 @@
     .store-card .map-link { display: inline-block; margin-top: 6px; font-size: 12px; color: var(--blue); text-decoration: none; }
     .store-card .map-link:hover { text-decoration: underline; }
 
+    .chain-group { margin-bottom: 16px; }
+    .chain-group-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      background: var(--gray-100);
+      border-radius: 6px;
+      margin-bottom: 8px;
+      font-weight: 600;
+      font-size: 14px;
+    }
+    .chain-group-header .chain-icon {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .chain-icon-ok { background: var(--green); }
+    .chain-icon-fail { background: var(--red); }
+    .chain-icon-warn { background: #f59e0b; }
+    .chain-group-header .store-count { font-weight: 400; font-size: 12px; color: var(--gray-500); margin-left: auto; }
+
     .comparison-table {
       width: 100%;
       border-collapse: collapse;
@@ -601,21 +624,57 @@
         }
 
         const list = document.getElementById('store-results');
-        stores.forEach(s => {
-          const card = document.createElement('div');
-          card.className = 'store-card';
-          const coords = s.location ? s.location.latitude.toFixed(5) + ', ' + s.location.longitude.toFixed(5) : '';
-          const mapUrl = s.location
-            ? 'https://www.openstreetmap.org/?mlat=' + s.location.latitude + '&mlon=' + s.location.longitude + '#map=16/' + s.location.latitude + '/' + s.location.longitude
-            : '';
-          card.innerHTML =
-            '<span class="chain-badge ' + chainBadgeClass(s.chain) + '">' + s.chain + '</span>' +
-            '<div class="name">' + escapeHtml(s.name) + '</div>' +
-            '<div class="address">' + escapeHtml(s.address) + '</div>' +
-            (coords ? '<div class="coords">' + coords + '</div>' : '') +
-            (mapUrl ? '<a class="map-link" href="' + mapUrl + '" target="_blank" rel="noopener">View on map</a>' : '');
-          list.appendChild(card);
-        });
+
+        // Group stores by chain
+        const chainsWithStores = new Set(stores.map(s => s.chain));
+        const chainsWithWarnings = new Set(storeWarnings.map(w => w.chain));
+        const allChains = new Set([...chainsWithStores, ...chainsWithWarnings]);
+
+        for (const chain of allChains) {
+          const chainStores = stores.filter(s => s.chain === chain);
+          const hasWarning = chainsWithWarnings.has(chain) && !chainsWithStores.has(chain);
+
+          const group = document.createElement('div');
+          group.className = 'chain-group';
+
+          const iconClass = hasWarning ? 'chain-icon-fail' : (chainStores.length > 0 ? 'chain-icon-ok' : 'chain-icon-warn');
+          const header = document.createElement('div');
+          header.className = 'chain-group-header';
+          header.innerHTML = '<span class="chain-icon ' + iconClass + '"></span>' +
+            '<span class="chain-badge ' + chainBadgeClass(chain) + '">' + chain + '</span>' +
+            '<span class="store-count">' + chainStores.length + ' store' + (chainStores.length !== 1 ? 's' : '') + '</span>';
+          group.appendChild(header);
+
+          chainStores.forEach(s => {
+            const card = document.createElement('div');
+            card.className = 'store-card';
+            const coords = s.location ? s.location.latitude.toFixed(5) + ', ' + s.location.longitude.toFixed(5) : '';
+            const mapUrl = s.location
+              ? 'https://www.openstreetmap.org/?mlat=' + s.location.latitude + '&mlon=' + s.location.longitude + '#map=16/' + s.location.latitude + '/' + s.location.longitude
+              : '';
+            card.innerHTML =
+              '<div class="name">' + escapeHtml(s.name) + '</div>' +
+              '<div class="address">' + escapeHtml(s.address) + '</div>' +
+              (coords ? '<div class="coords">' + coords + '</div>' : '') +
+              (mapUrl ? '<a class="map-link" href="' + mapUrl + '" target="_blank" rel="noopener">View on map</a>' : '');
+            group.appendChild(card);
+          });
+
+          // Show warning message for failed chains
+          if (hasWarning) {
+            const warning = storeWarnings.find(w => w.chain === chain);
+            if (warning) {
+              const warnCard = document.createElement('div');
+              warnCard.className = 'store-card';
+              warnCard.style.borderColor = '#fecaca';
+              warnCard.style.background = '#fef2f2';
+              warnCard.innerHTML = '<div class="name" style="color:var(--red)">' + escapeHtml(warning.message) + '</div>';
+              group.appendChild(warnCard);
+            }
+          }
+
+          list.appendChild(group);
+        }
       } catch (e) {
         hideLoading('store-loading');
         showError('store-error', 'Network error: ' + e.message);

@@ -40,6 +40,7 @@ const DEFAULT_CACHE_TTL_MS = 6 * 60 * 60 * 1000;
 const DEFAULT_SEARCH_LIMIT = 20;
 const SEARCH_URL = 'https://www.migros.ch/onesearch-oc-seaapi/public/v5/search';
 const STORES_URL = 'https://www.migros.ch/store/public/v1/stores/search';
+const IOS_SAFARI_UA = 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1';
 
 export interface MigrosLiveAdapterOptions {
   cache: FileTtlCache;
@@ -370,6 +371,7 @@ export class MigrosLiveAdapter implements ChainAdapter {
           headers: {
             accept: 'application/json, text/plain, */*',
             authorization: `Bearer ${token}`,
+            'user-agent': IOS_SAFARI_UA,
           },
         });
         if (!response.ok) throw new Error(`Migros store API returned ${response.status}`);
@@ -412,6 +414,7 @@ export class MigrosLiveAdapter implements ChainAdapter {
               headers: {
                 accept: 'application/json, text/plain, */*',
                 authorization: `Bearer ${token}`,
+                'user-agent': IOS_SAFARI_UA,
               },
             });
             if (!response.ok) throw new Error(`Migros store API returned ${response.status}`);
@@ -423,6 +426,31 @@ export class MigrosLiveAdapter implements ChainAdapter {
           const provenance = this.buildProvenance(STORES_URL);
           const record = await this.cache.set(cacheKey, { stores }, cacheableProvenance(provenance), this.cacheTtlMs);
           return this.parseStoreResult({ stores }, liveProvenanceWithCacheExpiry(provenance, record.expiresAt), [], limit);
+        } catch {
+          // Fall through to text-only fallback
+        }
+      }
+
+      // Text-only fallback: try without coordinates
+      if (coords) {
+        try {
+          const token = await this.ensureAuth();
+          const fallbackParams = new URLSearchParams({ query: location });
+          const fallbackUrl = `${STORES_URL}?${fallbackParams.toString()}`;
+          const response = await fetch(fallbackUrl, {
+            headers: {
+              accept: 'application/json, text/plain, */*',
+              authorization: `Bearer ${token}`,
+              'user-agent': IOS_SAFARI_UA,
+            },
+          });
+          if (response.ok) {
+            const fallbackResult = await response.json();
+            const stores = this.extractStoresFromResult(fallbackResult);
+            const provenance = this.buildProvenance(STORES_URL);
+            const record = await this.cache.set(cacheKey, { stores }, cacheableProvenance(provenance), this.cacheTtlMs);
+            return this.parseStoreResult({ stores }, liveProvenanceWithCacheExpiry(provenance, record.expiresAt), [], limit);
+          }
         } catch {
           // Fall through to stale cache
         }

@@ -88,6 +88,7 @@ export class CoopLiveAdapter implements ChainAdapter {
   public readonly chain = 'coop' as const;
   private readonly cache: FileTtlCache;
   private readonly sourceClient: SourceHttpClient;
+  private readonly storeClient: SourceHttpClient;
   private readonly cacheTtlMs: number;
 
   public constructor(options: CoopLiveAdapterOptions) {
@@ -95,6 +96,7 @@ export class CoopLiveAdapter implements ChainAdapter {
     this.cacheTtlMs = options.cacheTtlMs ?? DEFAULT_CACHE_TTL_MS;
     const userAgent = options.userAgent ?? process.env.SWISSGROCERIES_USER_AGENT_COOP ?? IOS_SAFARI_UA;
     this.sourceClient = new SourceHttpClient({ rateLimitPerHostMs: 500, userAgent });
+    this.storeClient = new SourceHttpClient({ rateLimitPerHostMs: 500, userAgent: IOS_SAFARI_UA });
   }
 
   private buildProvenance(sourceUrl: string): SourceProvenance {
@@ -243,7 +245,7 @@ export class CoopLiveAdapter implements ChainAdapter {
     }
 
     try {
-      const result = await this.sourceClient.fetchJson<CoopStoresResponse>(storesUrl, {
+      const result = await this.storeClient.fetchJson<CoopStoresResponse>(storesUrl, {
         provider: COOP_PROVIDER,
         chain: 'coop',
         sourceType: 'retailer-web',
