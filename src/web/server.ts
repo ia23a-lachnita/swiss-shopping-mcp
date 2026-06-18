@@ -7,7 +7,7 @@ import { createDefaultAdapters } from '../adapters/index.js';
 import { getAllCapabilityStatuses } from '../adapters/sourceRegistry.js';
 import { PriceComparisonService } from '../services/priceComparisonService.js';
 import { SearchService } from '../services/searchService.js';
-import { Chain } from '../adapters/types.js';
+import { Chain, StoreAvailabilityByLocationFilters } from '../adapters/types.js';
 
 const PORT = Number(process.env.PORT) || 3000;
 const PUBLIC_DIR = join(process.cwd(), 'src', 'web', 'public');
@@ -201,6 +201,29 @@ async function handleLookupAvailability(res: ServerResponse, raw: string): Promi
   }
 }
 
+async function handleStoreAvailabilityByLocation(res: ServerResponse, raw: string): Promise<void> {
+  const parsed = parseBody<StoreAvailabilityByLocationFilters>(raw);
+
+  if (!parsed.ok) {
+    sendJson(res, 400, { ok: false, error: { code: 'INVALID_BODY', message: parsed.error } });
+    return;
+  }
+
+  const { query, location } = parsed.data;
+  if (!query || !location) {
+    sendJson(res, 400, { ok: false, error: { code: 'INVALID_PARAMS', message: 'query and location are required.' } });
+    return;
+  }
+
+  const result = await searchService.lookupAvailabilityByLocation(parsed.data);
+
+  if (result.ok) {
+    sendJson(res, 200, { ok: true, data: result.data });
+  } else {
+    sendJson(res, 500, { ok: false, error: result.error });
+  }
+}
+
 async function handleRequest(req: IncomingMessage, res: ServerResponse): Promise<void> {
   setCorsHeaders(res);
 
@@ -239,6 +262,12 @@ async function handleRequest(req: IncomingMessage, res: ServerResponse): Promise
   if (req.method === 'POST' && url.pathname === '/api/availability') {
     const body = await readBody(req);
     await handleLookupAvailability(res, body);
+    return;
+  }
+
+  if (req.method === 'POST' && url.pathname === '/api/store-availability') {
+    const body = await readBody(req);
+    await handleStoreAvailabilityByLocation(res, body);
     return;
   }
 

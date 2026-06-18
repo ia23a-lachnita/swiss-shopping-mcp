@@ -9,10 +9,12 @@ import {
   PromotionSearchFilters,
   Result,
   ResultMetadata,
+  StoreAvailabilityByLocationFilters,
   StoreAvailabilitySupport,
   StoreProductAvailabilityFilters,
   StoreProductAvailabilityResult,
   StoreSearchFilters,
+  StoreWithProductAvailability,
 } from '../adapters/types.js';
 import { sourceWarningFromError } from '../sources/warnings.js';
 import { buildTaxonomy } from '../util/taxonomyBuilder.js';
@@ -323,5 +325,107 @@ export class SearchService {
     }
 
     return adapter.lookupStoreProductAvailability(filters);
+  }
+
+  public async lookupAvailabilityByLocation(
+    filters: StoreAvailabilityByLocationFilters
+  ): Promise<Result<StoreWithProductAvailability[]>> {
+    const query = filters.query.trim();
+    const location = filters.location.trim();
+    if (!query) {
+      return { ok: false, error: { code: 'INVALID_QUERY', message: 'Query is required.' } };
+    }
+    if (!location) {
+      return { ok: false, error: { code: 'INVALID_LOCATION', message: 'Location is required.' } };
+    }
+
+    const availabilityChains: Chain[] = filters.chains ?? (['migros', 'coop'] as Chain[]);
+    const storeLimit = typeof filters.limit === 'number' ? filters.limit : 20;
+
+    const storeResults = await this.findStores({
+      location,
+      chains: availabilityChains,
+      limit: storeLimit,
+    });
+
+    if (!storeResults.ok) {
+      return { ok: false, error: storeResults.error };
+    }
+
+    const stores = storeResults.data;
+    const now = new Date();
+
+    const availabilityChecks = await Promise.all(
+      stores.map(async (store) => {
+        try {
+          const result = await this.lookupStoreProductAvailability(store.chain, {
+            query,
+            storeId: store.id,
+          });
+          if (result.ok && result.data.supported) {
+            const isAvailable = result.data.isAvailable;
+            const stockCount = result.data.matches.find((m) => m.available)?.product
+              ? result.data.matches.filter((m) => m.available).length
+              : undefined;
+            return {
+              ...store,
+              available: isAvailable,
+              stockCount,
+              isOpen: this.isStoreOpen(store.openingHours, now),
+            } as StoreWithProductAvailability;
+          }
+          return {
+            ...store,
+            available: false,
+            isOpen: this.isStoreOpen(store.openingHours, now),
+          } as StoreWithProductAvailability;
+        } catch {
+          return {
+            ...store,
+            available: false,
+            isOpen: this.isStoreOpen(store.openingHours, now),
+          } as StoreWithProductAvailability;
+        }
+      })
+    );
+
+    let filtered = availabilityChecks;
+    if (filters.inStockOnly) {
+      filtered = filtered.filter((s) => s.available);
+    }
+    if (filters.openNow) {
+      filtered = filtered.filter((s) => s.isOpen !== false);
+    }
+
+    return { ok: true, data: filtered };
+  }
+
+  private isStoreOpen(openingHours: string | undefined, now: Date): boolean | undefined {
+    if (!openingHours) return undefined;
+    try {
+      const hourMatch = openingHours.match(/(\d{1,2}):(\d{2})/);
+      if (!hourMatch) return undefined;
+      const hour = parseInt(hourMatch[1], 10);
+      const minute = parseInt(hourMatch[2], 10);
+      const currentHour = now.getHours();
+      const currentMinute = now.getMinutes();
+      const timeNum = currentHour * 60 + currentMinute;
+      const openNum = hour * 60 + minute;
+
+      const closeMatch = openingHours.match(/-?\s*(\d{1,2}):(\d{2})/g);
+      if (closeMatch && closeMatch.length >= 1) {
+        const lastClose = closeMatch[closeMatch.length - 1];
+        const closeTimeMatch = lastClose.match(/(\d{1,2}):(\d{2})/);
+        if (closeTimeMatch) {
+          const closeHour = parseInt(closeTimeMatch[1], 10);
+          const closeMinute = parseInt(closeTimeMatch[2], 10);
+          const closeNum = closeHour * 60 + closeMinute;
+          return timeNum >= openNum && timeNum <= closeNum;
+        }
+      }
+      return undefined;
+    } catch {
+      return undefined;
+    }
   }
 }

@@ -131,6 +131,7 @@ export interface NormalizedProduct {
     sugar?: number;
   };
   allergens?: string[];
+  ingredients?: string[];
   provenance?: SourceProvenance;
   matchExplanation?: MatchExplanation;
 }
@@ -232,6 +233,21 @@ export interface StoreProductAvailabilityResult {
   reason?: string;
   matches: ProductAvailabilityMatch[];
   isAvailable: boolean;
+}
+
+export interface StoreAvailabilityByLocationFilters {
+  query: string;
+  location: string;
+  chains?: Chain[];
+  inStockOnly?: boolean;
+  openNow?: boolean;
+  limit?: number;
+}
+
+export interface StoreWithProductAvailability extends NormalizedStore {
+  available: boolean;
+  stockCount?: number;
+  isOpen?: boolean;
 }
 
 export interface ChainCatalogData {

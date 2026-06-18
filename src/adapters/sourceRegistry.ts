@@ -93,8 +93,9 @@ export const SOURCE_REGISTRY: Record<Chain, CapabilitySourceStatus[]> = {
     {
       chain: 'coop',
       capability: 'availability',
-      status: 'unsupported',
-      reason: 'No Coop store-level availability source is implemented.',
+      status: 'live-beta',
+      provider: 'Coop',
+      sourceType: 'retailer-web',
     },
     {
       chain: 'coop',
@@ -193,14 +194,16 @@ export const SOURCE_REGISTRY: Record<Chain, CapabilitySourceStatus[]> = {
     {
       chain: 'migros',
       capability: 'availability',
-      status: 'unsupported',
-      reason: 'No Migros store-level availability source is implemented.',
+      status: 'live-beta',
+      provider: 'Migros',
+      sourceType: 'retailer-web',
     },
     {
       chain: 'migros',
       capability: 'nutrition',
-      status: 'unsupported',
-      reason: 'No Migros nutrition enrichment source is implemented.',
+      status: 'live-beta',
+      provider: 'Migros',
+      sourceType: 'retailer-web',
     },
   ],
   ottos: [

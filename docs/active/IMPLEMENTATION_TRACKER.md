@@ -68,6 +68,11 @@ Phase: `V1 - core read/search foundation`
 | Migros store 403 fix                 | done                   | Removed direct `fetch()` bypass (TLS fingerprint mismatch); uses `migros-api-wrapper`'s `searchStores()` for all queries |
 | SPA availability API + UI            | done                   | `POST /api/availability` endpoint; SPA Availability tab with chain/query/storeId form |
 | SPA source status update             | done                   | Updated to reflect all current adapter statuses |
+| Source registry accuracy fix         | done                   | Migros nutrition + availability changed to live-beta; Coop availability changed to live-beta |
+| SPA availability redesign            | done                   | Replaced store-ID-required form with postal-code-based store finder UX; new `/api/store-availability` endpoint; in-stock-only and currently-open filters; Google Maps links; opening hours display; 435 tests pass |
+| SPA product quantity display         | done                   | Product cards and price comparison table now show size/quantity; 435 tests pass |
+| SPA nutrition display                | done                   | Expandable nutrition section on product cards (energy, protein, carbs, fat, fiber, sugar per 100g); "Show all nutrition" toggle in search form; only for Migros products with nutrition data; 435 tests pass |
+| SPA ingredients display              | done                   | Expandable ingredients section on product cards; "Show all ingredients" toggle in search form; `ingredients` field added to NormalizedProduct type; 435 tests pass |
 
 ## Next tasks
 
@@ -78,6 +83,8 @@ Phase: `V1 - core read/search foundation`
 5. Prepare V2 account/cart integration foundation
 6. Remove static catalog data from default production runtime, or gate it as test/demo-only with explicit source warnings
 7. Decide whether live product search requires an approved provider/central index instead of local runtime crawling
+8. Investigate Coop/Aldi product detail pages for nutrition and ingredients data
+9. Normalize Migros nutrition data to per-100g/100ml basis (currently raw API values)
 
 ## Decisions
 

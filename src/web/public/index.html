@@ -212,6 +212,15 @@
     .product-card .category { font-size: 12px; color: var(--gray-500); }
     .product-card .price { font-size: 18px; font-weight: 700; color: var(--blue); margin-top: auto; padding-top: 8px; }
     .product-card .price .original { font-size: 13px; color: var(--gray-500); font-weight: 400; text-decoration: line-through; margin-left: 6px; }
+    .product-card .size { font-size: 12px; color: var(--gray-500); font-weight: 500; }
+    .product-card .expandable { display: none; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--gray-200); font-size: 12px; }
+    .product-card .expandable.open { display: block; }
+    .product-card .expand-btn { background: none; border: 1px solid var(--gray-300); border-radius: 4px; padding: 2px 8px; font-size: 11px; cursor: pointer; color: var(--gray-700); margin-top: 4px; }
+    .product-card .expand-btn:hover { background: var(--gray-100); }
+    .nutrition-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 12px; }
+    .nutrition-grid dt { color: var(--gray-500); }
+    .nutrition-grid dd { font-weight: 500; margin: 0; }
+    .ingredients-text { font-size: 12px; color: var(--gray-700); line-height: 1.4; }
     .product-card .image { width: 100%; height: 160px; object-fit: contain; border-radius: 6px; background: var(--gray-50); margin-bottom: 4px; }
     .product-card .no-image { width: 100%; height: 80px; display: flex; align-items: center; justify-content: center; color: var(--gray-300); font-size: 12px; background: var(--gray-50); border-radius: 6px; margin-bottom: 4px; }
 
@@ -362,6 +371,10 @@
         <button class="btn btn-primary" id="search-btn">Search</button>
       </div>
       <div class="chain-filters" id="search-chains"></div>
+      <div style="margin-top:8px;">
+        <label class="chain-checkbox"><input type="checkbox" id="search-show-nutrition"> Show nutrition on all cards</label>
+        <label class="chain-checkbox" style="margin-left:12px;"><input type="checkbox" id="search-show-ingredients"> Show ingredients on all cards</label>
+      </div>
     </div>
     <div id="search-loading" class="loading" style="display:none"><div class="spinner"></div>Searching...</div>
     <div id="search-error" class="error-box" style="display:none"></div>
@@ -419,25 +432,31 @@
   <!-- Availability Tab -->
   <section id="tab-availability" class="tab-content">
     <div class="panel">
-      <h3>Check Store Availability</h3>
-      <p style="font-size:13px;color:var(--gray-500);margin-bottom:12px;">Check if a product is available at a specific store. Currently supports Migros and Coop.</p>
+      <h3>Store Availability</h3>
+      <p style="font-size:13px;color:var(--gray-500);margin-bottom:12px;">Check product availability at stores near you. Enter a product query and your location (city or postal code).</p>
       <div class="form-row">
-        <div class="form-group" style="flex:1;min-width:200px;">
-          <label for="avail-chain">Chain</label>
-          <select id="avail-chain">
-            <option value="migros">Migros</option>
-            <option value="coop">Coop</option>
-          </select>
-        </div>
         <div class="form-group" style="flex:1;min-width:200px;">
           <label for="avail-query">Product Query</label>
           <input type="text" id="avail-query" placeholder="e.g. milk, bread...">
         </div>
-        <div class="form-group" style="flex:1;min-width:150px;">
-          <label for="avail-store">Store ID</label>
-          <input type="text" id="avail-store" placeholder="e.g. 0150164">
+        <div class="form-group" style="flex:1;min-width:200px;">
+          <label for="avail-location">Location (city or ZIP)</label>
+          <input type="text" id="avail-location" placeholder="e.g. Zurich, 8001">
         </div>
-        <button class="btn btn-primary" id="avail-btn">Check</button>
+        <div class="form-group">
+          <label for="avail-limit">Limit</label>
+          <select id="avail-limit">
+            <option value="5">5</option>
+            <option value="10" selected>10</option>
+            <option value="20">20</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" id="avail-btn">Check Availability</button>
+      </div>
+      <div class="chain-filters" id="avail-chains" style="margin-top:8px;"></div>
+      <div style="display:flex;gap:16px;margin-top:8px;">
+        <label class="chain-checkbox"><input type="checkbox" id="avail-instock"> In stock only</label>
+        <label class="chain-checkbox"><input type="checkbox" id="avail-open"> Currently open</label>
       </div>
     </div>
     <div id="avail-loading" class="loading" style="display:none"><div class="spinner"></div>Checking availability...</div>
@@ -553,6 +572,8 @@
       const chains = getSelectedChains('search-chains');
       const maxPrice = parseFloat(document.getElementById('search-max-price').value) || undefined;
       const limit = parseInt(document.getElementById('search-limit').value, 10);
+      const showNutrition = document.getElementById('search-show-nutrition').checked;
+      const showIngredients = document.getElementById('search-show-ingredients').checked;
 
       try {
         const result = await apiPost('/api/search-products', { query, chains, maxPrice, limit });
@@ -589,14 +610,45 @@
           const imageHtml = p.image
             ? '<img class="image" src="' + escapeHtml(p.image) + '" alt="" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'"><div class="no-image" style="display:none">No image</div>'
             : '<div class="no-image">No image</div>';
-          const contentHtml = imageHtml +
+          let contentHtml = imageHtml +
             '<span class="chain-badge ' + chainBadgeClass(p.chain) + '">' + p.chain + '</span>' +
             '<div class="name">' + escapeHtml(p.name) + '</div>' +
             (p.brand ? '<div class="brand">' + escapeHtml(p.brand) + '</div>' : '') +
             (p.category ? '<div class="category">' + escapeHtml(p.category) + '</div>' : '') +
+            (p.size ? '<div class="size">' + escapeHtml(p.size) + '</div>' : '') +
             '<div class="price">' + formatPrice(p.price.current) +
             (p.price.original ? '<span class="original">' + formatPrice(p.price.original) + '</span>' : '') +
             '</div>';
+
+          const hasNutrition = p.nutrition && (
+            p.nutrition.energyKcal !== undefined ||
+            p.nutrition.protein !== undefined ||
+            p.nutrition.carbs !== undefined ||
+            p.nutrition.fat !== undefined
+          );
+
+          if (hasNutrition) {
+            const n = p.nutrition;
+            contentHtml += '<button class="expand-btn" onclick="this.nextElementSibling.classList.toggle(\'open\');event.preventDefault();event.stopPropagation();">Nutrition per 100g</button>';
+            contentHtml += '<div class="expandable' + (showNutrition ? ' open' : '') + '">';
+            contentHtml += '<dl class="nutrition-grid">';
+            if (n.energyKcal !== undefined) contentHtml += '<dt>Energy</dt><dd>' + n.energyKcal + ' kcal</dd>';
+            if (n.protein !== undefined) contentHtml += '<dt>Protein</dt><dd>' + n.protein + ' g</dd>';
+            if (n.carbs !== undefined) contentHtml += '<dt>Carbs</dt><dd>' + n.carbs + ' g</dd>';
+            if (n.fat !== undefined) contentHtml += '<dt>Fat</dt><dd>' + n.fat + ' g</dd>';
+            if (n.fiber !== undefined) contentHtml += '<dt>Fiber</dt><dd>' + n.fiber + ' g</dd>';
+            if (n.sugar !== undefined) contentHtml += '<dt>Sugar</dt><dd>' + n.sugar + ' g</dd>';
+            contentHtml += '</dl></div>';
+          }
+
+          const hasIngredients = p.ingredients && p.ingredients.length > 0;
+          if (hasIngredients) {
+            contentHtml += '<button class="expand-btn" onclick="this.nextElementSibling.classList.toggle(\'open\');event.preventDefault();event.stopPropagation();">Ingredients</button>';
+            contentHtml += '<div class="expandable' + (showIngredients ? ' open' : '') + '">';
+            contentHtml += '<div class="ingredients-text">' + escapeHtml(p.ingredients.join(', ')) + '</div>';
+            contentHtml += '</div>';
+          }
+
           if (p.productUrl) {
             card.innerHTML = '<a href="' + escapeHtml(p.productUrl) + '" target="_blank" rel="noopener">' +
               contentHtml +
@@ -784,7 +836,7 @@
 
           tableHtml += '<tr class="' + rowClass + '">' +
             '<td><span class="chain-badge ' + chainBadgeClass(o.chain) + '">' + o.chain + '</span></td>' +
-            '<td>' + productNameHtml + (o.promotion ? ' <em>(promo)</em>' : '') + '</td>' +
+            '<td>' + productNameHtml + (o.product.size ? ' <span style="color:var(--gray-500);font-size:12px">(' + escapeHtml(o.product.size) + ')</span>' : '') + (o.promotion ? ' <em>(promo)</em>' : '') + '</td>' +
             '<td>' + formatPrice(o.effectivePrice) + (o.unitPrice ? ' <span style="color:var(--gray-500);font-size:12px;">(' + formatPrice(o.unitPrice) + ' / unit)</span>' : '') + '</td>' +
             '<td><strong>' + formatPrice(o.totalPrice) + '</strong></td>' +
             '<td>' + o.priceBasis + '</td>' +
@@ -800,19 +852,35 @@
     });
 
     // Availability Check
+    const AVAIL_CHAINS = ['migros', 'coop'];
+    function renderAvailChainFilters() {
+      const container = document.getElementById('avail-chains');
+      AVAIL_CHAINS.forEach(chain => {
+        const label = document.createElement('label');
+        label.className = 'chain-checkbox';
+        label.innerHTML = '<input type="checkbox" value="' + chain + '" checked> ' + chain.charAt(0).toUpperCase() + chain.slice(1);
+        container.appendChild(label);
+      });
+    }
+    renderAvailChainFilters();
+
     document.getElementById('avail-btn').addEventListener('click', async () => {
-      const chain = document.getElementById('avail-chain').value;
       const query = document.getElementById('avail-query').value.trim();
-      const storeId = document.getElementById('avail-store').value.trim();
+      const location = document.getElementById('avail-location').value.trim();
       if (!query) { showError('avail-error', 'Please enter a product query.'); return; }
-      if (!storeId) { showError('avail-error', 'Please enter a store ID.'); return; }
+      if (!location) { showError('avail-error', 'Please enter a location.'); return; }
 
       hideError('avail-error');
       document.getElementById('avail-results').innerHTML = '';
       showLoading('avail-loading');
 
+      const chains = getSelectedChains('avail-chains');
+      const limit = parseInt(document.getElementById('avail-limit').value, 10);
+      const inStockOnly = document.getElementById('avail-instock').checked;
+      const openNow = document.getElementById('avail-open').checked;
+
       try {
-        const result = await apiPost('/api/availability', { chain, query, storeId });
+        const result = await apiPost('/api/store-availability', { query, location, chains, limit, inStockOnly, openNow });
         hideLoading('avail-loading');
 
         if (!result.ok) {
@@ -820,45 +888,42 @@
           return;
         }
 
-        const data = result.data;
+        const stores = result.data || [];
         const grid = document.getElementById('avail-results');
 
-        if (!data || !data.availabilities || data.availabilities.length === 0) {
-          showError('avail-error', 'No availability data found for this product at this store.');
+        if (stores.length === 0) {
+          showError('avail-error', 'No stores found with availability data for this product.');
           return;
         }
 
-        let html = '<div class="panel">';
-        html += '<div style="margin-bottom:8px"><span class="chain-badge ' + chainBadgeClass(chain) + '">' + chain + '</span> ';
-        html += '<strong>Store ' + escapeHtml(storeId) + '</strong> — Product: ' + escapeHtml(data.query) + '</div>';
+        let html = '<div class="results-info">Showing ' + stores.length + ' store(s) for "' + escapeHtml(query) + '" near ' + escapeHtml(location) + '</div>';
+        html += '<div class="store-list">';
 
-        if (data.catalogItemId) {
-          html += '<div style="font-size:12px;color:var(--gray-500);margin-bottom:12px">Catalog Item ID: ' + data.catalogItemId + '</div>';
-        }
+        stores.forEach(s => {
+          const mapUrl = s.location
+            ? 'https://www.google.com/maps/search/?api=1&query=' + s.location.latitude + ',' + s.location.longitude
+            : '';
+          const availBadge = s.available
+            ? '<span style="background:#d1fae5;color:#065f46;padding:3px 8px;border-radius:4px;font-size:12px;font-weight:600">In Stock' + (s.stockCount ? ' (' + s.stockCount + ')' : '') + '</span>'
+            : '<span style="background:#fee2e2;color:#991b1b;padding:3px 8px;border-radius:4px;font-size:12px;font-weight:600">Out of Stock</span>';
+          const openBadge = s.isOpen === true
+            ? '<span style="background:#d1fae5;color:#065f46;padding:3px 8px;border-radius:4px;font-size:11px">Open now</span>'
+            : s.isOpen === false
+              ? '<span style="background:#fee2e2;color:#991b1b;padding:3px 8px;border-radius:4px;font-size:11px">Closed</span>'
+              : '';
 
-        const avail = data.availabilities;
-        const inStock = avail.filter(a => a.stock > 0);
-        const outOfStock = avail.filter(a => a.stock === 0);
-
-        if (inStock.length > 0) {
-          html += '<div style="font-weight:600;color:var(--green);margin-bottom:4px">Available at ' + inStock.length + ' store(s):</div>';
-          html += '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">';
-          inStock.forEach(a => {
-            html += '<span style="background:#d1fae5;color:#065f46;padding:3px 8px;border-radius:4px;font-size:12px">' +
-              escapeHtml(a.id) + ': ' + a.stock + ' in stock</span>';
-          });
+          html += '<div class="store-card" style="border-left:4px solid ' + (s.available ? 'var(--green)' : 'var(--gray-300)') + '">';
+          html += '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">';
+          html += '<span class="chain-badge ' + chainBadgeClass(s.chain) + '">' + s.chain + '</span>';
+          html += '<div class="name">' + escapeHtml(s.name) + '</div>';
+          html += availBadge;
+          if (openBadge) html += openBadge;
           html += '</div>';
-        }
-
-        if (outOfStock.length > 0) {
-          html += '<div style="font-weight:600;color:var(--red);margin-bottom:4px">Out of stock at ' + outOfStock.length + ' store(s):</div>';
-          html += '<div style="display:flex;flex-wrap:wrap;gap:6px">';
-          outOfStock.forEach(a => {
-            html += '<span style="background:#fee2e2;color:#991b1b;padding:3px 8px;border-radius:4px;font-size:12px">' +
-              escapeHtml(a.id) + ': out of stock</span>';
-          });
+          html += '<div class="address">' + escapeHtml(s.address) + '</div>';
+          if (s.openingHours) html += '<div style="font-size:12px;color:var(--gray-500)">Hours: ' + escapeHtml(s.openingHours) + '</div>';
+          if (mapUrl) html += '<a class="map-link" href="' + mapUrl + '" target="_blank" rel="noopener">View on map</a>';
           html += '</div>';
-        }
+        });
 
         html += '</div>';
         grid.innerHTML = html;
@@ -866,6 +931,13 @@
         hideLoading('avail-loading');
         showError('avail-error', 'Network error: ' + e.message);
       }
+    });
+
+    document.getElementById('avail-query').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') document.getElementById('avail-btn').click();
+    });
+    document.getElementById('avail-location').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') document.getElementById('avail-btn').click();
     });
 
     // Source Status
@@ -952,9 +1024,6 @@
     });
     document.getElementById('compare-query').addEventListener('keydown', (e) => {
       if (e.key === 'Enter') document.getElementById('compare-btn').click();
-    });
-    document.getElementById('avail-query').addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') document.getElementById('avail-btn').click();
     });
   </script>
 </body>
