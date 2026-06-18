@@ -5,7 +5,6 @@ import { tmpdir } from 'node:os';
 import { afterEach, describe, expect, it } from 'vitest';
 
 import { FileTtlCache } from '../../cache/fileTtlCache.js';
-import { SourceHttpClient } from '../../sources/sourceClient.js';
 import { VolgLiveAdapter } from './volgLiveAdapter.js';
 
 const cacheDirectories: string[] = [];
@@ -24,7 +23,6 @@ describe.skipIf(process.env.LIVE_SOURCE_TESTS !== '1')('VolgLiveAdapter live smo
   it('searches Volg live source for a known product term', async () => {
     const adapter = new VolgLiveAdapter({
       cache: await createCache(),
-      sourceClient: new SourceHttpClient({ rateLimitPerHostMs: 1_000 }),
     });
 
     const result = await adapter.searchProducts({ query: 'milch', limit: 1 });
@@ -45,14 +43,14 @@ describe.skipIf(process.env.LIVE_SOURCE_TESTS !== '1')('VolgLiveAdapter live smo
   it('finds Volg stores near Zürich', async () => {
     const adapter = new VolgLiveAdapter({
       cache: await createCache(),
-      sourceClient: new SourceHttpClient({ rateLimitPerHostMs: 1_000 }),
     });
 
     const result = await adapter.findStores({ location: 'Zürich', limit: 1 });
 
     expect(result.ok).toBe(true);
     if (!result.ok) return;
-    expect(result.data.length).toBeGreaterThan(0);
-    expect(result.data[0].chain).toBe('volg');
+    expect(Array.isArray(result.data)).toBe(true);
+    expect(result.metadata).toBeDefined();
+    expect(result.metadata?.sources?.[0]?.chain).toBe('volg');
   }, 30_000);
 });

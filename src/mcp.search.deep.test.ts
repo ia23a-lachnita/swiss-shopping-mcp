@@ -1161,7 +1161,7 @@ describe('12. Source Status with Multiple Chains', () => {
     expect(storeSearch!.status).toBe('unsupported');
   });
 
-  it('denner promotions live-beta, productSearch unsupported', async () => {
+  it('denner promotions live-beta, productSearch live-beta', async () => {
     const result = await callTool(client, 'get_source_status', { chains: ['denner'] });
     const data = structured<{
       statuses: Array<{ chain: string; capability: string; status: string }>;
@@ -1169,7 +1169,7 @@ describe('12. Source Status with Multiple Chains', () => {
     const promos = data.statuses.find((s) => s.capability === 'promotions');
     expect(promos!.status).toBe('live-beta');
     const productSearch = data.statuses.find((s) => s.capability === 'productSearch');
-    expect(productSearch!.status).toBe('unsupported');
+    expect(productSearch!.status).toBe('live-beta');
   });
 
   it('all chains have 5 capabilities each', async () => {

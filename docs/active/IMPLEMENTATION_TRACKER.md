@@ -62,20 +62,22 @@ Phase: `V1 - core read/search foundation`
 | Adapter bug fixes                  | done                   | Migros product search: added fallback keys (`results`, `items`, nested search) for API response; Migros store search: bypassed wrapper to use `fetch` directly with lat/lon/radius; Coop store parser: handles `locations`, `stores`, `results`, `items`, `data` keys plus `lat`/`lng`/`lon` coordinate variants; Aldi parser: returns `undefined` for missing prices instead of throwing, defaults currency to `CHF`; 424 tests pass, build clean |
 | Store finder fix + dynamic taxonomy + SPA URLs | done | Coop store search: separate `SourceHttpClient` with `iosSafariUA` to bypass DataDome; Migros store search: added `iosSafariUA` header + text-only fallback when coords fail; Dynamic taxonomy builder (`taxonomyBuilder.ts`): scans product names/brands/categories for token co-occurrence, Jaccard similarity, max 8 aliases; `matcher.ts`: all match functions accept optional `dynamicTaxonomy` override; `searchService.ts`: builds dynamic taxonomy from adapter results, re-sorts with it; SPA store rendering: grouped by chain with per-chain status badges (green/red dots); 433 tests pass, build clean |
 | Fix round 2: auth, images, URLs, SPA UX | done | Migros store 403: changed auth header from `Bearer` to `leshopch` (3 fetch calls); Migros CHF 0.00: removed `\|\| 0` fallback + zero-price acceptance + min-price guard; Otto's images: prefix relative URLs with domain; Otto's product URL: use API-provided `url` field; SPA comparison: wrap product names in `<a>` tags; SPA Enter key: added keydown listeners; Maps: replaced OpenStreetMap with Google Maps; 433 tests pass, build clean |
-| Denner product search + store search fixes + availability | in-progress | See `docs/active/PLAN_IMPLEMENTATION.md`: (1) Migros/Coop availability IMPLEMENTED — uses `/store-availability/public/v2/` and `/products/{id}/stockLevels` endpoints; (2) Coop store fix: needs correct endpoint; (3) Lidl store fix: switch to `/api/v4/CH`; (4) Denner product search: needs routing API integration; 240 tests pass, build clean |
+| Denner product search + store search fixes + availability | done | Migros/Coop availability implemented via `/store-availability/public/v2/` and `/products/{id}/stockLevels`; Coop store fix: separate `SourceHttpClient` with `iosSafariUA` + `currentPage=0`; Lidl store fix: switched to `/api/v4/CH` + client-side filtering; Denner product search: Prediggo API (`POST /search-api/simplePageContent`); SPA availability tab added; 435 tests pass, build clean |
+| Otto's image fix                     | done                   | Root cause: `www.ottos.ch/medias/...` returns SPA HTML; actual image server is `api.sherpaoutdoor.com` (SAP Hybris OCC backend, found via `<meta name="occ-backend-base-url">`). Changed `parsers/ottos.ts` image prefix to `https://api.sherpaoutdoor.com` |
+| Otto's price fix                     | done                   | `parseFormattedPrice()` now strips Swiss apostrophe (`'`) thousands separator (`CHF 1'399.00`) |
+| Migros store 403 fix                 | done                   | Removed direct `fetch()` bypass (TLS fingerprint mismatch); uses `migros-api-wrapper`'s `searchStores()` for all queries |
+| SPA availability API + UI            | done                   | `POST /api/availability` endpoint; SPA Availability tab with chain/query/storeId form |
+| SPA source status update             | done                   | Updated to reflect all current adapter statuses |
 
 ## Next tasks
 
-1. Add richer store geospatial filtering (distance/radius)
-2. Add runtime static cutover/source status policy tooling
-3. Implement Denner product search via wine shop API
+1. Run `RUN_CONTRACT_TESTS=1 pnpm test:contract` to validate real API endpoints (first time)
+2. Run `LIVE_SOURCE_TESTS=1 pnpm test:live` to validate live adapter smoke tests
+3. Add richer store geospatial filtering (distance/radius)
 4. Implement Migros/Coop promotions endpoints
-5. Add per-store availability for Migros and Coop
-6. Prepare V2 account/cart integration foundation
-7. Remove static catalog data from default production runtime, or gate it as test/demo-only with explicit source warnings
-8. Decide whether live product search requires an approved provider/central index instead of local runtime crawling
-9. Run `RUN_CONTRACT_TESTS=1 pnpm test:contract` to validate real API endpoints (first time)
-10. Run `LIVE_SOURCE_TESTS=1 pnpm test:live` to validate live adapter smoke tests
+5. Prepare V2 account/cart integration foundation
+6. Remove static catalog data from default production runtime, or gate it as test/demo-only with explicit source warnings
+7. Decide whether live product search requires an approved provider/central index instead of local runtime crawling
 
 ## Decisions
 

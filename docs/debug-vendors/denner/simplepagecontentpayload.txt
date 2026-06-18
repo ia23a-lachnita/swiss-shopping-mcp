@@ -1,0 +1,1 @@
+{"moduleVersion":"D2.0","sessionId":"50f567a0-a2aa-4b61-ac8c-0476b5d5ea3f","region":"de_CH","advanced":{"device":"COMPUTER"},"parameters":{"query":"apfel"},"pageId":9}

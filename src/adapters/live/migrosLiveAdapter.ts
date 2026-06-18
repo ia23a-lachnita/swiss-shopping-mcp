@@ -8,7 +8,6 @@ import {
   parseMigrosSearchResponse,
   parseMigrosStoresResponse,
 } from '../../parsers/migros.js';
-import { resolveLocationAsync } from '../../util/geo.js';
 import { sortProducts } from '../../util/matcher.js';
 import {
   cacheableProvenance,
@@ -355,31 +354,9 @@ export class MigrosLiveAdapter implements ChainAdapter {
       return this.parseStoreResult(cached.data, cached.provenance, [], limit);
     }
 
-    // Resolve location to coordinates for better search results
-    const coords = await resolveLocationAsync(location);
-
     try {
       const token = await this.ensureAuth();
-      let storeResult: unknown;
-      if (coords) {
-        // Bypass wrapper — it ignores coordinates. Build URL directly.
-        const params = new URLSearchParams({ query: location });
-        params.set('latitude', String(coords.latitude));
-        params.set('longitude', String(coords.longitude));
-        params.set('radius', '5000');
-        const storeUrl = `${STORES_URL}?${params.toString()}`;
-        const response = await fetch(storeUrl, {
-          headers: {
-            accept: 'application/json, text/plain, */*',
-            leshopch: token,
-            'user-agent': IOS_SAFARI_UA,
-          },
-        });
-        if (!response.ok) throw new Error(`Migros store API returned ${response.status}`);
-        storeResult = await response.json();
-      } else {
-        storeResult = await this.api.stores.searchStores({ query: location } as any, token);
-      }
+      const storeResult = await this.api.stores.searchStores({ query: location } as any, token);
 
       const stores = this.extractStoresFromResult(storeResult);
       const provenance = this.buildProvenance(STORES_URL);
@@ -404,54 +381,11 @@ export class MigrosLiveAdapter implements ChainAdapter {
         this.invalidateAuth();
         try {
           const token = await this.ensureAuth();
-          let storeResultRetry: unknown;
-          if (coords) {
-            const params = new URLSearchParams({ query: location });
-            params.set('latitude', String(coords.latitude));
-            params.set('longitude', String(coords.longitude));
-            params.set('radius', '5000');
-            const storeUrl = `${STORES_URL}?${params.toString()}`;
-            const response = await fetch(storeUrl, {
-              headers: {
-                accept: 'application/json, text/plain, */*',
-                leshopch: token,
-                'user-agent': IOS_SAFARI_UA,
-              },
-            });
-            if (!response.ok) throw new Error(`Migros store API returned ${response.status}`);
-            storeResultRetry = await response.json();
-          } else {
-            storeResultRetry = await this.api.stores.searchStores({ query: location } as any, token);
-          }
+          const storeResultRetry = await this.api.stores.searchStores({ query: location } as any, token);
           const stores = this.extractStoresFromResult(storeResultRetry);
           const provenance = this.buildProvenance(STORES_URL);
           const record = await this.cache.set(cacheKey, { stores }, cacheableProvenance(provenance), this.cacheTtlMs);
           return this.parseStoreResult({ stores }, liveProvenanceWithCacheExpiry(provenance, record.expiresAt), [], limit);
-        } catch {
-          // Fall through to text-only fallback
-        }
-      }
-
-      // Text-only fallback: try without coordinates
-      if (coords) {
-        try {
-          const token = await this.ensureAuth();
-          const fallbackParams = new URLSearchParams({ query: location });
-          const fallbackUrl = `${STORES_URL}?${fallbackParams.toString()}`;
-          const response = await fetch(fallbackUrl, {
-            headers: {
-              accept: 'application/json, text/plain, */*',
-              leshopch: token,
-              'user-agent': IOS_SAFARI_UA,
-            },
-          });
-          if (response.ok) {
-            const fallbackResult = await response.json();
-            const stores = this.extractStoresFromResult(fallbackResult);
-            const provenance = this.buildProvenance(STORES_URL);
-            const record = await this.cache.set(cacheKey, { stores }, cacheableProvenance(provenance), this.cacheTtlMs);
-            return this.parseStoreResult({ stores }, liveProvenanceWithCacheExpiry(provenance, record.expiresAt), [], limit);
-          }
         } catch {
           // Fall through to stale cache
         }

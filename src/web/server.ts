@@ -174,6 +174,33 @@ function handleSourceStatus(res: ServerResponse): void {
   sendJson(res, 200, { ok: true, data: statuses });
 }
 
+async function handleLookupAvailability(res: ServerResponse, raw: string): Promise<void> {
+  const parsed = parseBody<{
+    chain: string;
+    query: string;
+    storeId: string;
+  }>(raw);
+
+  if (!parsed.ok) {
+    sendJson(res, 400, { ok: false, error: { code: 'INVALID_BODY', message: parsed.error } });
+    return;
+  }
+
+  const { chain, query, storeId } = parsed.data;
+  if (!chain || !query || !storeId) {
+    sendJson(res, 400, { ok: false, error: { code: 'INVALID_PARAMS', message: 'chain, query, and storeId are required.' } });
+    return;
+  }
+
+  const result = await searchService.lookupStoreProductAvailability(chain as Chain, { query, storeId });
+
+  if (result.ok) {
+    sendJson(res, 200, { ok: true, data: result.data, metadata: result.metadata });
+  } else {
+    sendJson(res, 500, { ok: false, error: result.error });
+  }
+}
+
 async function handleRequest(req: IncomingMessage, res: ServerResponse): Promise<void> {
   setCorsHeaders(res);
 
@@ -206,6 +233,12 @@ async function handleRequest(req: IncomingMessage, res: ServerResponse): Promise
 
   if (req.method === 'GET' && url.pathname === '/api/source-status') {
     handleSourceStatus(res);
+    return;
+  }
+
+  if (req.method === 'POST' && url.pathname === '/api/availability') {
+    const body = await readBody(req);
+    await handleLookupAvailability(res, body);
     return;
   }
 

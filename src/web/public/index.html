@@ -334,6 +334,7 @@
     <button class="tab-btn active" data-tab="search">Product Search</button>
     <button class="tab-btn" data-tab="stores">Store Finder</button>
     <button class="tab-btn" data-tab="compare">Price Comparison</button>
+    <button class="tab-btn" data-tab="availability">Availability</button>
     <button class="tab-btn" data-tab="status">Source Status</button>
   </nav>
 
@@ -413,6 +414,35 @@
     <div id="compare-loading" class="loading" style="display:none"><div class="spinner"></div>Comparing prices...</div>
     <div id="compare-error" class="error-box" style="display:none"></div>
     <div id="compare-results"></div>
+  </section>
+
+  <!-- Availability Tab -->
+  <section id="tab-availability" class="tab-content">
+    <div class="panel">
+      <h3>Check Store Availability</h3>
+      <p style="font-size:13px;color:var(--gray-500);margin-bottom:12px;">Check if a product is available at a specific store. Currently supports Migros and Coop.</p>
+      <div class="form-row">
+        <div class="form-group" style="flex:1;min-width:200px;">
+          <label for="avail-chain">Chain</label>
+          <select id="avail-chain">
+            <option value="migros">Migros</option>
+            <option value="coop">Coop</option>
+          </select>
+        </div>
+        <div class="form-group" style="flex:1;min-width:200px;">
+          <label for="avail-query">Product Query</label>
+          <input type="text" id="avail-query" placeholder="e.g. milk, bread...">
+        </div>
+        <div class="form-group" style="flex:1;min-width:150px;">
+          <label for="avail-store">Store ID</label>
+          <input type="text" id="avail-store" placeholder="e.g. 0150164">
+        </div>
+        <button class="btn btn-primary" id="avail-btn">Check</button>
+      </div>
+    </div>
+    <div id="avail-loading" class="loading" style="display:none"><div class="spinner"></div>Checking availability...</div>
+    <div id="avail-error" class="error-box" style="display:none"></div>
+    <div id="avail-results"></div>
   </section>
 
   <!-- Source Status Tab -->
@@ -769,6 +799,75 @@
       }
     });
 
+    // Availability Check
+    document.getElementById('avail-btn').addEventListener('click', async () => {
+      const chain = document.getElementById('avail-chain').value;
+      const query = document.getElementById('avail-query').value.trim();
+      const storeId = document.getElementById('avail-store').value.trim();
+      if (!query) { showError('avail-error', 'Please enter a product query.'); return; }
+      if (!storeId) { showError('avail-error', 'Please enter a store ID.'); return; }
+
+      hideError('avail-error');
+      document.getElementById('avail-results').innerHTML = '';
+      showLoading('avail-loading');
+
+      try {
+        const result = await apiPost('/api/availability', { chain, query, storeId });
+        hideLoading('avail-loading');
+
+        if (!result.ok) {
+          showError('avail-error', result.error?.message || 'Availability check failed.');
+          return;
+        }
+
+        const data = result.data;
+        const grid = document.getElementById('avail-results');
+
+        if (!data || !data.availabilities || data.availabilities.length === 0) {
+          showError('avail-error', 'No availability data found for this product at this store.');
+          return;
+        }
+
+        let html = '<div class="panel">';
+        html += '<div style="margin-bottom:8px"><span class="chain-badge ' + chainBadgeClass(chain) + '">' + chain + '</span> ';
+        html += '<strong>Store ' + escapeHtml(storeId) + '</strong> — Product: ' + escapeHtml(data.query) + '</div>';
+
+        if (data.catalogItemId) {
+          html += '<div style="font-size:12px;color:var(--gray-500);margin-bottom:12px">Catalog Item ID: ' + data.catalogItemId + '</div>';
+        }
+
+        const avail = data.availabilities;
+        const inStock = avail.filter(a => a.stock > 0);
+        const outOfStock = avail.filter(a => a.stock === 0);
+
+        if (inStock.length > 0) {
+          html += '<div style="font-weight:600;color:var(--green);margin-bottom:4px">Available at ' + inStock.length + ' store(s):</div>';
+          html += '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">';
+          inStock.forEach(a => {
+            html += '<span style="background:#d1fae5;color:#065f46;padding:3px 8px;border-radius:4px;font-size:12px">' +
+              escapeHtml(a.id) + ': ' + a.stock + ' in stock</span>';
+          });
+          html += '</div>';
+        }
+
+        if (outOfStock.length > 0) {
+          html += '<div style="font-weight:600;color:var(--red);margin-bottom:4px">Out of stock at ' + outOfStock.length + ' store(s):</div>';
+          html += '<div style="display:flex;flex-wrap:wrap;gap:6px">';
+          outOfStock.forEach(a => {
+            html += '<span style="background:#fee2e2;color:#991b1b;padding:3px 8px;border-radius:4px;font-size:12px">' +
+              escapeHtml(a.id) + ': out of stock</span>';
+          });
+          html += '</div>';
+        }
+
+        html += '</div>';
+        grid.innerHTML = html;
+      } catch (e) {
+        hideLoading('avail-loading');
+        showError('avail-error', 'Network error: ' + e.message);
+      }
+    });
+
     // Source Status
     async function loadSourceStatus() {
       showLoading('status-loading');
@@ -853,6 +952,9 @@
     });
     document.getElementById('compare-query').addEventListener('keydown', (e) => {
       if (e.key === 'Enter') document.getElementById('compare-btn').click();
+    });
+    document.getElementById('avail-query').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') document.getElementById('avail-btn').click();
     });
   </script>
 </body>

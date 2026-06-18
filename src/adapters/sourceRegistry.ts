@@ -46,8 +46,9 @@ export const SOURCE_REGISTRY: Record<Chain, CapabilitySourceStatus[]> = {
     {
       chain: 'denner',
       capability: 'productSearch',
-      status: 'unsupported',
-      reason: 'No approved Denner catalog source is implemented.',
+      status: 'live-beta',
+      provider: 'Denner',
+      sourceType: 'retailer-web',
     },
     {
       chain: 'denner',

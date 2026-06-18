@@ -1,0 +1,147 @@
+{
+    "status": "OK",
+    "timeInMs": 0.8,
+    "sessionId": "50f567a0-a2aa-4b61-ac8c-0476b5d5ea3f",
+    "region": "de_CH",
+    "advanced": {
+        "device": "COMPUTER"
+    },
+    "pageId": 8,
+    "pageName": "Top search queries",
+    "blocks": {
+        "ads": [],
+        "recommendations": [
+            {
+                "blockId": 0,
+                "pageName": "Top search queries",
+                "blockName": "Top search queries block",
+                "blockType": "GENERIC",
+                "slots": [
+                    {
+                        "position": 1,
+                        "item": {
+                            "sku": "Last_User_Queries_1781791595001",
+                            "price": 1.4E-45,
+                            "itemType": "DYNAMIC",
+                            "trackingCode": "NTBmNTY3YTAtYTJhYS00YjYxLWFjOGMtMDQ3NmI1ZDVlYTNmfDUwZjU2N2EwLWEyYWEtNGI2MS1hYzhjLTA0NzZiNWQ1ZWEzZnxUb3Agc2VhcmNoIHF1ZXJpZXN8VG9wIHNlYXJjaCBxdWVyaWVzIGJsb2NrfExhc3RfVXNlcl9RdWVyaWVzXzE3ODE3OTE1OTUwMDF8Tk9ORXxEWU5BTUlDfDB8R0VORVJJQ19CTE9DS3xEZWZhdWx0IGNhbXBhaWduXzE2NzdfMzg4MV8xXzAxLTExLTIwMjNfMTY6Mzk6MThfUnxBRFZBTkNFRCAtIFRoZWxhc3RzZWFyY2hxdWVyaWVzb2Z0aGV1c2VyXzAxLTExLTIwMjNfMTY6MDY6NDZ8TWVyY2ggYmxvYyAxKjJ8bWFzdGVyX3NjZW5hcmlvfG51bGx8bnVsbHxudWxsfG51bGx8bnVsbHwxNzgxNzkxNTk1MDAxfGRlX0NIfENPTVBVVEVS",
+                            "attributeInfo": [
+                                {
+                                    "attributeName": "name",
+                                    "attributeLabel": "name",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "{\"1\":\"apfel\"}",
+                                            "label": "{\"1\":\"apfel\"}"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "Geschmacksprofil",
+                                    "attributeLabel": "pred-custom1",
+                                    "attributeType": "RANGE",
+                                    "vals": [
+                                        {
+                                            "value": "0.0",
+                                            "label": "0.0"
+                                        }
+                                    ]
+                                }
+                            ],
+                            "displayInfo": {}
+                        },
+                        "template": {
+                            "posX": 1,
+                            "posY": 1,
+                            "sizeX": 1,
+                            "sizeY": 1
+                        },
+                        "rule": {
+                            "baseRuleTemplateName": "ADVANCED - Thelastsearchqueriesoftheuser_01-11-2023_16:06:46",
+                            "ruleTemplateId": 64197,
+                            "ruleTemplateName": "ADVANCED - Thelastsearchqueriesoftheuser_01-11-2023_16:06:46",
+                            "ruleTemplateLabel": "The last search queries of the user",
+                            "initialSetupPosition": 1,
+                            "positionInCascade": 1,
+                            "itemIdBeforeGrouping": "Last_User_Queries_1781791595001",
+                            "ruleType": "STANDARD",
+                            "computationTimeInMs": 0.1,
+                            "ruleId": 100391,
+                            "ruleName": "Default campaign_1677_3881_1_01-11-2023_16:39:18_R",
+                            "scenarioName": "master_scenario",
+                            "ruleTemplateLabelIfPossibleElseName": "The last search queries of the user"
+                        }
+                    },
+                    {
+                        "position": 2,
+                        "item": {
+                            "sku": "Top_Search_Queries_1781791595002",
+                            "price": 1.4E-45,
+                            "itemType": "DYNAMIC",
+                            "trackingCode": "NTBmNTY3YTAtYTJhYS00YjYxLWFjOGMtMDQ3NmI1ZDVlYTNmfDUwZjU2N2EwLWEyYWEtNGI2MS1hYzhjLTA0NzZiNWQ1ZWEzZnxUb3Agc2VhcmNoIHF1ZXJpZXN8VG9wIHNlYXJjaCBxdWVyaWVzIGJsb2NrfFRvcF9TZWFyY2hfUXVlcmllc18xNzgxNzkxNTk1MDAyfE5PTkV8RFlOQU1JQ3wxfEdFTkVSSUNfQkxPQ0t8RGVmYXVsdCBjYW1wYWlnbl8xNjc3XzM4ODFfMl8wMS0xMS0yMDIzXzE2OjM5OjE4X1J8QURWQU5DRUQgLSBUaGVtb3N0cG9wdWxhcnNlYXJjaHRlcm1zXzAxLTExLTIwMjNfMTY6Mzk6MDB8TWVyY2ggYmxvYyAxKjJ8bWFzdGVyX3NjZW5hcmlvfG51bGx8bnVsbHxudWxsfG51bGx8bnVsbHwxNzgxNzkxNTk1MDAxfGRlX0NIfENPTVBVVEVS",
+                            "attributeInfo": [
+                                {
+                                    "attributeName": "name",
+                                    "attributeLabel": "name",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "{\"1\":\"bier\",\"2\":\"zigaretten\",\"3\":\"mineralwasser\",\"4\":\"prosecco\",\"5\":\"kaffee\",\"6\":\"tabak\"}",
+                                            "label": "{\"1\":\"bier\",\"2\":\"zigaretten\",\"3\":\"mineralwasser\",\"4\":\"prosecco\",\"5\":\"kaffee\",\"6\":\"tabak\"}"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "Geschmacksprofil",
+                                    "attributeLabel": "pred-custom1",
+                                    "attributeType": "RANGE",
+                                    "vals": [
+                                        {
+                                            "value": "0.0",
+                                            "label": "0.0"
+                                        }
+                                    ]
+                                }
+                            ],
+                            "displayInfo": {}
+                        },
+                        "template": {
+                            "posX": 2,
+                            "posY": 1,
+                            "sizeX": 1,
+                            "sizeY": 1
+                        },
+                        "rule": {
+                            "baseRuleTemplateName": "ADVANCED - Themostpopularsearchterms_01-11-2023_16:39:00",
+                            "ruleTemplateId": 63902,
+                            "ruleTemplateName": "ADVANCED - Themostpopularsearchterms_01-11-2023_16:39:00",
+                            "ruleTemplateLabel": "The most popular search terms",
+                            "initialSetupPosition": 2,
+                            "positionInCascade": 1,
+                            "itemIdBeforeGrouping": "Top_Search_Queries_1781791595002",
+                            "ruleType": "STANDARD",
+                            "computationTimeInMs": 0.0,
+                            "ruleId": 101197,
+                            "ruleName": "Default campaign_1677_3881_2_01-11-2023_16:39:18_R",
+                            "scenarioName": "master_scenario",
+                            "ruleTemplateLabelIfPossibleElseName": "The most popular search terms"
+                        }
+                    }
+                ],
+                "stats": {
+                    "totalResults": 2,
+                    "computationInMs": 0.1,
+                    "campaignName": "master_scenario",
+                    "campaignLabel": "Default campaign",
+                    "scenarioName": "master_scenario",
+                    "scenarioTemplate": "Merch bloc 1*2",
+                    "nbSlotsX": 2,
+                    "nbSlotsY": 1
+                },
+                "nbSlots": 2
+            }
+        ],
+        "searches": []
+    },
+    "nbItems": 2
+}

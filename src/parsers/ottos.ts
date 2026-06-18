@@ -86,7 +86,8 @@ function stripHtml(str: string): string {
 
 export function parseFormattedPrice(formattedValue: string | undefined): { current: number; currency: string } | undefined {
   if (!formattedValue) return undefined;
-  const match = formattedValue.match(/(?:CHF|EUR|\$)\s*([\d.,]+)/);
+  const cleaned = formattedValue.replace(/'/g, '');
+  const match = cleaned.match(/(?:CHF|EUR|\$)\s*([\d.,]+)/);
   if (!match) return undefined;
   const amount = Number(match[1].replace(',', '.'));
   if (!Number.isFinite(amount) || amount <= 0) return undefined;
@@ -98,7 +99,7 @@ export function parseOttosOccProduct(product: OttosOccProduct, sourceUrl: string
   if (!price) return undefined;
 
   const rawImage = product.images?.[0]?.url;
-  const image = rawImage?.startsWith('/') ? `https://www.ottos.ch${rawImage}` : rawImage;
+  const image = rawImage?.startsWith('/') ? `https://api.sherpaoutdoor.com${rawImage}` : rawImage;
 
   return {
     id: product.code,

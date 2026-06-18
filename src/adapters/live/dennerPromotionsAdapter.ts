@@ -1,7 +1,9 @@
 import { FileTtlCache } from '../../cache/fileTtlCache.js';
 import {
   DennerParsedPromotion,
+  DennerParsedProduct,
   parseDennerPromotionsPage,
+  parseDennerSearchApiResponse,
   toNormalizedDennerPromotion,
 } from '../../parsers/denner.js';
 import { SourceClientError, SourceHttpClient } from '../../sources/sourceClient.js';
@@ -27,6 +29,7 @@ import {
 
 const DENNER_PROVIDER = 'Denner';
 const DENNER_ACTIONS_URL = 'https://www.denner.ch/de/aktionen/aktuelle-aktionen';
+const DENNER_SEARCH_API_URL = 'https://www.denner.ch/search-api/simplePageContent';
 const DEFAULT_CACHE_TTL_MS = 6 * 60 * 60 * 1000;
 
 interface LoadSuccess {
@@ -190,7 +193,85 @@ export class DennerPromotionsAdapter implements ChainAdapter {
   }
 
   public async searchProducts(filters: ProductSearchFilters): Promise<Result<NormalizedProduct[]>> {
-    return this.delegate.searchProducts(filters);
+    const query = filters.query.trim();
+    if (!query) {
+      return {
+        ok: false,
+        error: { code: 'INVALID_QUERY', message: 'Query must be a non-empty string.' },
+      };
+    }
+
+    const matchMode = filters.matchMode ?? 'balanced';
+    const products: NormalizedProduct[] = [];
+    const warnings: SourceWarning[] = [];
+
+    const promotionResult = await this.searchProductsFromPromotions(filters);
+    if (promotionResult.ok) {
+      products.push(...promotionResult.data);
+      if (promotionResult.metadata?.sourceWarnings) {
+        warnings.push(...promotionResult.metadata.sourceWarnings);
+      }
+    }
+
+    const searchResult = await this.searchProductsFromSearchApi(filters);
+    if (searchResult.ok) {
+      const existingIds = new Set(products.map((p) => p.id));
+      for (const product of searchResult.data) {
+        if (!existingIds.has(product.id)) {
+          products.push(product);
+        }
+      }
+      if (searchResult.metadata?.sourceWarnings) {
+        warnings.push(...searchResult.metadata.sourceWarnings);
+      }
+    }
+
+    const filtered = products
+      .filter((product) => {
+        if (typeof filters.maxPrice === 'number' && product.price.current > filters.maxPrice) {
+          return false;
+        }
+        if (filters.category && normalize(product.category ?? '') !== normalize(filters.category)) {
+          return false;
+        }
+        return calculateMatchStrength(product, query, matchMode) > 0;
+      })
+      .sort((a, b) => {
+        const strengthDiff =
+          calculateMatchStrength(b, query, matchMode) - calculateMatchStrength(a, query, matchMode);
+        if (strengthDiff !== 0) return strengthDiff;
+        return a.price.current - b.price.current;
+      });
+
+    const limitedProducts =
+      typeof filters.limit === 'number' ? filtered.slice(0, filters.limit) : filtered;
+
+    const provenance: SourceProvenance = {
+      provider: DENNER_PROVIDER,
+      chain: 'denner',
+      sourceType: 'retailer-web',
+      observedAt: new Date().toISOString(),
+      freshness: 'live',
+      confidence: 'medium',
+    };
+
+    return {
+      ok: true,
+      data: limitedProducts,
+      metadata: {
+        ...(warnings.length > 0 ? { sourceWarnings: warnings } : {}),
+        sources: [
+          {
+            chain: 'denner',
+            status: 'live-beta',
+            provider: DENNER_PROVIDER,
+            sourceType: 'retailer-web',
+            lastObservedAt: provenance.observedAt,
+          },
+        ],
+        summary: 'Denner products are sourced from retailer web pages and API.',
+      },
+    };
   }
 
   public async searchPromotions(
@@ -206,7 +287,24 @@ export class DennerPromotionsAdapter implements ChainAdapter {
 
     const loaded = await this.loadPromotions();
     if (!loaded.ok) {
-      return { ok: false, error: loaded.error };
+      return {
+        ok: true,
+        data: [],
+        metadata: {
+          sourceWarnings: loaded.warnings,
+          sources: [
+            {
+              chain: 'denner',
+              status: 'degraded',
+              provider: DENNER_PROVIDER,
+              sourceType: 'retailer-web',
+              lastObservedAt: new Date().toISOString(),
+              warning: loaded.warnings.at(0),
+            },
+          ],
+          summary: 'Denner promotions are temporarily unavailable. Use product search instead.',
+        },
+      };
     }
 
     const matchMode = filters.matchMode ?? 'balanced';
@@ -318,6 +416,119 @@ export class DennerPromotionsAdapter implements ChainAdapter {
         error: { code: warning.code, message: warning.message },
         warnings: [warning],
       };
+    }
+  }
+
+  private async searchProductsFromPromotions(
+    filters: ProductSearchFilters
+  ): Promise<Result<NormalizedProduct[]>> {
+    const loaded = await this.loadPromotions();
+    if (!loaded.ok) {
+      return { ok: true, data: [] };
+    }
+
+    const matchMode = filters.matchMode ?? 'balanced';
+    const query = filters.query;
+    const products = loaded.data
+      .map((p) => toNormalizedDennerPromotion(p, promotionProvenance(p, loaded.provenance)))
+      .map((p) => promotionAsProduct(p))
+      .filter((product) => {
+        if (typeof filters.maxPrice === 'number' && product.price.current > filters.maxPrice) {
+          return false;
+        }
+        return calculateMatchStrength(product, query, matchMode) > 0;
+      });
+
+    return { ok: true, data: products };
+  }
+
+  private async searchProductsFromSearchApi(
+    filters: ProductSearchFilters
+  ): Promise<Result<NormalizedProduct[]>> {
+    const query = filters.query.trim();
+    const cacheKey = `denner:search:${query}`;
+
+    const cached = await this.cache.get<DennerParsedProduct[]>(cacheKey, { allowStale: true });
+    if (cached && !cached.isStale) {
+      return {
+        ok: true,
+        data: cached.data.map((p) => ({
+          id: p.id,
+          chain: 'denner' as const,
+          name: p.name,
+          brand: p.brand,
+          category: p.category,
+          price: p.price,
+          image: p.image,
+          productUrl: p.productUrl,
+          size: p.size,
+          tags: [],
+        })),
+      };
+    }
+
+    const sessionId = `denner-${Date.now()}`;
+    const body = {
+      moduleVersion: 'D2.0',
+      sessionId,
+      region: 'de_CH',
+      advanced: { device: 'COMPUTER' },
+      parameters: { query },
+      pageId: 9,
+    };
+
+    try {
+      const result = await this.sourceClient.fetchJson<unknown>(DENNER_SEARCH_API_URL, {
+        provider: DENNER_PROVIDER,
+        chain: 'denner',
+        sourceType: 'retailer-web',
+        confidence: 'medium',
+        init: {
+          method: 'POST',
+          body: JSON.stringify(body),
+          headers: { 'Content-Type': 'application/json' },
+        },
+      });
+      const parsed = parseDennerSearchApiResponse(result.data);
+
+      if (parsed.length > 0) {
+        await this.cache.set(cacheKey, parsed, cacheableProvenance(result.provenance), this.cacheTtlMs);
+      }
+
+      return {
+        ok: true,
+        data: parsed.map((p) => ({
+          id: p.id,
+          chain: 'denner' as const,
+          name: p.name,
+          brand: p.brand,
+          category: p.category,
+          price: p.price,
+          image: p.image,
+          productUrl: p.productUrl,
+          size: p.size,
+          tags: [],
+        })),
+      };
+    } catch {
+      if (cached) {
+        return {
+          ok: true,
+          data: cached.data.map((p) => ({
+            id: p.id,
+            chain: 'denner' as const,
+            name: p.name,
+            brand: p.brand,
+            category: p.category,
+            price: p.price,
+            image: p.image,
+            productUrl: p.productUrl,
+            size: p.size,
+            tags: [],
+          })),
+        };
+      }
+      return { ok: true, data: [] };
     }
   }
 }

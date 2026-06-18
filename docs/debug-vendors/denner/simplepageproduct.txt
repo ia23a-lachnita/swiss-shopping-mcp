@@ -1,0 +1,2081 @@
+{
+    "status": "OK",
+    "timeInMs": 1.3,
+    "sessionId": "50f567a0-a2aa-4b61-ac8c-0476b5d5ea3f",
+    "region": "de_CH",
+    "advanced": {
+        "device": "COMPUTER"
+    },
+    "pageId": 15,
+    "pageName": "Product - general special offers",
+    "blocks": {
+        "ads": [],
+        "recommendations": [
+            {
+                "blockId": 0,
+                "pageName": "Product - general special offers",
+                "blockName": "PDP - Product - general special offers",
+                "blockType": "PRODUCT",
+                "blockFilters": {
+                    "itemType": [
+                        "PRODUCT"
+                    ],
+                    "promo_current_week": [
+                        "true"
+                    ]
+                },
+                "slots": [
+                    {
+                        "position": 1,
+                        "item": {
+                            "sku": "56c14709-7f0b-4919-9edb-4fd301803962",
+                            "price": 15.8,
+                            "itemType": "PRODUCT",
+                            "trackingCode": "NTBmNTY3YTAtYTJhYS00YjYxLWFjOGMtMDQ3NmI1ZDVlYTNmfDUwZjU2N2EwLWEyYWEtNGI2MS1hYzhjLTA0NzZiNWQ1ZWEzZnxQcm9kdWN0IC0gZ2VuZXJhbCBzcGVjaWFsIG9mZmVyc3xQRFAgLSBQcm9kdWN0IC0gZ2VuZXJhbCBzcGVjaWFsIG9mZmVyc3w1NmMxNDcwOS03ZjBiLTQ5MTktOWVkYi00ZmQzMDE4MDM5NjJ8ZjRmYTZiODktNjcyMi00MTM3LWFmNjktN2ZkYTczYWM2YzA0fFBST0RVQ1R8MHxJVEVNX0JMT0NLfERlZmF1bHQgY2FtcGFpZ25fMjY1OF81NzI2XzFfMjUtMTEtMjAyNF8xNTozMzo1NV9SfFNpbWlsYXIgSXRlbXMgLSBzYW1lIHN1YmNhdC1vcmRlcmluZ18wOC0wNy0yMDI0XzE1OjA2OjA2fE1lcmNoIGJsb2MgMSo1fG1hc3Rlcl9zY2VuYXJpb3xudWxsfG51bGx8bnVsbHxudWxsfG51bGx8MTc4MTc5MjAzNDY0M3xkZV9DSHxDT01QVVRFUg",
+                            "attributeInfo": [
+                                {
+                                    "attributeName": "promotion_permitted",
+                                    "attributeLabel": "promotion_permitted",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "1",
+                                            "label": "1"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "imageUrl",
+                                    "attributeLabel": "imageUrl",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "https://denner.imgix.net/assets/74532ebe-9520-4d3d-908a-3fda44f012bd/web/034014_23_03_09_PACK_06.png",
+                                            "label": "https://denner.imgix.net/assets/74532ebe-9520-4d3d-908a-3fda44f012bd/web/034014_23_03_09_PACK_06.png"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "content_size_text",
+                                    "attributeLabel": "Inhalt",
+                                    "attributeType": "ID",
+                                    "vals": [
+                                        {
+                                            "value": "0.43 unit.g",
+                                            "label": "0.43 unit.g"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "discount_text",
+                                    "attributeLabel": "discount_text",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "33%",
+                                            "label": "33%"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "insteadPriceText",
+                                    "attributeLabel": "insteadPriceText",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "statt 23.70",
+                                            "label": "statt 23.70"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "itemUrl",
+                                    "attributeLabel": "itemUrl",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "/de/aktionen/hero-eier-ravioli~p1023587?variant=56c14709-7f0b-4919-9edb-4fd301803962",
+                                            "label": "/de/aktionen/hero-eier-ravioli~p1023587?variant=56c14709-7f0b-4919-9edb-4fd301803962"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "name",
+                                    "attributeLabel": "name",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "Hero Eier-Ravioli",
+                                            "label": "Hero Eier-Ravioli"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "nameSubline",
+                                    "attributeLabel": "nameSubline",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "mit Schweizer Fleisch und Freilandeiern, 6 x 430 g",
+                                            "label": "mit Schweizer Fleisch und Freilandeiern, 6 x 430 g"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "pimcoreId",
+                                    "attributeLabel": "pimcoreId",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "5650628",
+                                            "label": "5650628"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "priceFormatted",
+                                    "attributeLabel": "priceFormatted",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "15.80",
+                                            "label": "15.80"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "promotionFrom",
+                                    "attributeLabel": "promotionFrom",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "1781749078",
+                                            "label": "1781749078"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "promotionLabel",
+                                    "attributeLabel": "promotionLabel",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "18.06.–24.06.2026",
+                                            "label": "18.06.–24.06.2026"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "promotionLabelPublication",
+                                    "attributeLabel": "promotionLabelPublication",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "18.06.–24.06.2026",
+                                            "label": "18.06.–24.06.2026"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "promotionTo",
+                                    "attributeLabel": "promotionTo",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "1782252000",
+                                            "label": "1782252000"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "wine_of_the_week",
+                                    "attributeLabel": "wine_of_the_week",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "false",
+                                            "label": "false"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "_tracking_discount",
+                                    "attributeLabel": "_tracking_discount",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "7.9",
+                                            "label": "7.9"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "_tracking_item_category2",
+                                    "attributeLabel": "_tracking_item_category2",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "Sonstiges",
+                                            "label": "Sonstiges"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "_tracking_item_id",
+                                    "attributeLabel": "_tracking_item_id",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "1023587",
+                                            "label": "1023587"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "_tracking_item_name",
+                                    "attributeLabel": "_tracking_item_name",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "Hero Eier-Ravioli",
+                                            "label": "Hero Eier-Ravioli"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "buying_channel",
+                                    "attributeLabel": "Verkaufskanal",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "all",
+                                            "label": "all"
+                                        },
+                                        {
+                                            "value": "stores",
+                                            "label": "stores"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "category",
+                                    "attributeLabel": "category",
+                                    "attributeType": "ID",
+                                    "vals": [
+                                        {
+                                            "value": "1144362",
+                                            "label": "Lebensmittel"
+                                        },
+                                        {
+                                            "value": "1144368",
+                                            "label": "Sonstiges"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "design",
+                                    "attributeLabel": "prediggo.attribute.design",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "whitesmoke",
+                                            "label": "whitesmoke"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "isAssortmentPromotion",
+                                    "attributeLabel": "isAssortmentPromotion",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "false",
+                                            "label": "false"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "isBuyable",
+                                    "attributeLabel": "isBuyable",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "false",
+                                            "label": "false"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "navisionId",
+                                    "attributeLabel": "navisionId",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "56c14709-7f0b-4919-9edb-4fd301803962",
+                                            "label": "56c14709-7f0b-4919-9edb-4fd301803962"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "product_publication",
+                                    "attributeLabel": "Kategorie",
+                                    "attributeType": "ID",
+                                    "vals": [
+                                        {
+                                            "value": "5650520",
+                                            "label": "Wochenaktionen"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "product_publication_filter",
+                                    "attributeLabel": "Angebote",
+                                    "attributeType": "ID",
+                                    "vals": [
+                                        {
+                                            "value": "4649555",
+                                            "label": "Aktuelle Aktionen"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "salesQuantity",
+                                    "attributeLabel": "salesQuantity",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "6",
+                                            "label": "6"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "stopperType",
+                                    "attributeLabel": "stopperType",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "x_percent",
+                                            "label": "x_percent"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "price",
+                                    "attributeLabel": "Preis",
+                                    "attributeType": "RANGE",
+                                    "vals": [
+                                        {
+                                            "value": "15.80",
+                                            "label": "15.80"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "unit_price",
+                                    "attributeLabel": "Stückpreis",
+                                    "attributeType": "RANGE",
+                                    "vals": [
+                                        {
+                                            "value": "0.00",
+                                            "label": "0.00"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "availability",
+                                    "attributeLabel": "availability",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "10.00",
+                                            "label": "10.00"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "Geschmacksprofil",
+                                    "attributeLabel": "pred-custom1",
+                                    "attributeType": "RANGE",
+                                    "vals": [
+                                        {
+                                            "value": "0.0",
+                                            "label": "0.0"
+                                        }
+                                    ]
+                                }
+                            ],
+                            "displayInfo": {}
+                        },
+                        "template": {
+                            "posX": 1,
+                            "posY": 1,
+                            "sizeX": 1,
+                            "sizeY": 1
+                        },
+                        "rule": {
+                            "baseRuleTemplateName": "Similar Items - same subcat-ordering_08-07-2024_15:06:06",
+                            "ruleTemplateId": 64445,
+                            "ruleTemplateName": "Similar Items - same subcat-ordering_08-07-2024_15:06:06",
+                            "ruleTemplateLabel": "Articles products - Similar Items - same subcat-ordering",
+                            "initialSetupPosition": 1,
+                            "positionInCascade": 1,
+                            "itemIdBeforeGrouping": "56c14709-7f0b-4919-9edb-4fd301803962",
+                            "ruleType": "STANDARD",
+                            "computationTimeInMs": 0.2,
+                            "ruleId": 101236,
+                            "ruleName": "Default campaign_2658_5726_1_25-11-2024_15:33:55_R",
+                            "sourceItemId": "f4fa6b89-6722-4137-af69-7fda73ac6c04",
+                            "scenarioName": "master_scenario",
+                            "ruleTemplateLabelIfPossibleElseName": "Articles products - Similar Items - same subcat-ordering"
+                        }
+                    },
+                    {
+                        "position": 2,
+                        "item": {
+                            "sku": "204e4083-eafe-4b9a-883e-95a3c94858e0",
+                            "price": 10.95,
+                            "itemType": "PRODUCT",
+                            "trackingCode": "NTBmNTY3YTAtYTJhYS00YjYxLWFjOGMtMDQ3NmI1ZDVlYTNmfDUwZjU2N2EwLWEyYWEtNGI2MS1hYzhjLTA0NzZiNWQ1ZWEzZnxQcm9kdWN0IC0gZ2VuZXJhbCBzcGVjaWFsIG9mZmVyc3xQRFAgLSBQcm9kdWN0IC0gZ2VuZXJhbCBzcGVjaWFsIG9mZmVyc3wyMDRlNDA4My1lYWZlLTRiOWEtODgzZS05NWEzYzk0ODU4ZTB8ZjRmYTZiODktNjcyMi00MTM3LWFmNjktN2ZkYTczYWM2YzA0fFBST0RVQ1R8MXxJVEVNX0JMT0NLfERlZmF1bHQgY2FtcGFpZ25fMjY1OF81NzI2XzJfMjUtMTEtMjAyNF8xNTozMzo1NV9SfFNpbWlsYXIgSXRlbXMgLSBzYW1lIHN1YmNhdC1vcmRlcmluZ18wOC0wNy0yMDI0XzE1OjA2OjA2fE1lcmNoIGJsb2MgMSo1fG1hc3Rlcl9zY2VuYXJpb3xudWxsfG51bGx8bnVsbHxudWxsfG51bGx8MTc4MTc5MjAzNDY0M3xkZV9DSHxDT01QVVRFUg",
+                            "attributeInfo": [
+                                {
+                                    "attributeName": "promotion_permitted",
+                                    "attributeLabel": "promotion_permitted",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "1",
+                                            "label": "1"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "imageUrl",
+                                    "attributeLabel": "imageUrl",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "https://denner.imgix.net/assets/6f5400e2-e5bf-4ee5-92ca-4b307f27140c/web/082641_24_06_06.png",
+                                            "label": "https://denner.imgix.net/assets/6f5400e2-e5bf-4ee5-92ca-4b307f27140c/web/082641_24_06_06.png"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "content_size_text",
+                                    "attributeLabel": "Inhalt",
+                                    "attributeType": "ID",
+                                    "vals": [
+                                        {
+                                            "value": "0.8 unit.g",
+                                            "label": "0.8 unit.g"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "discount_text",
+                                    "attributeLabel": "discount_text",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "41%",
+                                            "label": "41%"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "footnote",
+                                    "attributeLabel": "footnote",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "Konkurrenzvergleich",
+                                            "label": "Konkurrenzvergleich"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "insteadPriceText",
+                                    "attributeLabel": "insteadPriceText",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "statt 18.85",
+                                            "label": "statt 18.85"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "itemUrl",
+                                    "attributeLabel": "itemUrl",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "/de/aktionen/maggi-rindsbouillon~p1028896?variant=204e4083-eafe-4b9a-883e-95a3c94858e0",
+                                            "label": "/de/aktionen/maggi-rindsbouillon~p1028896?variant=204e4083-eafe-4b9a-883e-95a3c94858e0"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "name",
+                                    "attributeLabel": "name",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "Maggi Rindsbouillon",
+                                            "label": "Maggi Rindsbouillon"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "nameSubline",
+                                    "attributeLabel": "nameSubline",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "fettarm, 800 g",
+                                            "label": "fettarm, 800 g"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "pimcoreId",
+                                    "attributeLabel": "pimcoreId",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "5650610",
+                                            "label": "5650610"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "priceFormatted",
+                                    "attributeLabel": "priceFormatted",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "10.95",
+                                            "label": "10.95"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "promotionFrom",
+                                    "attributeLabel": "promotionFrom",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "1781749078",
+                                            "label": "1781749078"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "promotionLabel",
+                                    "attributeLabel": "promotionLabel",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "18.06.–24.06.2026",
+                                            "label": "18.06.–24.06.2026"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "promotionLabelPublication",
+                                    "attributeLabel": "promotionLabelPublication",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "18.06.–24.06.2026",
+                                            "label": "18.06.–24.06.2026"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "promotionTo",
+                                    "attributeLabel": "promotionTo",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "1782252000",
+                                            "label": "1782252000"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "wine_of_the_week",
+                                    "attributeLabel": "wine_of_the_week",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "false",
+                                            "label": "false"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "_tracking_discount",
+                                    "attributeLabel": "_tracking_discount",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "7.9",
+                                            "label": "7.9"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "_tracking_item_category2",
+                                    "attributeLabel": "_tracking_item_category2",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "Sonstiges",
+                                            "label": "Sonstiges"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "_tracking_item_id",
+                                    "attributeLabel": "_tracking_item_id",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "1028896",
+                                            "label": "1028896"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "_tracking_item_name",
+                                    "attributeLabel": "_tracking_item_name",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "Maggi Rindsbouillon",
+                                            "label": "Maggi Rindsbouillon"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "buying_channel",
+                                    "attributeLabel": "Verkaufskanal",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "all",
+                                            "label": "all"
+                                        },
+                                        {
+                                            "value": "stores",
+                                            "label": "stores"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "category",
+                                    "attributeLabel": "category",
+                                    "attributeType": "ID",
+                                    "vals": [
+                                        {
+                                            "value": "1144362",
+                                            "label": "Lebensmittel"
+                                        },
+                                        {
+                                            "value": "1144368",
+                                            "label": "Sonstiges"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "design",
+                                    "attributeLabel": "prediggo.attribute.design",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "whitesmoke",
+                                            "label": "whitesmoke"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "isAssortmentPromotion",
+                                    "attributeLabel": "isAssortmentPromotion",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "false",
+                                            "label": "false"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "isBuyable",
+                                    "attributeLabel": "isBuyable",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "false",
+                                            "label": "false"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "navisionId",
+                                    "attributeLabel": "navisionId",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "204e4083-eafe-4b9a-883e-95a3c94858e0",
+                                            "label": "204e4083-eafe-4b9a-883e-95a3c94858e0"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "product_publication",
+                                    "attributeLabel": "Kategorie",
+                                    "attributeType": "ID",
+                                    "vals": [
+                                        {
+                                            "value": "5650520",
+                                            "label": "Wochenaktionen"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "product_publication_filter",
+                                    "attributeLabel": "Angebote",
+                                    "attributeType": "ID",
+                                    "vals": [
+                                        {
+                                            "value": "4649555",
+                                            "label": "Aktuelle Aktionen"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "salesQuantity",
+                                    "attributeLabel": "salesQuantity",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "1",
+                                            "label": "1"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "stopperType",
+                                    "attributeLabel": "stopperType",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "x_percent",
+                                            "label": "x_percent"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "price",
+                                    "attributeLabel": "Preis",
+                                    "attributeType": "RANGE",
+                                    "vals": [
+                                        {
+                                            "value": "10.95",
+                                            "label": "10.95"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "unit_price",
+                                    "attributeLabel": "Stückpreis",
+                                    "attributeType": "RANGE",
+                                    "vals": [
+                                        {
+                                            "value": "10.95",
+                                            "label": "10.95"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "availability",
+                                    "attributeLabel": "availability",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "10.00",
+                                            "label": "10.00"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "Geschmacksprofil",
+                                    "attributeLabel": "pred-custom1",
+                                    "attributeType": "RANGE",
+                                    "vals": [
+                                        {
+                                            "value": "0.0",
+                                            "label": "0.0"
+                                        }
+                                    ]
+                                }
+                            ],
+                            "displayInfo": {}
+                        },
+                        "template": {
+                            "posX": 2,
+                            "posY": 1,
+                            "sizeX": 1,
+                            "sizeY": 1
+                        },
+                        "rule": {
+                            "baseRuleTemplateName": "Similar Items - same subcat-ordering_08-07-2024_15:06:06",
+                            "ruleTemplateId": 64445,
+                            "ruleTemplateName": "Similar Items - same subcat-ordering_08-07-2024_15:06:06",
+                            "ruleTemplateLabel": "Articles products - Similar Items - same subcat-ordering",
+                            "initialSetupPosition": 2,
+                            "positionInCascade": 1,
+                            "itemIdBeforeGrouping": "204e4083-eafe-4b9a-883e-95a3c94858e0",
+                            "ruleType": "STANDARD",
+                            "computationTimeInMs": 0.0,
+                            "ruleId": 101237,
+                            "ruleName": "Default campaign_2658_5726_2_25-11-2024_15:33:55_R",
+                            "sourceItemId": "f4fa6b89-6722-4137-af69-7fda73ac6c04",
+                            "scenarioName": "master_scenario",
+                            "ruleTemplateLabelIfPossibleElseName": "Articles products - Similar Items - same subcat-ordering"
+                        }
+                    },
+                    {
+                        "position": 3,
+                        "item": {
+                            "sku": "7553ce6a-4257-4a5a-9724-ba224910d20c",
+                            "price": 10.95,
+                            "itemType": "PRODUCT",
+                            "trackingCode": "NTBmNTY3YTAtYTJhYS00YjYxLWFjOGMtMDQ3NmI1ZDVlYTNmfDUwZjU2N2EwLWEyYWEtNGI2MS1hYzhjLTA0NzZiNWQ1ZWEzZnxQcm9kdWN0IC0gZ2VuZXJhbCBzcGVjaWFsIG9mZmVyc3xQRFAgLSBQcm9kdWN0IC0gZ2VuZXJhbCBzcGVjaWFsIG9mZmVyc3w3NTUzY2U2YS00MjU3LTRhNWEtOTcyNC1iYTIyNDkxMGQyMGN8ZjRmYTZiODktNjcyMi00MTM3LWFmNjktN2ZkYTczYWM2YzA0fFBST0RVQ1R8MnxJVEVNX0JMT0NLfERlZmF1bHQgY2FtcGFpZ25fMjY1OF81NzI2XzNfMjUtMTEtMjAyNF8xNTozMzo1NV9SfFNpbWlsYXIgSXRlbXMgLSBzYW1lIHN1YmNhdC1vcmRlcmluZ18wOC0wNy0yMDI0XzE1OjA2OjA2fE1lcmNoIGJsb2MgMSo1fG1hc3Rlcl9zY2VuYXJpb3xudWxsfG51bGx8bnVsbHxudWxsfG51bGx8MTc4MTc5MjAzNDY0M3xkZV9DSHxDT01QVVRFUg",
+                            "attributeInfo": [
+                                {
+                                    "attributeName": "promotion_permitted",
+                                    "attributeLabel": "promotion_permitted",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "1",
+                                            "label": "1"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "imageUrl",
+                                    "attributeLabel": "imageUrl",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "https://denner.imgix.net/assets/42a0037e-8ad3-4cd2-b37c-f5897ab9a2a5/web/082618_24_06_06.png",
+                                            "label": "https://denner.imgix.net/assets/42a0037e-8ad3-4cd2-b37c-f5897ab9a2a5/web/082618_24_06_06.png"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "content_size_text",
+                                    "attributeLabel": "Inhalt",
+                                    "attributeType": "ID",
+                                    "vals": [
+                                        {
+                                            "value": "0.8 unit.g",
+                                            "label": "0.8 unit.g"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "discount_text",
+                                    "attributeLabel": "discount_text",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "41%",
+                                            "label": "41%"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "footnote",
+                                    "attributeLabel": "footnote",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "Konkurrenzvergleich",
+                                            "label": "Konkurrenzvergleich"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "insteadPriceText",
+                                    "attributeLabel": "insteadPriceText",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "statt 18.85",
+                                            "label": "statt 18.85"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "itemUrl",
+                                    "attributeLabel": "itemUrl",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "/de/aktionen/maggi-gemuesebouillon~p1028894?variant=7553ce6a-4257-4a5a-9724-ba224910d20c",
+                                            "label": "/de/aktionen/maggi-gemuesebouillon~p1028894?variant=7553ce6a-4257-4a5a-9724-ba224910d20c"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "name",
+                                    "attributeLabel": "name",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "Maggi Gemüsebouillon",
+                                            "label": "Maggi Gemüsebouillon"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "nameSubline",
+                                    "attributeLabel": "nameSubline",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "fettarm, 800 g",
+                                            "label": "fettarm, 800 g"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "pimcoreId",
+                                    "attributeLabel": "pimcoreId",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "5650872",
+                                            "label": "5650872"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "priceFormatted",
+                                    "attributeLabel": "priceFormatted",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "10.95",
+                                            "label": "10.95"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "promotionFrom",
+                                    "attributeLabel": "promotionFrom",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "1781749078",
+                                            "label": "1781749078"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "promotionLabel",
+                                    "attributeLabel": "promotionLabel",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "18.06.–24.06.2026",
+                                            "label": "18.06.–24.06.2026"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "promotionLabelPublication",
+                                    "attributeLabel": "promotionLabelPublication",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "18.06.–24.06.2026",
+                                            "label": "18.06.–24.06.2026"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "promotionTo",
+                                    "attributeLabel": "promotionTo",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "1782252000",
+                                            "label": "1782252000"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "wine_of_the_week",
+                                    "attributeLabel": "wine_of_the_week",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "false",
+                                            "label": "false"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "_tracking_discount",
+                                    "attributeLabel": "_tracking_discount",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "7.9",
+                                            "label": "7.9"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "_tracking_item_category2",
+                                    "attributeLabel": "_tracking_item_category2",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "Sonstiges",
+                                            "label": "Sonstiges"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "_tracking_item_id",
+                                    "attributeLabel": "_tracking_item_id",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "1028894",
+                                            "label": "1028894"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "_tracking_item_name",
+                                    "attributeLabel": "_tracking_item_name",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "Maggi Gemüsebouillon",
+                                            "label": "Maggi Gemüsebouillon"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "buying_channel",
+                                    "attributeLabel": "Verkaufskanal",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "all",
+                                            "label": "all"
+                                        },
+                                        {
+                                            "value": "stores",
+                                            "label": "stores"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "category",
+                                    "attributeLabel": "category",
+                                    "attributeType": "ID",
+                                    "vals": [
+                                        {
+                                            "value": "1144362",
+                                            "label": "Lebensmittel"
+                                        },
+                                        {
+                                            "value": "1144368",
+                                            "label": "Sonstiges"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "design",
+                                    "attributeLabel": "prediggo.attribute.design",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "whitesmoke",
+                                            "label": "whitesmoke"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "isAssortmentPromotion",
+                                    "attributeLabel": "isAssortmentPromotion",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "false",
+                                            "label": "false"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "isBuyable",
+                                    "attributeLabel": "isBuyable",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "false",
+                                            "label": "false"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "navisionId",
+                                    "attributeLabel": "navisionId",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "7553ce6a-4257-4a5a-9724-ba224910d20c",
+                                            "label": "7553ce6a-4257-4a5a-9724-ba224910d20c"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "product_publication",
+                                    "attributeLabel": "Kategorie",
+                                    "attributeType": "ID",
+                                    "vals": [
+                                        {
+                                            "value": "5650520",
+                                            "label": "Wochenaktionen"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "product_publication_filter",
+                                    "attributeLabel": "Angebote",
+                                    "attributeType": "ID",
+                                    "vals": [
+                                        {
+                                            "value": "4649555",
+                                            "label": "Aktuelle Aktionen"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "salesQuantity",
+                                    "attributeLabel": "salesQuantity",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "1",
+                                            "label": "1"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "stopperType",
+                                    "attributeLabel": "stopperType",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "x_percent",
+                                            "label": "x_percent"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "price",
+                                    "attributeLabel": "Preis",
+                                    "attributeType": "RANGE",
+                                    "vals": [
+                                        {
+                                            "value": "10.95",
+                                            "label": "10.95"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "unit_price",
+                                    "attributeLabel": "Stückpreis",
+                                    "attributeType": "RANGE",
+                                    "vals": [
+                                        {
+                                            "value": "10.95",
+                                            "label": "10.95"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "availability",
+                                    "attributeLabel": "availability",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "10.00",
+                                            "label": "10.00"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "Geschmacksprofil",
+                                    "attributeLabel": "pred-custom1",
+                                    "attributeType": "RANGE",
+                                    "vals": [
+                                        {
+                                            "value": "0.0",
+                                            "label": "0.0"
+                                        }
+                                    ]
+                                }
+                            ],
+                            "displayInfo": {}
+                        },
+                        "template": {
+                            "posX": 3,
+                            "posY": 1,
+                            "sizeX": 1,
+                            "sizeY": 1
+                        },
+                        "rule": {
+                            "baseRuleTemplateName": "Similar Items - same subcat-ordering_08-07-2024_15:06:06",
+                            "ruleTemplateId": 64445,
+                            "ruleTemplateName": "Similar Items - same subcat-ordering_08-07-2024_15:06:06",
+                            "ruleTemplateLabel": "Articles products - Similar Items - same subcat-ordering",
+                            "initialSetupPosition": 3,
+                            "positionInCascade": 1,
+                            "itemIdBeforeGrouping": "7553ce6a-4257-4a5a-9724-ba224910d20c",
+                            "ruleType": "STANDARD",
+                            "computationTimeInMs": 0.0,
+                            "ruleId": 101238,
+                            "ruleName": "Default campaign_2658_5726_3_25-11-2024_15:33:55_R",
+                            "sourceItemId": "f4fa6b89-6722-4137-af69-7fda73ac6c04",
+                            "scenarioName": "master_scenario",
+                            "ruleTemplateLabelIfPossibleElseName": "Articles products - Similar Items - same subcat-ordering"
+                        }
+                    },
+                    {
+                        "position": 4,
+                        "item": {
+                            "sku": "e3030d46-6879-427d-b1a8-46ba8ab579d5",
+                            "price": 8.95,
+                            "itemType": "PRODUCT",
+                            "trackingCode": "NTBmNTY3YTAtYTJhYS00YjYxLWFjOGMtMDQ3NmI1ZDVlYTNmfDUwZjU2N2EwLWEyYWEtNGI2MS1hYzhjLTA0NzZiNWQ1ZWEzZnxQcm9kdWN0IC0gZ2VuZXJhbCBzcGVjaWFsIG9mZmVyc3xQRFAgLSBQcm9kdWN0IC0gZ2VuZXJhbCBzcGVjaWFsIG9mZmVyc3xlMzAzMGQ0Ni02ODc5LTQyN2QtYjFhOC00NmJhOGFiNTc5ZDV8ZjRmYTZiODktNjcyMi00MTM3LWFmNjktN2ZkYTczYWM2YzA0fFBST0RVQ1R8M3xJVEVNX0JMT0NLfERlZmF1bHQgY2FtcGFpZ25fMjY1OF81NzI2XzRfMjUtMTEtMjAyNF8xNTozMzo1NV9SfFNpbWlsYXIgSXRlbXMgLSBzYW1lIHN1YmNhdC1vcmRlcmluZ18wOC0wNy0yMDI0XzE1OjA2OjA2fE1lcmNoIGJsb2MgMSo1fG1hc3Rlcl9zY2VuYXJpb3xudWxsfG51bGx8bnVsbHxudWxsfG51bGx8MTc4MTc5MjAzNDY0M3xkZV9DSHxDT01QVVRFUg",
+                            "attributeInfo": [
+                                {
+                                    "attributeName": "promotion_permitted",
+                                    "attributeLabel": "promotion_permitted",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "1",
+                                            "label": "1"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "imageUrl",
+                                    "attributeLabel": "imageUrl",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "https://denner.imgix.net/assets/c5cb0e0d-6609-43c2-8a5b-32306c669259/web/030138_25_02_07.png",
+                                            "label": "https://denner.imgix.net/assets/c5cb0e0d-6609-43c2-8a5b-32306c669259/web/030138_25_02_07.png"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "content_size_text",
+                                    "attributeLabel": "Inhalt",
+                                    "attributeType": "ID",
+                                    "vals": [
+                                        {
+                                            "value": "0.5 unit.g",
+                                            "label": "0.5 unit.g"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "discount_text",
+                                    "attributeLabel": "discount_text",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "SPECIAL",
+                                            "label": "SPECIAL"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "itemUrl",
+                                    "attributeLabel": "itemUrl",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "/de/aktionen/nectaflor-trockenfruechte-natural-delights-aprikosen~p1035775?variant=e3030d46-6879-427d-b1a8-46ba8ab579d5",
+                                            "label": "/de/aktionen/nectaflor-trockenfruechte-natural-delights-aprikosen~p1035775?variant=e3030d46-6879-427d-b1a8-46ba8ab579d5"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "name",
+                                    "attributeLabel": "name",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "Nectaflor Trockenfrüchte Natural Delights Aprikosen",
+                                            "label": "Nectaflor Trockenfrüchte Natural Delights Aprikosen"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "nameSubline",
+                                    "attributeLabel": "nameSubline",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "500 g",
+                                            "label": "500 g"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "pimcoreId",
+                                    "attributeLabel": "pimcoreId",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "5650588",
+                                            "label": "5650588"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "priceFormatted",
+                                    "attributeLabel": "priceFormatted",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "8.95",
+                                            "label": "8.95"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "promotionFrom",
+                                    "attributeLabel": "promotionFrom",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "1781749078",
+                                            "label": "1781749078"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "promotionLabel",
+                                    "attributeLabel": "promotionLabel",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "18.06.–24.06.2026",
+                                            "label": "18.06.–24.06.2026"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "promotionLabelPublication",
+                                    "attributeLabel": "promotionLabelPublication",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "18.06.–24.06.2026",
+                                            "label": "18.06.–24.06.2026"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "promotionTo",
+                                    "attributeLabel": "promotionTo",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "1782252000",
+                                            "label": "1782252000"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "wine_of_the_week",
+                                    "attributeLabel": "wine_of_the_week",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "false",
+                                            "label": "false"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "_tracking_discount",
+                                    "attributeLabel": "_tracking_discount",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "0",
+                                            "label": "0"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "_tracking_item_category2",
+                                    "attributeLabel": "_tracking_item_category2",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "Sonstiges",
+                                            "label": "Sonstiges"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "_tracking_item_id",
+                                    "attributeLabel": "_tracking_item_id",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "1035775",
+                                            "label": "1035775"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "_tracking_item_name",
+                                    "attributeLabel": "_tracking_item_name",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "Nectaflor Trockenfrüchte Natural Delights Aprikosen",
+                                            "label": "Nectaflor Trockenfrüchte Natural Delights Aprikosen"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "buying_channel",
+                                    "attributeLabel": "Verkaufskanal",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "all",
+                                            "label": "all"
+                                        },
+                                        {
+                                            "value": "stores",
+                                            "label": "stores"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "category",
+                                    "attributeLabel": "category",
+                                    "attributeType": "ID",
+                                    "vals": [
+                                        {
+                                            "value": "1144362",
+                                            "label": "Lebensmittel"
+                                        },
+                                        {
+                                            "value": "1144368",
+                                            "label": "Sonstiges"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "design",
+                                    "attributeLabel": "prediggo.attribute.design",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "whitesmoke",
+                                            "label": "whitesmoke"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "isAssortmentPromotion",
+                                    "attributeLabel": "isAssortmentPromotion",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "false",
+                                            "label": "false"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "isBuyable",
+                                    "attributeLabel": "isBuyable",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "false",
+                                            "label": "false"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "navisionId",
+                                    "attributeLabel": "navisionId",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "e3030d46-6879-427d-b1a8-46ba8ab579d5",
+                                            "label": "e3030d46-6879-427d-b1a8-46ba8ab579d5"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "product_publication",
+                                    "attributeLabel": "Kategorie",
+                                    "attributeType": "ID",
+                                    "vals": [
+                                        {
+                                            "value": "5650520",
+                                            "label": "Wochenaktionen"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "product_publication_filter",
+                                    "attributeLabel": "Angebote",
+                                    "attributeType": "ID",
+                                    "vals": [
+                                        {
+                                            "value": "4649555",
+                                            "label": "Aktuelle Aktionen"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "salesQuantity",
+                                    "attributeLabel": "salesQuantity",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "1",
+                                            "label": "1"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "stopperType",
+                                    "attributeLabel": "stopperType",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "special_offer",
+                                            "label": "special_offer"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "price",
+                                    "attributeLabel": "Preis",
+                                    "attributeType": "RANGE",
+                                    "vals": [
+                                        {
+                                            "value": "8.95",
+                                            "label": "8.95"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "unit_price",
+                                    "attributeLabel": "Stückpreis",
+                                    "attributeType": "RANGE",
+                                    "vals": [
+                                        {
+                                            "value": "8.95",
+                                            "label": "8.95"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "availability",
+                                    "attributeLabel": "availability",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "10.00",
+                                            "label": "10.00"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "Geschmacksprofil",
+                                    "attributeLabel": "pred-custom1",
+                                    "attributeType": "RANGE",
+                                    "vals": [
+                                        {
+                                            "value": "0.0",
+                                            "label": "0.0"
+                                        }
+                                    ]
+                                }
+                            ],
+                            "displayInfo": {}
+                        },
+                        "template": {
+                            "posX": 4,
+                            "posY": 1,
+                            "sizeX": 1,
+                            "sizeY": 1
+                        },
+                        "rule": {
+                            "baseRuleTemplateName": "Similar Items - same subcat-ordering_08-07-2024_15:06:06",
+                            "ruleTemplateId": 64445,
+                            "ruleTemplateName": "Similar Items - same subcat-ordering_08-07-2024_15:06:06",
+                            "ruleTemplateLabel": "Articles products - Similar Items - same subcat-ordering",
+                            "initialSetupPosition": 4,
+                            "positionInCascade": 1,
+                            "itemIdBeforeGrouping": "e3030d46-6879-427d-b1a8-46ba8ab579d5",
+                            "ruleType": "STANDARD",
+                            "computationTimeInMs": 0.0,
+                            "ruleId": 101239,
+                            "ruleName": "Default campaign_2658_5726_4_25-11-2024_15:33:55_R",
+                            "sourceItemId": "f4fa6b89-6722-4137-af69-7fda73ac6c04",
+                            "scenarioName": "master_scenario",
+                            "ruleTemplateLabelIfPossibleElseName": "Articles products - Similar Items - same subcat-ordering"
+                        }
+                    },
+                    {
+                        "position": 5,
+                        "item": {
+                            "sku": "46003212-4912-4bd5-b6f7-c29c707df011",
+                            "price": 7.95,
+                            "itemType": "PRODUCT",
+                            "trackingCode": "NTBmNTY3YTAtYTJhYS00YjYxLWFjOGMtMDQ3NmI1ZDVlYTNmfDUwZjU2N2EwLWEyYWEtNGI2MS1hYzhjLTA0NzZiNWQ1ZWEzZnxQcm9kdWN0IC0gZ2VuZXJhbCBzcGVjaWFsIG9mZmVyc3xQRFAgLSBQcm9kdWN0IC0gZ2VuZXJhbCBzcGVjaWFsIG9mZmVyc3w0NjAwMzIxMi00OTEyLTRiZDUtYjZmNy1jMjljNzA3ZGYwMTF8ZjRmYTZiODktNjcyMi00MTM3LWFmNjktN2ZkYTczYWM2YzA0fFBST0RVQ1R8NHxJVEVNX0JMT0NLfERlZmF1bHQgY2FtcGFpZ25fMjY1OF81NzI2XzVfMjUtMTEtMjAyNF8xNTozMzo1NV9SfFNpbWlsYXIgSXRlbXMgLSBzYW1lIHN1YmNhdC1vcmRlcmluZ18wOC0wNy0yMDI0XzE1OjA2OjA2fE1lcmNoIGJsb2MgMSo1fG1hc3Rlcl9zY2VuYXJpb3xudWxsfG51bGx8bnVsbHxudWxsfG51bGx8MTc4MTc5MjAzNDY0M3xkZV9DSHxDT01QVVRFUg",
+                            "attributeInfo": [
+                                {
+                                    "attributeName": "promotion_permitted",
+                                    "attributeLabel": "promotion_permitted",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "1",
+                                            "label": "1"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "imageUrl",
+                                    "attributeLabel": "imageUrl",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "https://denner.imgix.net/assets/a6f101eb-983f-4171-b31c-7ea39494f63a/web/035230_23_04_25_PACK_02.png",
+                                            "label": "https://denner.imgix.net/assets/a6f101eb-983f-4171-b31c-7ea39494f63a/web/035230_23_04_25_PACK_02.png"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "content_size_text",
+                                    "attributeLabel": "Inhalt",
+                                    "attributeType": "ID",
+                                    "vals": [
+                                        {
+                                            "value": "1 unit.g",
+                                            "label": "1 unit.g"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "discount_text",
+                                    "attributeLabel": "discount_text",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "20%",
+                                            "label": "20%"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "insteadPriceText",
+                                    "attributeLabel": "insteadPriceText",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "statt 10.–",
+                                            "label": "statt 10.–"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "itemUrl",
+                                    "attributeLabel": "itemUrl",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "/de/aktionen/nestle-cerealien-cini-minis~p1023763?variant=46003212-4912-4bd5-b6f7-c29c707df011",
+                                            "label": "/de/aktionen/nestle-cerealien-cini-minis~p1023763?variant=46003212-4912-4bd5-b6f7-c29c707df011"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "name",
+                                    "attributeLabel": "name",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "Nestlé Cerealien Cini Minis",
+                                            "label": "Nestlé Cerealien Cini Minis"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "nameSubline",
+                                    "attributeLabel": "nameSubline",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "2 x 500 g",
+                                            "label": "2 x 500 g"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "pimcoreId",
+                                    "attributeLabel": "pimcoreId",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "5650804",
+                                            "label": "5650804"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "priceFormatted",
+                                    "attributeLabel": "priceFormatted",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "7.95",
+                                            "label": "7.95"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "promotionFrom",
+                                    "attributeLabel": "promotionFrom",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "1781749078",
+                                            "label": "1781749078"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "promotionLabel",
+                                    "attributeLabel": "promotionLabel",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "18.06.–24.06.2026",
+                                            "label": "18.06.–24.06.2026"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "promotionLabelPublication",
+                                    "attributeLabel": "promotionLabelPublication",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "18.06.–24.06.2026",
+                                            "label": "18.06.–24.06.2026"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "promotionTo",
+                                    "attributeLabel": "promotionTo",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "1782252000",
+                                            "label": "1782252000"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "wine_of_the_week",
+                                    "attributeLabel": "wine_of_the_week",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "false",
+                                            "label": "false"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "_tracking_discount",
+                                    "attributeLabel": "_tracking_discount",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "2.05",
+                                            "label": "2.05"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "_tracking_item_category2",
+                                    "attributeLabel": "_tracking_item_category2",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "Sonstiges",
+                                            "label": "Sonstiges"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "_tracking_item_id",
+                                    "attributeLabel": "_tracking_item_id",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "1023763",
+                                            "label": "1023763"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "_tracking_item_name",
+                                    "attributeLabel": "_tracking_item_name",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "Nestlé Cerealien Cini Minis",
+                                            "label": "Nestlé Cerealien Cini Minis"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "buying_channel",
+                                    "attributeLabel": "Verkaufskanal",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "all",
+                                            "label": "all"
+                                        },
+                                        {
+                                            "value": "stores",
+                                            "label": "stores"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "category",
+                                    "attributeLabel": "category",
+                                    "attributeType": "ID",
+                                    "vals": [
+                                        {
+                                            "value": "1144362",
+                                            "label": "Lebensmittel"
+                                        },
+                                        {
+                                            "value": "1144368",
+                                            "label": "Sonstiges"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "design",
+                                    "attributeLabel": "prediggo.attribute.design",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "whitesmoke",
+                                            "label": "whitesmoke"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "isAssortmentPromotion",
+                                    "attributeLabel": "isAssortmentPromotion",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "false",
+                                            "label": "false"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "isBuyable",
+                                    "attributeLabel": "isBuyable",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "false",
+                                            "label": "false"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "navisionId",
+                                    "attributeLabel": "navisionId",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "46003212-4912-4bd5-b6f7-c29c707df011",
+                                            "label": "46003212-4912-4bd5-b6f7-c29c707df011"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "product_publication",
+                                    "attributeLabel": "Kategorie",
+                                    "attributeType": "ID",
+                                    "vals": [
+                                        {
+                                            "value": "5650520",
+                                            "label": "Wochenaktionen"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "product_publication_filter",
+                                    "attributeLabel": "Angebote",
+                                    "attributeType": "ID",
+                                    "vals": [
+                                        {
+                                            "value": "4649555",
+                                            "label": "Aktuelle Aktionen"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "salesQuantity",
+                                    "attributeLabel": "salesQuantity",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "1",
+                                            "label": "1"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "stopperType",
+                                    "attributeLabel": "stopperType",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "x_percent",
+                                            "label": "x_percent"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "price",
+                                    "attributeLabel": "Preis",
+                                    "attributeType": "RANGE",
+                                    "vals": [
+                                        {
+                                            "value": "7.95",
+                                            "label": "7.95"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "unit_price",
+                                    "attributeLabel": "Stückpreis",
+                                    "attributeType": "RANGE",
+                                    "vals": [
+                                        {
+                                            "value": "7.95",
+                                            "label": "7.95"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "availability",
+                                    "attributeLabel": "availability",
+                                    "attributeType": "VALUE",
+                                    "vals": [
+                                        {
+                                            "value": "10.00",
+                                            "label": "10.00"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "attributeName": "Geschmacksprofil",
+                                    "attributeLabel": "pred-custom1",
+                                    "attributeType": "RANGE",
+                                    "vals": [
+                                        {
+                                            "value": "0.0",
+                                            "label": "0.0"
+                                        }
+                                    ]
+                                }
+                            ],
+                            "displayInfo": {}
+                        },
+                        "template": {
+                            "posX": 5,
+                            "posY": 1,
+                            "sizeX": 1,
+                            "sizeY": 1
+                        },
+                        "rule": {
+                            "baseRuleTemplateName": "Similar Items - same subcat-ordering_08-07-2024_15:06:06",
+                            "ruleTemplateId": 64445,
+                            "ruleTemplateName": "Similar Items - same subcat-ordering_08-07-2024_15:06:06",
+                            "ruleTemplateLabel": "Articles products - Similar Items - same subcat-ordering",
+                            "initialSetupPosition": 5,
+                            "positionInCascade": 1,
+                            "itemIdBeforeGrouping": "46003212-4912-4bd5-b6f7-c29c707df011",
+                            "ruleType": "STANDARD",
+                            "computationTimeInMs": 0.0,
+                            "ruleId": 101240,
+                            "ruleName": "Default campaign_2658_5726_5_25-11-2024_15:33:55_R",
+                            "sourceItemId": "f4fa6b89-6722-4137-af69-7fda73ac6c04",
+                            "scenarioName": "master_scenario",
+                            "ruleTemplateLabelIfPossibleElseName": "Articles products - Similar Items - same subcat-ordering"
+                        }
+                    }
+                ],
+                "stats": {
+                    "totalResults": 5,
+                    "computationInMs": 0.3,
+                    "campaignName": "master_scenario",
+                    "campaignLabel": "Default campaign",
+                    "scenarioName": "master_scenario",
+                    "scenarioTemplate": "Merch bloc 1*5",
+                    "nbSlotsX": 5,
+                    "nbSlotsY": 1
+                },
+                "nbSlots": 5
+            }
+        ],
+        "searches": []
+    },
+    "nbItems": 5
+}

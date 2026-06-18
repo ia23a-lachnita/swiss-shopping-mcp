@@ -1,0 +1,265 @@
+{
+    "data": {
+        "pimcoreId": 2762948,
+        "remoteId": "1102135",
+        "variantId": "f4fa6b89-6722-4137-af69-7fda73ac6c04",
+        "sapId": "1102135",
+        "legacyNavisionId": "662748",
+        "productType": "online-publication-variant",
+        "_tracking": {
+            "coupon": "",
+            "discount": 0,
+            "item_id": "1102135",
+            "item_name": "enerBIO Apfel Chips",
+            "item_brand": "",
+            "item_category": "",
+            "item_category2": "Sonstiges",
+            "item_category3": "",
+            "item_category4": "",
+            "item_category5": "",
+            "item_variant": "",
+            "unit_base_measure_ml": ""
+        },
+        "title": "enerBIO Apfel Chips",
+        "description": "70\u00a0g",
+        "additionalDesription": null,
+        "categories": [
+            {
+                "id": 1144362,
+                "fullPath": "\/Lebensmittel",
+                "title": "Lebensmittel"
+            },
+            {
+                "id": 1144368,
+                "fullPath": "\/Lebensmittel\/Sonstiges",
+                "title": "Sonstiges"
+            }
+        ],
+        "crossLinks": {
+            "createTasteProfileURL": null
+        },
+        "articleGroupCode": "38-20",
+        "rating": [],
+        "availability": {
+            "forSale": false,
+            "stockStatus": {
+                "code": null
+            },
+            "trafficLight": "red",
+            "text": "Nicht lieferbar",
+            "onlineAvailability": {
+                "id": "",
+                "text": ""
+            },
+            "buyingChannel": [
+                "stores",
+                "all"
+            ],
+            "regionCode": "",
+            "regionText": ""
+        },
+        "images": [
+            {
+                "type": "front",
+                "cdnUrl": "https:\/\/denner.imgix.net\/assets\/ed4b2f07-8a79-4cb6-ab96-c1f80e9a62e4\/web\/662748_25_06_05.png"
+            }
+        ],
+        "wine": null,
+        "ecoLabels": [
+            {
+                "id": 1146371,
+                "remoteId": "bio-eu",
+                "name": "Bio EU",
+                "image": "https:\/\/denner.imgix.net\/eco-labels\/bio-eu.png",
+                "productGridLink": {
+                    "url": "\/de\/search\/products?eco_labels=1146371"
+                }
+            }
+        ],
+        "boxLabels": [],
+        "dots": [],
+        "stopper": {
+            "type": "x_percent",
+            "text": "",
+            "markupText": ""
+        },
+        "design": "whitesmoke",
+        "isAssortmentPromotion": false,
+        "gridItemLink": null,
+        "publication": {
+            "id": 2762530,
+            "name": "Teilsortiment enerBio ",
+            "validityFrom": 1753236631,
+            "validityTo": null
+        },
+        "sort": 5,
+        "opa": {
+            "expired": false,
+            "expiredText": "",
+            "expiredRedirect": "",
+            "promotion": {
+                "promotionLabel": "",
+                "promotionFrom": 1753236631,
+                "promotionTo": "",
+                "special": false
+            }
+        },
+        "sales": {
+            "amount": 1,
+            "compared": false,
+            "priceInfo": "",
+            "priceOverride": "",
+            "unitPriceInfo": "",
+            "showSinglePrice": false,
+            "price": {
+                "raw": 2.5,
+                "formatted": "2.50",
+                "minQuantity": 1,
+                "insteadPrice": {
+                    "raw": null,
+                    "formatted": "",
+                    "text": ""
+                },
+                "percentage": {
+                    "raw": null,
+                    "formatted": ""
+                },
+                "netPrice": {
+                    "raw": 2.31,
+                    "formatted": "2.31",
+                    "text": "2.31"
+                }
+            },
+            "validityDisclaimer": null,
+            "footNote": ""
+        },
+        "isBio": true,
+        "isVegan": false,
+        "legal": {
+            "warning": "none",
+            "text": "",
+            "promotionPermitted": true
+        },
+        "variant": "f4fa6b89-6722-4137-af69-7fda73ac6c04"
+    },
+    "theme": "default",
+    "doc": {
+        "path": "\/",
+        "id": 5
+    },
+    "breadcrumbs": [
+        {
+            "label": "Home",
+            "url": "\/de"
+        },
+        {
+            "label": "Lebensmittel",
+            "url": "https:\/\/www.denner.ch\/de\/aktionen\/lebensmittel~c1144362",
+            "target": null
+        },
+        {
+            "label": "Sonstiges",
+            "url": "https:\/\/www.denner.ch\/de\/aktionen\/sonstiges~c1144368",
+            "target": null
+        },
+        {
+            "label": "enerBIO Apfel Chips",
+            "url": "https:\/\/www.denner.ch\/de\/aktionen\/enerbio-apfel-chips~p1102135",
+            "target": null
+        }
+    ],
+    "langLinks": [
+        {
+            "name": "DE",
+            "href": "https:\/\/www.denner.ch\/de\/aktionen\/enerbio-apfel-chips~p1102135"
+        },
+        {
+            "name": "FR",
+            "href": "https:\/\/www.denner.ch\/fr\/actions\/chips-de-pomme-enerbio~p1102135"
+        },
+        {
+            "name": "IT",
+            "href": "https:\/\/www.denner.ch\/it\/azioni\/chips-di-mela-enerbio~p1102135"
+        }
+    ],
+    "overlay": "western",
+    "prediggoPageId": "",
+    "prediggoBlockId": "",
+    "showSpecialBanner": false,
+    "seo": {
+        "title": "enerBIO Apfel Chips - Aktuelle Preise und Aktionen | Denner",
+        "description": "Finden Sie aktuelle Informationen zu enerBIO Apfel Chips",
+        "canonical": "https:\/\/www.denner.ch\/de\/aktionen\/enerbio-apfel-chips~p1102135",
+        "hrefLangs": [],
+        "robots": "noindex, follow"
+    },
+    "jsonLd": {
+        "content": {
+            "@context": "https:\/\/schema.org",
+            "@type": "Product",
+            "brand": {
+                "@type": "Brand",
+                "name": "Denner"
+            },
+            "sku": "1102135",
+            "mpn": "1102135",
+            "name": "enerBIO Apfel Chips",
+            "image": [
+                "https:\/\/denner.imgix.net\/assets\/ed4b2f07-8a79-4cb6-ab96-c1f80e9a62e4\/web\/662748_25_06_05.png"
+            ],
+            "description": "70\u00a0g",
+            "offers": {
+                "@type": "Offer",
+                "url": "https:\/\/www.denner.ch\/de\/aktionen\/~p1102135?variant=f4fa6b89-6722-4137-af69-7fda73ac6c04\u0026locale=de\u0026context=promotion",
+                "availability": "https:\/\/schema.org\/InStoreOnly",
+                "price": 2.5,
+                "priceCurrency": "CHF"
+            }
+        },
+        "breadcrumb": {
+            "@context": "http:\/\/schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+                {
+                    "@type": "ListItem",
+                    "position": 1,
+                    "item": {
+                        "@id": "https:\/\/www.denner.ch\/de",
+                        "name": "Home"
+                    }
+                },
+                {
+                    "@type": "ListItem",
+                    "position": 2,
+                    "item": {
+                        "@id": "https:\/\/www.denner.ch\/de\/aktionen\/lebensmittel~c1144362",
+                        "name": "Lebensmittel"
+                    }
+                },
+                {
+                    "@type": "ListItem",
+                    "position": 3,
+                    "item": {
+                        "@id": "https:\/\/www.denner.ch\/de\/aktionen\/sonstiges~c1144368",
+                        "name": "Sonstiges"
+                    }
+                },
+                {
+                    "@type": "ListItem",
+                    "position": 4,
+                    "item": {
+                        "@id": "https:\/\/www.denner.ch\/de\/aktionen\/enerbio-apfel-chips~p1102135",
+                        "name": "enerBIO Apfel Chips"
+                    }
+                }
+            ]
+        }
+    },
+    "openGraph": {
+        "og:title": "enerBIO Apfel Chips - Aktuelle Preise und Aktionen | Denner",
+        "og:description": "70\u00a0g",
+        "og:image": "https:\/\/denner.imgix.net\/assets\/ed4b2f07-8a79-4cb6-ab96-c1f80e9a62e4\/web\/662748_25_06_05.png?w=1200\u0026h=630\u0026fit=fill\u0026fill=solid\u0026bg=ffffff\u0026pad=30\u0026auto=format\u0026auto=compress",
+        "og:url": "https:\/\/www.denner.ch\/de\/aktionen\/enerbio-apfel-chips~p1102135",
+        "og:type": "website"
+    }
+}

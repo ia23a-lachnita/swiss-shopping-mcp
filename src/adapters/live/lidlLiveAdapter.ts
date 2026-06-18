@@ -31,7 +31,7 @@ const LIDL_PROVIDER = 'Lidl Schweiz';
 const DEFAULT_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 const DEFAULT_SEARCH_LIMIT = 20;
 const CAMPAIGNS_URL = 'https://digital-leaflet.lidlplus.com/api/v1/CH/campaignGroups';
-const STORES_URL = 'https://stores.lidlplus.com/api/v2/CH';
+const STORES_URL = 'https://stores.lidlplus.com/api/v4/CH';
 const LIDL_PLUS_UA = 'Lidl Plus/5.0.0 (Android; 14; SM-S928B)';
 
 export interface LidlLiveAdapterOptions {
@@ -62,6 +62,15 @@ function toNormalizedStore(store: LidlParsedStore, provenance: SourceProvenance)
     openingHours: store.openingHours,
     provenance,
   };
+}
+
+function filterStoresByQuery(stores: LidlParsedStore[], query: string): LidlParsedStore[] {
+  const q = query.toLowerCase().trim();
+  return stores.filter((s) => {
+    const name = s.name.toLowerCase();
+    const address = s.address.toLowerCase();
+    return name.includes(q) || address.includes(q);
+  });
 }
 
 export class LidlLiveAdapter implements ChainAdapter {
@@ -192,46 +201,53 @@ export class LidlLiveAdapter implements ChainAdapter {
       return { ok: false, error: { code: 'INVALID_QUERY', message: 'Location must be a non-empty string.' } };
     }
 
-    const storesUrl = `${STORES_URL}?query=${encodeURIComponent(location)}`;
-    const cacheKey = `lidl:stores:${location}`;
+    const cacheKey = 'lidl:stores:all';
 
     const cached = await this.cache.get<unknown>(cacheKey, { allowStale: true });
     if (cached && !cached.isStale) {
-      return this.parseStoreResult(cached.data, cached.provenance, [], filters.limit);
+      const allParsed = parseLidlStoresResponse(cached.data, STORES_URL);
+      const filtered = filterStoresByQuery(allParsed, location);
+      const stores = filtered.map((s) => toNormalizedStore(s, this.buildProvenance(STORES_URL)));
+      const limitedStores = typeof filters.limit === 'number' ? stores.slice(0, filters.limit) : stores;
+      return { ok: true, data: limitedStores };
     }
 
     try {
-      const result = await this.sourceClient.fetchJson<unknown>(storesUrl, {
+      // v4 API returns ALL Swiss stores — no query parameter needed
+      const result = await this.sourceClient.fetchJson<unknown>(STORES_URL, {
         provider: LIDL_PROVIDER,
         chain: 'lidl',
         sourceType: 'retailer-web',
         confidence: 'medium',
       });
 
-      const provenance = this.buildProvenance(storesUrl);
+      const provenance = this.buildProvenance(STORES_URL);
       const record = await this.cache.set(
         cacheKey,
         result.data,
         cacheableProvenance(provenance),
-        this.cacheTtlMs
+        DEFAULT_CACHE_TTL_MS
       );
 
-      return this.parseStoreResult(
-        result.data,
-        liveProvenanceWithCacheExpiry(provenance, record.expiresAt),
-        [],
-        filters.limit
+      const allParsed = parseLidlStoresResponse(result.data, STORES_URL);
+      const filtered = filterStoresByQuery(allParsed, location);
+      const stores = filtered.map((s) =>
+        toNormalizedStore(s, liveProvenanceWithCacheExpiry(provenance, record.expiresAt))
       );
+      const limitedStores = typeof filters.limit === 'number' ? stores.slice(0, filters.limit) : stores;
+
+      return { ok: true, data: limitedStores };
     } catch (error) {
-      const warning = warningFromError(error, storesUrl, `${LIDL_PROVIDER} store API fetch failed`, 'lidl', LIDL_PROVIDER);
+      const warning = warningFromError(error, STORES_URL, `${LIDL_PROVIDER} store API fetch failed`, 'lidl', LIDL_PROVIDER);
 
       if (cached) {
-        return this.parseStoreResult(
-          cached.data,
-          cached.provenance,
-          [warning, staleCacheWarning(cached.provenance, 'lidl', LIDL_PROVIDER)],
-          filters.limit
+        const allParsed = parseLidlStoresResponse(cached.data, STORES_URL);
+        const filtered = filterStoresByQuery(allParsed, location);
+        const stores = filtered.map((s) =>
+          toNormalizedStore(s, this.buildProvenance(STORES_URL))
         );
+        const limitedStores = typeof filters.limit === 'number' ? stores.slice(0, filters.limit) : stores;
+        return { ok: true, data: limitedStores, metadata: { sourceWarnings: [warning] } };
       }
 
       return {
@@ -239,30 +255,6 @@ export class LidlLiveAdapter implements ChainAdapter {
         error: { code: warning.code, message: warning.message },
       };
     }
-  }
-
-  private parseStoreResult(
-    data: unknown,
-    provenance: SourceProvenance,
-    warnings: SourceWarning[],
-    limit?: number
-  ): Result<NormalizedStore[]> {
-    const parsed = parseLidlStoresResponse(data, provenance.sourceUrl ?? STORES_URL);
-    const stores = parsed.map((s) => toNormalizedStore(s, provenance));
-    const limitedStores = typeof limit === 'number' ? stores.slice(0, limit) : stores;
-
-    return {
-      ok: true,
-      data: limitedStores,
-      metadata: metadataFrom(
-        [provenance],
-        warnings,
-        'lidl',
-        LIDL_PROVIDER,
-        'Lidl data is sourced from the Lidl Plus app API.',
-        'Lidl data is sourced from cached retailer observations.'
-      ),
-    };
   }
 
   public getStoreAvailabilitySupport(): StoreAvailabilitySupport {

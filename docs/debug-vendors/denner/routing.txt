@@ -1,0 +1,9 @@
+{
+    "pageType": "ProductDetail",
+    "parameters": {
+        "path": "de\/aktionen",
+        "productName": "enerbio-apfel-chips",
+        "id": "1102135"
+    },
+    "context": "promotion"
+}

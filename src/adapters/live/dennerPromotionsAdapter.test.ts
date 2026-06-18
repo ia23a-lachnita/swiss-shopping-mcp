@@ -129,16 +129,15 @@ describe('DennerPromotionsAdapter', () => {
     }
   });
 
-  it('delegates Denner product search to the unsupported adapter', async () => {
+  it('Denner product search returns results from promotions and search page', async () => {
     const fetchImpl = vi.fn(async () => textResponse('not used')) as unknown as typeof fetch;
     const adapter = await createAdapter(fetchImpl);
 
     const result = await adapter.searchProducts({ query: 'pasta' });
 
-    expect(result.ok).toBe(false);
-    if (!result.ok) {
-      expect(result.error.code).toBe(SourceWarningCode.RealSourceNotImplemented);
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(Array.isArray(result.data)).toBe(true);
     }
-    expect(vi.mocked(fetchImpl)).not.toHaveBeenCalled();
   });
 });

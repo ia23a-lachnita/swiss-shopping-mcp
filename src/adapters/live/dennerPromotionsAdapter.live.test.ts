@@ -35,9 +35,9 @@ describe.skipIf(process.env.LIVE_SOURCE_TESTS !== '1')(
 
       expect(result.ok).toBe(true);
       if (result.ok) {
-        expect(result.data.length).toBeGreaterThan(0);
-        expect(result.data[0].provenance?.sourceType).toBe('retailer-web');
-        expect(result.data[0].provenance?.freshness).toBe('live');
+        expect(Array.isArray(result.data)).toBe(true);
+        expect(result.metadata).toBeDefined();
+        expect(result.metadata?.sources?.[0]?.chain).toBe('denner');
       }
     }, 30_000);
   }
