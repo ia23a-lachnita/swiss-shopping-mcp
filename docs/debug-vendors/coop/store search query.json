@@ -1,0 +1,1552 @@
+[
+    {
+        "storeId": "0150164",
+        "costCenterId": "0150164",
+        "openingHours": [
+            {
+                "date": "2026-06-18",
+                "hours": [
+                    {
+                        "open": "2026-06-18 08:00",
+                        "close": "2026-06-18 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-19",
+                "hours": [
+                    {
+                        "open": "2026-06-19 08:00",
+                        "close": "2026-06-19 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-20",
+                "hours": [
+                    {
+                        "open": "2026-06-20 08:00",
+                        "close": "2026-06-20 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-21",
+                "hours": [
+                    {
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-22",
+                "hours": [
+                    {
+                        "open": "2026-06-22 08:00",
+                        "close": "2026-06-22 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-23",
+                "hours": [
+                    {
+                        "open": "2026-06-23 08:00",
+                        "close": "2026-06-23 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-24",
+                "hours": [
+                    {
+                        "open": "2026-06-24 08:00",
+                        "close": "2026-06-24 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-25",
+                "hours": [
+                    {
+                        "open": "2026-06-25 08:00",
+                        "close": "2026-06-25 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-26",
+                "hours": [
+                    {
+                        "open": "2026-06-26 08:00",
+                        "close": "2026-06-26 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-27",
+                "hours": [
+                    {
+                        "open": "2026-06-27 08:00",
+                        "close": "2026-06-27 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-28",
+                "hours": [
+                    {
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-29",
+                "hours": [
+                    {
+                        "open": "2026-06-29 08:00",
+                        "close": "2026-06-29 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-30",
+                "hours": [
+                    {
+                        "open": "2026-06-30 08:00",
+                        "close": "2026-06-30 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-07-01",
+                "hours": [
+                    {
+                        "open": "2026-07-01 08:00",
+                        "close": "2026-07-01 20:00",
+                        "invalidated": false
+                    }
+                ]
+            }
+        ],
+        "specialDaySchedules": [],
+        "storeName": "Bassersdorf",
+        "location": {
+            "zip": "8303",
+            "address": "Baltenswilerstrasse 5a",
+            "city": "Bassersdorf",
+            "latitude": 47.4422909,
+            "longitude": 8.6298002
+        },
+        "storeLogo": {
+            "custom": "//image.migros.ch/filialen/custom/resize-width-{width}-height-{height}/66935cb3566ddd039ecd000be03d6893b39dd6c9/mm-de.png"
+        },
+        "storeType": "mm"
+    },
+    {
+        "storeId": "0093900",
+        "costCenterId": "0093900",
+        "openingHours": [
+            {
+                "date": "2026-06-18",
+                "hours": [
+                    {
+                        "open": "2026-06-18 07:30",
+                        "close": "2026-06-18 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-19",
+                "hours": [
+                    {
+                        "open": "2026-06-19 07:30",
+                        "close": "2026-06-19 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-20",
+                "hours": [
+                    {
+                        "open": "2026-06-20 08:00",
+                        "close": "2026-06-20 19:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-21",
+                "hours": [
+                    {
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-22",
+                "hours": [
+                    {
+                        "open": "2026-06-22 07:30",
+                        "close": "2026-06-22 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-23",
+                "hours": [
+                    {
+                        "open": "2026-06-23 07:30",
+                        "close": "2026-06-23 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-24",
+                "hours": [
+                    {
+                        "open": "2026-06-24 07:30",
+                        "close": "2026-06-24 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-25",
+                "hours": [
+                    {
+                        "open": "2026-06-25 07:30",
+                        "close": "2026-06-25 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-26",
+                "hours": [
+                    {
+                        "open": "2026-06-26 07:30",
+                        "close": "2026-06-26 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-27",
+                "hours": [
+                    {
+                        "open": "2026-06-27 08:00",
+                        "close": "2026-06-27 19:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-28",
+                "hours": [
+                    {
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-29",
+                "hours": [
+                    {
+                        "open": "2026-06-29 07:30",
+                        "close": "2026-06-29 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-30",
+                "hours": [
+                    {
+                        "open": "2026-06-30 07:30",
+                        "close": "2026-06-30 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-07-01",
+                "hours": [
+                    {
+                        "open": "2026-07-01 07:30",
+                        "close": "2026-07-01 20:00",
+                        "invalidated": false
+                    }
+                ]
+            }
+        ],
+        "specialDaySchedules": [],
+        "storeName": "Nürensdorf",
+        "location": {
+            "zip": "8309",
+            "address": "Alte Winterthurerstrasse 7",
+            "city": "Nürensdorf",
+            "latitude": 47.445654,
+            "longitude": 8.642428
+        },
+        "storeLogo": {
+            "custom": "//image.migros.ch/filialen/custom/resize-width-{width}-height-{height}/b7ed598472b2aa065658425a494316272885c3ff/m-de.png"
+        },
+        "storeType": "m"
+    },
+    {
+        "storeId": "0150169",
+        "costCenterId": "0150169",
+        "openingHours": [
+            {
+                "date": "2026-06-18",
+                "hours": [
+                    {
+                        "open": "2026-06-18 07:00",
+                        "close": "2026-06-18 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-19",
+                "hours": [
+                    {
+                        "open": "2026-06-19 07:00",
+                        "close": "2026-06-19 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-20",
+                "hours": [
+                    {
+                        "open": "2026-06-20 07:00",
+                        "close": "2026-06-20 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-21",
+                "hours": [
+                    {
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-22",
+                "hours": [
+                    {
+                        "open": "2026-06-22 07:00",
+                        "close": "2026-06-22 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-23",
+                "hours": [
+                    {
+                        "open": "2026-06-23 07:00",
+                        "close": "2026-06-23 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-24",
+                "hours": [
+                    {
+                        "open": "2026-06-24 07:00",
+                        "close": "2026-06-24 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-25",
+                "hours": [
+                    {
+                        "open": "2026-06-25 07:00",
+                        "close": "2026-06-25 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-26",
+                "hours": [
+                    {
+                        "open": "2026-06-26 07:00",
+                        "close": "2026-06-26 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-27",
+                "hours": [
+                    {
+                        "open": "2026-06-27 07:00",
+                        "close": "2026-06-27 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-28",
+                "hours": [
+                    {
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-29",
+                "hours": [
+                    {
+                        "open": "2026-06-29 07:00",
+                        "close": "2026-06-29 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-30",
+                "hours": [
+                    {
+                        "open": "2026-06-30 07:00",
+                        "close": "2026-06-30 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-07-01",
+                "hours": [
+                    {
+                        "open": "2026-07-01 07:00",
+                        "close": "2026-07-01 20:00",
+                        "invalidated": false
+                    }
+                ]
+            }
+        ],
+        "specialDaySchedules": [],
+        "storeName": "Dietlikon - Brunnenwiese",
+        "location": {
+            "zip": "8305",
+            "address": "Pappelstrasse 2",
+            "city": "Dietlikon",
+            "latitude": 47.419235,
+            "longitude": 8.621539
+        },
+        "storeLogo": {
+            "custom": "//image.migros.ch/filialen/custom/resize-width-{width}-height-{height}/b7ed598472b2aa065658425a494316272885c3ff/m-de.png"
+        },
+        "storeType": "m"
+    },
+    {
+        "storeId": "0150067",
+        "costCenterId": "0150067",
+        "openingHours": [
+            {
+                "date": "2026-06-18",
+                "hours": [
+                    {
+                        "open": "2026-06-18 08:00",
+                        "close": "2026-06-18 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-19",
+                "hours": [
+                    {
+                        "open": "2026-06-19 08:00",
+                        "close": "2026-06-19 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-20",
+                "hours": [
+                    {
+                        "open": "2026-06-20 08:00",
+                        "close": "2026-06-20 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-21",
+                "hours": [
+                    {
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-22",
+                "hours": [
+                    {
+                        "open": "2026-06-22 08:00",
+                        "close": "2026-06-22 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-23",
+                "hours": [
+                    {
+                        "open": "2026-06-23 08:00",
+                        "close": "2026-06-23 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-24",
+                "hours": [
+                    {
+                        "open": "2026-06-24 08:00",
+                        "close": "2026-06-24 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-25",
+                "hours": [
+                    {
+                        "open": "2026-06-25 08:00",
+                        "close": "2026-06-25 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-26",
+                "hours": [
+                    {
+                        "open": "2026-06-26 08:00",
+                        "close": "2026-06-26 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-27",
+                "hours": [
+                    {
+                        "open": "2026-06-27 08:00",
+                        "close": "2026-06-27 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-28",
+                "hours": [
+                    {
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-29",
+                "hours": [
+                    {
+                        "open": "2026-06-29 08:00",
+                        "close": "2026-06-29 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-30",
+                "hours": [
+                    {
+                        "open": "2026-06-30 08:00",
+                        "close": "2026-06-30 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-07-01",
+                "hours": [
+                    {
+                        "open": "2026-07-01 08:00",
+                        "close": "2026-07-01 20:00",
+                        "invalidated": false
+                    }
+                ]
+            }
+        ],
+        "specialDaySchedules": [],
+        "storeName": "Kloten",
+        "location": {
+            "zip": "8302",
+            "address": "Kirchgasse 5",
+            "city": "Kloten",
+            "latitude": 47.4505,
+            "longitude": 8.582302
+        },
+        "storeLogo": {
+            "custom": "//image.migros.ch/filialen/custom/resize-width-{width}-height-{height}/66935cb3566ddd039ecd000be03d6893b39dd6c9/mm-de.png"
+        },
+        "storeType": "mm"
+    },
+    {
+        "storeId": "0150163",
+        "costCenterId": "0150163",
+        "openingHours": [
+            {
+                "date": "2026-06-18",
+                "hours": [
+                    {
+                        "open": "2026-06-18 07:00",
+                        "close": "2026-06-18 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-19",
+                "hours": [
+                    {
+                        "open": "2026-06-19 07:00",
+                        "close": "2026-06-19 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-20",
+                "hours": [
+                    {
+                        "open": "2026-06-20 07:00",
+                        "close": "2026-06-20 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-21",
+                "hours": [
+                    {
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-22",
+                "hours": [
+                    {
+                        "open": "2026-06-22 07:00",
+                        "close": "2026-06-22 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-23",
+                "hours": [
+                    {
+                        "open": "2026-06-23 07:00",
+                        "close": "2026-06-23 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-24",
+                "hours": [
+                    {
+                        "open": "2026-06-24 07:00",
+                        "close": "2026-06-24 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-25",
+                "hours": [
+                    {
+                        "open": "2026-06-25 07:00",
+                        "close": "2026-06-25 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-26",
+                "hours": [
+                    {
+                        "open": "2026-06-26 07:00",
+                        "close": "2026-06-26 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-27",
+                "hours": [
+                    {
+                        "open": "2026-06-27 07:00",
+                        "close": "2026-06-27 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-28",
+                "hours": [
+                    {
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-29",
+                "hours": [
+                    {
+                        "open": "2026-06-29 07:00",
+                        "close": "2026-06-29 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-30",
+                "hours": [
+                    {
+                        "open": "2026-06-30 07:00",
+                        "close": "2026-06-30 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-07-01",
+                "hours": [
+                    {
+                        "open": "2026-07-01 07:00",
+                        "close": "2026-07-01 20:00",
+                        "invalidated": false
+                    }
+                ]
+            }
+        ],
+        "specialDaySchedules": [],
+        "storeName": "Wallisellen",
+        "location": {
+            "zip": "8304",
+            "address": "Bahnhofstrasse 30",
+            "city": "Wallisellen",
+            "latitude": 47.4136,
+            "longitude": 8.591664
+        },
+        "storeLogo": {
+            "custom": "//image.migros.ch/filialen/custom/resize-width-{width}-height-{height}/b7ed598472b2aa065658425a494316272885c3ff/m-de.png"
+        },
+        "storeType": "m"
+    },
+    {
+        "storeId": "0094290",
+        "costCenterId": "0094290",
+        "openingHours": [
+            {
+                "date": "2026-06-18",
+                "hours": [
+                    {
+                        "open": "2026-06-18 08:00",
+                        "close": "2026-06-18 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-19",
+                "hours": [
+                    {
+                        "open": "2026-06-19 08:00",
+                        "close": "2026-06-19 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-20",
+                "hours": [
+                    {
+                        "open": "2026-06-20 08:00",
+                        "close": "2026-06-20 19:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-21",
+                "hours": [
+                    {
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-22",
+                "hours": [
+                    {
+                        "open": "2026-06-22 08:00",
+                        "close": "2026-06-22 19:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-23",
+                "hours": [
+                    {
+                        "open": "2026-06-23 08:00",
+                        "close": "2026-06-23 19:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-24",
+                "hours": [
+                    {
+                        "open": "2026-06-24 08:00",
+                        "close": "2026-06-24 19:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-25",
+                "hours": [
+                    {
+                        "open": "2026-06-25 08:00",
+                        "close": "2026-06-25 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-26",
+                "hours": [
+                    {
+                        "open": "2026-06-26 08:00",
+                        "close": "2026-06-26 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-27",
+                "hours": [
+                    {
+                        "open": "2026-06-27 08:00",
+                        "close": "2026-06-27 19:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-28",
+                "hours": [
+                    {
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-29",
+                "hours": [
+                    {
+                        "open": "2026-06-29 08:00",
+                        "close": "2026-06-29 19:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-30",
+                "hours": [
+                    {
+                        "open": "2026-06-30 08:00",
+                        "close": "2026-06-30 19:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-07-01",
+                "hours": [
+                    {
+                        "open": "2026-07-01 08:00",
+                        "close": "2026-07-01 19:00",
+                        "invalidated": false
+                    }
+                ]
+            }
+        ],
+        "specialDaySchedules": [],
+        "storeName": "Effretikon - Effi-Märt",
+        "location": {
+            "zip": "8307",
+            "address": "Märtplatz 5",
+            "city": "Effretikon",
+            "latitude": 47.42856,
+            "longitude": 8.685996
+        },
+        "storeLogo": {
+            "custom": "//image.migros.ch/filialen/custom/resize-width-{width}-height-{height}/66935cb3566ddd039ecd000be03d6893b39dd6c9/mm-de.png"
+        },
+        "storeType": "mm"
+    },
+    {
+        "storeId": "0150670",
+        "costCenterId": "0150253",
+        "openingHours": [
+            {
+                "date": "2026-06-18",
+                "hours": [
+                    {
+                        "open": "2026-06-18 09:00",
+                        "close": "2026-06-18 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-19",
+                "hours": [
+                    {
+                        "open": "2026-06-19 09:00",
+                        "close": "2026-06-19 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-20",
+                "hours": [
+                    {
+                        "open": "2026-06-20 09:00",
+                        "close": "2026-06-20 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-21",
+                "hours": [
+                    {
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-22",
+                "hours": [
+                    {
+                        "open": "2026-06-22 09:00",
+                        "close": "2026-06-22 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-23",
+                "hours": [
+                    {
+                        "open": "2026-06-23 09:00",
+                        "close": "2026-06-23 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-24",
+                "hours": [
+                    {
+                        "open": "2026-06-24 09:00",
+                        "close": "2026-06-24 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-25",
+                "hours": [
+                    {
+                        "open": "2026-06-25 09:00",
+                        "close": "2026-06-25 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-26",
+                "hours": [
+                    {
+                        "open": "2026-06-26 09:00",
+                        "close": "2026-06-26 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-27",
+                "hours": [
+                    {
+                        "open": "2026-06-27 09:00",
+                        "close": "2026-06-27 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-28",
+                "hours": [
+                    {
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-29",
+                "hours": [
+                    {
+                        "open": "2026-06-29 09:00",
+                        "close": "2026-06-29 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-30",
+                "hours": [
+                    {
+                        "open": "2026-06-30 09:00",
+                        "close": "2026-06-30 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-07-01",
+                "hours": [
+                    {
+                        "open": "2026-07-01 09:00",
+                        "close": "2026-07-01 20:00",
+                        "invalidated": false
+                    }
+                ]
+            }
+        ],
+        "specialDaySchedules": [],
+        "storeName": "Wallisellen - Glattzentrum",
+        "location": {
+            "zip": "8304",
+            "address": "Neue Winterthurerstrasse 99",
+            "city": "Wallisellen",
+            "latitude": 47.4084534,
+            "longitude": 8.5960556
+        },
+        "storeLogo": {
+            "custom": "//image.migros.ch/filialen/custom/resize-width-{width}-height-{height}/59693c1c6da2cea59bf3f1910a70f39a93eb4a60/mmm-de.png"
+        },
+        "storeType": "mmm"
+    },
+    {
+        "storeId": "0150056",
+        "costCenterId": "0150056",
+        "openingHours": [
+            {
+                "date": "2026-06-18",
+                "hours": [
+                    {
+                        "open": "2026-06-18 07:30",
+                        "close": "2026-06-18 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-19",
+                "hours": [
+                    {
+                        "open": "2026-06-19 07:30",
+                        "close": "2026-06-19 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-20",
+                "hours": [
+                    {
+                        "open": "2026-06-20 07:30",
+                        "close": "2026-06-20 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-21",
+                "hours": [
+                    {
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-22",
+                "hours": [
+                    {
+                        "open": "2026-06-22 07:30",
+                        "close": "2026-06-22 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-23",
+                "hours": [
+                    {
+                        "open": "2026-06-23 07:30",
+                        "close": "2026-06-23 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-24",
+                "hours": [
+                    {
+                        "open": "2026-06-24 07:30",
+                        "close": "2026-06-24 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-25",
+                "hours": [
+                    {
+                        "open": "2026-06-25 07:30",
+                        "close": "2026-06-25 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-26",
+                "hours": [
+                    {
+                        "open": "2026-06-26 07:30",
+                        "close": "2026-06-26 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-27",
+                "hours": [
+                    {
+                        "open": "2026-06-27 07:30",
+                        "close": "2026-06-27 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-28",
+                "hours": [
+                    {
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-29",
+                "hours": [
+                    {
+                        "open": "2026-06-29 07:30",
+                        "close": "2026-06-29 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-30",
+                "hours": [
+                    {
+                        "open": "2026-06-30 07:30",
+                        "close": "2026-06-30 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-07-01",
+                "hours": [
+                    {
+                        "open": "2026-07-01 07:30",
+                        "close": "2026-07-01 20:00",
+                        "invalidated": false
+                    }
+                ]
+            }
+        ],
+        "specialDaySchedules": [],
+        "storeName": "Glattbrugg",
+        "location": {
+            "zip": "8152",
+            "address": "Wallisellerstrasse 8",
+            "city": "Glattbrugg",
+            "latitude": 47.434036,
+            "longitude": 8.567433
+        },
+        "storeLogo": {
+            "custom": "//image.migros.ch/filialen/custom/resize-width-{width}-height-{height}/b7ed598472b2aa065658425a494316272885c3ff/m-de.png"
+        },
+        "storeType": "m"
+    },
+    {
+        "storeId": "0150054",
+        "costCenterId": "0150054",
+        "openingHours": [
+            {
+                "date": "2026-06-18",
+                "hours": [
+                    {
+                        "open": "2026-06-18 08:00",
+                        "close": "2026-06-18 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-19",
+                "hours": [
+                    {
+                        "open": "2026-06-19 08:00",
+                        "close": "2026-06-19 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-20",
+                "hours": [
+                    {
+                        "open": "2026-06-20 08:00",
+                        "close": "2026-06-20 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-21",
+                "hours": [
+                    {
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-22",
+                "hours": [
+                    {
+                        "open": "2026-06-22 08:00",
+                        "close": "2026-06-22 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-23",
+                "hours": [
+                    {
+                        "open": "2026-06-23 08:00",
+                        "close": "2026-06-23 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-24",
+                "hours": [
+                    {
+                        "open": "2026-06-24 08:00",
+                        "close": "2026-06-24 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-25",
+                "hours": [
+                    {
+                        "open": "2026-06-25 08:00",
+                        "close": "2026-06-25 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-26",
+                "hours": [
+                    {
+                        "open": "2026-06-26 08:00",
+                        "close": "2026-06-26 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-27",
+                "hours": [
+                    {
+                        "open": "2026-06-27 08:00",
+                        "close": "2026-06-27 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-28",
+                "hours": [
+                    {
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-29",
+                "hours": [
+                    {
+                        "open": "2026-06-29 08:00",
+                        "close": "2026-06-29 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-30",
+                "hours": [
+                    {
+                        "open": "2026-06-30 08:00",
+                        "close": "2026-06-30 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-07-01",
+                "hours": [
+                    {
+                        "open": "2026-07-01 08:00",
+                        "close": "2026-07-01 20:00",
+                        "invalidated": false
+                    }
+                ]
+            }
+        ],
+        "specialDaySchedules": [],
+        "storeName": "Dübendorf",
+        "location": {
+            "zip": "8600",
+            "address": "Unterdorfstrasse 7",
+            "city": "Dübendorf",
+            "latitude": 47.3982637,
+            "longitude": 8.6176168
+        },
+        "storeLogo": {
+            "custom": "//image.migros.ch/filialen/custom/resize-width-{width}-height-{height}/66935cb3566ddd039ecd000be03d6893b39dd6c9/mm-de.png"
+        },
+        "storeType": "mm"
+    },
+    {
+        "storeId": "0150148",
+        "costCenterId": "0150148",
+        "openingHours": [
+            {
+                "date": "2026-06-18",
+                "hours": [
+                    {
+                        "open": "2026-06-18 08:00",
+                        "close": "2026-06-18 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-19",
+                "hours": [
+                    {
+                        "open": "2026-06-19 08:00",
+                        "close": "2026-06-19 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-20",
+                "hours": [
+                    {
+                        "open": "2026-06-20 08:00",
+                        "close": "2026-06-20 18:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-21",
+                "hours": [
+                    {
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-22",
+                "hours": [
+                    {
+                        "open": "2026-06-22 08:00",
+                        "close": "2026-06-22 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-23",
+                "hours": [
+                    {
+                        "open": "2026-06-23 08:00",
+                        "close": "2026-06-23 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-24",
+                "hours": [
+                    {
+                        "open": "2026-06-24 08:00",
+                        "close": "2026-06-24 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-25",
+                "hours": [
+                    {
+                        "open": "2026-06-25 08:00",
+                        "close": "2026-06-25 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-26",
+                "hours": [
+                    {
+                        "open": "2026-06-26 08:00",
+                        "close": "2026-06-26 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-27",
+                "hours": [
+                    {
+                        "open": "2026-06-27 08:00",
+                        "close": "2026-06-27 18:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-28",
+                "hours": [
+                    {
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-29",
+                "hours": [
+                    {
+                        "open": "2026-06-29 08:00",
+                        "close": "2026-06-29 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-06-30",
+                "hours": [
+                    {
+                        "open": "2026-06-30 08:00",
+                        "close": "2026-06-30 20:00",
+                        "invalidated": false
+                    }
+                ]
+            },
+            {
+                "date": "2026-07-01",
+                "hours": [
+                    {
+                        "open": "2026-07-01 08:00",
+                        "close": "2026-07-01 20:00",
+                        "invalidated": false
+                    }
+                ]
+            }
+        ],
+        "specialDaySchedules": [],
+        "storeName": "Dübendorf - Hochbord Nord",
+        "location": {
+            "zip": "8600",
+            "address": "Neugutstrasse 83",
+            "city": "Dübendorf",
+            "latitude": 47.401216,
+            "longitude": 8.603558
+        },
+        "storeLogo": {
+            "custom": "//image.migros.ch/filialen/custom/resize-width-{width}-height-{height}/b7ed598472b2aa065658425a494316272885c3ff/m-de.png"
+        },
+        "storeType": "m"
+    }
+]

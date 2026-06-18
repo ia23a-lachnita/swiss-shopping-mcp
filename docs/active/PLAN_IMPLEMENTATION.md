@@ -1,4 +1,4 @@
-# Implementation Plan: Store Search, Denner Products, Availability, SPA UX
+# Implementation Plan: Denner Products, Store Search, Availability
 
 ## Quick Fixes Already Done (commit `1d2f450`)
 
@@ -14,7 +14,7 @@
 
 ---
 
-## How Querying Works
+## How Querying Works (Verified)
 
 We call each vendor's own search/product API directly:
 
@@ -24,7 +24,7 @@ We call each vendor's own search/product API directly:
 | Coop | `coop.ch/rest/v2/coopathome/products/search/{query}` | None (DataDome protection) | Path-param search, iOS Safari UA bypasses bot detection |
 | Otto's | `ottos.ch/occ/v2/ottos-de/products/search?query=...` | None | SAP Commerce Cloud API |
 | Lidl | `lidlplus.com/api/v4/offers/{country}/search?query=...` | Bearer token (Lidl Plus OAuth) | Requires app auth flow |
-| Denner | **No public search API** — only product detail + category/promotion listings | None | See Denner section below |
+| Denner | **No public search API** — only product detail + category/promotion listings | None | See Feature 1 below |
 | Volg | WooCommerce `?s={query}&post_type=product` | None | Standard WooCommerce search |
 
 ---
@@ -47,7 +47,7 @@ Denner exposes two key endpoints:
    - Returns category pages with product listings
    - Can list products by category (e.g., `/de/aktionen/lebensmittel~c1144362`)
 
-**Problem:** Denner doesn't expose a public search endpoint. When users type in the search box on denner.ch, the website likely uses an internal search that isn't publicly documented.
+**Problem:** Denner doesn't expose a public search endpoint. When users type in the search box on denner.ch, the website uses an internal search that isn't publicly documented.
 
 **Implementation options:**
 
@@ -70,12 +70,6 @@ Denner exposes two key endpoints:
 - Build a Denner product index from promotion/category pages
 - Support direct product lookup by ID via `/api/product/{id}`
 - Use scraped search page as a fallback
-
-**Files to create/modify:**
-- `src/adapters/live/dennerLiveAdapter.ts` — NEW adapter for Denner products
-- `src/parsers/denner.ts` — Already exists, extend with product parsing
-- `src/adapters/types.ts` — Add Denner to chain support
-- `src/sources/sourceClient.ts` — Already supports Denner domain
 
 **Denner product data mapping:**
 ```
@@ -157,30 +151,62 @@ Key findings:
 
 **Current state:** Both adapters return `supported: false` with stub implementations.
 
-**What we need:** DevTools captures from the user showing:
-1. Migros: What API call is made when checking "In welchem Geschäft verfügbar?"
-2. Coop: What API call is made when checking store availability
+**Migros availability API (from DevTools):**
+```
+GET https://www.migros.ch/store-availability/public/v2/availabilities/products/{productId}?costCenterIds={storeId1,storeId2,...}
+```
 
-**Expected API patterns (based on common e-commerce patterns):**
+Response format:
+```json
+{
+  "availabilities": [
+    { "id": "0093900", "stock": 0 },
+    { "id": "0094290", "stock": 31 },
+    { "id": "0150054", "stock": 20 }
+  ],
+  "catalogItemId": 100031528
+}
+```
 
-Migros likely uses:
-- `GET /store/public/v1/stores/{storeId}/availability?productIds={id}` or similar
-- Requires `leshopch` token
+- `id` = store costCenterId (same as `storeId` from `searchStores`)
+- `stock` = unit count (0 = unavailable)
+- `catalogItemId` = Migros product ID (matches `remoteId`)
 
-Coop likely uses:
-- `GET /rest/v2/coopathome/products/{productId}/stockLevels` or similar
-- May require session cookies
+**Coop availability API (from DevTools):**
+```
+GET https://www.coop.ch/rest/v2/coopathome/products/{productId}/stockLevels?costCenterIds={storeId1,storeId2,...}
+```
 
-**Implementation plan (after DevTools captures):**
-1. Add `lookupStoreProductAvailability()` implementation to both adapters
-2. The method signature already exists: `lookupStoreProductAvailability(filters: StoreProductAvailabilityFilters)`
-3. Parameters available: `storeId`, `query`
-4. Return type: `StoreProductAvailabilityResult` with `isAvailable`, `matches[]`, `reason`
+Response format (same structure as Migros):
+```json
+{
+  "availabilities": [
+    { "id": "0093900", "stock": 0 },
+    { "id": "0094290", "stock": 31 }
+  ],
+  "catalogItemId": 100031528
+}
+```
+
+**Implementation plan:**
+
+1. **Add `lookupStoreProductAvailability` to Migros adapter:**
+   - Input: `query` (product search), `storeId` (optional — specific store)
+   - Step 1: Search for product → get `productId` (remoteId)
+   - Step 2: If no `storeId`, search nearby stores first to get costCenterIds
+   - Step 3: Call availability API with `productId` + comma-joined costCenterIds
+   - Step 4: Return availability status for each store
+
+2. **Add `lookupStoreProductAvailability` to Coop adapter:**
+   - Same pattern as Migros but using Coop API endpoints
+   - Uses `storeId` directly as `costCenterId`
+
+3. **Update `getStoreAvailabilitySupport` to return `supported: true`** for both chains
 
 **Files to modify:**
 - `src/adapters/live/migrosLiveAdapter.ts` — Implement `lookupStoreProductAvailability`
 - `src/adapters/live/coopLiveAdapter.ts` — Implement `lookupStoreProductAvailability`
-- `src/adapters/types.ts` — May need to extend `StoreProductAvailabilityResult`
+- `src/adapters/types.ts` — May need to extend `StoreProductAvailabilityResult` with stock count
 
 ---
 
@@ -188,9 +214,7 @@ Coop likely uses:
 
 **Current state:** Denner adapter returns `supported: false` for store search.
 
-**API findings:** Denner likely has a store finder endpoint similar to their product API. We should check:
-- `GET https://www.denner.ch/api/headless/routing?url=/de/filialfinder`
-- Or scrape the store finder page at `https://www.denner.ch/de/filialfinder`
+**API findings:** Denner has a store finder at `https://www.denner.ch/de/filialfinder` that uses their routing API. We need to capture the actual store search API call.
 
 **Status:** Needs Chrome DevTools capture from user.
 
@@ -207,14 +231,27 @@ Coop likely uses:
 4. **Denner products** — Build adapter using routing API + product detail API
 5. **Denner promotions** — Already exists, verify it works with new parser
 
-### Phase 3: Availability (needs user input)
-6. **Migros availability** — Implement after DevTools capture
-7. **Coop availability** — Implement after DevTools capture
-8. **Denner stores** — Research + implement after DevTools capture
+### Phase 3: Availability (has API data)
+6. **Migros availability** — Implement with `/store-availability/public/v2/` endpoint
+7. **Coop availability** — Implement with `/products/{id}/stockLevels` endpoint
+8. **Denner stores** — Needs DevTools capture from user
 
 ### Phase 4: Polish
-9. **SPA: Denner in chain filters** — Already supported, verify
-10. **SPA: Availability display** — Show availability in product cards when available
+9. **SPA: availability display** — Show availability in product cards when available
+10. **SPA: Denner in chain filters** — Already supported, verify
+
+---
+
+## Coop Store Autocomplete (Bonus)
+
+The user also captured Coop's store location autocomplete:
+```
+GET https://www.coop.ch/de/store-finder/get/locations/autocomplete?q=8303&count=5&onlyOpen=false
+```
+
+This returns village/street locations with lat/lng coordinates. We can use this instead of GeoAdmin for Coop store resolution — it's faster and more accurate for Coop-specific queries.
+
+**Option:** Add Coop-native geocoding as a fallback when GeoAdmin fails.
 
 ---
 
@@ -224,7 +261,8 @@ Coop likely uses:
 - `src/adapters/live/dennerLiveAdapter.ts` — Denner product search adapter
 
 ### Modified files
-- `src/adapters/live/coopLiveAdapter.ts` — Store search fix
+- `src/adapters/live/coopLiveAdapter.ts` — Store search fix + availability
 - `src/adapters/live/lidlLiveAdapter.ts` — Store search rewrite
+- `src/adapters/live/migrosLiveAdapter.ts` — Availability implementation
 - `src/parsers/denner.ts` — Extend with product parsing
 - `src/web/public/index.html` — Availability display in product cards

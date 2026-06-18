@@ -1,0 +1,47 @@
+[
+    {
+        "id": "8303052_3945198",
+        "type": "village",
+        "coordinates": {
+            "latitude": 47.443006,
+            "longitude": 8.629545
+        },
+        "description": "Bassersdorf 8303 ZH Schweiz"
+    },
+    {
+        "id": "ZH_10248565_street",
+        "type": "street",
+        "coordinates": {
+            "latitude": 47.437849,
+            "longitude": 8.607237
+        },
+        "description": "Scherrerhölzliweg 8303 Bassersdorf ZH"
+    },
+    {
+        "id": "ZH_10000939_street",
+        "type": "street",
+        "coordinates": {
+            "latitude": 47.446655,
+            "longitude": 8.633959
+        },
+        "description": "Frohburgstrasse 8303 Bassersdorf ZH"
+    },
+    {
+        "id": "ZH_10248267_street",
+        "type": "street",
+        "coordinates": {
+            "latitude": 47.435382,
+            "longitude": 8.617792
+        },
+        "description": "Tiergartenweg 8303 Bassersdorf ZH"
+    },
+    {
+        "id": "ZH_10241767_street",
+        "type": "street",
+        "coordinates": {
+            "latitude": 47.423982,
+            "longitude": 8.651593
+        },
+        "description": "Schwarzengass 8303 Bassersdorf ZH"
+    }
+]
