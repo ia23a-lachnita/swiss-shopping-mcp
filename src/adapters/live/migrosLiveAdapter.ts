@@ -40,6 +40,7 @@ const DEFAULT_CACHE_TTL_MS = 6 * 60 * 60 * 1000;
 const DEFAULT_SEARCH_LIMIT = 20;
 const SEARCH_URL = 'https://www.migros.ch/onesearch-oc-seaapi/public/v5/search';
 const STORES_URL = 'https://www.migros.ch/store/public/v1/stores/search';
+const AVAILABILITY_URL = 'https://www.migros.ch/store-availability/public/v2/availabilities/products';
 const IOS_SAFARI_UA = 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1';
 
 export interface MigrosLiveAdapterOptions {
@@ -537,25 +538,126 @@ export class MigrosLiveAdapter implements ChainAdapter {
   public getStoreAvailabilitySupport(): StoreAvailabilitySupport {
     return {
       chain: this.chain,
-      supported: false,
-      reason: 'Migros store-level product availability is not yet implemented.',
+      supported: true,
+      reason: 'Migros store-level product availability via /store-availability/public/v2/.',
     };
   }
 
   public async lookupStoreProductAvailability(
     filters: StoreProductAvailabilityFilters
   ): Promise<Result<StoreProductAvailabilityResult>> {
-    return {
-      ok: true,
-      data: {
-        chain: this.chain,
-        storeId: filters.storeId,
-        query: filters.query,
-        supported: false,
-        reason: 'Migros store-level product availability is not yet implemented.',
-        matches: [],
-        isAvailable: false,
-      },
-    };
+    const query = filters.query.trim();
+    if (!query) {
+      return {
+        ok: true,
+        data: {
+          chain: this.chain,
+          storeId: filters.storeId,
+          query: filters.query,
+          supported: true,
+          matches: [],
+          isAvailable: false,
+        },
+      };
+    }
+
+    try {
+      // Step 1: Search for product to get its ID
+      const productResult = await this.searchProducts({ query, limit: 1 });
+      if (!productResult.ok || productResult.data.length === 0) {
+        return {
+          ok: true,
+          data: {
+            chain: this.chain,
+            storeId: filters.storeId,
+            query,
+            supported: true,
+            matches: [],
+            isAvailable: false,
+          },
+        };
+      }
+
+      const product = productResult.data[0];
+      const productId = product.id;
+
+      // Step 2: Get nearby stores if no specific store requested
+      let storeIds: string[];
+      if (filters.storeId) {
+        storeIds = [filters.storeId];
+      } else {
+        const storeResult = await this.findStores({ location: query, limit: 10 });
+        if (!storeResult.ok || storeResult.data.length === 0) {
+          return {
+            ok: true,
+            data: {
+              chain: this.chain,
+              storeId: filters.storeId,
+              query,
+              supported: true,
+              matches: [],
+              isAvailable: false,
+            },
+          };
+        }
+        storeIds = storeResult.data.map((s) => s.id);
+      }
+
+      // Step 3: Call availability API
+      const token = await this.ensureAuth();
+      const costCenterIds = storeIds.join(',');
+      const availabilityUrl = `${AVAILABILITY_URL}/${productId}?costCenterIds=${costCenterIds}`;
+
+      const response = await fetch(availabilityUrl, {
+        headers: {
+          accept: 'application/json, text/plain, */*',
+          leshopch: token,
+          'user-agent': IOS_SAFARI_UA,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Migros availability API returned ${response.status}`);
+      }
+
+      const availabilityData = (await response.json()) as {
+        availabilities: Array<{ id: string; stock: number }>;
+        catalogItemId: number;
+      };
+
+      // Step 4: Build availability matches
+      const matches = availabilityData.availabilities.map((avail) => ({
+        product,
+        available: avail.stock > 0,
+      }));
+
+      const isAvailable = matches.some((m) => m.available);
+
+      return {
+        ok: true,
+        data: {
+          chain: this.chain,
+          storeId: filters.storeId,
+          query,
+          supported: true,
+          matches,
+          isAvailable,
+        },
+      };
+    } catch (error) {
+      const warning = warningFromError(error, AVAILABILITY_URL, `${MIGROS_PROVIDER} availability API fetch failed`, 'migros', MIGROS_PROVIDER);
+      return {
+        ok: true,
+        data: {
+          chain: this.chain,
+          storeId: filters.storeId,
+          query,
+          supported: true,
+          matches: [],
+          isAvailable: false,
+          reason: warning.message,
+        },
+      };
+    }
   }
 }

@@ -227,25 +227,40 @@ describe('MigrosLiveAdapter', () => {
   });
 
   describe('getStoreAvailabilitySupport', () => {
-    it('returns not supported', () => {
+    it('returns supported', () => {
       const support = adapter.getStoreAvailabilitySupport();
       expect(support).toEqual({
         chain: 'migros',
-        supported: false,
-        reason: 'Migros store-level product availability is not yet implemented.',
+        supported: true,
+        reason: 'Migros store-level product availability via /store-availability/public/v2/.',
       });
     });
   });
 
   describe('lookupStoreProductAvailability', () => {
-    it('returns not supported', async () => {
+    it('returns availability when product found', async () => {
       const result = await adapter.lookupStoreProductAvailability({
-        storeId: 'migros-zurich',
+        storeId: '0150164',
         query: 'Milch',
       });
       expect(result.ok).toBe(true);
       if (result.ok) {
-        expect(result.data.supported).toBe(false);
+        expect(result.data.supported).toBe(true);
+        expect(result.data.chain).toBe('migros');
+        expect(result.data.query).toBe('Milch');
+        expect(Array.isArray(result.data.matches)).toBe(true);
+      }
+    });
+
+    it('returns empty result for empty query', async () => {
+      const result = await adapter.lookupStoreProductAvailability({
+        storeId: '0150164',
+        query: '',
+      });
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.data.supported).toBe(true);
+        expect(result.data.matches).toEqual([]);
         expect(result.data.isAvailable).toBe(false);
       }
     });

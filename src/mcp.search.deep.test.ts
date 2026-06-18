@@ -943,7 +943,7 @@ describe('10. Availability Lookup — Multiple Chains & Products', () => {
     expect(data.availability.matches).toEqual([]);
   });
 
-  it('lookup Vollmilch in coop — unsupported chain', async () => {
+  it('lookup Vollmilch in coop — now supported', async () => {
     const result = await callTool(client, 'lookup_store_product_availability', {
       chain: 'coop',
       storeId: 'coop-basel-1',
@@ -954,9 +954,7 @@ describe('10. Availability Lookup — Multiple Chains & Products', () => {
       availability: { chain: string; supported: boolean; isAvailable: boolean; reason?: string };
     }>(result);
     expect(data.availability.chain).toBe('coop');
-    expect(data.availability.supported).toBe(false);
-    expect(data.availability.isAvailable).toBe(false);
-    expect(data.availability.reason).toBeTruthy();
+    expect(data.availability.supported).toBe(true);
   });
 
   it('lookup Emmentaler in denner — unsupported but graceful', async () => {
@@ -973,9 +971,22 @@ describe('10. Availability Lookup — Multiple Chains & Products', () => {
     expect(data.availability.supported).toBe(false);
   });
 
-  it('all 8 chains return supported=false for availability', async () => {
-    const chains = ['aldi', 'coop', 'denner', 'farmy', 'volg', 'migros', 'lidl', 'ottos'];
-    for (const chain of chains) {
+  it('migros and coop return supported=true, other chains return supported=false', async () => {
+    const supportedChains = ['migros', 'coop'];
+    const unsupportedChains = ['aldi', 'denner', 'farmy', 'volg', 'lidl', 'ottos'];
+    for (const chain of supportedChains) {
+      const result = await callTool(client, 'lookup_store_product_availability', {
+        chain,
+        storeId: `${chain}-store-1`,
+        query: 'test',
+      });
+      expect(result.isError).not.toBe(true);
+      const data = structured<{
+        availability: { chain: string; supported: boolean; isAvailable: boolean };
+      }>(result);
+      expect(data.availability.supported).toBe(true);
+    }
+    for (const chain of unsupportedChains) {
       const result = await callTool(client, 'lookup_store_product_availability', {
         chain,
         storeId: `${chain}-store-1`,
@@ -1032,7 +1043,7 @@ describe('10. Availability Lookup — Multiple Chains & Products', () => {
     const data = structured<{
       availability: { supported: boolean };
     }>(result);
-    expect(data.availability.supported).toBe(false);
+    expect(data.availability.supported).toBe(true);
   });
 });
 
@@ -1173,13 +1184,15 @@ describe('12. Source Status with Multiple Chains', () => {
     }
   });
 
-  it('get_store_availability_support for all chains shows unsupported', async () => {
+  it('get_store_availability_support for all chains shows correct support', async () => {
     const result = await callTool(client, 'get_store_availability_support', {});
     const data = structured<{
       support: Array<{ chain: string; supported: boolean }>;
     }>(result);
-    expect(data.support.every((s) => s.supported === false)).toBe(true);
     expect(data.support.length).toBe(8);
+    const supportedChains = data.support.filter((s) => s.supported === true).map((s) => s.chain);
+    expect(supportedChains).toContain('migros');
+    expect(supportedChains).toContain('coop');
   });
 });
 

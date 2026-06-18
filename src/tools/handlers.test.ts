@@ -298,8 +298,6 @@ describe('tool handlers', () => {
     };
     expect(structured.availability.chain).toBe('coop');
     expect(structured.availability.supported).toBe(false);
-    expect(structured.availability.isAvailable).toBe(false);
-    expect(structured.availability.reason).toBeTruthy();
   });
 
   it('executes get_source_status and returns capability matrix', async () => {

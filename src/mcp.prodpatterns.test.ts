@@ -846,12 +846,15 @@ describe('8. get_store_availability_support', () => {
     expect(chains).toContain('coop');
   });
 
-  it('all chains report supported=false in current implementation', async () => {
+  it('migros and coop report supported=true for availability', async () => {
     const result = await callTool(client, 'get_store_availability_support', {});
     const data = structured<{
       support: Array<{ chain: string; supported: boolean }>;
     }>(result);
-    expect(data.support.every((s) => s.supported === false)).toBe(true);
+    const migros = data.support.find((s) => s.chain === 'migros');
+    const coop = data.support.find((s) => s.chain === 'coop');
+    expect(migros?.supported).toBe(true);
+    expect(coop?.supported).toBe(true);
   });
 
   it('chain filter restricts results', async () => {
@@ -867,7 +870,7 @@ describe('8. get_store_availability_support', () => {
 
   it('unsupported chains provide a reason', async () => {
     const result = await callTool(client, 'get_store_availability_support', {
-      chains: ['coop'],
+      chains: ['aldi'],
     });
     const data = structured<{
       support: Array<{ chain: string; supported: boolean; reason?: string }>;
@@ -903,10 +906,7 @@ describe('9. lookup_store_product_availability', () => {
     expect(data.availability.chain).toBe('coop');
     expect(data.availability.storeId).toBe('coop-zurich-1');
     expect(data.availability.query).toBe('milk');
-    expect(data.availability.supported).toBe(false);
-    expect(data.availability.isAvailable).toBe(false);
-    expect(data.availability.matches).toEqual([]);
-    expect(data.availability.reason).toBeTruthy();
+    expect(data.availability.supported).toBe(true);
   });
 
   it('returns unsupported for aldi (no store availability source)', async () => {
@@ -1021,15 +1021,15 @@ describe('10. Cross-Tool Integration Scenarios', () => {
     expect(searchPrice).toBe(comparePrice);
   });
 
-  it('find_stores unsupported matches availability support', async () => {
+  it('unsupported chain availability support is false', async () => {
     const availResult = await callTool(client, 'get_store_availability_support', {
-      chains: ['migros'],
+      chains: ['aldi'],
     });
     const availData = structured<{
       support: Array<{ chain: string; supported: boolean }>;
     }>(availResult);
-    const migrosSupport = availData.support.find((s) => s.chain === 'migros');
-    expect(migrosSupport?.supported).toBe(false);
+    const aldiSupport = availData.support.find((s) => s.chain === 'aldi');
+    expect(aldiSupport?.supported).toBe(false);
   });
 
   it('get_source_status and search_products are consistent for denner', async () => {
@@ -1060,8 +1060,7 @@ describe('10. Cross-Tool Integration Scenarios', () => {
     const data = structured<{
       availability: { chain: string; supported: boolean; isAvailable: boolean; reason?: string };
     }>(result);
-    expect(data.availability.supported).toBe(false);
-    expect(data.availability.reason).toBeTruthy();
+    expect(data.availability.supported).toBe(true);
   });
 });
 
