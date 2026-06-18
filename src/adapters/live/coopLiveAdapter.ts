@@ -237,7 +237,7 @@ export class CoopLiveAdapter implements ChainAdapter {
     const point = await resolveLocationAsync(location);
     const lat = point?.latitude ?? 47.3769;
     const lon = point?.longitude ?? 8.5417;
-    const storesUrl = `${BASE_URL}/locations/searchAroundCoordinates?latitude=${lat}&longitude=${lon}&radius=5000`;
+    const storesUrl = `${BASE_URL}/locations/searchAroundCoordinates?latitude=${lat}&longitude=${lon}&currentPage=0`;
     const cacheKey = `coop:stores:${location}`;
 
     const cached = await this.cache.get<CoopStoresResponse>(cacheKey, { allowStale: true });

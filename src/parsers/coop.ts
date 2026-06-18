@@ -171,23 +171,51 @@ export function parseCoopStoresResponse(
     stores = obj.locations ?? obj.stores ?? obj.results ?? obj.items ?? obj.data ?? [];
   }
   return stores.flatMap((store) => {
+    // Support both formats: geoPoint (REST API) and location (store finder)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const s = store as any;
+    const loc = s.location;
     const gp = store.geoPoint as Record<string, unknown> | undefined;
-    const lat = typeof gp?.latitude === 'number' ? gp.latitude : typeof gp?.lat === 'number' ? gp.lat : undefined;
-    const lon = typeof gp?.longitude === 'number' ? gp.longitude : typeof gp?.lng === 'number' ? gp.lng : typeof gp?.lon === 'number' ? gp.lon : undefined;
+
+    let lat: number | undefined;
+    let lon: number | undefined;
+
+    if (loc && typeof loc.latitude === 'number' && typeof loc.longitude === 'number') {
+      lat = loc.latitude;
+      lon = loc.longitude;
+    } else if (gp) {
+      lat = typeof gp.latitude === 'number' ? gp.latitude : typeof gp.lat === 'number' ? gp.lat : undefined;
+      lon = typeof gp.longitude === 'number' ? gp.longitude : typeof gp.lng === 'number' ? gp.lng : typeof gp.lon === 'number' ? gp.lon : undefined;
+    }
+
     if (typeof lat !== 'number' || typeof lon !== 'number' || !Number.isFinite(lat) || !Number.isFinite(lon)) {
       return [];
     }
 
-    const addr = store.address;
-    const parts = [addr?.line1, addr?.line2, addr?.postalCode, addr?.town].filter(
-      (p): p is string => typeof p === 'string' && p.trim().length > 0
-    );
+    // Support both address formats
+    let address: string;
+    if (loc && typeof loc.address === 'string') {
+      // Store finder format: location.address, location.city, location.zip
+      const parts = [loc.address, loc.zip, loc.city].filter(
+        (p: unknown): p is string => typeof p === 'string' && p.trim().length > 0
+      );
+      address = parts.join(', ');
+    } else {
+      // REST API format: address.line1, address.line2, etc.
+      const addr = store.address;
+      const parts = [addr?.line1, addr?.line2, addr?.postalCode, addr?.town].filter(
+        (p: unknown): p is string => typeof p === 'string' && p.trim().length > 0
+      );
+      address = parts.join(', ');
+    }
+
+    const name = s.storeName ?? store.name ?? 'Unknown Store';
 
     return [
       {
-        id: store.vstId ?? store.name ?? 'unknown',
-        name: store.name ?? 'Unknown Store',
-        address: parts.join(', '),
+        id: s.costCenterId ?? store.vstId ?? name,
+        name,
+        address,
         latitude: lat,
         longitude: lon,
         openingHours: store.currentOpeningHours,
