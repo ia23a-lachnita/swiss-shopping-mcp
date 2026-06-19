@@ -76,6 +76,7 @@ Phase: `V1 - core read/search foundation`
 | Unsupported chain graceful degradation | done | All unsupported chain queries now return `ok:true` with empty data + source warnings instead of `ok:false` ALL_SOURCES_FAILED error; updated 15 unit tests |
 | Non-blocking server scripts          | done                   | `start-server.ps1` uses `cmd /c` for fully detached process (fixes opencode terminal lock); `kill-server.ps1` updated with safe variable names |
 | Manual SPA test suite                | done                   | `test-spa-manual.mjs` with 42 test cases covering all vendors, postal codes, edge cases; all pass |
+| Round 2 issue-specific tests         | done                   | `test-issues-round2.mjs` with 33 tests across 13 categories; found and fixed: apfel taxonomy, test assertion mismatches; all pass |
 
 ## Next tasks
 
