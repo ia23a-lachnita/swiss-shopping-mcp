@@ -862,15 +862,15 @@ describe('8. get_store_availability_support', () => {
     expect(chains).toContain('coop');
   });
 
-  it('migros and coop report supported=true for availability', async () => {
+  it('migros and coop report supported=false for availability (APIs broken)', async () => {
     const result = await callTool(client, 'get_store_availability_support', {});
     const data = structured<{
       support: Array<{ chain: string; supported: boolean }>;
     }>(result);
     const migros = data.support.find((s) => s.chain === 'migros');
     const coop = data.support.find((s) => s.chain === 'coop');
-    expect(migros?.supported).toBe(true);
-    expect(coop?.supported).toBe(true);
+    expect(migros?.supported).toBe(false);
+    expect(coop?.supported).toBe(false);
   });
 
   it('chain filter restricts results', async () => {

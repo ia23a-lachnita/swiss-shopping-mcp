@@ -93,9 +93,8 @@ export const SOURCE_REGISTRY: Record<Chain, CapabilitySourceStatus[]> = {
     {
       chain: 'coop',
       capability: 'availability',
-      status: 'live-beta',
-      provider: 'Coop',
-      sourceType: 'retailer-web',
+      status: 'unsupported',
+      reason: 'Coop /products/{id}/stockLevels endpoint no longer exists.',
     },
     {
       chain: 'coop',
@@ -194,9 +193,8 @@ export const SOURCE_REGISTRY: Record<Chain, CapabilitySourceStatus[]> = {
     {
       chain: 'migros',
       capability: 'availability',
-      status: 'live-beta',
-      provider: 'Migros',
-      sourceType: 'retailer-web',
+      status: 'unsupported',
+      reason: 'Migros store-availability API returns 403 (blocked/down).',
     },
     {
       chain: 'migros',

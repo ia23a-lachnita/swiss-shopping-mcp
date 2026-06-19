@@ -357,7 +357,7 @@ export class MigrosLiveAdapter implements ChainAdapter {
 
     try {
       const token = await this.ensureAuth();
-      const storeResult = await this.api.stores.searchStores({ query: location } as any, token);
+      const storeResult = await (this.api.stores.searchStores as Function)({ query: location }, { leshopch: token });
 
       const stores = this.extractStoresFromResult(storeResult);
       const provenance = this.buildProvenance(STORES_URL);
@@ -382,7 +382,7 @@ export class MigrosLiveAdapter implements ChainAdapter {
         this.invalidateAuth();
         try {
           const token = await this.ensureAuth();
-          const storeResultRetry = await this.api.stores.searchStores({ query: location } as any, token);
+          const storeResultRetry = await (this.api.stores.searchStores as Function)({ query: location }, { leshopch: token });
           const stores = this.extractStoresFromResult(storeResultRetry);
           const provenance = this.buildProvenance(STORES_URL);
           const record = await this.cache.set(cacheKey, { stores }, cacheableProvenance(provenance), this.cacheTtlMs);
@@ -473,8 +473,8 @@ export class MigrosLiveAdapter implements ChainAdapter {
   public getStoreAvailabilitySupport(): StoreAvailabilitySupport {
     return {
       chain: this.chain,
-      supported: true,
-      reason: 'Migros store-level product availability via /store-availability/public/v2/.',
+      supported: false,
+      reason: 'Migros store-availability API returns 403 (blocked/down). Endpoint may have changed.',
     };
   }
 

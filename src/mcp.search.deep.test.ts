@@ -1191,8 +1191,9 @@ describe('12. Source Status with Multiple Chains', () => {
     }>(result);
     expect(data.support.length).toBe(8);
     const supportedChains = data.support.filter((s) => s.supported === true).map((s) => s.chain);
-    expect(supportedChains).toContain('migros');
-    expect(supportedChains).toContain('coop');
+    // Migros and Coop availability APIs are broken (403 / endpoint removed)
+    expect(supportedChains).not.toContain('migros');
+    expect(supportedChains).not.toContain('coop');
   });
 });
 

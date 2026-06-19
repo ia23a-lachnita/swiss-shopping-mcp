@@ -224,8 +224,8 @@ describe('MigrosLiveAdapter', () => {
       const support = adapter.getStoreAvailabilitySupport();
       expect(support).toEqual({
         chain: 'migros',
-        supported: true,
-        reason: 'Migros store-level product availability via /store-availability/public/v2/.',
+        supported: false,
+        reason: 'Migros store-availability API returns 403 (blocked/down). Endpoint may have changed.',
       });
     });
   });

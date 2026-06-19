@@ -326,8 +326,8 @@ export class CoopLiveAdapter implements ChainAdapter {
   public getStoreAvailabilitySupport(): StoreAvailabilitySupport {
     return {
       chain: this.chain,
-      supported: true,
-      reason: 'Coop store-level product availability via /products/{id}/stockLevels.',
+      supported: false,
+      reason: 'Coop /products/{id}/stockLevels endpoint no longer exists (returns UnknownResourceError).',
     };
   }
 
