@@ -123,9 +123,14 @@ export function parseOttosOccStore(store: OttosOccStore, index: number, _sourceU
     (p): p is string => typeof p === 'string' && p.trim().length > 0
   );
 
+  // Use address-based name if store.name is just a number (e.g., "0259")
+  const storeName = store.name && /^\d+$/.test(store.name) && store.address?.town
+    ? `Otto's ${store.address.town}`
+    : store.name;
+
   return {
     id: `ottos-store-${index}`,
-    name: store.name,
+    name: storeName,
     address: parts.join(', '),
     latitude: lat,
     longitude: lon,

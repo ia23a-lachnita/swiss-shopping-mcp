@@ -373,6 +373,14 @@ export class SearchService {
   private isStoreOpen(openingHours: string | undefined, now: Date): boolean | undefined {
     if (!openingHours) return undefined;
     try {
+      // Handle Migros format: "2026-06-19 08:00" (date + opening time, no closing time)
+      const dateMatch = openingHours.match(/^\d{4}-\d{2}-\d{2}\s+(\d{1,2}):(\d{2})$/);
+      if (dateMatch) {
+        // Migros format: only opening time, no closing time - can't determine if open
+        return undefined;
+      }
+
+      // Handle Coop format: "07:30 - 20:00" (opening - closing)
       const hourMatch = openingHours.match(/(\d{1,2}):(\d{2})/);
       if (!hourMatch) return undefined;
       const hour = parseInt(hourMatch[1], 10);

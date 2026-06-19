@@ -9,6 +9,7 @@ import {
   parseMigrosStoresResponse,
 } from '../../parsers/migros.js';
 import { sortProducts } from '../../util/matcher.js';
+// geo.ts not currently needed for this adapter
 import {
   cacheableProvenance,
   liveProvenanceWithCacheExpiry,

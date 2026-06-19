@@ -78,6 +78,8 @@ Phase: `V1 - core read/search foundation`
 | Manual SPA test suite                | done                   | `test-spa-manual.mjs` with 42 test cases covering all vendors, postal codes, edge cases; all pass |
 | Round 2 issue-specific tests         | done                   | `test-issues-round2.mjs` with 33 tests across 13 categories; found and fixed: apfel taxonomy, test assertion mismatches; all pass |
 | Browser-tested integration tests     | done                   | 13 vitest integration tests in `server.integration.test.ts` covering: city name vs postal code store search, XSS handling, quantity multiplier, openNow/inStockOnly filters, chain filtering, error handling; all 448 tests pass |
+| Otto's store name fix                | done                   | Otto's API returns store IDs (e.g., "0259") as names; parser now uses `Otto's {town}` format when name is numeric; build clean |
+| Migros hours format fix              | done                   | `isStoreOpen()` now handles Migros date+time format ("2026-06-19 08:00") by returning undefined (can't determine open status from single time); build clean |
 
 ## Next tasks
 
