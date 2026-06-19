@@ -73,6 +73,9 @@ Phase: `V1 - core read/search foundation`
 | SPA product quantity display         | done                   | Product cards and price comparison table now show size/quantity; 435 tests pass |
 | SPA nutrition display                | done                   | Expandable nutrition section on product cards (energy, protein, carbs, fat, fiber, sugar per 100g); "Show all nutrition" toggle in search form; only for Migros products with nutrition data; 435 tests pass |
 | SPA ingredients display              | done                   | Expandable ingredients section on product cards; "Show all ingredients" toggle in search form; `ingredients` field added to NormalizedProduct type; 435 tests pass |
+| Unsupported chain graceful degradation | done | All unsupported chain queries now return `ok:true` with empty data + source warnings instead of `ok:false` ALL_SOURCES_FAILED error; updated 15 unit tests |
+| Non-blocking server scripts          | done                   | `start-server.ps1` uses `cmd /c` for fully detached process (fixes opencode terminal lock); `kill-server.ps1` updated with safe variable names |
+| Manual SPA test suite                | done                   | `test-spa-manual.mjs` with 42 test cases covering all vendors, postal codes, edge cases; all pass |
 
 ## Next tasks
 
