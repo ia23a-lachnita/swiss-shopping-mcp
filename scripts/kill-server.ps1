@@ -2,14 +2,15 @@
 # Usage: pwsh scripts/kill-server.ps1
 
 $port = 3000
-$pids = Get-NetTCPConnection -LocalPort $port -ErrorAction SilentlyContinue |
+$processIds = Get-NetTCPConnection -LocalPort $port -ErrorAction SilentlyContinue |
     Select-Object -ExpandProperty OwningProcess -Unique
 
-if ($pids) {
-    foreach ($pid in $pids) {
-        Write-Host "Killing process $pid on port $port..."
-        Stop-Process -Id $pid -Force -ErrorAction SilentlyContinue
+if ($processIds) {
+    foreach ($procId in $processIds) {
+        Write-Host "Killing process $procId on port $port..."
+        Stop-Process -Id $procId -Force -ErrorAction SilentlyContinue
     }
+    Start-Sleep -Seconds 1
     Write-Host "Done. All processes on port $port killed."
 } else {
     Write-Host "No processes found on port $port."

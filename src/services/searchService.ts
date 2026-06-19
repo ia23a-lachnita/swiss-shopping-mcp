@@ -107,10 +107,7 @@ export class SearchService {
     );
     const relevantAdapters = this.adapters.filter((adapter) => requestedChains.has(adapter.chain));
     if (relevantAdapters.length === 0) {
-      return {
-        ok: false,
-        error: { code: 'CHAIN_NOT_SUPPORTED', message: 'No supported chains were requested.' },
-      };
+      return { ok: true, data: [] };
     }
 
     const adapterResults = await Promise.all(
@@ -131,15 +128,8 @@ export class SearchService {
 
     const successfulResults = adapterResults.filter((entry) => entry.result.ok);
     if (successfulResults.length === 0 && sourceWarnings.length > 0) {
-      return {
-        ok: false,
-        error: {
-          code: 'ALL_SOURCES_FAILED',
-          message: sourceWarnings
-            .map((warning) => `${warning.chain}: ${warning.message}`)
-            .join('; '),
-        },
-      };
+      const metadata = mergeMetadata([], sourceWarnings);
+      return { ok: true, data: [], metadata };
     }
 
     const products = successfulResults.flatMap((entry) =>
@@ -178,10 +168,7 @@ export class SearchService {
     );
     const relevantAdapters = this.adapters.filter((adapter) => requestedChains.has(adapter.chain));
     if (relevantAdapters.length === 0) {
-      return {
-        ok: false,
-        error: { code: 'CHAIN_NOT_SUPPORTED', message: 'No supported chains were requested.' },
-      };
+      return { ok: true, data: [] };
     }
 
     const adapterResults = await Promise.all(
@@ -202,15 +189,8 @@ export class SearchService {
 
     const successfulResults = adapterResults.filter((entry) => entry.result.ok);
     if (successfulResults.length === 0 && sourceWarnings.length > 0) {
-      return {
-        ok: false,
-        error: {
-          code: 'ALL_SOURCES_FAILED',
-          message: sourceWarnings
-            .map((warning) => `${warning.chain}: ${warning.message}`)
-            .join('; '),
-        },
-      };
+      const metadata = mergeMetadata([], sourceWarnings);
+      return { ok: true, data: [], metadata };
     }
 
     const stores = successfulResults.flatMap((entry) => (entry.result.ok ? entry.result.data : []));
@@ -246,10 +226,7 @@ export class SearchService {
     );
     const relevantAdapters = this.adapters.filter((adapter) => requestedChains.has(adapter.chain));
     if (relevantAdapters.length === 0) {
-      return {
-        ok: false,
-        error: { code: 'CHAIN_NOT_SUPPORTED', message: 'No supported chains were requested.' },
-      };
+      return { ok: true, data: [] };
     }
 
     const adapterResults = await Promise.all(
@@ -270,15 +247,8 @@ export class SearchService {
 
     const successfulResults = adapterResults.filter((entry) => entry.result.ok);
     if (successfulResults.length === 0 && sourceWarnings.length > 0) {
-      return {
-        ok: false,
-        error: {
-          code: 'ALL_SOURCES_FAILED',
-          message: sourceWarnings
-            .map((warning) => `${warning.chain}: ${warning.message}`)
-            .join('; '),
-        },
-      };
+      const metadata = mergeMetadata([], sourceWarnings);
+      return { ok: true, data: [], metadata };
     }
 
     const promotions = successfulResults.flatMap((entry) =>

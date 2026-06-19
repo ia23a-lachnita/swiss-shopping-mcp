@@ -366,13 +366,17 @@ export class PriceComparisonService {
       sourceWarnings.length > 0
     ) {
       return {
-        ok: false,
-        error: {
-          code: 'ALL_SOURCES_FAILED',
-          message: sourceWarnings
-            .map((warning) => `${warning.chain}: ${warning.message}`)
-            .join('; '),
+        ok: true,
+        data: {
+          query,
+          quantity,
+          offers: [],
+          cheapestOffer: undefined,
+          mostExpensiveOffer: undefined,
+          savingsVsMostExpensive: undefined,
+          comparisonBasis,
         },
+        metadata: { sourceWarnings },
       };
     }
 

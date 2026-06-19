@@ -191,10 +191,11 @@ describe('SearchService', () => {
 
     const result = await service.searchProducts({ query: 'bread', chains: ['coop'] });
 
-    expect(result.ok).toBe(false);
-    if (!result.ok) {
-      expect(result.error.code).toBe('ALL_SOURCES_FAILED');
-      expect(result.error.message).toContain('coop');
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data).toEqual([]);
+      expect(result.metadata?.sourceWarnings).toBeDefined();
+      expect(result.metadata?.sourceWarnings!.some((w) => w.chain === 'coop')).toBe(true);
     }
   });
 
@@ -242,11 +243,11 @@ describe('SearchService', () => {
 
     const result = await failingService.searchProducts({ query: 'milk' });
 
-    expect(result.ok).toBe(false);
-    if (!result.ok) {
-      expect(result.error.code).toBe('ALL_SOURCES_FAILED');
-      expect(result.error.message).toContain('migros');
-      expect(result.error.message).toContain('coop');
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data).toEqual([]);
+      expect(result.metadata?.sourceWarnings).toBeDefined();
+      expect(result.metadata?.sourceWarnings!.length).toBe(2);
     }
   });
 
@@ -310,11 +311,11 @@ describe('SearchService', () => {
 
     const result = await failingService.findStores({ location: 'zürich' });
 
-    expect(result.ok).toBe(false);
-    if (!result.ok) {
-      expect(result.error.code).toBe('ALL_SOURCES_FAILED');
-      expect(result.error.message).toContain('migros');
-      expect(result.error.message).toContain('coop');
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data).toEqual([]);
+      expect(result.metadata?.sourceWarnings).toBeDefined();
+      expect(result.metadata?.sourceWarnings!.length).toBe(2);
     }
   });
 

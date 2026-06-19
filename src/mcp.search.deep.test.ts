@@ -1493,8 +1493,11 @@ describe('16. Search with Multiple Chains — Partial Results', () => {
       query: 'milk',
       chains: ['farmy'],
     });
-    expect(result.isError).toBe(true);
-    expect(result.content[0].text).toContain('ALL_SOURCES_FAILED');
+    expect(result.isError).not.toBe(true);
+    const data = structured<{ products: NormalizedProduct[]; sourceWarnings?: Array<{ chain: string }> }>(result);
+    expect(data.products).toEqual([]);
+    expect(data.sourceWarnings).toBeDefined();
+    expect(data.sourceWarnings!.some((w) => w.chain === 'farmy')).toBe(true);
   });
 });
 

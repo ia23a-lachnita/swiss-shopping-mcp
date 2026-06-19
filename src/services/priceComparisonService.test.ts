@@ -341,7 +341,7 @@ describe('PriceComparisonService', () => {
     }
   });
 
-  it('returns an all-sources error when every comparison source fails', async () => {
+  it('returns empty data with warnings when every comparison source fails', async () => {
     const customService = new PriceComparisonService([
       failingAdapter('migros', 'HTTP_503'),
       failingAdapter('coop', 'HTTP_429'),
@@ -349,11 +349,11 @@ describe('PriceComparisonService', () => {
 
     const result = await customService.comparePrices({ query: 'milk' });
 
-    expect(result.ok).toBe(false);
-    if (!result.ok) {
-      expect(result.error.code).toBe('ALL_SOURCES_FAILED');
-      expect(result.error.message).toContain('migros');
-      expect(result.error.message).toContain('coop');
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data.offers).toEqual([]);
+      expect(result.metadata?.sourceWarnings).toBeDefined();
+      expect(result.metadata?.sourceWarnings?.length).toBeGreaterThan(0);
     }
   });
 });

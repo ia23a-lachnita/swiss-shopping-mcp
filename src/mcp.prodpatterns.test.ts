@@ -429,8 +429,11 @@ describe('3. search_products', () => {
       query: 'milk',
       chains: ['farmy'],
     });
-    expect(result.isError).toBe(true);
-    expect(result.content[0].text).toContain('ALL_SOURCES_FAILED');
+    expect(result.isError).not.toBe(true);
+    const data = structured<{ products: NormalizedProduct[]; sourceWarnings?: Array<{ chain: string }> }>(result);
+    expect(data.products).toEqual([]);
+    expect(data.sourceWarnings).toBeDefined();
+    expect(data.sourceWarnings!.some((w) => w.chain === 'farmy')).toBe(true);
   });
 });
 
@@ -469,8 +472,10 @@ describe('4. search_promotions', () => {
       query: 'wine',
       chains: ['coop', 'migros'],
     });
-    expect(result.isError).toBe(true);
-    expect(result.content[0].text).toContain('ALL_SOURCES_FAILED');
+    expect(result.isError).not.toBe(true);
+    const data = structured<{ promotions: NormalizedPromotion[]; sourceWarnings?: Array<{ chain: string }> }>(result);
+    expect(data.promotions).toEqual([]);
+    expect(data.sourceWarnings).toBeDefined();
   });
 
   it('returns empty for non-matching query', async () => {
@@ -518,9 +523,11 @@ describe('5. find_stores', () => {
       location: 'Basel',
       chains: ['aldi'],
     });
-    expect(result.isError).toBe(true);
-    expect(result.content[0].text).toContain('ALL_SOURCES_FAILED');
-    expect(result.content[0].text).toContain('aldi');
+    expect(result.isError).not.toBe(true);
+    const data = structured<{ stores: unknown[]; sourceWarnings?: Array<{ chain: string }> }>(result);
+    expect(data.stores).toEqual([]);
+    expect(data.sourceWarnings).toBeDefined();
+    expect(data.sourceWarnings!.some((w) => w.chain === 'aldi')).toBe(true);
   });
 
   it('Farmy store search returns ALL_SOURCES_FAILED (store lookup unsupported)', async () => {
@@ -528,9 +535,11 @@ describe('5. find_stores', () => {
       location: 'Zürich',
       chains: ['farmy'],
     });
-    expect(result.isError).toBe(true);
-    expect(result.content[0].text).toContain('ALL_SOURCES_FAILED');
-    expect(result.content[0].text).toContain('farmy');
+    expect(result.isError).not.toBe(true);
+    const data = structured<{ stores: unknown[]; sourceWarnings?: Array<{ chain: string }> }>(result);
+    expect(data.stores).toEqual([]);
+    expect(data.sourceWarnings).toBeDefined();
+    expect(data.sourceWarnings!.some((w) => w.chain === 'farmy')).toBe(true);
   });
 
   it('ALL_SOURCES_FAILED when all requested chains unsupported', async () => {
@@ -538,8 +547,10 @@ describe('5. find_stores', () => {
       location: 'Bern',
       chains: ['farmy'],
     });
-    expect(result.isError).toBe(true);
-    expect(result.content[0].text).toContain('ALL_SOURCES_FAILED');
+    expect(result.isError).not.toBe(true);
+    const data = structured<{ stores: unknown[]; sourceWarnings?: Array<{ chain: string }> }>(result);
+    expect(data.stores).toEqual([]);
+    expect(data.sourceWarnings).toBeDefined();
   });
 
   it('empty location returns INVALID_ARGUMENTS', async () => {
@@ -553,9 +564,11 @@ describe('5. find_stores', () => {
       location: 'Zürich',
       chains: ['farmy'],
     });
-    expect(result.isError).toBe(true);
-    expect(result.content[0].text).toContain('ALL_SOURCES_FAILED');
-    expect(result.content[0].text).toContain('farmy');
+    expect(result.isError).not.toBe(true);
+    const data = structured<{ stores: unknown[]; sourceWarnings?: Array<{ chain: string }> }>(result);
+    expect(data.stores).toEqual([]);
+    expect(data.sourceWarnings).toBeDefined();
+    expect(data.sourceWarnings!.some((w) => w.chain === 'farmy')).toBe(true);
   });
 
   it('mixed supported/unsupported chains returns partial error with warnings', async () => {
@@ -563,8 +576,9 @@ describe('5. find_stores', () => {
       location: 'Bern',
       chains: ['aldi', 'farmy'],
     });
-    expect(result.isError).toBe(true);
-    expect(result.content[0].text).toContain('ALL_SOURCES_FAILED');
+    expect(result.isError).not.toBe(true);
+    const data = structured<{ stores: unknown[]; sourceWarnings?: Array<{ chain: string }> }>(result);
+    expect(data.sourceWarnings).toBeDefined();
   });
 });
 
@@ -680,8 +694,10 @@ describe('6. compare_prices', () => {
       query: 'milk',
       chains: ['farmy'],
     });
-    expect(result.isError).toBe(true);
-    expect(result.content[0].text).toContain('ALL_SOURCES_FAILED');
+    expect(result.isError).not.toBe(true);
+    const data = structured<{ comparison: { offers: unknown[] }; sourceWarnings?: Array<{ chain: string }> }>(result);
+    expect(data.comparison.offers).toEqual([]);
+    expect(data.sourceWarnings).toBeDefined();
   });
 
   it('includePromotions does not crash when promotions are empty (expired fixtures)', async () => {
@@ -997,8 +1013,11 @@ describe('10. Cross-Tool Integration Scenarios', () => {
       query: 'milk',
       chains: ['farmy'],
     });
-    expect(searchResult.isError).toBe(true);
-    expect(searchResult.content[0].text).toContain('ALL_SOURCES_FAILED');
+    expect(searchResult.isError).not.toBe(true);
+    const searchData = structured<{ products: NormalizedProduct[]; sourceWarnings?: Array<{ chain: string }> }>(searchResult);
+    expect(searchData.products).toEqual([]);
+    expect(searchData.sourceWarnings).toBeDefined();
+    expect(searchData.sourceWarnings!.some((w) => w.chain === 'farmy')).toBe(true);
   });
 
   it('search then compare for same product returns consistent pricing', async () => {
@@ -1383,8 +1402,11 @@ describe('15. Source Warning Codes & Error Patterns', () => {
       query: 'milk',
       chains: ['farmy'],
     });
-    expect(result.isError).toBe(true);
-    expect(result.content[0].text).toContain('ALL_SOURCES_FAILED');
+    expect(result.isError).not.toBe(true);
+    const data = structured<{ products: NormalizedProduct[]; sourceWarnings?: Array<{ chain: string }> }>(result);
+    expect(data.products).toEqual([]);
+    expect(data.sourceWarnings).toBeDefined();
+    expect(data.sourceWarnings!.some((w) => w.chain === 'farmy')).toBe(true);
   });
 
   it('unsupported chain find_stores returns ALL_SOURCES_FAILED', async () => {
@@ -1392,8 +1414,10 @@ describe('15. Source Warning Codes & Error Patterns', () => {
       location: 'Bern',
       chains: ['farmy'],
     });
-    expect(result.isError).toBe(true);
-    expect(result.content[0].text).toContain('ALL_SOURCES_FAILED');
+    expect(result.isError).not.toBe(true);
+    const data = structured<{ stores: unknown[]; sourceWarnings?: Array<{ chain: string }> }>(result);
+    expect(data.stores).toEqual([]);
+    expect(data.sourceWarnings).toBeDefined();
   });
 
   it('unsupported chain promotions returns REAL_SOURCE_NOT_IMPLEMENTED', async () => {
@@ -1401,8 +1425,10 @@ describe('15. Source Warning Codes & Error Patterns', () => {
       query: 'wine',
       chains: ['migros'],
     });
-    expect(result.isError).toBe(true);
-    expect(result.content[0].text).toContain('ALL_SOURCES_FAILED');
+    expect(result.isError).not.toBe(true);
+    const data = structured<{ promotions: NormalizedPromotion[]; sourceWarnings?: Array<{ chain: string }> }>(result);
+    expect(data.promotions).toEqual([]);
+    expect(data.sourceWarnings).toBeDefined();
   });
 
   it('partial failure: aldi succeeds, farmy fails with warning', async () => {
