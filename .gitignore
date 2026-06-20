@@ -17,3 +17,5 @@ yarn.lock
 .cache/
 .parcel-cache/
 test-cache-*/
+test-results/
+playwright-report/

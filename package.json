@@ -17,6 +17,7 @@
     "test:integration": "vitest run --passWithNoTests src/**/*.integration.test.ts",
     "test:contract": "RUN_CONTRACT_TESTS=1 vitest run --passWithNoTests src/**/*.contract.test.ts",
     "test:ui": "vitest --ui",
+    "test:browser": "npx playwright test",
     "test:coverage": "vitest --coverage",
     "lint": "eslint src --ext .ts",
     "format": "prettier --write \"src/**/*.ts\"",
