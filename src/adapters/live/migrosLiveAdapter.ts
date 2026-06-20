@@ -357,7 +357,8 @@ export class MigrosLiveAdapter implements ChainAdapter {
 
     try {
       const token = await this.ensureAuth();
-      const storeResult = await (this.api.stores.searchStores as Function)({ query: location }, token);
+      const searchStores = this.api.stores.searchStores.bind(this.api.stores);
+      const storeResult = await searchStores({ query: location }, token);
 
       const stores = this.extractStoresFromResult(storeResult);
       const provenance = this.buildProvenance(STORES_URL);
@@ -382,7 +383,8 @@ export class MigrosLiveAdapter implements ChainAdapter {
         this.invalidateAuth();
         try {
           const token = await this.ensureAuth();
-          const storeResultRetry = await (this.api.stores.searchStores as Function)({ query: location }, token);
+          const searchStoresRetry = this.api.stores.searchStores.bind(this.api.stores);
+          const storeResultRetry = await searchStoresRetry({ query: location }, token);
           const stores = this.extractStoresFromResult(storeResultRetry);
           const provenance = this.buildProvenance(STORES_URL);
           const record = await this.cache.set(cacheKey, { stores }, cacheableProvenance(provenance), this.cacheTtlMs);
