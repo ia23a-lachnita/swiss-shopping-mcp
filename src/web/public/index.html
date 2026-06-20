@@ -758,6 +758,7 @@
             card.innerHTML =
               '<div class="name">' + escapeHtml(s.name) + '</div>' +
               '<div class="address">' + escapeHtml(s.address) + '</div>' +
+              (s.openingHours ? '<div class="coords">Hours: ' + escapeHtml(s.openingHours) + '</div>' : '') +
               (coords ? '<div class="coords">' + coords + '</div>' : '') +
               (mapUrl ? '<a class="map-link" href="' + mapUrl + '" target="_blank" rel="noopener">View on map</a>' : '');
             group.appendChild(card);
