@@ -1,0 +1,47 @@
+[
+    {
+        "id": "81740100_3942045",
+        "type": "village",
+        "coordinates": {
+            "latitude": 47.529099,
+            "longitude": 8.464818
+        },
+        "description": "Stadel b. Niederglatt 8174 ZH Schweiz"
+    },
+    {
+        "id": "837204761_3973268",
+        "type": "village",
+        "coordinates": {
+            "latitude": 47.450251,
+            "longitude": 8.985072
+        },
+        "description": "Wiezikon b. Sirnach 8372 TG Schweiz"
+    },
+    {
+        "id": "857244891_4002253",
+        "type": "village",
+        "coordinates": {
+            "latitude": 47.573116,
+            "longitude": 9.188124
+        },
+        "description": "Guntershausen b. Berg 8572 TG Schweiz"
+    },
+    {
+        "id": "8586104901_4005638",
+        "type": "village",
+        "coordinates": {
+            "latitude": 47.570589,
+            "longitude": 9.235696
+        },
+        "description": "Buch b. Kümmertshausen 8586 TG Schweiz"
+    },
+    {
+        "id": "86020200_3942888",
+        "type": "village",
+        "coordinates": {
+            "latitude": 47.410673,
+            "longitude": 8.645598
+        },
+        "description": "Wangen b. Dübendorf 8602 ZH Schweiz"
+    }
+]
