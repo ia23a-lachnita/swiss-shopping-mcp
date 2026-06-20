@@ -5,6 +5,7 @@ import {
   NormalizedProduct,
   NormalizedPromotion,
   NormalizedStore,
+  ProductAvailabilityResult,
   ProductSearchFilters,
   PromotionSearchFilters,
   Result,
@@ -368,6 +369,48 @@ export class SearchService {
     }
 
     return { ok: true, data: filtered };
+  }
+
+  public async lookupAvailabilityByLocationProductsFirst(
+    filters: StoreAvailabilityByLocationFilters
+  ): Promise<Result<ProductAvailabilityResult[]>> {
+    const query = filters.query.trim();
+    const location = filters.location.trim();
+    if (!query) {
+      return { ok: false, error: { code: 'INVALID_QUERY', message: 'Query is required.' } };
+    }
+    if (!location) {
+      return { ok: false, error: { code: 'INVALID_LOCATION', message: 'Location is required.' } };
+    }
+
+    // First search for products
+    const productResult = await this.searchProducts({
+      query,
+      chains: filters.chains,
+      limit: 5,
+    });
+
+    if (!productResult.ok || productResult.data.length === 0) {
+      return { ok: false, error: { code: 'NO_PRODUCTS', message: 'No products found for this query.' } };
+    }
+
+    // Get store availability for the first product
+    const availabilityResult = await this.lookupAvailabilityByLocation({
+      ...filters,
+      limit: 10,
+    });
+
+    if (!availabilityResult.ok) {
+      return { ok: false, error: availabilityResult.error };
+    }
+
+    return {
+      ok: true,
+      data: [{
+        product: productResult.data[0],
+        stores: availabilityResult.data,
+      }],
+    };
   }
 
   private isStoreOpen(openingHours: string | undefined, now: Date): boolean | undefined {

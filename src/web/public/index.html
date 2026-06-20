@@ -901,7 +901,7 @@
       const openNow = document.getElementById('avail-open').checked;
 
       try {
-        const result = await apiPost('/api/store-availability', { query, location, chains, limit, inStockOnly, openNow });
+        const result = await apiPost('/api/product-availability', { query, location, chains, limit, inStockOnly, openNow });
         hideLoading('avail-loading');
 
         if (!result.ok) {
@@ -909,44 +909,76 @@
           return;
         }
 
-        const stores = result.data || [];
+        const products = result.data || [];
         const grid = document.getElementById('avail-results');
 
-        if (stores.length === 0) {
-          showError('avail-error', 'No stores found with availability data for this product.');
+        if (products.length === 0) {
+          showError('avail-error', 'No products found with availability data for this query.');
           return;
         }
 
-        let html = '<div class="results-info">Showing ' + stores.length + ' store(s) for "' + escapeHtml(query) + '" near ' + escapeHtml(location) + '</div>';
-        html += '<div class="store-list">';
+        let html = '';
 
-        stores.forEach(s => {
-          const mapUrl = s.location
-            ? 'https://www.google.com/maps/search/?api=1&query=' + s.location.latitude + ',' + s.location.longitude
-            : '';
-          const availBadge = s.available
-            ? '<span style="background:#d1fae5;color:#065f46;padding:3px 8px;border-radius:4px;font-size:12px;font-weight:600">In Stock' + (s.stockCount ? ' (' + s.stockCount + ')' : '') + '</span>'
-            : '<span style="background:#fee2e2;color:#991b1b;padding:3px 8px;border-radius:4px;font-size:12px;font-weight:600">Out of Stock</span>';
-          const openBadge = s.isOpen === true
-            ? '<span style="background:#d1fae5;color:#065f46;padding:3px 8px;border-radius:4px;font-size:11px">Open now</span>'
-            : s.isOpen === false
-              ? '<span style="background:#fee2e2;color:#991b1b;padding:3px 8px;border-radius:4px;font-size:11px">Closed</span>'
-              : '';
+        products.forEach(item => {
+          const p = item.product;
+          const stores = item.stores || [];
 
-          html += '<div class="store-card" style="border-left:4px solid ' + (s.available ? 'var(--green)' : 'var(--gray-300)') + '">';
-          html += '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">';
-          html += '<span class="chain-badge ' + chainBadgeClass(s.chain) + '">' + s.chain + '</span>';
-          html += '<div class="name">' + escapeHtml(s.name) + '</div>';
-          html += availBadge;
-          if (openBadge) html += openBadge;
+          html += '<div class="product-card" style="margin-bottom:16px;border:2px solid var(--primary);">';
+          const imageHtml = p.image
+            ? '<img class="image" src="' + escapeHtml(p.image) + '" alt="" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'"><div class="no-image" style="display:none">No image</div>'
+            : '<div class="no-image">No image</div>';
+          html += imageHtml;
+          html += '<span class="chain-badge ' + chainBadgeClass(p.chain) + '">' + p.chain + '</span>';
+          html += '<div class="name">' + escapeHtml(p.name) + '</div>';
+          if (p.brand) html += '<div class="brand">' + escapeHtml(p.brand) + '</div>';
+          if (p.category) html += '<div class="category">' + escapeHtml(p.category) + '</div>';
+          if (p.size) html += '<div class="size">' + escapeHtml(p.size) + '</div>';
+          html += '<div class="price">' + formatPrice(p.price.current);
+          if (p.price.original) html += '<span class="original">' + formatPrice(p.price.original) + '</span>';
           html += '</div>';
-          html += '<div class="address">' + escapeHtml(s.address) + '</div>';
-          if (s.openingHours) html += '<div style="font-size:12px;color:var(--gray-500)">Hours: ' + escapeHtml(s.openingHours) + '</div>';
-          if (mapUrl) html += '<a class="map-link" href="' + mapUrl + '" target="_blank" rel="noopener">View on map</a>';
+          if (p.productUrl) {
+            html += '<a class="vendor-link" href="' + escapeHtml(p.productUrl) + '" target="_blank" rel="noopener">View on ' + p.chain.charAt(0).toUpperCase() + p.chain.slice(1) + ' &rarr;</a>';
+          }
+          html += '</div>';
+
+          html += '<div class="panel" style="margin-bottom:24px;">';
+          html += '<h4 style="margin:0 0 8px 0;">Available at ' + stores.length + ' store(s)</h4>';
+
+          if (stores.length === 0) {
+            html += '<div class="error-box" style="background:#fef3cd;border-color:#fecaca;color:#92400e;">No store availability data found. This feature may be temporarily unavailable.</div>';
+          } else {
+            html += '<div class="store-list">';
+            stores.forEach(s => {
+              const mapUrl = s.location
+                ? 'https://www.google.com/maps/search/?api=1&query=' + s.location.latitude + ',' + s.location.longitude
+                : '';
+              const availBadge = s.available
+                ? '<span style="background:#d1fae5;color:#065f46;padding:3px 8px;border-radius:4px;font-size:12px;font-weight:600">In Stock' + (s.stockCount ? ' (' + s.stockCount + ')' : '') + '</span>'
+                : '<span style="background:#fee2e2;color:#991b1b;padding:3px 8px;border-radius:4px;font-size:12px;font-weight:600">Out of Stock</span>';
+              const openBadge = s.isOpen === true
+                ? '<span style="background:#d1fae5;color:#065f46;padding:3px 8px;border-radius:4px;font-size:11px">Open now</span>'
+                : s.isOpen === false
+                  ? '<span style="background:#fee2e2;color:#991b1b;padding:3px 8px;border-radius:4px;font-size:11px">Closed</span>'
+                  : '';
+
+              html += '<div class="store-card" style="border-left:4px solid ' + (s.available ? 'var(--green)' : 'var(--gray-300)') + '">';
+              html += '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">';
+              html += '<span class="chain-badge ' + chainBadgeClass(s.chain) + '">' + s.chain + '</span>';
+              html += '<div class="name">' + escapeHtml(s.name) + '</div>';
+              html += availBadge;
+              if (openBadge) html += openBadge;
+              html += '</div>';
+              html += '<div class="address">' + escapeHtml(s.address) + '</div>';
+              if (s.openingHours) html += '<div style="font-size:12px;color:var(--gray-500)">Hours: ' + escapeHtml(s.openingHours) + '</div>';
+              if (mapUrl) html += '<a class="map-link" href="' + mapUrl + '" target="_blank" rel="noopener">View on map</a>';
+              html += '</div>';
+            });
+            html += '</div>';
+          }
+
           html += '</div>';
         });
 
-        html += '</div>';
         grid.innerHTML = html;
       } catch (e) {
         hideLoading('avail-loading');

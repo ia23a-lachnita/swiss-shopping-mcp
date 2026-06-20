@@ -224,6 +224,29 @@ async function handleStoreAvailabilityByLocation(res: ServerResponse, raw: strin
   }
 }
 
+async function handleProductAvailability(res: ServerResponse, raw: string): Promise<void> {
+  const parsed = parseBody<StoreAvailabilityByLocationFilters>(raw);
+
+  if (!parsed.ok) {
+    sendJson(res, 400, { ok: false, error: { code: 'INVALID_BODY', message: parsed.error } });
+    return;
+  }
+
+  const { query, location } = parsed.data;
+  if (!query || !location) {
+    sendJson(res, 400, { ok: false, error: { code: 'INVALID_PARAMS', message: 'query and location are required.' } });
+    return;
+  }
+
+  const result = await searchService.lookupAvailabilityByLocationProductsFirst(parsed.data);
+
+  if (result.ok) {
+    sendJson(res, 200, { ok: true, data: result.data });
+  } else {
+    sendJson(res, 500, { ok: false, error: result.error });
+  }
+}
+
 async function handleRequest(req: IncomingMessage, res: ServerResponse): Promise<void> {
   setCorsHeaders(res);
 
@@ -268,6 +291,12 @@ async function handleRequest(req: IncomingMessage, res: ServerResponse): Promise
   if (req.method === 'POST' && url.pathname === '/api/store-availability') {
     const body = await readBody(req);
     await handleStoreAvailabilityByLocation(res, body);
+    return;
+  }
+
+  if (req.method === 'POST' && url.pathname === '/api/product-availability') {
+    const body = await readBody(req);
+    await handleProductAvailability(res, body);
     return;
   }
 

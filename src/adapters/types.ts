@@ -250,6 +250,11 @@ export interface StoreWithProductAvailability extends NormalizedStore {
   isOpen?: boolean;
 }
 
+export interface ProductAvailabilityResult {
+  product: NormalizedProduct;
+  stores: StoreWithProductAvailability[];
+}
+
 export interface ChainCatalogData {
   products: NormalizedProduct[];
   stores: NormalizedStore[];
