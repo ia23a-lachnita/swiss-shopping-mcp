@@ -381,3 +381,337 @@ test.describe('SPA Browser Tests — Loop 1', () => {
     await expect(errorEl).toBeVisible({ timeout: 5000 });
   });
 });
+
+// ============================
+// Loop 2 — Deep Edge Cases
+// ============================
+test.describe('SPA Browser Tests — Loop 2', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto(BASE);
+    await page.waitForLoadState('networkidle');
+  });
+
+  test('2.1 Unicode search query (Müesli)', async ({ page }) => {
+    await page.fill('#search-query', 'Müesli');
+    await page.click('#search-btn');
+
+    await page.waitForFunction(() => {
+      const el = document.getElementById('search-results');
+      return el && el.children.length > 0;
+    }, { timeout: 30000 });
+
+    const cards = page.locator('#search-results .product-card');
+    expect(await cards.count()).toBeGreaterThan(0);
+  });
+
+  test('2.2 Multiple sequential searches retain correct state', async ({ page }) => {
+    // First search
+    await page.fill('#search-query', 'butter');
+    await page.click('#search-btn');
+    await page.waitForFunction(() => {
+      const el = document.getElementById('search-results');
+      return el && el.children.length > 0;
+    }, { timeout: 30000 });
+    const firstCount = await page.locator('#search-results .product-card').count();
+
+    // Second search should replace results
+    await page.fill('#search-query', 'cheese');
+    await page.click('#search-btn');
+    await page.waitForFunction(() => {
+      const el = document.getElementById('search-results');
+      return el && el.children.length > 0;
+    }, { timeout: 30000 });
+    const secondCount = await page.locator('#search-results .product-card').count();
+
+    expect(secondCount).toBeGreaterThan(0);
+    // Results should be different (or at least re-fetched)
+  });
+
+  test('2.3 Nutrition toggle persists across searches', async ({ page }) => {
+    // Enable nutrition
+    await page.check('#search-show-nutrition');
+    await page.fill('#search-query', 'milk');
+    await page.click('#search-btn');
+    await page.waitForFunction(() => {
+      const el = document.getElementById('search-results');
+      return el && el.children.length > 0;
+    }, { timeout: 30000 });
+
+    // Checkbox should still be checked
+    await expect(page.locator('#search-show-nutrition')).toBeChecked();
+
+    // Search again — checkbox should remain checked
+    await page.fill('#search-query', 'butter');
+    await page.click('#search-btn');
+    await page.waitForFunction(() => {
+      const el = document.getElementById('search-results');
+      return el && el.children.length > 0;
+    }, { timeout: 30000 });
+    await expect(page.locator('#search-show-nutrition')).toBeChecked();
+  });
+
+  test('2.4 Store finder with postal code 8001', async ({ page }) => {
+    await page.click('nav button:has-text("Store Finder")');
+    await page.fill('#store-location', '8001');
+    await page.click('#store-btn');
+
+    await page.waitForFunction(() => {
+      const el = document.getElementById('store-results');
+      return el && el.innerHTML.length > 10;
+    }, { timeout: 30000 });
+
+    const storeCards = page.locator('#store-results .store-card');
+    expect(await storeCards.count()).toBeGreaterThan(0);
+  });
+
+  test('2.5 Availability with in-stock filter', async ({ page }) => {
+    await page.click('nav button:has-text("Availability")');
+    await page.fill('#avail-query', 'Milch');
+    await page.fill('#avail-location', 'Bern');
+    await page.check('#avail-instock');
+    await page.click('#avail-btn');
+
+    await page.waitForFunction(() => {
+      const el = document.getElementById('avail-results');
+      return el && el.innerHTML.length > 10;
+    }, { timeout: 30000 });
+
+    await expect(page.locator('#avail-instock')).toBeChecked();
+  });
+
+  test('2.6 Availability with open-now filter', async ({ page }) => {
+    await page.click('nav button:has-text("Availability")');
+    await page.fill('#avail-query', 'Milch');
+    await page.fill('#avail-location', 'Bern');
+    await page.check('#avail-open');
+    await page.click('#avail-btn');
+
+    await page.waitForFunction(() => {
+      const el = document.getElementById('avail-results');
+      return el && el.innerHTML.length > 10;
+    }, { timeout: 30000 });
+
+    await expect(page.locator('#avail-open')).toBeChecked();
+  });
+
+  test('2.7 Price comparison with quantity > 1', async ({ page }) => {
+    await page.click('nav button:has-text("Price Comparison")');
+    await page.fill('#compare-query', 'butter');
+    await page.fill('#compare-quantity', '5');
+    await page.click('#compare-btn');
+
+    await page.waitForFunction(() => {
+      const el = document.getElementById('compare-results');
+      return el && el.innerHTML.length > 10;
+    }, { timeout: 30000 });
+
+    const html = await page.locator('#compare-results').innerHTML();
+    expect(html).toContain('CHF');
+  });
+
+  test('2.8 Product search — max price filter', async ({ page }) => {
+    await page.fill('#search-query', 'cheese');
+    await page.fill('#search-max-price', '5');
+    await page.click('#search-btn');
+
+    await page.waitForFunction(() => {
+      const el = document.getElementById('search-results');
+      return el && (el.children.length > 0 || el.innerHTML.includes('No'));
+    }, { timeout: 30000 });
+
+    // All visible prices should be <= 5 CHF (if any products found)
+    const prices = page.locator('#search-results .product-card .price');
+    const priceCount = await prices.count();
+    for (let i = 0; i < priceCount; i++) {
+      const text = await prices.nth(i).textContent();
+      const match = text?.match(/CHF\s*([\d.]+)/);
+      if (match) {
+        expect(parseFloat(match[1])).toBeLessThanOrEqual(5);
+      }
+    }
+  });
+
+  test('2.9 Error recovery — search fails then succeeds', async ({ page }) => {
+    // Trigger error with empty query
+    await page.click('#search-btn');
+    await expect(page.locator('#search-error')).toBeVisible({ timeout: 5000 });
+
+    // Now search successfully
+    await page.fill('#search-query', 'milk');
+    await page.click('#search-btn');
+    await page.waitForFunction(() => {
+      const el = document.getElementById('search-results');
+      return el && el.children.length > 0;
+    }, { timeout: 30000 });
+
+    // Error should be hidden
+    const errorVisible = await page.locator('#search-error').isVisible();
+    expect(errorVisible).toBeFalsy();
+  });
+
+  test('2.10 Store finder error recovery', async ({ page }) => {
+    await page.click('nav button:has-text("Store Finder")');
+
+    // Trigger error
+    await page.click('#store-btn');
+    await expect(page.locator('#store-error')).toBeVisible({ timeout: 5000 });
+
+    // Recover
+    await page.fill('#store-location', 'Bern');
+    await page.click('#store-btn');
+    await page.waitForFunction(() => {
+      const el = document.getElementById('store-results');
+      return el && el.innerHTML.length > 10;
+    }, { timeout: 30000 });
+
+    const errorVisible = await page.locator('#store-error').isVisible();
+    expect(errorVisible).toBeFalsy();
+  });
+
+  test('2.11 Limit selector works — limit 5 returns fewer results', async ({ page }) => {
+    await page.selectOption('#search-limit', '5');
+    await page.fill('#search-query', 'milk');
+    await page.click('#search-btn');
+
+    await page.waitForFunction(() => {
+      const el = document.getElementById('search-results');
+      return el && el.children.length > 0;
+    }, { timeout: 30000 });
+
+    const cards = page.locator('#search-results .product-card');
+    const count = await cards.count();
+    expect(count).toBeLessThanOrEqual(5);
+  });
+
+  test('2.12 Product cards have vendor links', async ({ page }) => {
+    await page.fill('#search-query', 'butter');
+    await page.click('#search-btn');
+
+    await page.waitForFunction(() => {
+      const el = document.getElementById('search-results');
+      return el && el.children.length > 0;
+    }, { timeout: 30000 });
+
+    const links = page.locator('#search-results .product-card .vendor-link');
+    const linkCount = await links.count();
+    expect(linkCount).toBeGreaterThan(0);
+
+    for (let i = 0; i < linkCount; i++) {
+      const text = await links.nth(i).textContent();
+      expect(text).toContain('View on');
+    }
+  });
+
+  test('2.13 Store cards have map links', async ({ page }) => {
+    await page.click('nav button:has-text("Store Finder")');
+    await page.fill('#store-location', 'Bern');
+    await page.click('#store-btn');
+
+    await page.waitForFunction(() => {
+      const el = document.getElementById('store-results');
+      return el && el.innerHTML.length > 10;
+    }, { timeout: 30000 });
+
+    const mapLinks = page.locator('#store-results .store-card a.map-link');
+    const count = await mapLinks.count();
+    expect(count).toBeGreaterThan(0);
+
+    for (let i = 0; i < count; i++) {
+      const href = await mapLinks.nth(i).getAttribute('href');
+      expect(href).toContain('google.com/maps');
+    }
+  });
+
+  test('2.14 Source status shows all 8 chains', async ({ page }) => {
+    await page.click('nav button:has-text("Source Status")');
+
+    await page.waitForFunction(() => {
+      const el = document.getElementById('status-results');
+      return el && el.innerHTML.length > 10;
+    }, { timeout: 15000 });
+
+    const html = await page.locator('#status-results').innerHTML();
+    const chains = ['Aldi', 'Coop', 'Denner', 'Farmy', 'Lidl', 'Migros', 'Ottos', 'Volg'];
+    for (const chain of chains) {
+      expect(html).toContain(chain);
+    }
+  });
+
+  test('2.15 Source status shows live-beta badges', async ({ page }) => {
+    await page.click('nav button:has-text("Source Status")');
+
+    await page.waitForFunction(() => {
+      const el = document.getElementById('status-results');
+      return el && el.innerHTML.length > 10;
+    }, { timeout: 15000 });
+
+    const badges = page.locator('#status-results .status-badge');
+    const count = await badges.count();
+    expect(count).toBeGreaterThan(0);
+
+    // Should have at least one live-beta badge
+    const liveBetaBadges = page.locator('#status-results .status-badge.status-live-beta');
+    expect(await liveBetaBadges.count()).toBeGreaterThan(0);
+  });
+
+  test('2.16 Search limit 20', async ({ page }) => {
+    await page.selectOption('#search-limit', '20');
+    await page.fill('#search-query', 'milk');
+    await page.click('#search-btn');
+
+    await page.waitForFunction(() => {
+      const el = document.getElementById('search-results');
+      return el && el.children.length > 0;
+    }, { timeout: 30000 });
+
+    const cards = page.locator('#search-results .product-card');
+    const count = await cards.count();
+    expect(count).toBeGreaterThan(5);
+    expect(count).toBeLessThanOrEqual(20);
+  });
+
+  test('2.17 Tab switching during loading cancels gracefully', async ({ page }) => {
+    // Start a slow search
+    await page.fill('#search-query', 'milk');
+    await page.click('#search-btn');
+
+    // Immediately switch to another tab
+    await page.click('nav button:has-text("Store Finder")');
+
+    // Store finder tab should be visible
+    await expect(page.locator('#tab-stores')).toBeVisible();
+
+    // Switch back — should still work
+    await page.click('nav button:has-text("Product Search")');
+    await expect(page.locator('#tab-search')).toBeVisible();
+  });
+
+  test('2.18 All chain checkboxes in store finder', async ({ page }) => {
+    await page.click('nav button:has-text("Store Finder")');
+
+    const checkboxes = page.locator('#store-chains input[type="checkbox"]');
+    const count = await checkboxes.count();
+    expect(count).toBe(7); // All 7 chains
+
+    // All should be checked by default
+    for (let i = 0; i < count; i++) {
+      await expect(checkboxes.nth(i)).toBeChecked();
+    }
+  });
+
+  test('2.19 Availability chain checkboxes exist', async ({ page }) => {
+    await page.click('nav button:has-text("Availability")');
+
+    const checkboxes = page.locator('#avail-chains input[type="checkbox"]');
+    const count = await checkboxes.count();
+    expect(count).toBeGreaterThanOrEqual(2); // At least Migros and Coop
+  });
+
+  test('2.20 Price comparison chain checkboxes exist', async ({ page }) => {
+    await page.click('nav button:has-text("Price Comparison")');
+
+    const checkboxes = page.locator('#compare-chains input[type="checkbox"]');
+    const count = await checkboxes.count();
+    expect(count).toBeGreaterThanOrEqual(2);
+  });
+});
