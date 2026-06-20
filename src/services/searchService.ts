@@ -383,34 +383,36 @@ export class SearchService {
       return { ok: false, error: { code: 'INVALID_LOCATION', message: 'Location is required.' } };
     }
 
-    // First search for products
-    const productResult = await this.searchProducts({
-      query,
-      chains: filters.chains,
-      limit: 5,
-    });
+    // Search for products and find stores in parallel
+    const [productResult, availabilityResult] = await Promise.all([
+      this.searchProducts({
+        query,
+        chains: filters.chains,
+        limit: 10,
+      }),
+      this.lookupAvailabilityByLocation({
+        ...filters,
+        limit: 10,
+      }),
+    ]);
 
     if (!productResult.ok || productResult.data.length === 0) {
       return { ok: false, error: { code: 'NO_PRODUCTS', message: 'No products found for this query.' } };
     }
 
-    // Get store availability for the first product
-    const availabilityResult = await this.lookupAvailabilityByLocation({
-      ...filters,
-      limit: 10,
-    });
-
     if (!availabilityResult.ok) {
       return { ok: false, error: availabilityResult.error };
     }
 
-    return {
-      ok: true,
-      data: [{
-        product: productResult.data[0],
-        stores: availabilityResult.data,
-      }],
-    };
+    const stores = availabilityResult.data;
+
+    // Map each product to nearby stores
+    const results: ProductAvailabilityResult[] = productResult.data.map((product) => ({
+      product,
+      stores,
+    }));
+
+    return { ok: true, data: results };
   }
 
   private isStoreOpen(openingHours: string | undefined, now: Date): boolean | undefined {

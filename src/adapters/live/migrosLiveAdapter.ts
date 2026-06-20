@@ -279,6 +279,51 @@ export class MigrosLiveAdapter implements ChainAdapter {
     const firstUrl = Array.isArray(urls) ? urls[0] : urls;
     const productUrl = typeof firstUrl === 'string' ? firstUrl : firstUrl?.url ?? '';
 
+    // Extract nutrition from productInformation.nutrientsInformation.nutrientsTable
+    const nutrientsTable = raw.productInformation?.nutrientsInformation?.nutrientsTable;
+    let nutrition_facts: MigrosApiProduct['nutrition_facts'];
+    if (nutrientsTable?.rows && Array.isArray(nutrientsTable.rows)) {
+      const rows = nutrientsTable.rows as Array<{ label: string; values: string[] }>;
+      const parseFirst = (label: string): number | undefined => {
+        const row = rows.find(r => r.label === label);
+        if (!row?.values?.[0]) return undefined;
+        const match = String(row.values[0]).match(/([\d.,]+)/);
+        return match ? parseFloat(match[1].replace(',', '.')) : undefined;
+      };
+      const rawNutrition = {
+        energy_kcal: (() => {
+          const energyRow = rows.find(r => r.label === 'Energie');
+          if (!energyRow?.values?.[0]) return undefined;
+          const match = String(energyRow.values[0]).match(/\((\d+)\s*kcal\)/);
+          return match ? parseInt(match[1], 10) : undefined;
+        })(),
+        protein: parseFirst('Eiweiss'),
+        carbohydrates: parseFirst('Kohlenhydrate'),
+        fat: parseFirst('Fett'),
+        fiber: parseFirst('Ballaststoffe'),
+        sugar: (() => {
+          const sugarRow = rows.find(r => r.label === 'davon Zucker');
+          if (!sugarRow?.values?.[0]) return undefined;
+          const match = String(sugarRow.values[0]).match(/([\d.,]+)/);
+          return match ? parseFloat(match[1].replace(',', '.')) : undefined;
+        })(),
+      };
+      nutrition_facts = {
+        energy_kcal: rawNutrition.energy_kcal,
+        protein: rawNutrition.protein,
+        carbohydrates: rawNutrition.carbohydrates,
+        fat: rawNutrition.fat,
+        fiber: rawNutrition.fiber,
+        sugar: rawNutrition.sugar,
+      };
+    }
+
+    // Extract allergens from productInformation.mainInformation.allergens
+    const allergensRaw = raw.productInformation?.mainInformation?.allergens;
+    const allergens = typeof allergensRaw === 'string' && allergensRaw.length > 0
+      ? allergensRaw.split(',').map((a: string) => a.trim()).filter(Boolean)
+      : undefined;
+
     return {
       id: raw.uid ?? raw.migrosId ?? raw.migrosOnlineId ?? 0,
       name: raw.name ?? raw.title ?? '',
@@ -292,6 +337,8 @@ export class MigrosLiveAdapter implements ChainAdapter {
       image_url: imageUrl,
       url: productUrl,
       quantity: offer.quantity ?? raw.quantity ?? '',
+      nutrition_facts,
+      allergens,
     } as MigrosApiProduct;
   }
 

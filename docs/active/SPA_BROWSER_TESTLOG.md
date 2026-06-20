@@ -20,6 +20,23 @@
 - **Fix:** Updated test assertions to check group headers
 - **Status:** Test corrected
 
+### Browser Test Finding #4: Nutrition/Allergens Not Displayed on Product Cards
+- **Reported by:** User manual testing (2026-06-21)
+- **Description:** Nutrition and ingredients/allergens checkboxes had no visible effect. Products showed no nutrition data or allergens.
+- **Root cause:** Stale file cache in OS temp dir contained products fetched before nutrition extraction was added to the Migros adapter. Also, SPA checked `p.ingredients` but adapter only populated `allergens`.
+- **Fix:** 
+  1. Clear stale cache after code changes
+  2. SPA now checks `p.allergens || p.ingredients` for the Ingredients/Allergens section (`src/web/public/index.html:644`)
+  3. Migros adapter correctly extracts nutrition from `productInformation.nutrientsInformation.nutrientsTable` and allergens from `productInformation.mainInformation.allergens`
+- **Status:** Fixed, verified in browser (8/8 Playwright tests pass)
+
+### Browser Test Finding #5: Availability Page Shows Only One Product With All Stores
+- **Reported by:** User manual testing (2026-06-21)
+- **Description:** Availability tab showed one product from one vendor with a list of stores saying "all out of stock" — confusing UX
+- **Root cause:** `lookupAvailabilityByLocationProductsFirst()` only returned `[{product: firstProduct, stores}]` — only one product
+- **Fix:** Rewrote to search for all products and find nearby stores in parallel, returning `[{product, stores}, ...]` for all products (`src/services/searchService.ts:374`)
+- **Status:** Fixed, verified in browser — 10 products shown with 2-column grid
+
 ---
 
 ## Loop 1 — Feature Verification (18 tests)
@@ -78,10 +95,30 @@
 
 ---
 
+## Bug Fix Verification — Loop 3 (8 tests)
+
+| # | Test Case | Result |
+|---|-----------|--------|
+| 3.1 | Product search shows nutrition data for Migros | PASS |
+| 3.2 | Product search shows allergens/ingredients for Migros | PASS |
+| 3.3 | Nutrition checkbox toggles nutrition display | PASS |
+| 3.4 | Ingredients checkbox toggles ingredients display | PASS |
+| 3.5 | Availability page shows multiple products in 2-column grid | PASS |
+| 3.6 | Availability page shows nutrition on product cards | PASS |
+| 3.7 | Availability page shows store availability summary per product | PASS |
+| 3.8 | Store finder shows opening hours | PASS |
+
+**Result: 8/8 PASS**
+
+---
+
 ## Summary
 
-- **Total browser tests:** 38
-- **Passing:** 38
+- **Total browser tests:** 46 (18 + 20 + 8)
+- **Passing:** 46
 - **Failed:** 0
-- **Bugs found:** 1 (store finder missing hours — fixed)
-- **Test corrections:** 3 (tab ID, badge location, status text case)
+- **Bugs found:** 5 (all fixed)
+  - #1: Store finder missing hours
+  - #4: Nutrition/allergens not displayed (stale cache + wrong field name)
+  - #5: Availability page single-product UX
+- **vitest unit/integration tests:** 474 passing

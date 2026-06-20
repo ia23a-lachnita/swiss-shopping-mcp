@@ -641,11 +641,12 @@
             contentHtml += '</dl></div>';
           }
 
-          const hasIngredients = p.ingredients && p.ingredients.length > 0;
+          const hasIngredients = (p.allergens && p.allergens.length > 0) || (p.ingredients && p.ingredients.length > 0);
           if (hasIngredients) {
-            contentHtml += '<button class="expand-btn" onclick="this.nextElementSibling.classList.toggle(\'open\');event.preventDefault();event.stopPropagation();">Ingredients</button>';
+            const ingredientsList = p.allergens || p.ingredients;
+            contentHtml += '<button class="expand-btn" onclick="this.nextElementSibling.classList.toggle(\'open\');event.preventDefault();event.stopPropagation();">Ingredients / Allergens</button>';
             contentHtml += '<div class="expandable' + (showIngredients ? ' open' : '') + '">';
-            contentHtml += '<div class="ingredients-text">' + escapeHtml(p.ingredients.join(', ')) + '</div>';
+            contentHtml += '<div class="ingredients-text">' + escapeHtml(ingredientsList.join(', ')) + '</div>';
             contentHtml += '</div>';
           }
 
@@ -918,13 +919,14 @@
           return;
         }
 
-        let html = '';
+        let html = '<div class="product-grid" style="grid-template-columns: repeat(2, 1fr); gap: 16px;">';
 
         products.forEach(item => {
           const p = item.product;
           const stores = item.stores || [];
+          const inStockCount = stores.filter(s => s.available).length;
 
-          html += '<div class="product-card" style="margin-bottom:16px;border:2px solid var(--primary);">';
+          html += '<div class="product-card" style="border:2px solid var(--primary);display:flex;flex-direction:column;">';
           const imageHtml = p.image
             ? '<img class="image" src="' + escapeHtml(p.image) + '" alt="" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'"><div class="no-image" style="display:none">No image</div>'
             : '<div class="no-image">No image</div>';
@@ -933,53 +935,36 @@
           html += '<div class="name">' + escapeHtml(p.name) + '</div>';
           if (p.brand) html += '<div class="brand">' + escapeHtml(p.brand) + '</div>';
           if (p.category) html += '<div class="category">' + escapeHtml(p.category) + '</div>';
-          if (p.size) html += '<div class="size">' + escapeHtml(p.size) + '</div>';
           html += '<div class="price">' + formatPrice(p.price.current);
           if (p.price.original) html += '<span class="original">' + formatPrice(p.price.original) + '</span>';
           html += '</div>';
-          if (p.productUrl) {
-            html += '<a class="vendor-link" href="' + escapeHtml(p.productUrl) + '" target="_blank" rel="noopener">View on ' + p.chain.charAt(0).toUpperCase() + p.chain.slice(1) + ' &rarr;</a>';
-          }
-          html += '</div>';
 
-          html += '<div class="panel" style="margin-bottom:24px;">';
-          html += '<h4 style="margin:0 0 8px 0;">Available at ' + stores.length + ' store(s)</h4>';
-
-          if (stores.length === 0) {
-            html += '<div class="error-box" style="background:#fef3cd;border-color:#fecaca;color:#92400e;">No store availability data found. Store-level stock data is currently unavailable for most chains.</div>';
-          } else {
-            html += '<div class="store-list">';
+          // Availability summary
+          if (stores.length > 0) {
+            html += '<div style="margin-top:8px;padding:8px;background:var(--gray-50);border-radius:6px;font-size:13px;">';
+            html += '<div style="font-weight:600;margin-bottom:4px;">Available at ' + inStockCount + '/' + stores.length + ' store(s)</div>';
             stores.forEach(s => {
-              const mapUrl = s.location
-                ? 'https://www.google.com/maps/search/?api=1&query=' + s.location.latitude + ',' + s.location.longitude
-                : '';
-              const availBadge = s.available
-                ? '<span style="background:#d1fae5;color:#065f46;padding:3px 8px;border-radius:4px;font-size:12px;font-weight:600">In Stock' + (s.stockCount ? ' (' + s.stockCount + ')' : '') + '</span>'
-                : '<span style="background:#fee2e2;color:#991b1b;padding:3px 8px;border-radius:4px;font-size:12px;font-weight:600">Out of Stock</span>';
-              const openBadge = s.isOpen === true
-                ? '<span style="background:#d1fae5;color:#065f46;padding:3px 8px;border-radius:4px;font-size:11px">Open now</span>'
-                : s.isOpen === false
-                  ? '<span style="background:#fee2e2;color:#991b1b;padding:3px 8px;border-radius:4px;font-size:11px">Closed</span>'
-                  : '';
-
-              html += '<div class="store-card" style="border-left:4px solid ' + (s.available ? 'var(--green)' : 'var(--gray-300)') + '">';
-              html += '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">';
-              html += '<span class="chain-badge ' + chainBadgeClass(s.chain) + '">' + s.chain + '</span>';
-              html += '<div class="name">' + escapeHtml(s.name) + '</div>';
-              html += availBadge;
-              if (openBadge) html += openBadge;
-              html += '</div>';
-              html += '<div class="address">' + escapeHtml(s.address) + '</div>';
-              if (s.openingHours) html += '<div style="font-size:12px;color:var(--gray-500)">Hours: ' + escapeHtml(s.openingHours) + '</div>';
-              if (mapUrl) html += '<a class="map-link" href="' + mapUrl + '" target="_blank" rel="noopener">View on map</a>';
-              html += '</div>';
+              const availDot = s.available
+                ? '<span style="color:#059669;font-weight:600;">● In Stock</span>'
+                : '<span style="color:#dc2626;font-weight:600;">○ Out of Stock</span>';
+              const openTag = s.isOpen === true ? ' <span style="color:#059669;font-size:11px;">Open</span>'
+                : s.isOpen === false ? ' <span style="color:#dc2626;font-size:11px;">Closed</span>' : '';
+              html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-top:1px solid var(--gray-200);">';
+              html += '<span>' + escapeHtml(s.name) + openTag + '</span>';
+              html += availDot + '</div>';
             });
             html += '</div>';
+          } else {
+            html += '<div style="margin-top:8px;padding:8px;background:#fef3cd;border-radius:6px;font-size:12px;color:#92400e;">No store availability data</div>';
           }
 
+          if (p.productUrl) {
+            html += '<a class="vendor-link" href="' + escapeHtml(p.productUrl) + '" target="_blank" rel="noopener" style="margin-top:auto;">View on ' + p.chain.charAt(0).toUpperCase() + p.chain.slice(1) + ' &rarr;</a>';
+          }
           html += '</div>';
         });
 
+        html += '</div>';
         grid.innerHTML = html;
       } catch (e) {
         hideLoading('avail-loading');
