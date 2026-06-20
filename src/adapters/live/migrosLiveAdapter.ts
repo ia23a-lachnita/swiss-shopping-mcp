@@ -357,7 +357,7 @@ export class MigrosLiveAdapter implements ChainAdapter {
 
     try {
       const token = await this.ensureAuth();
-      const storeResult = await (this.api.stores.searchStores as Function)({ query: location }, { leshopch: token });
+      const storeResult = await (this.api.stores.searchStores as Function)({ query: location }, token);
 
       const stores = this.extractStoresFromResult(storeResult);
       const provenance = this.buildProvenance(STORES_URL);
@@ -382,7 +382,7 @@ export class MigrosLiveAdapter implements ChainAdapter {
         this.invalidateAuth();
         try {
           const token = await this.ensureAuth();
-          const storeResultRetry = await (this.api.stores.searchStores as Function)({ query: location }, { leshopch: token });
+          const storeResultRetry = await (this.api.stores.searchStores as Function)({ query: location }, token);
           const stores = this.extractStoresFromResult(storeResultRetry);
           const provenance = this.buildProvenance(STORES_URL);
           const record = await this.cache.set(cacheKey, { stores }, cacheableProvenance(provenance), this.cacheTtlMs);
@@ -425,17 +425,66 @@ export class MigrosLiveAdapter implements ChainAdapter {
       if (!item || typeof item !== 'object') return item as MigrosApiStore;
       const s = item as Record<string, unknown>;
       const loc = s.location as Record<string, unknown> | undefined;
+      const addr = s.address as Record<string, unknown> | undefined;
       return {
         id: s.storeId ?? s.id ?? s.storeId,
-        name: s.storeName ?? s.name ?? '',
+        name: String(s.storeName ?? s.name ?? ''),
         latitude: typeof loc?.latitude === 'number' ? loc.latitude : undefined,
         longitude: typeof loc?.longitude === 'number' ? loc.longitude : undefined,
-        opening_hours: Array.isArray(s.openingHours) ? s.openingHours[0]?.hours?.[0]?.open : undefined,
-        city: s.city ?? s.town ?? '',
-        zip: s.zip ?? s.postalCode ?? '',
-        street: s.street ?? '',
-      } as MigrosApiStore;
+        openingHours: this.parseOpeningHours(s.openingHours),
+        city: String(addr?.city ?? s.city ?? s.town ?? ''),
+        zip: String(addr?.zip ?? s.zip ?? s.postalCode ?? ''),
+        street: String(addr?.street ?? s.street ?? ''),
+        storeType: String(s.storeType ?? ''),
+      } as unknown as MigrosApiStore;
     });
+  }
+
+  private parseOpeningHours(openingHours: unknown): string | undefined {
+    if (!Array.isArray(openingHours) || openingHours.length === 0) return undefined;
+
+    // Group hours by weekday/weekend
+    const weekdayHours: string[] = [];
+    const weekendHours: string[] = [];
+
+    for (const entry of openingHours) {
+      if (!entry || typeof entry !== 'object') continue;
+      const e = entry as Record<string, unknown>;
+      const dateStr = e.date as string;
+      const hours = e.hours as Array<{ open?: string; close?: string; invalidated?: boolean }>;
+
+      if (!dateStr || !Array.isArray(hours)) continue;
+
+      const date = new Date(dateStr);
+      const dayIndex = date.getDay();
+      const isWeekend = dayIndex === 0 || dayIndex === 6;
+
+      // Find valid hours (with open and close times)
+      for (const h of hours) {
+        if (h.open && h.close && !h.invalidated) {
+          const openTime = h.open.split(' ')[1]; // Extract "07:30" from "2026-06-20 07:30"
+          const closeTime = h.close.split(' ')[1];
+          const timeRange = `${openTime}-${closeTime}`;
+
+          if (isWeekend) {
+            if (!weekendHours.includes(timeRange)) weekendHours.push(timeRange);
+          } else {
+            if (!weekdayHours.includes(timeRange)) weekdayHours.push(timeRange);
+          }
+        }
+      }
+    }
+
+    // Build formatted string
+    const parts: string[] = [];
+    if (weekdayHours.length > 0) {
+      parts.push(`Mon-Fri: ${weekdayHours.join(', ')}`);
+    }
+    if (weekendHours.length > 0) {
+      parts.push(`Sat-Sun: ${weekendHours.join(', ')}`);
+    }
+
+    return parts.length > 0 ? parts.join(' | ') : undefined;
   }
 
   private parseStoreResult(

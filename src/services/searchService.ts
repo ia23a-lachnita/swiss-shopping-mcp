@@ -373,6 +373,38 @@ export class SearchService {
   private isStoreOpen(openingHours: string | undefined, now: Date): boolean | undefined {
     if (!openingHours) return undefined;
     try {
+      // Handle new structured format: "Mon-Fri: 08:00-19:00 | Sat-Sun: 09:00-17:00"
+      if (openingHours.includes('Mon-Fri') || openingHours.includes('Sat-Sun')) {
+        const currentDay = now.getDay(); // 0=Sun, 1=Mon, ..., 6=Sat
+        const isWeekday = currentDay >= 1 && currentDay <= 5;
+        const currentHour = now.getHours();
+        const currentMinute = now.getMinutes();
+        const timeNum = currentHour * 60 + currentMinute;
+
+        // Parse the hours for today
+        const sections = openingHours.split('|').map(s => s.trim());
+        for (const section of sections) {
+          const isWeekdaySection = section.startsWith('Mon-Fri');
+          const isWeekendSection = section.startsWith('Sat-Sun');
+
+          if ((isWeekday && isWeekdaySection) || (!isWeekday && isWeekendSection)) {
+            // Extract time ranges from this section
+            const timeRanges = section.replace(/^.*?:\s*/, '').split(',').map(t => t.trim());
+            for (const range of timeRanges) {
+              const match = range.match(/(\d{1,2}):(\d{2})\s*-\s*(\d{1,2}):(\d{2})/);
+              if (match) {
+                const openNum = parseInt(match[1], 10) * 60 + parseInt(match[2], 10);
+                const closeNum = parseInt(match[3], 10) * 60 + parseInt(match[4], 10);
+                if (timeNum >= openNum && timeNum <= closeNum) {
+                  return true;
+                }
+              }
+            }
+          }
+        }
+        return false;
+      }
+
       // Handle Migros format: "2026-06-19 08:00" (date + opening time, no closing time)
       const dateMatch = openingHours.match(/^\d{4}-\d{2}-\d{2}\s+(\d{1,2}):(\d{2})$/);
       if (dateMatch) {

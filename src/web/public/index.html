@@ -665,6 +665,27 @@
       }
     });
 
+    // Nutrition/Ingredients checkbox handlers - re-render expandable sections
+    document.getElementById('search-show-nutrition').addEventListener('change', (e) => {
+      const show = e.target.checked;
+      document.querySelectorAll('#search-results .expandable').forEach(el => {
+        // Only toggle nutrition expandables (first expandable in each card)
+        if (el.previousElementSibling && el.previousElementSibling.textContent.includes('Nutrition')) {
+          el.classList.toggle('open', show);
+        }
+      });
+    });
+
+    document.getElementById('search-show-ingredients').addEventListener('change', (e) => {
+      const show = e.target.checked;
+      document.querySelectorAll('#search-results .expandable').forEach(el => {
+        // Only toggle ingredients expandables (second expandable in each card)
+        if (el.previousElementSibling && el.previousElementSibling.textContent.includes('Ingredients')) {
+          el.classList.toggle('open', show);
+        }
+      });
+    });
+
     // Store Finder
     document.getElementById('store-btn').addEventListener('click', async () => {
       const location = document.getElementById('store-location').value.trim();
