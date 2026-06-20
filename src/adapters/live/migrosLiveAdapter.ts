@@ -433,7 +433,7 @@ export class MigrosLiveAdapter implements ChainAdapter {
         name: String(s.storeName ?? s.name ?? ''),
         latitude: typeof loc?.latitude === 'number' ? loc.latitude : undefined,
         longitude: typeof loc?.longitude === 'number' ? loc.longitude : undefined,
-        openingHours: this.parseOpeningHours(s.openingHours),
+        opening_hours: this.parseOpeningHours(s.openingHours),
         city: String(addr?.city ?? s.city ?? s.town ?? ''),
         zip: String(addr?.zip ?? s.zip ?? s.postalCode ?? ''),
         street: String(addr?.street ?? s.street ?? ''),
