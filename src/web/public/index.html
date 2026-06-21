@@ -666,25 +666,13 @@
       }
     });
 
-    // Nutrition/Ingredients checkbox handlers - re-render expandable sections
-    document.getElementById('search-show-nutrition').addEventListener('change', (e) => {
-      const show = e.target.checked;
-      document.querySelectorAll('#search-results .expandable').forEach(el => {
-        // Only toggle nutrition expandables (first expandable in each card)
-        if (el.previousElementSibling && el.previousElementSibling.textContent.includes('Nutrition')) {
-          el.classList.toggle('open', show);
-        }
-      });
+    // Nutrition/Ingredients checkbox handlers - re-render cards
+    document.getElementById('search-show-nutrition').addEventListener('change', () => {
+      document.getElementById('search-btn').click();
     });
 
-    document.getElementById('search-show-ingredients').addEventListener('change', (e) => {
-      const show = e.target.checked;
-      document.querySelectorAll('#search-results .expandable').forEach(el => {
-        // Only toggle ingredients expandables (second expandable in each card)
-        if (el.previousElementSibling && el.previousElementSibling.textContent.includes('Ingredients')) {
-          el.classList.toggle('open', show);
-        }
-      });
+    document.getElementById('search-show-ingredients').addEventListener('change', () => {
+      document.getElementById('search-btn').click();
     });
 
     // Store Finder
@@ -926,7 +914,7 @@
           const stores = item.stores || [];
           const inStockCount = stores.filter(s => s.available).length;
 
-          html += '<div class="product-card" style="border:2px solid var(--primary);display:flex;flex-direction:column;">';
+          html += '<div class="product-card">';
           const imageHtml = p.image
             ? '<img class="image" src="' + escapeHtml(p.image) + '" alt="" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'"><div class="no-image" style="display:none">No image</div>'
             : '<div class="no-image">No image</div>';
@@ -939,24 +927,33 @@
           if (p.price.original) html += '<span class="original">' + formatPrice(p.price.original) + '</span>';
           html += '</div>';
 
-          // Availability summary
+          // Nutrition preview (compact)
+          if (p.nutrition && p.nutrition.energyKcal !== undefined) {
+            html += '<div style="margin-top:6px;font-size:11px;color:var(--gray-500);">';
+            html += p.nutrition.energyKcal + ' kcal';
+            if (p.nutrition.protein !== undefined) html += ' | ' + p.nutrition.protein + 'g protein';
+            if (p.nutrition.fat !== undefined) html += ' | ' + p.nutrition.fat + 'g fat';
+            html += '</div>';
+          }
+
+          // Store availability
+          html += '<div style="margin-top:8px;padding:8px;background:var(--gray-50);border-radius:6px;font-size:12px;">';
+          html += '<div style="font-weight:600;margin-bottom:4px;">' + p.chain.charAt(0).toUpperCase() + p.chain.slice(1) + ' stores: ' + inStockCount + '/' + stores.length + ' in stock</div>';
           if (stores.length > 0) {
-            html += '<div style="margin-top:8px;padding:8px;background:var(--gray-50);border-radius:6px;font-size:13px;">';
-            html += '<div style="font-weight:600;margin-bottom:4px;">Available at ' + inStockCount + '/' + stores.length + ' store(s)</div>';
             stores.forEach(s => {
               const availDot = s.available
-                ? '<span style="color:#059669;font-weight:600;">● In Stock</span>'
-                : '<span style="color:#dc2626;font-weight:600;">○ Out of Stock</span>';
-              const openTag = s.isOpen === true ? ' <span style="color:#059669;font-size:11px;">Open</span>'
-                : s.isOpen === false ? ' <span style="color:#dc2626;font-size:11px;">Closed</span>' : '';
-              html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-top:1px solid var(--gray-200);">';
+                ? '<span style="color:#059669;font-weight:600;">&#9679; In Stock</span>'
+                : '<span style="color:#dc2626;font-weight:600;">&#9675; Out</span>';
+              const openTag = s.isOpen === true ? ' <span style="color:#059669;font-size:10px;">Open</span>'
+                : s.isOpen === false ? ' <span style="color:#dc2626;font-size:10px;">Closed</span>' : '';
+              html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:2px 0;border-top:1px solid var(--gray-200);">';
               html += '<span>' + escapeHtml(s.name) + openTag + '</span>';
               html += availDot + '</div>';
             });
-            html += '</div>';
           } else {
-            html += '<div style="margin-top:8px;padding:8px;background:#fef3cd;border-radius:6px;font-size:12px;color:#92400e;">No store availability data</div>';
+            html += '<div style="color:var(--gray-500);font-style:italic;">No nearby stores found</div>';
           }
+          html += '</div>';
 
           if (p.productUrl) {
             html += '<a class="vendor-link" href="' + escapeHtml(p.productUrl) + '" target="_blank" rel="noopener" style="margin-top:auto;">View on ' + p.chain.charAt(0).toUpperCase() + p.chain.slice(1) + ' &rarr;</a>';

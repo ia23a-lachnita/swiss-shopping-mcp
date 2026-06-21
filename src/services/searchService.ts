@@ -406,10 +406,10 @@ export class SearchService {
 
     const stores = availabilityResult.data;
 
-    // Map each product to nearby stores
+    // Map each product to only stores from its own chain
     const results: ProductAvailabilityResult[] = productResult.data.map((product) => ({
       product,
-      stores,
+      stores: stores.filter((s) => s.chain === product.chain),
     }));
 
     return { ok: true, data: results };
