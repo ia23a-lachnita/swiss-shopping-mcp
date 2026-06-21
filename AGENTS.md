@@ -82,6 +82,7 @@ Remove-Item -Path $cacheDir -Recurse -Force -ErrorAction SilentlyContinue
 - Use `morph_edit` for large files (300+ lines) or multiple scattered changes
 - Use native `edit` for small exact string replacements
 - Always read the file first before editing
+- For SPA HTML (`index.html`, 1000+ lines), prefer `morph_edit` for any change
 
 ## Architecture
 
