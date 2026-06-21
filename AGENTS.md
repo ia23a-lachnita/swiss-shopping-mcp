@@ -77,6 +77,13 @@ $cacheDir = Join-Path $tmpdir "swiss-shopping-mcp-cache"
 Remove-Item -Path $cacheDir -Recurse -Force -ErrorAction SilentlyContinue
 ```
 
+## NEVER DO THIS
+
+**NEVER use `taskkill /IM node.exe /F` or any command that kills all node processes.**
+This kills opencode itself, the browser MCP server, and every other node process on the system.
+It destroys your own tools and session.
+Only use `killTasks` with specific tags to stop specific background processes.
+
 ## Edit tool policy
 
 - Use `morph_edit` for large files (300+ lines) or multiple scattered changes
