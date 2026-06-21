@@ -177,13 +177,12 @@
       gap: 8px;
     }
 
-    .product-card a:hover { text-decoration: none; }
-
     .product-card .vendor-link {
       font-size: 12px;
       color: var(--blue);
       text-decoration: none;
       margin-top: 4px;
+      display: inline-block;
     }
 
     .product-card .vendor-link:hover { text-decoration: underline; }
@@ -494,6 +493,13 @@
       return 'chain-' + chain;
     }
 
+    function toggleExpand(btn) {
+      const expandable = btn.nextElementSibling;
+      if (expandable && expandable.classList.contains('expandable')) {
+        expandable.classList.toggle('open');
+      }
+    }
+
     function statusBadgeClass(status) {
       return 'status-' + status;
     }
@@ -629,7 +635,7 @@
 
           if (hasNutrition) {
             const n = p.nutrition;
-            contentHtml += '<button class="expand-btn" onclick="this.nextElementSibling.classList.toggle(\'open\');event.preventDefault();event.stopPropagation();">Nutrition per 100g</button>';
+            contentHtml += '<button class="expand-btn" onclick="toggleExpand(this);event.stopPropagation();">Nutrition per 100g</button>';
             contentHtml += '<div class="expandable' + (showNutrition ? ' open' : '') + '">';
             contentHtml += '<dl class="nutrition-grid">';
             if (n.energyKcal !== undefined) contentHtml += '<dt>Energy</dt><dd>' + n.energyKcal + ' kcal</dd>';
@@ -644,20 +650,17 @@
           const hasIngredients = (p.allergens && p.allergens.length > 0) || (p.ingredients && p.ingredients.length > 0);
           if (hasIngredients) {
             const ingredientsList = p.allergens || p.ingredients;
-            contentHtml += '<button class="expand-btn" onclick="this.nextElementSibling.classList.toggle(\'open\');event.preventDefault();event.stopPropagation();">Ingredients / Allergens</button>';
+            contentHtml += '<button class="expand-btn" onclick="toggleExpand(this);event.stopPropagation();">Ingredients / Allergens</button>';
             contentHtml += '<div class="expandable' + (showIngredients ? ' open' : '') + '">';
             contentHtml += '<div class="ingredients-text">' + escapeHtml(ingredientsList.join(', ')) + '</div>';
             contentHtml += '</div>';
           }
 
           if (p.productUrl) {
-            card.innerHTML = '<a href="' + escapeHtml(p.productUrl) + '" target="_blank" rel="noopener">' +
-              contentHtml +
-              '<span class="vendor-link">View on ' + p.chain.charAt(0).toUpperCase() + p.chain.slice(1) + ' &rarr;</span>' +
-              '</a>';
-          } else {
-            card.innerHTML = contentHtml;
+            contentHtml += '<a class="vendor-link" href="' + escapeHtml(p.productUrl) + '" target="_blank" rel="noopener" onclick="event.stopPropagation();">View on ' + p.chain.charAt(0).toUpperCase() + p.chain.slice(1) + ' &rarr;</a>';
           }
+
+          card.innerHTML = contentHtml;
           grid.appendChild(card);
         });
       } catch (e) {
@@ -666,13 +669,25 @@
       }
     });
 
-    // Nutrition/Ingredients checkbox handlers - re-render cards
-    document.getElementById('search-show-nutrition').addEventListener('change', () => {
-      document.getElementById('search-btn').click();
+    // Nutrition/Ingredients checkbox handlers
+    document.getElementById('search-show-nutrition').addEventListener('change', (e) => {
+      const show = e.target.checked;
+      document.querySelectorAll('#search-results .expandable').forEach(el => {
+        const btn = el.previousElementSibling;
+        if (btn && btn.classList.contains('expand-btn') && btn.textContent.includes('Nutrition')) {
+          el.classList.toggle('open', show);
+        }
+      });
     });
 
-    document.getElementById('search-show-ingredients').addEventListener('change', () => {
-      document.getElementById('search-btn').click();
+    document.getElementById('search-show-ingredients').addEventListener('change', (e) => {
+      const show = e.target.checked;
+      document.querySelectorAll('#search-results .expandable').forEach(el => {
+        const btn = el.previousElementSibling;
+        if (btn && btn.classList.contains('expand-btn') && btn.textContent.includes('Ingredients')) {
+          el.classList.toggle('open', show);
+        }
+      });
     });
 
     // Store Finder

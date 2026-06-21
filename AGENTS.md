@@ -36,8 +36,52 @@ Do not add runtime/business MCPs (e.g., external shopping/account MCPs) to this 
 1. Read tracker
 2. Implement minimal complete slice
 3. Add/adjust tests
-4. Run `pnpm lint && pnpm test && pnpm build`
+4. Build and test (see commands below)
 5. Update tracker
+
+## Build & Run commands
+
+**IMPORTANT:** `pnpm`, `npm`, `npx` are NOT in PATH. Always use the full node path:
+
+```powershell
+# Node executable (always use this)
+$NODE = "C:\Users\xursc\AppData\Local\nvm\v24.12.0\node.exe"
+
+# Build TypeScript
+& $NODE "node_modules\typescript\bin\tsc" --project tsconfig.json
+
+# Run vitest
+& $NODE "node_modules\vitest\vitest.mjs" run
+
+# Run Playwright tests
+& $NODE "node_modules\@playwright\test\cli.js" test tests/<file>.spec.ts --reporter=list
+
+# Start SPA server (use background process tool)
+# DO NOT use bash `node dist/web/server.js` — use createBackgroundProcess instead
+```
+
+## SPA Server Management
+
+**ALWAYS** use the `createBackgroundProcess` tool to start the SPA server, and `killTasks` to stop it.
+
+```powershell
+# Start server (createBackgroundProcess with tags=["spa","server"])
+createBackgroundProcess: cmd /c "C:\Users\xursc\AppData\Local\nvm\v24.12.0\node.exe dist\web\server.js"
+
+# Stop server
+killTasks: tags=["spa", "server"]
+
+# Clear stale cache before restarting (cache is in OS temp dir)
+$tmpdir = [System.IO.Path]::GetTempPath()
+$cacheDir = Join-Path $tmpdir "swiss-shopping-mcp-cache"
+Remove-Item -Path $cacheDir -Recurse -Force -ErrorAction SilentlyContinue
+```
+
+## Edit tool policy
+
+- Use `morph_edit` for large files (300+ lines) or multiple scattered changes
+- Use native `edit` for small exact string replacements
+- Always read the file first before editing
 
 ## Architecture
 
