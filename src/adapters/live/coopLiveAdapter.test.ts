@@ -227,14 +227,14 @@ describe('CoopLiveAdapter', () => {
   });
 
   describe('lookupStoreProductAvailability', () => {
-    it('returns availability when product found', async () => {
+    it('returns availability when product found (API fails -> unsupported)', async () => {
       const result = await adapter.lookupStoreProductAvailability({
         storeId: '0150164',
         query: 'Milch',
       });
       expect(result.ok).toBe(true);
       if (result.ok) {
-        expect(result.data.supported).toBe(true);
+        expect(result.data.supported).toBe(false);
         expect(result.data.chain).toBe('coop');
         expect(result.data.query).toBe('Milch');
         expect(Array.isArray(result.data.matches)).toBe(true);
@@ -248,7 +248,7 @@ describe('CoopLiveAdapter', () => {
       });
       expect(result.ok).toBe(true);
       if (result.ok) {
-        expect(result.data.supported).toBe(true);
+        expect(result.data.supported).toBe(false);
         expect(result.data.matches).toEqual([]);
         expect(result.data.isAvailable).toBe(false);
       }

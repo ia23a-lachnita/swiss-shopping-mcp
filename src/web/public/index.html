@@ -690,6 +690,25 @@
       });
     });
 
+    // Auto-search: trigger search when filters change (if query is populated)
+    function autoSearchIfReady() {
+      const query = document.getElementById('search-query').value.trim();
+      if (query) document.getElementById('search-btn').click();
+    }
+
+    // Vendor checkbox changes -> auto search
+    document.getElementById('search-chains').addEventListener('change', autoSearchIfReady);
+
+    // Limit change -> auto search
+    document.getElementById('search-limit').addEventListener('change', autoSearchIfReady);
+
+    // Max price change -> auto search (debounced)
+    let maxPriceTimer = null;
+    document.getElementById('search-max-price').addEventListener('input', () => {
+      clearTimeout(maxPriceTimer);
+      maxPriceTimer = setTimeout(autoSearchIfReady, 500);
+    });
+
     // Store Finder
     document.getElementById('store-btn').addEventListener('click', async () => {
       const location = document.getElementById('store-location').value.trim();
@@ -956,13 +975,19 @@
           html += '<div style="font-weight:600;margin-bottom:4px;">' + p.chain.charAt(0).toUpperCase() + p.chain.slice(1) + ' stores: ' + inStockCount + '/' + stores.length + ' in stock</div>';
           if (stores.length > 0) {
             stores.forEach(s => {
-              const availDot = s.available
-                ? '<span style="color:#059669;font-weight:600;">&#9679; In Stock</span>'
-                : '<span style="color:#dc2626;font-weight:600;">&#9675; Out</span>';
+              let availDot;
+              if (s.availabilitySupported === false) {
+                availDot = '<span style="color:#9ca3af;font-weight:600;">&#9675; Unknown</span>';
+              } else if (s.available) {
+                availDot = '<span style="color:#059669;font-weight:600;">&#9679; In Stock</span>';
+              } else {
+                availDot = '<span style="color:#dc2626;font-weight:600;">&#9675; Out</span>';
+              }
               const openTag = s.isOpen === true ? ' <span style="color:#059669;font-size:10px;">Open</span>'
                 : s.isOpen === false ? ' <span style="color:#dc2626;font-size:10px;">Closed</span>' : '';
+              const reasonTag = s.availabilityReason ? ' <span style="color:#9ca3af;font-size:10px;">(' + escapeHtml(s.availabilityReason) + ')</span>' : '';
               html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:2px 0;border-top:1px solid var(--gray-200);">';
-              html += '<span>' + escapeHtml(s.name) + openTag + '</span>';
+              html += '<span>' + escapeHtml(s.name) + openTag + reasonTag + '</span>';
               html += availDot + '</div>';
             });
           } else {
@@ -990,6 +1015,17 @@
     document.getElementById('avail-location').addEventListener('keydown', (e) => {
       if (e.key === 'Enter') document.getElementById('avail-btn').click();
     });
+
+    // Auto-search for availability filters
+    function autoAvailIfReady() {
+      const query = document.getElementById('avail-query').value.trim();
+      const location = document.getElementById('avail-location').value.trim();
+      if (query && location) document.getElementById('avail-btn').click();
+    }
+    document.getElementById('avail-chains').addEventListener('change', autoAvailIfReady);
+    document.getElementById('avail-limit').addEventListener('change', autoAvailIfReady);
+    document.getElementById('avail-instock').addEventListener('change', autoAvailIfReady);
+    document.getElementById('avail-open').addEventListener('change', autoAvailIfReady);
 
     // Source Status
     async function loadSourceStatus() {
@@ -1076,6 +1112,22 @@
     document.getElementById('compare-query').addEventListener('keydown', (e) => {
       if (e.key === 'Enter') document.getElementById('compare-btn').click();
     });
+
+    // Auto-search for store finder filters
+    function autoStoreIfReady() {
+      const location = document.getElementById('store-location').value.trim();
+      if (location) document.getElementById('store-btn').click();
+    }
+    document.getElementById('store-chains').addEventListener('change', autoStoreIfReady);
+    document.getElementById('store-limit').addEventListener('change', autoStoreIfReady);
+
+    // Auto-search for price comparison filters
+    function autoCompareIfReady() {
+      const query = document.getElementById('compare-query').value.trim();
+      if (query) document.getElementById('compare-btn').click();
+    }
+    document.getElementById('compare-chains').addEventListener('change', autoCompareIfReady);
+    document.getElementById('compare-quantity').addEventListener('change', autoCompareIfReady);
   </script>
 </body>
 </html>

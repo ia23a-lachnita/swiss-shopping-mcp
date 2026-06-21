@@ -587,7 +587,7 @@ export class MigrosLiveAdapter implements ChainAdapter {
           chain: this.chain,
           storeId: filters.storeId,
           query: filters.query,
-          supported: true,
+          supported: false,
           matches: [],
           isAvailable: false,
         },
@@ -604,9 +604,10 @@ export class MigrosLiveAdapter implements ChainAdapter {
             chain: this.chain,
             storeId: filters.storeId,
             query,
-            supported: true,
+            supported: false,
             matches: [],
             isAvailable: false,
+            reason: 'Product not found.',
           },
         };
       }
@@ -627,9 +628,10 @@ export class MigrosLiveAdapter implements ChainAdapter {
               chain: this.chain,
               storeId: filters.storeId,
               query,
-              supported: true,
+              supported: false,
               matches: [],
               isAvailable: false,
+              reason: 'No nearby stores found.',
             },
           };
         }
@@ -685,7 +687,7 @@ export class MigrosLiveAdapter implements ChainAdapter {
           chain: this.chain,
           storeId: filters.storeId,
           query,
-          supported: true,
+          supported: false,
           matches: [],
           isAvailable: false,
           reason: warning.message,

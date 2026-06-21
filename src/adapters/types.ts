@@ -246,6 +246,8 @@ export interface StoreAvailabilityByLocationFilters {
 
 export interface StoreWithProductAvailability extends NormalizedStore {
   available: boolean;
+  availabilitySupported?: boolean;
+  availabilityReason?: string;
   stockCount?: number;
   isOpen?: boolean;
 }

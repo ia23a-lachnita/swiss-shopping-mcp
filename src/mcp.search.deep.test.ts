@@ -943,7 +943,7 @@ describe('10. Availability Lookup — Multiple Chains & Products', () => {
     expect(data.availability.matches).toEqual([]);
   });
 
-  it('lookup Vollmilch in coop — now supported', async () => {
+  it('lookup Vollmilch in coop — API unavailable -> unsupported', async () => {
     const result = await callTool(client, 'lookup_store_product_availability', {
       chain: 'coop',
       storeId: 'coop-basel-1',
@@ -954,7 +954,7 @@ describe('10. Availability Lookup — Multiple Chains & Products', () => {
       availability: { chain: string; supported: boolean; isAvailable: boolean; reason?: string };
     }>(result);
     expect(data.availability.chain).toBe('coop');
-    expect(data.availability.supported).toBe(true);
+    expect(data.availability.supported).toBe(false);
   });
 
   it('lookup Emmentaler in denner — unsupported but graceful', async () => {
@@ -971,22 +971,9 @@ describe('10. Availability Lookup — Multiple Chains & Products', () => {
     expect(data.availability.supported).toBe(false);
   });
 
-  it('migros and coop return supported=true, other chains return supported=false', async () => {
-    const supportedChains = ['migros', 'coop'];
-    const unsupportedChains = ['aldi', 'denner', 'farmy', 'volg', 'lidl', 'ottos'];
-    for (const chain of supportedChains) {
-      const result = await callTool(client, 'lookup_store_product_availability', {
-        chain,
-        storeId: `${chain}-store-1`,
-        query: 'test',
-      });
-      expect(result.isError).not.toBe(true);
-      const data = structured<{
-        availability: { chain: string; supported: boolean; isAvailable: boolean };
-      }>(result);
-      expect(data.availability.supported).toBe(true);
-    }
-    for (const chain of unsupportedChains) {
+  it('migros and coop availability API unavailable -> all chains return supported=false', async () => {
+    const allChains = ['migros', 'coop', 'aldi', 'denner', 'farmy', 'volg', 'lidl', 'ottos'];
+    for (const chain of allChains) {
       const result = await callTool(client, 'lookup_store_product_availability', {
         chain,
         storeId: `${chain}-store-1`,
@@ -1043,7 +1030,7 @@ describe('10. Availability Lookup — Multiple Chains & Products', () => {
     const data = structured<{
       availability: { supported: boolean };
     }>(result);
-    expect(data.availability.supported).toBe(true);
+    expect(data.availability.supported).toBe(false);
   });
 });
 

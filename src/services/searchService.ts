@@ -427,12 +427,15 @@ export class SearchService {
             return {
               ...store,
               available: false,
+              availabilitySupported: false,
+              availabilityReason: result.ok ? result.data.reason : undefined,
               isOpen: this.isStoreOpen(store.openingHours, now),
             } as StoreWithProductAvailability;
           } catch {
             return {
               ...store,
               available: false,
+              availabilitySupported: false,
               isOpen: this.isStoreOpen(store.openingHours, now),
             } as StoreWithProductAvailability;
           }
