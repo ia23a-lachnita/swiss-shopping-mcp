@@ -84,6 +84,7 @@ export interface CoopParsedProduct {
     sugar?: number;
   };
   allergens?: string[];
+  ingredients?: string;
 }
 
 export interface CoopParsedStore {

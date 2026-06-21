@@ -23,6 +23,7 @@ export interface MigrosApiProduct {
     sugar?: number;
   };
   allergens?: string[];
+  ingredients?: string;
   url?: string;
   quantity?: string;
 }
@@ -93,6 +94,7 @@ export interface MigrosParsedProduct {
     sugar?: number;
   };
   allergens?: string[];
+  ingredients?: string;
 }
 
 export interface MigrosParsedStore {
@@ -163,6 +165,7 @@ export function parseMigrosSearchResponse(
             }
           : undefined,
         allergens: product.allergens,
+        ingredients: product.ingredients,
       },
     ];
   });

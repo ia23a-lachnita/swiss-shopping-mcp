@@ -68,6 +68,7 @@ function toNormalizedProduct(
     productUrl: product.productUrl,
     nutrition: product.nutrition,
     allergens: product.allergens,
+    ingredients: product.ingredients ? [product.ingredients] : undefined,
     provenance: { ...provenance, sourceUrl: product.sourceUrl },
   };
 }
@@ -325,6 +326,12 @@ export class MigrosLiveAdapter implements ChainAdapter {
       ? allergensRaw.split(',').map((a: string) => a.trim()).filter(Boolean)
       : undefined;
 
+    // Extract ingredients from productInformation.mainInformation.ingredients
+    const ingredientsRaw = mainInfo?.ingredients;
+    const ingredients = typeof ingredientsRaw === 'string' && ingredientsRaw.length > 0
+      ? ingredientsRaw
+      : undefined;
+
     return {
       id: raw.uid ?? raw.migrosId ?? raw.migrosOnlineId ?? 0,
       name: raw.name ?? raw.title ?? '',
@@ -340,6 +347,7 @@ export class MigrosLiveAdapter implements ChainAdapter {
       quantity: offer.quantity ?? raw.quantity ?? '',
       nutrition_facts,
       allergens,
+      ingredients,
     } as MigrosApiProduct;
   }
 

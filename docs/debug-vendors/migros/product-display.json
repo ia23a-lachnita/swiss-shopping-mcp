@@ -1,0 +1,275 @@
+{
+    "brand": "PowerBar",
+    "breadcrumb": [
+        {
+            "id": "7494736",
+            "name": "Snacks & Süssigkeiten",
+            "slugs": [
+                "snacks-sussigkeiten"
+            ]
+        },
+        {
+            "id": "7494783",
+            "name": "Cracker & Riegel",
+            "slugs": [
+                "snacks-sussigkeiten",
+                "cracker-riegel"
+            ]
+        },
+        {
+            "id": "16551274",
+            "name": "Proteinriegel",
+            "slugs": [
+                "snacks-sussigkeiten",
+                "cracker-riegel",
+                "proteinriegel"
+            ]
+        }
+    ],
+    "description": "PowerBar · Protein+ · Vanilla-Coconut",
+    "gtins": [
+        "7613312335741",
+        "4029679520011"
+    ],
+    "imageTransparent": {
+        "cdn": "rokka",
+        "url": "https://image.migros.ch/d/{stack}/d8c6a8f349801dd29c725616710ac6d3ecf48a5b/powerbar-protein-vanilla-coconut.png"
+    },
+    "images": [
+        {
+            "cdn": "rokka",
+            "url": "https://image.migros.ch/d/{stack}/o-af-1-t.clr-fff/d8c6a8f349801dd29c725616710ac6d3ecf48a5b/powerbar-protein-vanilla-coconut.jpg"
+        }
+    ],
+    "isConsignmentProduct": false,
+    "isMgbCompatible": true,
+    "migrosId": "104253100000",
+    "migrosOnlineId": "16831046",
+    "name": "Protein+",
+    "offer": {
+        "channel": {
+            "offerType": "OFFLINE",
+            "region": "national"
+        },
+        "displayPrice": true,
+        "isNewOffer": false,
+        "isNotMorningDeliverable": false,
+        "isVariableWeight": false,
+        "maxOrderableQuantityV2": 96,
+        "price": {
+            "advertisedDisplayValue": "2.95",
+            "advertisedValue": 2.95,
+            "displayUnitPrice": true,
+            "effectiveDisplayValue": "2.95",
+            "effectiveValue": 2.95,
+            "multiplier": 1,
+            "unitPrice": {
+                "unit": "100g",
+                "value": 5.36
+            }
+        },
+        "quantity": "55g",
+        "quantityPrice": "5.36/100g",
+        "type": "STANDARD"
+    },
+    "productAvailability": "ONLINE_AND_INSTORE",
+    "productInformation": {
+        "mainInformation": {
+            "allergenIndication": "Kann enthalten: Mandeln, Glutenhaltiges Getreide, Erdnüsse, Haselnüsse, Cashewnüsse, Pistazien",
+            "allergens": "Milch und daraus gewonnene Erzeugnisse, Sojabohne und daraus gewonnene Erzeugnisse",
+            "brand": {
+                "name": "PowerBar",
+                "slug": "powerbar"
+            },
+            "ingredients": "Calciumcaseinat (MILCH) (21%), weiße Schokolade (18%) [Zucker, Kakaobutter, VollMILCHpulver, Emulgator (Lecithine (SOJA)), Aroma], Oligofruktosesirup, Invertzuckersirup, Fruktosesirup, Molkeneiweiß (MILCH) (8%), MagerMILCHpulver, SOJAeiweiß, Aromen, Emulgator [Lecithine (SOJA)]. \r Kann enthalten: WEIZEN, GERSTE, HAFER, ERDNÜSSE, MANDELN, HASELNÜSSE, CASHEWNÜSSE, PISTAZIEN.",
+            "migipediaUrl": "https://migipedia.migros.ch/de/products/104253100000",
+            "nutritionalCharacteristicsV2": [
+                {
+                    "name": "Vegetarisch"
+                }
+            ],
+            "origin": "Die Herkunftsangabe findest du auf der Verpackung in der Filiale.",
+            "rating": {
+                "nbReviews": 53,
+                "nbStars": 4.0
+            }
+        },
+        "nutrientsInformation": {
+            "isAnalyticalConstituents": false,
+            "nutrientsTable": {
+                "headers": [
+                    "100 g"
+                ],
+                "rows": [
+                    {
+                        "label": "Energie",
+                        "values": [
+                            "~ 1494 kJ (~ 355 kcal)",
+                            "~ 822 kJ (~ 195 kcal)",
+                            ""
+                        ]
+                    },
+                    {
+                        "label": "Fett",
+                        "values": [
+                            "~ 6.9 g",
+                            "~ 3.8 g",
+                            ""
+                        ]
+                    },
+                    {
+                        "label": "davon gesättigte Fettsäuren",
+                        "values": [
+                            "~ 4.2 g",
+                            "~ 2.3 g",
+                            ""
+                        ]
+                    },
+                    {
+                        "label": "Kohlenhydrate",
+                        "values": [
+                            "~ 36 g",
+                            "~ 20 g",
+                            ""
+                        ]
+                    },
+                    {
+                        "label": "davon Zucker",
+                        "values": [
+                            "~ 36 g",
+                            "~ 20 g",
+                            ""
+                        ]
+                    },
+                    {
+                        "label": "Ballaststoffe",
+                        "values": [
+                            "~ 11 g",
+                            "~ 5.8 g",
+                            ""
+                        ]
+                    },
+                    {
+                        "label": "Eiweiss",
+                        "values": [
+                            "~ 32 g",
+                            "~ 17 g",
+                            ""
+                        ]
+                    },
+                    {
+                        "label": "Salz",
+                        "values": [
+                            "~ 0.3 g",
+                            "",
+                            ""
+                        ]
+                    }
+                ]
+            },
+            "nutrientsTableV2": {
+                "headers": [
+                    {
+                        "value": "100 g"
+                    },
+                    {
+                        "value": ""
+                    }
+                ],
+                "rows": [
+                    {
+                        "label": "Energie",
+                        "values": [
+                            "~ 1494 kJ (~ 355 kcal)",
+                            "~ 822 kJ (~ 195 kcal)"
+                        ]
+                    },
+                    {
+                        "label": "Fett",
+                        "values": [
+                            "~ 6.9 g",
+                            "~ 3.8 g"
+                        ]
+                    },
+                    {
+                        "label": "davon gesättigte Fettsäuren",
+                        "values": [
+                            "~ 4.2 g",
+                            "~ 2.3 g"
+                        ]
+                    },
+                    {
+                        "label": "Kohlenhydrate",
+                        "values": [
+                            "~ 36 g",
+                            "~ 20 g"
+                        ]
+                    },
+                    {
+                        "label": "davon Zucker",
+                        "values": [
+                            "~ 36 g",
+                            "~ 20 g"
+                        ]
+                    },
+                    {
+                        "label": "Ballaststoffe",
+                        "values": [
+                            "~ 11 g",
+                            "~ 5.8 g"
+                        ]
+                    },
+                    {
+                        "label": "Eiweiss",
+                        "values": [
+                            "~ 32 g",
+                            "~ 17 g"
+                        ]
+                    },
+                    {
+                        "label": "Salz",
+                        "values": [
+                            "~ 0.3 g",
+                            ""
+                        ]
+                    }
+                ]
+            },
+            "portionSentence": "1 Packung ≈ 1 Portion"
+        },
+        "otherInformation": {
+            "articleNumber": "104253100000",
+            "distributorName": "Active Nutrition International GmbH",
+            "distributorStreetAndNumber": "Zielstattstr. 38, 81379 München, Germany",
+            "legalDesignation": "Eiweißriegel für Sportler mit weißer Schokolade. Vanille-Kokos-Geschmack.",
+            "mainSpecificities": [
+                {
+                    "code": "Vegetarismus",
+                    "value": "Vegetarisch"
+                },
+                {
+                    "code": "Einzeln verpackt",
+                    "value": "Ja"
+                }
+            ],
+            "remarks": [
+                {
+                    "code": "Warnhinweise / Pflichthinweise",
+                    "value": "Im Rahmen einer abwechslungsreichen und ausgewogenen Ernährung und einer gesunden Lebensweise."
+                },
+                {
+                    "code": "Aufbewahrungshinweise für den Konsumenten",
+                    "value": "Trocken lagern. Vor Wärme schützen."
+                }
+            ]
+        },
+        "usageInformation": {
+            "conservation": "1 Riegel/Tag."
+        }
+    },
+    "productRange": "STANDARD",
+    "productUrls": "https://www.migros.ch/de/product/104253100000",
+    "title": "PowerBar · Protein+ · Vanilla-Coconut",
+    "uid": 100049979,
+    "versioning": "Vanilla-Coconut"
+}

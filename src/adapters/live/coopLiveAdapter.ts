@@ -40,6 +40,7 @@ const DEFAULT_CACHE_TTL_MS = 6 * 60 * 60 * 1000;
 const DEFAULT_SEARCH_LIMIT = 20;
 const BASE_URL = 'https://www.coop.ch/rest/v2/coopathome';
 const AVAILABILITY_URL = 'https://www.coop.ch/rest/v2/coopathome/products';
+const DYNAMIC_PAGELOAD_URL = 'https://www.coop.ch/en/dynamic-pageload/tabbedAndRecommended';
 const IOS_SAFARI_UA = 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1';
 
 export interface CoopLiveAdapterOptions {
@@ -66,6 +67,7 @@ function toNormalizedProduct(
     productUrl: product.productUrl,
     nutrition: product.nutrition,
     allergens: product.allergens,
+    ingredients: product.ingredients ? [product.ingredients] : undefined,
     provenance: { ...provenance, sourceUrl: product.sourceUrl },
   };
 }
@@ -146,7 +148,7 @@ export class CoopLiveAdapter implements ChainAdapter {
         this.cacheTtlMs
       );
 
-      return this.parseSearchResult(
+      const parsed = this.parseSearchResult(
         result.data,
         liveProvenanceWithCacheExpiry(provenance, record.expiresAt),
         [],
@@ -154,6 +156,23 @@ export class CoopLiveAdapter implements ChainAdapter {
         query,
         searchUrl
       );
+
+      // Enrich top 3 products with ingredients (parallel fetch)
+      if (parsed.ok && parsed.data.length > 0) {
+        const toEnrich = parsed.data.slice(0, 3);
+        const enriched = await Promise.all(
+          toEnrich.map(async (p) => {
+            if (!p.productUrl) return p;
+            const ingredients = await this.fetchProductIngredients(p.productUrl);
+            return ingredients ? { ...p, ingredients: [ingredients] } : p;
+          })
+        );
+        // Merge enriched back into results
+        const enrichedMap = new Map(enriched.map(p => [p.id, p]));
+        parsed.data = parsed.data.map(p => enrichedMap.get(p.id) ?? p);
+      }
+
+      return parsed;
     } catch (error) {
       const warning = warningFromError(error, searchUrl, `${COOP_PROVIDER} API fetch failed`, 'coop', COOP_PROVIDER);
 
@@ -313,6 +332,52 @@ export class CoopLiveAdapter implements ChainAdapter {
         'Coop data is sourced from cached retailer observations.'
       ),
     };
+  }
+
+  private async fetchProductIngredients(productUrl: string): Promise<string | undefined> {
+    try {
+      // Convert relative URL to absolute
+      const fullUrl = productUrl.startsWith('http')
+        ? productUrl
+        : `https://www.coop.ch${productUrl}`;
+
+      const displayUrl = encodeURIComponent(fullUrl);
+      const timestamp = Date.now();
+      const url = `${DYNAMIC_PAGELOAD_URL}?componentName=tabbedAndRecommended&url=${displayUrl}&displayUrl=${displayUrl}&_=${timestamp}`;
+
+      const result = await this.sourceClient.fetchJson<{ html?: string }>(url, {
+        provider: COOP_PROVIDER,
+        chain: 'coop',
+        sourceType: 'retailer-web',
+        confidence: 'medium',
+      });
+
+      if (!result.data?.html) return undefined;
+
+      // Extract ingredients from HTML: look for data-testauto="productingredients" section
+      const html = result.data.html;
+      const ingredientsMatch = html.match(/data-testauto="productingredients"[^>]*>([\s\S]*?)(<\/div>|<h2)/i);
+      if (!ingredientsMatch) return undefined;
+
+      // Strip HTML tags and decode entities
+      let text = ingredientsMatch[1]
+        .replace(/<[^>]+>/g, ' ')
+        .replace(/&#x25;/g, '%')
+        .replace(/&amp;/g, '&')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/\s+/g, ' ')
+        .trim();
+
+      // Remove "Ingredients" label if present at the start
+      text = text.replace(/^Ingredients\s*/i, '').trim();
+
+      return text.length > 0 ? text : undefined;
+    } catch {
+      // Coop dynamic-pageload endpoint is protected by DataDome (403)
+      // Ingredients not available via server-side API
+      return undefined;
+    }
   }
 
   private isDataDomeError(error: unknown): boolean {
