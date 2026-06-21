@@ -319,7 +319,8 @@ export class MigrosLiveAdapter implements ChainAdapter {
     }
 
     // Extract allergens from productInformation.mainInformation.allergens
-    const allergensRaw = raw.productInformation?.mainInformation?.allergens;
+    const mainInfo = raw.productInformation?.mainInformation;
+    const allergensRaw = mainInfo?.allergens;
     const allergens = typeof allergensRaw === 'string' && allergensRaw.length > 0
       ? allergensRaw.split(',').map((a: string) => a.trim()).filter(Boolean)
       : undefined;

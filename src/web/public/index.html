@@ -372,7 +372,7 @@
       <div class="chain-filters" id="search-chains"></div>
       <div style="margin-top:8px;">
         <label class="chain-checkbox"><input type="checkbox" id="search-show-nutrition"> Show nutrition on all cards</label>
-        <label class="chain-checkbox" style="margin-left:12px;"><input type="checkbox" id="search-show-ingredients"> Show ingredients on all cards</label>
+        <label class="chain-checkbox" style="margin-left:12px;"><input type="checkbox" id="search-show-ingredients"> Show allergens on all cards</label>
       </div>
     </div>
     <div id="search-loading" class="loading" style="display:none"><div class="spinner"></div>Searching...</div>
@@ -647,12 +647,13 @@
             contentHtml += '</dl></div>';
           }
 
-          const hasIngredients = (p.allergens && p.allergens.length > 0) || (p.ingredients && p.ingredients.length > 0);
-          if (hasIngredients) {
-            const ingredientsList = p.allergens || p.ingredients;
-            contentHtml += '<button class="expand-btn" onclick="toggleExpand(this);event.stopPropagation();">Ingredients / Allergens</button>';
+          const hasAllergens = p.allergens && p.allergens.length > 0;
+          if (hasAllergens) {
+            const isDietary = p.allergens!.every(a => ['gluten-free', 'lactose-free', 'vegan', 'vegetarian', 'bio'].includes(a));
+            const label = isDietary ? 'Dietary Info' : 'Allergens';
+            contentHtml += '<button class="expand-btn" onclick="toggleExpand(this);event.stopPropagation();">' + label + '</button>';
             contentHtml += '<div class="expandable' + (showIngredients ? ' open' : '') + '">';
-            contentHtml += '<div class="ingredients-text">' + escapeHtml(ingredientsList.join(', ')) + '</div>';
+            contentHtml += '<div class="ingredients-text">' + escapeHtml(p.allergens!.join(', ')) + '</div>';
             contentHtml += '</div>';
           }
 
@@ -684,7 +685,7 @@
       const show = e.target.checked;
       document.querySelectorAll('#search-results .expandable').forEach(el => {
         const btn = el.previousElementSibling;
-        if (btn && btn.classList.contains('expand-btn') && btn.textContent.includes('Ingredients')) {
+        if (btn && btn.classList.contains('expand-btn') && btn.textContent.includes('Allergens')) {
           el.classList.toggle('open', show);
         }
       });
