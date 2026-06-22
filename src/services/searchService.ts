@@ -194,14 +194,33 @@ export class SearchService {
       return { ok: true, data: [], metadata };
     }
 
-    const stores = successfulResults.flatMap((entry) => (entry.result.ok ? entry.result.data : []));
-    stores.sort(sortStores);
     const metadata = mergeMetadata(
       successfulResults.flatMap((entry) =>
         entry.result.ok && entry.result.metadata ? [entry.result.metadata] : []
       ),
       sourceWarnings
     );
+
+    if (typeof filters.limit === 'number') {
+      // When limit is specified, allocate proportionally across chains
+      // to prevent one chain from dominating results
+      const chainCount = successfulResults.length;
+      if (chainCount > 1) {
+        const perChain = Math.max(1, Math.floor(filters.limit / chainCount));
+        const stores: NormalizedStore[] = [];
+        for (const entry of successfulResults) {
+          if (entry.result.ok) {
+            const chainStores = entry.result.data.slice(0, perChain);
+            stores.push(...chainStores);
+          }
+        }
+        stores.sort(sortStores);
+        return { ok: true, data: stores.slice(0, filters.limit), metadata };
+      }
+    }
+
+    const stores = successfulResults.flatMap((entry) => (entry.result.ok ? entry.result.data : []));
+    stores.sort(sortStores);
 
     if (typeof filters.limit === 'number') {
       return { ok: true, data: stores.slice(0, filters.limit), metadata };
