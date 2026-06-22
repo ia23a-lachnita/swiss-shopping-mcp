@@ -40,7 +40,7 @@ const DEFAULT_CACHE_TTL_MS = 6 * 60 * 60 * 1000;
 const DEFAULT_SEARCH_LIMIT = 20;
 const BASE_URL = 'https://www.coop.ch/rest/v2/coopathome';
 const AVAILABILITY_URL = 'https://www.coop.ch/rest/v2/coopathome/products';
-const DYNAMIC_PAGELOAD_URL = 'https://www.coop.ch/en/dynamic-pageload/tabbedAndRecommended';
+
 const IOS_SAFARI_UA = 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1';
 
 export interface CoopLiveAdapterOptions {
@@ -129,7 +129,25 @@ export class CoopLiveAdapter implements ChainAdapter {
 
     const cached = await this.cache.get<CoopSearchResponse>(cacheKey, { allowStale: true });
     if (cached && !cached.isStale) {
-      return this.parseSearchResult(cached.data, cached.provenance, [], filters, query, searchUrl);
+      const parsed = this.parseSearchResult(cached.data, cached.provenance, [], filters, query, searchUrl);
+      // Enrich top 5 products with ingredients + nutrition via product detail API
+      if (parsed.ok && parsed.data.length > 0) {
+        const toEnrich = parsed.data.slice(0, 5);
+        const enriched = await Promise.all(
+          toEnrich.map(async (p) => {
+            const detail = await this.fetchProductDetail(p.id);
+            if (!detail) return p;
+            return {
+              ...p,
+              ingredients: detail.ingredients ? [detail.ingredients] : p.ingredients,
+              nutrition: detail.nutrition ?? p.nutrition,
+            };
+          })
+        );
+        const enrichedMap = new Map(enriched.map(p => [p.id, p]));
+        parsed.data = parsed.data.map(p => enrichedMap.get(p.id) ?? p);
+      }
+      return parsed;
     }
 
     try {
@@ -157,14 +175,18 @@ export class CoopLiveAdapter implements ChainAdapter {
         searchUrl
       );
 
-      // Enrich top 3 products with ingredients (parallel fetch)
+      // Enrich top 5 products with ingredients + nutrition via product detail API
       if (parsed.ok && parsed.data.length > 0) {
-        const toEnrich = parsed.data.slice(0, 3);
+        const toEnrich = parsed.data.slice(0, 5);
         const enriched = await Promise.all(
           toEnrich.map(async (p) => {
-            if (!p.productUrl) return p;
-            const ingredients = await this.fetchProductIngredients(p.productUrl);
-            return ingredients ? { ...p, ingredients: [ingredients] } : p;
+            const detail = await this.fetchProductDetail(p.id);
+            if (!detail) return p;
+            return {
+              ...p,
+              ingredients: detail.ingredients ? [detail.ingredients] : p.ingredients,
+              nutrition: detail.nutrition ?? p.nutrition,
+            };
           })
         );
         // Merge enriched back into results
@@ -334,48 +356,88 @@ export class CoopLiveAdapter implements ChainAdapter {
     };
   }
 
-  private async fetchProductIngredients(productUrl: string): Promise<string | undefined> {
+  private async fetchProductDetail(
+    productCode: string
+  ): Promise<{ ingredients?: string; nutrition?: NormalizedProduct['nutrition'] } | undefined> {
     try {
-      // Convert relative URL to absolute
-      const fullUrl = productUrl.startsWith('http')
-        ? productUrl
-        : `https://www.coop.ch${productUrl}`;
-
-      const displayUrl = encodeURIComponent(fullUrl);
-      const timestamp = Date.now();
-      const url = `${DYNAMIC_PAGELOAD_URL}?componentName=tabbedAndRecommended&url=${displayUrl}&displayUrl=${displayUrl}&_=${timestamp}`;
-
-      const result = await this.sourceClient.fetchJson<{ html?: string }>(url, {
+      const detailUrl = `${BASE_URL}/products/${productCode}?fields=FULL`;
+      const result = await this.sourceClient.fetchJson<{
+        ingredients?: string;
+        nutritionInformation?: {
+          nutrients?: Array<{ name: string; assembledValue: string }>;
+          nutritionInformationPerUnit?: {
+            nutrients?: Array<{ name: string; assembledValue: string }>;
+          };
+          nutritionInformationPerPortion?: {
+            nutrients?: Array<{ name: string; assembledValue: string }>;
+          };
+        };
+      }>(detailUrl, {
         provider: COOP_PROVIDER,
         chain: 'coop',
         sourceType: 'retailer-web',
         confidence: 'medium',
       });
 
-      if (!result.data?.html) return undefined;
+      const data = result.data;
+      if (!data) return undefined;
 
-      // Extract ingredients from HTML: look for data-testauto="productingredients" section
-      const html = result.data.html;
-      const ingredientsMatch = html.match(/data-testauto="productingredients"[^>]*>([\s\S]*?)(<\/div>|<h2)/i);
-      if (!ingredientsMatch) return undefined;
+      // Parse ingredients: strip HTML tags
+      let ingredients: string | undefined;
+      if (typeof data.ingredients === 'string' && data.ingredients.length > 0) {
+        ingredients = data.ingredients
+          .replace(/<[^>]+>/g, '')
+          .replace(/&amp;/g, '&')
+          .replace(/&#x25;/g, '%')
+          .trim();
+        if (ingredients.length === 0) ingredients = undefined;
+      }
 
-      // Strip HTML tags and decode entities
-      let text = ingredientsMatch[1]
-        .replace(/<[^>]+>/g, ' ')
-        .replace(/&#x25;/g, '%')
-        .replace(/&amp;/g, '&')
-        .replace(/&lt;/g, '<')
-        .replace(/&gt;/g, '>')
-        .replace(/\s+/g, ' ')
-        .trim();
+      // Parse nutrition from nutritionInformation (try multiple locations)
+      let nutrition: NormalizedProduct['nutrition'] | undefined;
+      const nutrients = data.nutritionInformation?.nutrients
+        ?? data.nutritionInformation?.nutritionInformationPerUnit?.nutrients
+        ?? data.nutritionInformation?.nutritionInformationPerPortion?.nutrients;
+      if (nutrients && Array.isArray(nutrients) && nutrients.length > 0) {
+        const parseNum = (raw: string): number | undefined => {
+          const cleaned = raw.replace(/[^0-9.,]/g, '').replace(',', '.');
+          const n = parseFloat(cleaned);
+          return Number.isFinite(n) ? n : undefined;
+        };
 
-      // Remove "Ingredients" label if present at the start
-      text = text.replace(/^Ingredients\s*/i, '').trim();
+        let energyKcal: number | undefined;
+        let fat: number | undefined;
+        let carbs: number | undefined;
+        let sugar: number | undefined;
+        let protein: number | undefined;
 
-      return text.length > 0 ? text : undefined;
+        let energyCount = 0;
+        for (const n of nutrients) {
+          const name = (n.name || '').toLowerCase();
+          if (name === 'energie') {
+            energyCount++;
+            if (energyCount === 2) {
+              energyKcal = parseNum(n.assembledValue);
+            }
+          } else if (name === 'fett' && fat === undefined) {
+            fat = parseNum(n.assembledValue);
+          } else if ((name === 'kohlenhydrate' || name === 'kohlenhydrate') && carbs === undefined) {
+            carbs = parseNum(n.assembledValue);
+          } else if (name.startsWith('davon zucker') && sugar === undefined) {
+            sugar = parseNum(n.assembledValue);
+          } else if (name === 'eiweiss' && protein === undefined) {
+            protein = parseNum(n.assembledValue);
+          }
+        }
+
+        if (energyKcal !== undefined || fat !== undefined || carbs !== undefined || protein !== undefined) {
+          nutrition = { energyKcal, protein, carbs, fat, sugar };
+        }
+      }
+
+      if (!ingredients && !nutrition) return undefined;
+      return { ingredients, nutrition };
     } catch {
-      // Coop dynamic-pageload endpoint is protected by DataDome (403)
-      // Ingredients not available via server-side API
       return undefined;
     }
   }

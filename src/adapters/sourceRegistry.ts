@@ -99,8 +99,10 @@ export const SOURCE_REGISTRY: Record<Chain, CapabilitySourceStatus[]> = {
     {
       chain: 'coop',
       capability: 'nutrition',
-      status: 'unsupported',
-      reason: 'No Coop nutrition enrichment source is implemented.',
+      status: 'live-beta',
+      provider: 'Coop',
+      sourceType: 'retailer-web',
+      reason: 'Nutrition scraped from product detail page HTML (top 5 products, may be blocked by DataDome).',
     },
   ],
   farmy: [

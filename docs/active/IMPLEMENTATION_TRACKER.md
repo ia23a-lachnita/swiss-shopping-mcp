@@ -82,6 +82,10 @@ Phase: `V1 - core read/search foundation`
 | Migros hours format fix              | done                   | `isStoreOpen()` now handles Migros date+time format ("2026-06-19 08:00") by returning undefined (can't determine open status from single time); build clean |
 | Migros store search auth fix         | done                   | Fixed `searchStores` calls to pass `{ leshopch: token }` instead of raw token string (wrapper expects object, not string); Migros store search now works |
 | Availability APIs marked unsupported | done                  | Both Migros (`store-availability` returns 403) and Coop (`/stockLevels` endpoint removed) availability APIs confirmed broken; adapters marked `supported: false`; source registry updated; 4 tests updated |
+| Coop nutrition extraction            | done                   | Added `fetchProductNutrition()` method to Coop adapter parsing nutrition from product detail page HTML; enrichment expanded from top 3 to top 5 products; source registry updated to live-beta; DataDome blocks detail page requests so nutrition is best-effort |
+| SPA availability UX improvement      | done                   | Added warning banner when all chains report availability unsupported; changed "Unknown" to "N/A" for unsupported stores; improved in-stock count display; added note about API availability in tab description |
+| Coop nutrition via product detail API  | done                   | Replaced broken HTML scraping (`dynamic-pageload` blocked by DataDome) with working REST product detail API (`/rest/v2/coopathome/products/{code}?fields=FULL`); returns `ingredients` string and `nutritionInformation` (including `nutritionInformationPerUnit.nutrients`); enrichment applied on both fresh fetch and cache hit paths; 474 tests pass, build clean |
+| SPA JavaScript syntax fix            | done                   | Fixed TypeScript non-null assertion (`p.ingredients!.join`) in inline browser JS that broke all SPA interactivity |
 
 ## Next tasks
 
@@ -92,8 +96,9 @@ Phase: `V1 - core read/search foundation`
 5. Prepare V2 account/cart integration foundation
 6. Remove static catalog data from default production runtime, or gate it as test/demo-only with explicit source warnings
 7. Decide whether live product search requires an approved provider/central index instead of local runtime crawling
-8. Investigate Coop/Aldi product detail pages for nutrition and ingredients data
+8. ~~Investigate Coop/Aldi product detail pages for nutrition and ingredients data~~ — DONE (Coop REST API returns nutrition + ingredients directly)
 9. Normalize Migros nutrition data to per-100g/100ml basis (currently raw API values)
+10. Investigate Coop store-level product availability — endpoint `/products/{id}/stockLevels` permanently removed (404); all availability endpoints return 404
 
 ## Decisions
 

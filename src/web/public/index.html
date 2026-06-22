@@ -432,7 +432,7 @@
   <section id="tab-availability" class="tab-content">
     <div class="panel">
       <h3>Store Availability</h3>
-      <p style="font-size:13px;color:var(--gray-500);margin-bottom:12px;">Check product availability at stores near you. Enter a product query and your location (city or postal code).</p>
+      <p style="font-size:13px;color:var(--gray-500);margin-bottom:12px;">Check product availability at stores near you. Enter a product query and your location (city or postal code). Note: Real-time stock status depends on retailer API availability.</p>
       <div class="form-row">
         <div class="form-group" style="flex:1;min-width:200px;">
           <label for="avail-query">Product Query</label>
@@ -667,7 +667,7 @@
 
             // Show ingredients first
             if (hasIngredients) {
-              contentHtml += '<div class="ingredients-text"><strong>Ingredients:</strong> ' + escapeHtml(p.ingredients!.join(', ')) + '</div>';
+              contentHtml += '<div class="ingredients-text"><strong>Ingredients:</strong> ' + escapeHtml(p.ingredients.join(', ')) + '</div>';
             }
 
             // Show real allergens
@@ -968,7 +968,21 @@
           return;
         }
 
-        let html = '<div class="product-grid" style="grid-template-columns: repeat(2, 1fr); gap: 16px;">';
+        // Check if ALL stores across all products are unsupported
+        const allStores = products.flatMap(item => item.stores || []);
+        const allUnsupported = allStores.length > 0 && allStores.every(s => s.availabilitySupported === false);
+
+        let html = '';
+
+        if (allUnsupported) {
+          html += '<div class="error-box" style="background:#fef3cd;border-color:#fbbf24;color:#92400e;margin-bottom:16px;">';
+          html += '<strong>Availability data is not available.</strong><br>';
+          html += 'The retailer availability APIs are currently unavailable (blocked or deprecated). ';
+          html += 'Product search results below show stores near your location, but real-time stock status cannot be retrieved.';
+          html += '</div>';
+        }
+
+        html += '<div class="product-grid" style="grid-template-columns: repeat(2, 1fr); gap: 16px;">';
 
         products.forEach(item => {
           const p = item.product;
@@ -999,12 +1013,17 @@
 
           // Store availability
           html += '<div style="margin-top:8px;padding:8px;background:var(--gray-50);border-radius:6px;font-size:12px;">';
-          html += '<div style="font-weight:600;margin-bottom:4px;">' + p.chain.charAt(0).toUpperCase() + p.chain.slice(1) + ' stores: ' + inStockCount + '/' + stores.length + ' in stock</div>';
+          const unsupportedStores = stores.filter(s => s.availabilitySupported === false);
+          if (unsupportedStores.length === stores.length && stores.length > 0) {
+            html += '<div style="font-weight:600;margin-bottom:4px;color:var(--gray-500);">' + p.chain.charAt(0).toUpperCase() + p.chain.slice(1) + ' stores: stock status unavailable</div>';
+          } else {
+            html += '<div style="font-weight:600;margin-bottom:4px;">' + p.chain.charAt(0).toUpperCase() + p.chain.slice(1) + ' stores: ' + inStockCount + '/' + stores.length + ' in stock</div>';
+          }
           if (stores.length > 0) {
             stores.forEach(s => {
               let availDot;
               if (s.availabilitySupported === false) {
-                availDot = '<span style="color:#9ca3af;font-weight:600;">&#9675; Unknown</span>';
+                availDot = '<span style="color:#9ca3af;font-weight:600;">&#9675; N/A</span>';
               } else if (s.available) {
                 availDot = '<span style="color:#059669;font-weight:600;">&#9679; In Stock</span>';
               } else {
