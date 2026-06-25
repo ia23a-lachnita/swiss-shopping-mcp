@@ -102,7 +102,7 @@ export const SOURCE_REGISTRY: Record<Chain, CapabilitySourceStatus[]> = {
       status: 'live-beta',
       provider: 'Coop',
       sourceType: 'retailer-web',
-      reason: 'Nutrition scraped from product detail page HTML (top 5 products, may be blocked by DataDome).',
+      reason: 'Nutrition and ingredients from REST product detail API (top 5 products enriched per search).',
     },
   ],
   farmy: [
@@ -141,15 +141,14 @@ export const SOURCE_REGISTRY: Record<Chain, CapabilitySourceStatus[]> = {
     {
       chain: 'lidl',
       capability: 'productSearch',
-      status: 'live-beta',
-      provider: 'Lidl Schweiz',
-      sourceType: 'retailer-web',
+      status: 'unsupported',
+      reason: 'Lidl.ch has no product catalog or search. The Lidl Plus app API (digital-leaflet.lidlplus.com) returns only campaign group metadata without product items.',
     },
     {
       chain: 'lidl',
       capability: 'promotions',
       status: 'unsupported',
-      reason: 'Lidl promotions search is not yet implemented.',
+      reason: 'Lidl promotions API returns campaign groups without product items. No product-level promotions data available.',
     },
     {
       chain: 'lidl',
@@ -162,7 +161,7 @@ export const SOURCE_REGISTRY: Record<Chain, CapabilitySourceStatus[]> = {
       chain: 'lidl',
       capability: 'availability',
       status: 'unsupported',
-      reason: 'No Lidl store-level availability source is implemented.',
+      reason: 'Lidl does not expose store-level product availability.',
     },
     {
       chain: 'lidl',

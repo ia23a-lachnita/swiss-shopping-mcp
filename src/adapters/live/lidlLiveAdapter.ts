@@ -31,8 +31,10 @@ const LIDL_PROVIDER = 'Lidl Schweiz';
 const DEFAULT_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 const DEFAULT_SEARCH_LIMIT = 20;
 const CAMPAIGNS_URL = 'https://digital-leaflet.lidlplus.com/api/v1/CH/campaignGroups';
+const CAMPAIGN_DETAIL_URL = 'https://digital-leaflet.lidlplus.com/api/v1/CH/campaigns';
 const STORES_URL = 'https://stores.lidlplus.com/api/v4/CH';
 const LIDL_PLUS_UA = 'Lidl Plus/5.0.0 (Android; 14; SM-S928B)';
+const MAX_CAMPAIGNS_TO_FETCH = 5;
 
 export interface LidlLiveAdapterOptions {
   cache: FileTtlCache;
@@ -78,6 +80,7 @@ export class LidlLiveAdapter implements ChainAdapter {
   private readonly cache: FileTtlCache;
   private readonly sourceClient: SourceHttpClient;
   private readonly cacheTtlMs: number;
+  private campaignProductsCache: { products: LidlParsedProduct[]; expires: number } | null = null;
 
   public constructor(options: LidlLiveAdapterOptions) {
     this.cache = options.cache;
@@ -97,6 +100,67 @@ export class LidlLiveAdapter implements ChainAdapter {
     };
   }
 
+  private async loadCampaignProducts(): Promise<LidlParsedProduct[]> {
+    if (this.campaignProductsCache && Date.now() < this.campaignProductsCache.expires) {
+      return this.campaignProductsCache.products;
+    }
+
+    try {
+      // Step 1: Get campaign groups to extract campaign IDs
+      const groupsResult = await this.sourceClient.fetchJson<unknown>(CAMPAIGNS_URL, {
+        provider: LIDL_PROVIDER,
+        chain: 'lidl',
+        sourceType: 'retailer-web',
+        confidence: 'medium',
+      });
+
+      const groupsData = groupsResult.data as Record<string, unknown>;
+      const groups = Array.isArray(groupsData.groups) ? groupsData.groups : [];
+      const campaignIds: string[] = [];
+      for (const group of groups) {
+        const g = group as Record<string, unknown>;
+        const campaigns = Array.isArray(g.campaigns) ? g.campaigns : [];
+        for (const c of campaigns) {
+          const camp = c as Record<string, unknown>;
+          if (typeof camp.id === 'string') campaignIds.push(camp.id);
+        }
+      }
+
+      // Step 2: Fetch individual campaigns to get products
+      const allProducts: LidlParsedProduct[] = [];
+      const idsToFetch = campaignIds.slice(0, MAX_CAMPAIGNS_TO_FETCH);
+      const detailUrl = CAMPAIGN_DETAIL_URL;
+
+      const fetches = idsToFetch.map(async (id) => {
+        try {
+          const result = await this.sourceClient.fetchJson<unknown>(`${detailUrl}/${id}`, {
+            provider: LIDL_PROVIDER,
+            chain: 'lidl',
+            sourceType: 'retailer-web',
+            confidence: 'medium',
+          });
+          return parseLidlCampaignProducts(result.data, `${detailUrl}/${id}`);
+        } catch {
+          return [];
+        }
+      });
+
+      const results = await Promise.all(fetches);
+      for (const products of results) {
+        allProducts.push(...products);
+      }
+
+      this.campaignProductsCache = {
+        products: allProducts,
+        expires: Date.now() + this.cacheTtlMs,
+      };
+
+      return allProducts;
+    } catch {
+      return [];
+    }
+  }
+
   public async searchProducts(filters: ProductSearchFilters): Promise<Result<NormalizedProduct[]>> {
     const query = filters.query.trim();
     if (!query) {
@@ -104,7 +168,7 @@ export class LidlLiveAdapter implements ChainAdapter {
     }
 
     const limit = typeof filters.limit === 'number' ? filters.limit : DEFAULT_SEARCH_LIMIT;
-    const cacheKey = `lidl:campaigns:${limit}`;
+    const cacheKey = `lidl:products:${limit}`;
 
     const cached = await this.cache.get<unknown>(cacheKey, { allowStale: true });
     if (cached && !cached.isStale) {
@@ -112,23 +176,17 @@ export class LidlLiveAdapter implements ChainAdapter {
     }
 
     try {
-      const result = await this.sourceClient.fetchJson<unknown>(CAMPAIGNS_URL, {
-        provider: LIDL_PROVIDER,
-        chain: 'lidl',
-        sourceType: 'retailer-web',
-        confidence: 'medium',
-      });
-
+      const products = await this.loadCampaignProducts();
       const provenance = this.buildProvenance(CAMPAIGNS_URL);
       const record = await this.cache.set(
         cacheKey,
-        result.data,
+        products,
         cacheableProvenance(provenance),
         this.cacheTtlMs
       );
 
       return this.parseProductResult(
-        result.data,
+        products,
         liveProvenanceWithCacheExpiry(provenance, record.expiresAt),
         [],
         filters,

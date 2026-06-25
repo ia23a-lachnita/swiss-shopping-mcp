@@ -73,6 +73,7 @@ export interface CoopParsedProduct {
     value: number;
     per: string;
   };
+  size?: string;
   category?: string;
   image?: string;
   nutrition?: {
@@ -151,6 +152,7 @@ export function parseCoopSearchResponse(
         brand: product.brandName,
         price,
         unit,
+        size: product.contentUnit || undefined,
         category,
         image,
         allergens: allergens.length > 0 ? allergens : undefined,

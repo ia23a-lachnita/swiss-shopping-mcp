@@ -28,6 +28,7 @@ Only use development MCPs relevant to this codebase:
 - `context7` for library docs
 - `context-mode` for large-output command execution
 - `gemini-cli` only for optional design/code review second opinion
+- `stealth-browser-mcp` for manual SPA testing and vendor website investigation
 
 Do not add runtime/business MCPs (e.g., external shopping/account MCPs) to this repository config.
 
@@ -38,10 +39,25 @@ Do not add runtime/business MCPs (e.g., external shopping/account MCPs) to this 
 ### CRITICAL: Browser MCP requirement
 
 **Before doing ANY implementation work, verify a browser MCP is available.** If no browser MCP is configured, the agent MUST:
-1. Inform the user: "No browser MCP available — cannot perform mandatory manual testing. Please configure a browser MCP (e.g., `@anthropic-ai/claude-code-mcp-browser` or similar) and retry."
+1. Inform the user: "No browser MCP available — cannot perform mandatory manual testing. Please configure a browser MCP (e.g., `stealth-browser-mcp`) and retry."
 2. **STOP. Do not proceed with implementation.**
 
 Proceeding without browser verification is a contract violation.
+
+### Browser MCP for vendor investigation
+
+Use `stealth-browser-mcp` to investigate retailer websites and APIs:
+- **Navigate** to vendor sites to understand their structure
+- **Inspect network requests** via JavaScript to find API endpoints
+- **Test search functionality** to understand how products are displayed
+- **Check product pages** for availability, nutrition, and ingredient data
+- **Verify cookie consent** handling (usercentrics shadow DOM for Coop, standard dialogs for others)
+
+Key findings from browser investigation:
+- **Lidl.ch**: No product search — website is purely promotional. Lidl Plus app API returns only campaign metadata without products.
+- **Migros**: React-controlled SPA — use URL-based search (`/en/search?query=...`) not simulated typing
+- **Coop**: DataDome bot protection — headless browsers get blocked; use REST API (`/rest/v2/coopathome/products/`) instead
+- **Store availability APIs**: Migros returns 403, Coop returns 404 — both confirmed broken
 
 ### Before implementation
 1. Read tracker
@@ -109,7 +125,7 @@ Remove-Item -Path $cacheDir -Recurse -Force -ErrorAction SilentlyContinue
 
 **NOTE:** The `cmd /c` prefix causes path resolution failures with `createBackgroundProcess`. Use bare `node dist\web\server.js` instead.
 
-**Fast reset tip:** Use `browsermcp_browser_navigate` with a query param (e.g., `http://localhost:3000/?t=<timestamp>`) to fully reload the SPA and clear all form state. F5 alone may not clear browser-preserved input values.
+**Fast reset tip:** Use `stealth-browser-mcp_navigate` with a query param (e.g., `http://localhost:3000/?t=<timestamp>`) to fully reload the SPA and clear all form state. F5 alone may not clear browser-preserved input values.
 
 ## NEVER DO THIS
 

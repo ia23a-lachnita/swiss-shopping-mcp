@@ -86,6 +86,10 @@ Phase: `V1 - core read/search foundation`
 | SPA availability UX improvement      | done                   | Added warning banner when all chains report availability unsupported; changed "Unknown" to "N/A" for unsupported stores; improved in-stock count display; added note about API availability in tab description |
 | Coop nutrition via product detail API  | done                   | Replaced broken HTML scraping (`dynamic-pageload` blocked by DataDome) with working REST product detail API (`/rest/v2/coopathome/products/{code}?fields=FULL`); returns `ingredients` string and `nutritionInformation` (including `nutritionInformationPerUnit.nutrients`); enrichment applied on both fresh fetch and cache hit paths; 474 tests pass, build clean |
 | SPA JavaScript syntax fix            | done                   | Fixed TypeScript non-null assertion (`p.ingredients!.join`) in inline browser JS that broke all SPA interactivity |
+| Lidl product search marked unsupported | done                | Lidl.ch has no product catalog or search; Lidl Plus app API returns only campaign group metadata without product items; source registry updated |
+| Product size field standardization   | done                   | Added `size` field to Migros parser (from `quantity` API field) and Coop parser (from `contentUnit`); both adapters now propagate `size` to `NormalizedProduct`; 474 tests pass |
+| Source registry accuracy update       | done                   | Lidl productSearch/promotions marked unsupported with reasons; Coop nutrition description updated to reflect REST API usage; availability entries verified accurate |
+| Browser MCP migration                | done                   | Replaced `browsermcp` references with `stealth-browser-mcp` in AGENTS.md; added vendor investigation instructions for Lidl, Migros, Coop |
 
 ## Next tasks
 
@@ -96,9 +100,9 @@ Phase: `V1 - core read/search foundation`
 5. Prepare V2 account/cart integration foundation
 6. Remove static catalog data from default production runtime, or gate it as test/demo-only with explicit source warnings
 7. Decide whether live product search requires an approved provider/central index instead of local runtime crawling
-8. ~~Investigate Coop/Aldi product detail pages for nutrition and ingredients data~~ — DONE (Coop REST API returns nutrition + ingredients directly)
-9. Normalize Migros nutrition data to per-100g/100ml basis (currently raw API values)
-10. Investigate Coop store-level product availability — endpoint `/products/{id}/stockLevels` permanently removed (404); all availability endpoints return 404
+8. Normalize Migros nutrition data to per-100g/100ml basis (currently raw API values)
+9. Investigate Aldi/Volg/Otto's product detail pages for size/quantity extraction (currently no size data)
+10. Add size/unit extraction to Denner Prediggo search API parser (currently only HTML parsers set size)
 
 ## Decisions
 

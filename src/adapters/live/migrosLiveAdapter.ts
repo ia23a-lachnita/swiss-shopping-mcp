@@ -63,6 +63,7 @@ function toNormalizedProduct(
       current: product.price.current,
       unit: product.unit,
     },
+    size: product.size,
     category: product.category,
     image: product.image,
     productUrl: product.productUrl,

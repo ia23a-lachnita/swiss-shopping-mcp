@@ -69,6 +69,16 @@ export function parseLidlCampaignProducts(
     }
   }
 
+  // Also handle direct product arrays (from individual campaign endpoint)
+  if (products.length === 0 && Array.isArray(result.products)) {
+    for (const item of result.products) {
+      const parsed = parseCampaignItem(item as Record<string, unknown>, sourceUrl);
+      if (parsed) {
+        products.push(parsed);
+      }
+    }
+  }
+
   return products;
 }
 
@@ -89,8 +99,9 @@ function extractItems(campaign: Record<string, unknown>): Record<string, unknown
 }
 
 function parseCampaignItem(item: Record<string, unknown>, sourceUrl: string): LidlParsedProduct | null {
-  const name = typeof item.name === 'string' ? item.name :
-    typeof item.title === 'string' ? item.title :
+  // Handle both old format (name/title) and new format (title)
+  const name = typeof item.title === 'string' ? item.title :
+    typeof item.name === 'string' ? item.name :
     typeof item.productName === 'string' ? item.productName : '';
 
   if (!name) return null;
@@ -103,8 +114,8 @@ function parseCampaignItem(item: Record<string, unknown>, sourceUrl: string): Li
     typeof item.ean === 'string' ? item.ean :
     `lidl-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
 
-  const image = typeof item.image === 'string' ? item.image :
-    typeof item.imageUrl === 'string' ? item.imageUrl :
+  const image = typeof item.imageUrl === 'string' ? item.imageUrl :
+    typeof item.image === 'string' ? item.image :
     typeof item.thumbnail === 'string' ? item.thumbnail : undefined;
 
   const brand = typeof item.brand === 'string' ? item.brand :
@@ -125,6 +136,14 @@ function parseCampaignItem(item: Record<string, unknown>, sourceUrl: string): Li
 }
 
 function extractPrice(item: Record<string, unknown>): { current: number; currency: string } | null {
+  // New format: mainPrice.price
+  if (typeof item.mainPrice === 'object' && item.mainPrice !== null) {
+    const mainPrice = item.mainPrice as Record<string, unknown>;
+    if (typeof mainPrice.price === 'number' && mainPrice.price > 0) {
+      return { current: mainPrice.price, currency: 'CHF' };
+    }
+  }
+  // Old formats
   if (typeof item.price === 'number' && item.price > 0) {
     return { current: item.price, currency: 'CHF' };
   }

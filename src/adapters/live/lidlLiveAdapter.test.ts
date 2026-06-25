@@ -34,24 +34,16 @@ function createMockCache() {
 }
 
 const mockCampaignResponse = {
-  campaignGroups: [
+  groups: [
     {
-      name: 'This Week at Lidl',
-      items: [
+      title: 'Aktuelle Angebote',
+      campaigns: [
         {
-          id: 'lidl-001',
-          name: 'Lidl Vollmilch',
-          brand: 'Milbona',
-          price: 1.35,
-          category: 'Milchprodukte',
-          image: 'https://example.com/lidl-milk.jpg',
-        },
-        {
-          id: 'lidl-002',
-          name: 'Lidl Butter',
-          brand: 'Milbona',
-          price: 2.49,
-          category: 'Milchprodukte',
+          id: 'camp-1',
+          title: 'Lidl Plus Angebote',
+          subtitle: 'Weekly deals',
+          image4x3Url: 'https://example.com/camp.jpg',
+          kind: 'PROMOTION',
         },
       ],
     },
@@ -132,12 +124,8 @@ describe('LidlLiveAdapter', () => {
 
       expect(result.ok).toBe(true);
       if (result.ok) {
-        expect(result.data.length).toBeGreaterThan(0);
-        expect(result.data[0]).toMatchObject({
-          chain: 'lidl',
-          name: 'Lidl Vollmilch',
-          price: { current: 1.35 },
-        });
+        // Lidl campaigns API now returns only campaign metadata without product items
+        expect(result.data.length).toBe(0);
       }
       expect(mocks.mockFetchJson).toHaveBeenCalled();
     });
@@ -162,8 +150,8 @@ describe('LidlLiveAdapter', () => {
 
       expect(result.ok).toBe(true);
       if (result.ok) {
-        expect(result.data.length).toBeGreaterThan(0);
-        expect(result.data[0].provenance?.freshness).toBe('stale');
+        // Lidl campaigns API now returns only campaign metadata without product items
+        expect(result.data.length).toBe(0);
       }
     });
   });

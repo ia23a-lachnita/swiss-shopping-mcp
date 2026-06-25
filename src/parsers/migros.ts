@@ -83,6 +83,7 @@ export interface MigrosParsedProduct {
     value: number;
     per: string;
   };
+  size?: string;
   category?: string;
   image?: string;
   nutrition?: {
@@ -152,6 +153,7 @@ export function parseMigrosSearchResponse(
         brand: product.brand_name,
         price,
         unit,
+        size: product.quantity || undefined,
         category: product.category_name ?? product.category?.join(' > '),
         image: product.image_url,
         nutrition: product.nutrition_facts
