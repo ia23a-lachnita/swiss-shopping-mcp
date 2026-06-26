@@ -93,8 +93,10 @@ export const SOURCE_REGISTRY: Record<Chain, CapabilitySourceStatus[]> = {
     {
       chain: 'coop',
       capability: 'availability',
-      status: 'unsupported',
-      reason: 'Coop /products/{id}/stockLevels endpoint no longer exists.',
+      status: 'live-beta',
+      provider: 'Coop',
+      sourceType: 'retailer-web',
+      reason: 'Store availability via GET /locations/searchAroundCoordinates?latitude={lat}&longitude={lon}&availabilityProductId={id}.',
     },
     {
       chain: 'coop',
@@ -195,8 +197,10 @@ export const SOURCE_REGISTRY: Record<Chain, CapabilitySourceStatus[]> = {
     {
       chain: 'migros',
       capability: 'availability',
-      status: 'unsupported',
-      reason: 'Migros site in maintenance (as of 2026-06-26); all APIs return 403.',
+      status: 'live-beta',
+      provider: 'Migros',
+      sourceType: 'retailer-web',
+      reason: 'Store availability via GET /store-availability/public/v2/availabilities/products/{pid}?costCenterIds={storeId} with TLS 1.3 bypass.',
     },
     {
       chain: 'migros',
