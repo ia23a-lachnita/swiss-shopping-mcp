@@ -39,7 +39,7 @@ const COOP_PROVIDER = 'Coop';
 const DEFAULT_CACHE_TTL_MS = 6 * 60 * 60 * 1000;
 const DEFAULT_SEARCH_LIMIT = 20;
 const BASE_URL = 'https://www.coop.ch/rest/v2/coopathome';
-const AVAILABILITY_URL = 'https://www.coop.ch/rest/v2/coopathome/products';
+const STOCK_URL = 'https://www.coop.ch/rest/v2/coopathome/locations/searchAroundCoordinates';
 
 const IOS_SAFARI_UA = 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1';
 
@@ -454,8 +454,7 @@ export class CoopLiveAdapter implements ChainAdapter {
   public getStoreAvailabilitySupport(): StoreAvailabilitySupport {
     return {
       chain: this.chain,
-      supported: false,
-      reason: 'Coop /products/{id}/stockLevels endpoint no longer exists (returns UnknownResourceError).',
+      supported: true,
     };
   }
 
@@ -498,50 +497,33 @@ export class CoopLiveAdapter implements ChainAdapter {
       const product = productResult.data[0];
       const productId = product.id;
 
-      // Step 2: Get nearby stores if no specific store requested
-      let storeIds: string[];
-      if (filters.storeId) {
-        storeIds = [filters.storeId];
-      } else {
-        const storeResult = await this.findStores({ location: query, limit: 10 });
-        if (!storeResult.ok || storeResult.data.length === 0) {
-          return {
-            ok: true,
-            data: {
-              chain: this.chain,
-              storeId: filters.storeId,
-              query,
-              supported: false,
-              matches: [],
-              isAvailable: false,
-              reason: 'No nearby stores found.',
-            },
-          };
-        }
-        storeIds = storeResult.data.map((s) => s.id);
-      }
+      // Step 2: Get coordinates from location or use default (Zurich)
+      const point = await resolveLocationAsync(query);
+      const lat = point?.latitude ?? 47.3769;
+      const lon = point?.longitude ?? 8.5417;
 
-      // Step 3: Call availability API
-      const costCenterIds = storeIds.join(',');
-      const availabilityUrl = `${AVAILABILITY_URL}/${productId}/stockLevels?costCenterIds=${costCenterIds}`;
+      // Step 3: Call stock API using locations endpoint with availabilityProductId
+      const stockUrl = `${STOCK_URL}?latitude=${lat}&longitude=${lon}&availabilityProductId=${productId}&onlyWithAvailableProductId=true&currentPage=0`;
 
       const result = await this.storeClient.fetchJson<{
-        availabilities: Array<{ id: string; stock: number }>;
-        catalogItemId: number;
-      }>(availabilityUrl, {
+        locations: Array<{ address: { id: string }; distance: number }>;
+      }>(stockUrl, {
         provider: COOP_PROVIDER,
         chain: 'coop',
         sourceType: 'retailer-web',
         confidence: 'medium',
       });
 
-      // Step 4: Build availability matches
-      const matches = result.data.availabilities.map((avail) => ({
+      // Step 4: Build availability matches from locations that have the product
+      const locations = result.data.locations ?? [];
+      const matches = locations.map((loc) => ({
         product,
-        available: avail.stock > 0,
+        available: true, // Only locations with the product are returned
+        storeId: loc.address?.id,
+        distance: loc.distance,
       }));
 
-      const isAvailable = matches.some((m) => m.available);
+      const isAvailable = matches.length > 0;
 
       return {
         ok: true,
@@ -555,7 +537,7 @@ export class CoopLiveAdapter implements ChainAdapter {
         },
       };
     } catch (error) {
-      const warning = warningFromError(error, AVAILABILITY_URL, `${COOP_PROVIDER} availability API fetch failed`, 'coop', COOP_PROVIDER);
+      const warning = warningFromError(error, STOCK_URL, `${COOP_PROVIDER} availability API fetch failed`, 'coop', COOP_PROVIDER);
 
       if (this.isDataDomeError(error)) {
         warning.code = SourceWarningCode.SourceUnavailable;

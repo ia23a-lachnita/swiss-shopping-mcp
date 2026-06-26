@@ -862,15 +862,16 @@ describe('8. get_store_availability_support', () => {
     expect(chains).toContain('coop');
   });
 
-  it('migros and coop report supported=false for availability (APIs broken)', async () => {
+  it('migros and coop report supported status for availability', async () => {
     const result = await callTool(client, 'get_store_availability_support', {});
     const data = structured<{
       support: Array<{ chain: string; supported: boolean }>;
     }>(result);
     const migros = data.support.find((s) => s.chain === 'migros');
     const coop = data.support.find((s) => s.chain === 'coop');
+    // Migros availability API is currently blocked by WAF
     expect(migros?.supported).toBe(false);
-    expect(coop?.supported).toBe(false);
+    expect(coop?.supported).toBe(true);
   });
 
   it('chain filter restricts results', async () => {
@@ -922,7 +923,7 @@ describe('9. lookup_store_product_availability', () => {
     expect(data.availability.chain).toBe('coop');
     expect(data.availability.storeId).toBe('coop-zurich-1');
     expect(data.availability.query).toBe('milk');
-    expect(data.availability.supported).toBe(false);
+    expect(data.availability.supported).toBe(true);
   });
 
   it('returns unsupported for aldi (no store availability source)', async () => {
@@ -1069,7 +1070,7 @@ describe('10. Cross-Tool Integration Scenarios', () => {
     expect(searchResult.isError).not.toBe(true);
   });
 
-  it('lookup_store_product_availability for chain with unavailable API returns non-error result', async () => {
+  it('lookup_store_product_availability for chain with working API returns non-error result', async () => {
     const result = await callTool(client, 'lookup_store_product_availability', {
       chain: 'coop',
       storeId: 'coop-basel-1',
@@ -1079,7 +1080,8 @@ describe('10. Cross-Tool Integration Scenarios', () => {
     const data = structured<{
       availability: { chain: string; supported: boolean; isAvailable: boolean; reason?: string };
     }>(result);
-    expect(data.availability.supported).toBe(false);
+    // Coop now has working availability endpoint
+    expect(data.availability.supported).toBe(true);
   });
 });
 

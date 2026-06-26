@@ -582,7 +582,7 @@ export class MigrosLiveAdapter implements ChainAdapter {
     return {
       chain: this.chain,
       supported: false,
-      reason: 'Migros store-availability API returns 403 (blocked/down). Endpoint may have changed.',
+      reason: 'Migros availability API is currently blocked by WAF (HTTP 403)',
     };
   }
 

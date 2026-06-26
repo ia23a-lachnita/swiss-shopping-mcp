@@ -220,8 +220,7 @@ describe('CoopLiveAdapter', () => {
       const support = adapter.getStoreAvailabilitySupport();
       expect(support).toEqual({
         chain: 'coop',
-        supported: false,
-        reason: 'Coop /products/{id}/stockLevels endpoint no longer exists (returns UnknownResourceError).',
+        supported: true,
       });
     });
   });
