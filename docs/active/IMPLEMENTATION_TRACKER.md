@@ -90,6 +90,7 @@ Phase: `V1 - core read/search foundation`
 | Product size field standardization   | done                   | Added `size` field to Migros parser (from `quantity` API field) and Coop parser (from `contentUnit`); both adapters now propagate `size` to `NormalizedProduct`; 474 tests pass |
 | Source registry accuracy update       | done                   | Lidl productSearch/promotions marked unsupported with reasons; Coop nutrition description updated to reflect REST API usage; availability entries verified accurate |
 | Browser MCP migration                | done                   | Replaced `browsermcp` references with `stealth-browser-mcp` in AGENTS.md; added vendor investigation instructions for Lidl, Migros, Coop |
+| Coop availability API fix            | done                   | Replaced broken `/products/{id}/stockLevels` with working `/locations/searchAroundCoordinates?availabilityProductId={id}` endpoint; all Coop stores return real stock data (avail=true); Migros availability blocked by WAF (403), marked supported=false with reason; 474 tests pass, build clean; committed as `aa72ab1` |
 
 ## Next tasks
 
