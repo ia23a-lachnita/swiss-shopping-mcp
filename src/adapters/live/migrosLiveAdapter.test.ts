@@ -220,12 +220,12 @@ describe('MigrosLiveAdapter', () => {
   });
 
   describe('getStoreAvailabilitySupport', () => {
-    it('returns unsupported (Migros WAF block)', () => {
+    it('returns unsupported (Migros site in maintenance)', () => {
       const support = adapter.getStoreAvailabilitySupport();
       expect(support).toEqual({
         chain: 'migros',
         supported: false,
-        reason: 'Migros availability API is currently blocked by WAF (HTTP 403)',
+        reason: 'Migros availability API temporarily unavailable (site maintenance as of 2026-06-26)',
       });
     });
   });

@@ -195,7 +195,7 @@ export const SOURCE_REGISTRY: Record<Chain, CapabilitySourceStatus[]> = {
       chain: 'migros',
       capability: 'availability',
       status: 'unsupported',
-      reason: 'Migros store-availability API returns 403 (blocked/down).',
+      reason: 'Migros site in maintenance (as of 2026-06-26); all APIs return 403.',
     },
     {
       chain: 'migros',
