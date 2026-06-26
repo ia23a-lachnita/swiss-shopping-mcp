@@ -869,8 +869,8 @@ describe('8. get_store_availability_support', () => {
     }>(result);
     const migros = data.support.find((s) => s.chain === 'migros');
     const coop = data.support.find((s) => s.chain === 'coop');
-    // Migros availability API is currently blocked by WAF
-    expect(migros?.supported).toBe(false);
+    // Both Coop and Migros now have working availability via TLS 1.3
+    expect(migros?.supported).toBe(true);
     expect(coop?.supported).toBe(true);
   });
 

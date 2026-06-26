@@ -647,8 +647,7 @@ export class MigrosLiveAdapter implements ChainAdapter {
   public getStoreAvailabilitySupport(): StoreAvailabilitySupport {
     return {
       chain: this.chain,
-      supported: false,
-      reason: 'Migros availability API temporarily unavailable (site maintenance as of 2026-06-26)',
+      supported: true,
     };
   }
 
@@ -714,24 +713,19 @@ export class MigrosLiveAdapter implements ChainAdapter {
         storeIds = storeResult.data.map((s) => s.id);
       }
 
-      // Step 3: Call availability API
+      // Step 3: Call availability API (GET with TLS 1.3)
       const token = await this.ensureAuth();
       const costCenterIds = storeIds.join(',');
       const availabilityUrl = `${AVAILABILITY_URL}/${productId}?costCenterIds=${costCenterIds}`;
 
-      const response = await fetch(availabilityUrl, {
+      const availabilityResponse = await migrosAxios.get(availabilityUrl, {
         headers: {
-          accept: 'application/json, text/plain, */*',
-          leshopch: token,
-          'user-agent': IOS_SAFARI_UA,
+          'Accept': 'application/json, text/plain, */*',
+          'leshopch': token,
+          'User-Agent': IOS_SAFARI_UA,
         },
       });
-
-      if (!response.ok) {
-        throw new Error(`Migros availability API returned ${response.status}`);
-      }
-
-      const availabilityData = (await response.json()) as {
+      const availabilityData = availabilityResponse.data as {
         availabilities: Array<{ id: string; stock: number }>;
         catalogItemId: number;
       };

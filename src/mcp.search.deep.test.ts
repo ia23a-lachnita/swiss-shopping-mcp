@@ -1197,10 +1197,10 @@ describe('12. Source Status with Multiple Chains', () => {
       support: Array<{ chain: string; supported: boolean }>;
     }>(result);
     expect(data.support.length).toBe(8);
-    // Coop has working availability; Migros is blocked by WAF
+    // Both Coop and Migros now have working availability via TLS 1.3
     const migrosSupport = data.support.find((s) => s.chain === 'migros');
     const coopSupport = data.support.find((s) => s.chain === 'coop');
-    expect(migrosSupport?.supported).toBe(false);
+    expect(migrosSupport?.supported).toBe(true);
     expect(coopSupport?.supported).toBe(true);
   });
 });

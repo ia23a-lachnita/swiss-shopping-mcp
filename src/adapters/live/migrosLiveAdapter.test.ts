@@ -244,21 +244,46 @@ describe('MigrosLiveAdapter', () => {
       const support = adapter.getStoreAvailabilitySupport();
       expect(support).toEqual({
         chain: 'migros',
-        supported: false,
-        reason: 'Migros availability API temporarily unavailable (site maintenance as of 2026-06-26)',
+        supported: true,
       });
     });
   });
 
   describe('lookupStoreProductAvailability', () => {
-    it('returns availability when product found (API fails -> unsupported)', async () => {
+    it('returns availability when product found', async () => {
+      // ensureAuth() in searchProducts -> GET (guest token) — cached after first call
+      mocks.mockGet.mockResolvedValueOnce({
+        headers: { leshopch: 'mock-token' },
+        data: { userid: 'guest-mock' },
+      });
+      // searchProducts -> POST (search)
+      mocks.mockPost.mockResolvedValueOnce({
+        data: mockSearchApiResponse,
+      });
+      // searchProducts -> POST (product details)
+      mocks.mockPost.mockResolvedValueOnce({
+        data: mockProductDetailsResponse,
+      });
+      // cache.set returns record with expiresAt
+      cache.set.mockResolvedValueOnce({ expiresAt: '2099-01-01T00:00:00.000Z' });
+      // availability API -> GET (ensureAuth returns cached token, no second GET)
+      mocks.mockGet.mockResolvedValueOnce({
+        data: {
+          availabilities: [
+            { id: '0150164', stock: 5 },
+            { id: '0150165', stock: 0 },
+          ],
+          catalogItemId: 123,
+        },
+      });
+
       const result = await adapter.lookupStoreProductAvailability({
         storeId: '0150164',
         query: 'Milch',
       });
       expect(result.ok).toBe(true);
       if (result.ok) {
-        expect(result.data.supported).toBe(false);
+        expect(result.data.supported).toBe(true);
         expect(result.data.chain).toBe('migros');
         expect(result.data.query).toBe('Milch');
         expect(Array.isArray(result.data.matches)).toBe(true);
