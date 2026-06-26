@@ -7,22 +7,17 @@ vi.mock('../../util/geo.js', () => ({
   resolveLocationAsync: vi.fn().mockResolvedValue({ latitude: 47.3769, longitude: 8.5417 }),
 }));
 
-vi.mock('migros-api-wrapper', () => {
-  const mockSearchProduct = vi.fn();
-  const mockGetProductDetails = vi.fn();
-  const mockSearchStores = vi.fn();
-  const mockLoginGuestToken = vi.fn();
+vi.mock('axios', () => {
+  const mockGet = vi.fn();
+  const mockPost = vi.fn();
   return {
-    MigrosAPI: vi.fn().mockImplementation(() => ({
-      leShopToken: 'mock-token',
-      account: { oauth2: { loginGuestToken: mockLoginGuestToken } },
-      products: {
-        productSearch: { searchProduct: mockSearchProduct },
-        productDisplay: { getProductDetails: mockGetProductDetails },
-      },
-      stores: { searchStores: mockSearchStores },
-    })),
-    __mocks: { mockSearchProduct, mockGetProductDetails, mockSearchStores, mockLoginGuestToken },
+    default: {
+      create: vi.fn().mockReturnValue({
+        get: mockGet,
+        post: mockPost,
+      }),
+    },
+    __mocks: { mockGet, mockPost },
   };
 });
 
@@ -114,12 +109,10 @@ describe('MigrosLiveAdapter', () => {
     cache = createMockCache();
     adapter = new MigrosLiveAdapter({ cache });
 
-    const migrosApiModule = await import('migros-api-wrapper');
-    mocks = (migrosApiModule as unknown as { __mocks: typeof import('migros-api-wrapper') }).__mocks;
-    mocks.mockSearchProduct.mockReset();
-    mocks.mockGetProductDetails.mockReset();
-    mocks.mockSearchStores.mockReset();
-    mocks.mockLoginGuestToken.mockReset();
+    const axiosModule = await import('axios');
+    mocks = (axiosModule as unknown as { __mocks: typeof import('axios') }).__mocks;
+    mocks.mockGet.mockReset();
+    mocks.mockPost.mockReset();
   });
 
   describe('searchProducts', () => {
@@ -133,9 +126,19 @@ describe('MigrosLiveAdapter', () => {
 
     it('returns products on valid API response', async () => {
       cache.get.mockResolvedValue(undefined);
-      mocks.mockLoginGuestToken.mockResolvedValue({});
-      mocks.mockSearchProduct.mockResolvedValue(mockSearchApiResponse);
-      mocks.mockGetProductDetails.mockResolvedValue(mockProductDetailsResponse);
+      // Mock guest token response
+      mocks.mockGet.mockResolvedValueOnce({
+        headers: { leshopch: 'mock-token' },
+        data: { userid: 'guest-mock' },
+      });
+      // Mock search response
+      mocks.mockPost.mockResolvedValueOnce({
+        data: mockSearchApiResponse,
+      });
+      // Mock product details response (POST endpoint)
+      mocks.mockPost.mockResolvedValueOnce({
+        data: mockProductDetailsResponse,
+      });
       cache.set.mockResolvedValue(mockCacheRecord);
 
       const result = await adapter.searchProducts({ query: 'Milch' });
@@ -149,14 +152,19 @@ describe('MigrosLiveAdapter', () => {
           price: { current: 1.85 },
         });
       }
-      expect(mocks.mockSearchProduct).toHaveBeenCalled();
-      expect(mocks.mockGetProductDetails).toHaveBeenCalled();
+      expect(mocks.mockGet).toHaveBeenCalled();
+      expect(mocks.mockPost).toHaveBeenCalledTimes(2);
     });
 
     it('returns error when wrapper call fails and no cache', async () => {
       cache.get.mockResolvedValue(undefined);
-      mocks.mockLoginGuestToken.mockResolvedValue({});
-      mocks.mockSearchProduct.mockRejectedValue(new Error('HTTP 503: Service Unavailable'));
+      // Mock guest token response
+      mocks.mockGet.mockResolvedValueOnce({
+        headers: { leshopch: 'mock-token' },
+        data: { userid: 'guest-mock' },
+      });
+      // Mock search failure
+      mocks.mockPost.mockRejectedValueOnce(new Error('HTTP 503: Service Unavailable'));
 
       const result = await adapter.searchProducts({ query: 'Milch' });
 
@@ -168,8 +176,13 @@ describe('MigrosLiveAdapter', () => {
 
     it('falls back to stale cache on fetch failure', async () => {
       cache.get.mockResolvedValue(mockStaleCacheHit);
-      mocks.mockLoginGuestToken.mockResolvedValue({});
-      mocks.mockSearchProduct.mockRejectedValue(new Error('HTTP 503: Service Unavailable'));
+      // Mock guest token response
+      mocks.mockGet.mockResolvedValueOnce({
+        headers: { leshopch: 'mock-token' },
+        data: { userid: 'guest-mock' },
+      });
+      // Mock search failure
+      mocks.mockPost.mockRejectedValueOnce(new Error('HTTP 503: Service Unavailable'));
 
       const result = await adapter.searchProducts({ query: 'Milch' });
 
@@ -192,9 +205,16 @@ describe('MigrosLiveAdapter', () => {
 
     it('returns stores on valid response', async () => {
       cache.get.mockResolvedValue(undefined);
-      mocks.mockLoginGuestToken.mockResolvedValue({});
+      // Mock guest token response
+      mocks.mockGet.mockResolvedValueOnce({
+        headers: { leshopch: 'mock-token' },
+        data: { userid: 'guest-mock' },
+      });
+      // Mock store search response
+      mocks.mockGet.mockResolvedValueOnce({
+        data: mockStoresApiResponse,
+      });
       cache.set.mockResolvedValue(mockCacheRecord);
-      mocks.mockSearchStores.mockResolvedValue(mockStoresApiResponse);
 
       const result = await adapter.findStores({ location: 'Zürich' });
 
