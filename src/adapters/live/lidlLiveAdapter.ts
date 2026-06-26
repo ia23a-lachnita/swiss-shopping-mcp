@@ -1,6 +1,5 @@
 import { FileTtlCache } from '../../cache/fileTtlCache.js';
-import { LidlParsedProduct, LidlParsedStore, parseLidlCampaignProducts, parseLidlStoresResponse } from '../../parsers/lidl.js';
-import { SourceHttpClient } from '../../sources/sourceClient.js';
+import { LidlParsedProduct, LidlParsedStore, parseLidlSearchPage, parseLidlStoresResponse } from '../../parsers/lidl.js';
 import { sortProducts } from '../../util/matcher.js';
 import {
   cacheableProvenance,
@@ -30,11 +29,9 @@ import {
 const LIDL_PROVIDER = 'Lidl Schweiz';
 const DEFAULT_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 const DEFAULT_SEARCH_LIMIT = 20;
-const CAMPAIGNS_URL = 'https://digital-leaflet.lidlplus.com/api/v1/CH/campaignGroups';
-const CAMPAIGN_DETAIL_URL = 'https://digital-leaflet.lidlplus.com/api/v1/CH/campaigns';
+const SEARCH_URL = 'https://www.lidl.ch/q/de-CH/search';
 const STORES_URL = 'https://stores.lidlplus.com/api/v4/CH';
-const LIDL_PLUS_UA = 'Lidl Plus/5.0.0 (Android; 14; SM-S928B)';
-const MAX_CAMPAIGNS_TO_FETCH = 5;
+const LIDL_PLUS_UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
 
 export interface LidlLiveAdapterOptions {
   cache: FileTtlCache;
@@ -78,14 +75,11 @@ function filterStoresByQuery(stores: LidlParsedStore[], query: string): LidlPars
 export class LidlLiveAdapter implements ChainAdapter {
   public readonly chain = 'lidl' as const;
   private readonly cache: FileTtlCache;
-  private readonly sourceClient: SourceHttpClient;
   private readonly cacheTtlMs: number;
-  private campaignProductsCache: { products: LidlParsedProduct[]; expires: number } | null = null;
 
   public constructor(options: LidlLiveAdapterOptions) {
     this.cache = options.cache;
     this.cacheTtlMs = options.cacheTtlMs ?? DEFAULT_CACHE_TTL_MS;
-    this.sourceClient = new SourceHttpClient({ rateLimitPerHostMs: 1_000, userAgent: LIDL_PLUS_UA });
   }
 
   private buildProvenance(sourceUrl: string): SourceProvenance {
@@ -100,65 +94,26 @@ export class LidlLiveAdapter implements ChainAdapter {
     };
   }
 
-  private async loadCampaignProducts(): Promise<LidlParsedProduct[]> {
-    if (this.campaignProductsCache && Date.now() < this.campaignProductsCache.expires) {
-      return this.campaignProductsCache.products;
+  private async fetchHtml(url: string): Promise<string> {
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': LIDL_PLUS_UA,
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'Accept-Language': 'de-CH,de;q=0.9,en;q=0.8',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
 
-    try {
-      // Step 1: Get campaign groups to extract campaign IDs
-      const groupsResult = await this.sourceClient.fetchJson<unknown>(CAMPAIGNS_URL, {
-        provider: LIDL_PROVIDER,
-        chain: 'lidl',
-        sourceType: 'retailer-web',
-        confidence: 'medium',
-      });
+    return response.text();
+  }
 
-      const groupsData = groupsResult.data as Record<string, unknown>;
-      const groups = Array.isArray(groupsData.groups) ? groupsData.groups : [];
-      const campaignIds: string[] = [];
-      for (const group of groups) {
-        const g = group as Record<string, unknown>;
-        const campaigns = Array.isArray(g.campaigns) ? g.campaigns : [];
-        for (const c of campaigns) {
-          const camp = c as Record<string, unknown>;
-          if (typeof camp.id === 'string') campaignIds.push(camp.id);
-        }
-      }
-
-      // Step 2: Fetch individual campaigns to get products
-      const allProducts: LidlParsedProduct[] = [];
-      const idsToFetch = campaignIds.slice(0, MAX_CAMPAIGNS_TO_FETCH);
-      const detailUrl = CAMPAIGN_DETAIL_URL;
-
-      const fetches = idsToFetch.map(async (id) => {
-        try {
-          const result = await this.sourceClient.fetchJson<unknown>(`${detailUrl}/${id}`, {
-            provider: LIDL_PROVIDER,
-            chain: 'lidl',
-            sourceType: 'retailer-web',
-            confidence: 'medium',
-          });
-          return parseLidlCampaignProducts(result.data, `${detailUrl}/${id}`);
-        } catch {
-          return [];
-        }
-      });
-
-      const results = await Promise.all(fetches);
-      for (const products of results) {
-        allProducts.push(...products);
-      }
-
-      this.campaignProductsCache = {
-        products: allProducts,
-        expires: Date.now() + this.cacheTtlMs,
-      };
-
-      return allProducts;
-    } catch {
-      return [];
-    }
+  private async searchProductsFromWebsite(query: string): Promise<LidlParsedProduct[]> {
+    const searchUrl = `${SEARCH_URL}?q=${encodeURIComponent(query)}`;
+    const html = await this.fetchHtml(searchUrl);
+    return parseLidlSearchPage(html, searchUrl);
   }
 
   public async searchProducts(filters: ProductSearchFilters): Promise<Result<NormalizedProduct[]>> {
@@ -168,16 +123,16 @@ export class LidlLiveAdapter implements ChainAdapter {
     }
 
     const limit = typeof filters.limit === 'number' ? filters.limit : DEFAULT_SEARCH_LIMIT;
-    const cacheKey = `lidl:products:${limit}`;
+    const cacheKey = `lidl:products:${query}:${limit}`;
 
     const cached = await this.cache.get<unknown>(cacheKey, { allowStale: true });
     if (cached && !cached.isStale) {
-      return this.parseProductResult(cached.data, cached.provenance, [], filters, query);
+      return this.parseProductResult(cached.data, cached.provenance, [], filters);
     }
 
     try {
-      const products = await this.loadCampaignProducts();
-      const provenance = this.buildProvenance(CAMPAIGNS_URL);
+      const products = await this.searchProductsFromWebsite(query);
+      const provenance = this.buildProvenance(SEARCH_URL);
       const record = await this.cache.set(
         cacheKey,
         products,
@@ -189,19 +144,17 @@ export class LidlLiveAdapter implements ChainAdapter {
         products,
         liveProvenanceWithCacheExpiry(provenance, record.expiresAt),
         [],
-        filters,
-        query
+        filters
       );
     } catch (error) {
-      const warning = warningFromError(error, CAMPAIGNS_URL, `${LIDL_PROVIDER} API fetch failed`, 'lidl', LIDL_PROVIDER);
+      const warning = warningFromError(error, SEARCH_URL, `${LIDL_PROVIDER} search failed`, 'lidl', LIDL_PROVIDER);
 
       if (cached) {
         return this.parseProductResult(
           cached.data,
           cached.provenance,
           [warning, staleCacheWarning(cached.provenance, 'lidl', LIDL_PROVIDER)],
-          filters,
-          query
+          filters
         );
       }
 
@@ -216,15 +169,14 @@ export class LidlLiveAdapter implements ChainAdapter {
     data: unknown,
     provenance: SourceProvenance,
     warnings: SourceWarning[],
-    filters: ProductSearchFilters,
-    query: string
+    filters: ProductSearchFilters
   ): Result<NormalizedProduct[]> {
     const matchMode = filters.matchMode ?? 'balanced';
-    const parsed = parseLidlCampaignProducts(data, provenance.sourceUrl ?? CAMPAIGNS_URL);
+    const parsed = Array.isArray(data) ? data as LidlParsedProduct[] : [];
     const products = parsed
       .map((p) => toNormalizedProduct(p, provenance))
-      .filter((product) => productMatches(product, query, filters))
-      .sort((a, b) => sortProducts(a, b, query, matchMode));
+      .filter((product) => productMatches(product, filters.query, filters))
+      .sort((a, b) => sortProducts(a, b, filters.query, matchMode));
 
     const limit = typeof filters.limit === 'number' ? filters.limit : DEFAULT_SEARCH_LIMIT;
     const limitedProducts = products.slice(0, limit);
@@ -237,7 +189,7 @@ export class LidlLiveAdapter implements ChainAdapter {
         warnings,
         'lidl',
         LIDL_PROVIDER,
-        'Lidl data is sourced from the Lidl Plus app API (weekly leaflet only).',
+        'Lidl data is sourced from the Lidl.ch website search.',
         'Lidl data is sourced from cached retailer observations.'
       ),
     };
@@ -272,22 +224,27 @@ export class LidlLiveAdapter implements ChainAdapter {
 
     try {
       // v4 API returns ALL Swiss stores — no query parameter needed
-      const result = await this.sourceClient.fetchJson<unknown>(STORES_URL, {
-        provider: LIDL_PROVIDER,
-        chain: 'lidl',
-        sourceType: 'retailer-web',
-        confidence: 'medium',
+      const response = await fetch(STORES_URL, {
+        headers: {
+          'User-Agent': LIDL_PLUS_UA,
+          'Accept': 'application/json',
+        },
       });
 
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const data = await response.json();
       const provenance = this.buildProvenance(STORES_URL);
       const record = await this.cache.set(
         cacheKey,
-        result.data,
+        data,
         cacheableProvenance(provenance),
         DEFAULT_CACHE_TTL_MS
       );
 
-      const allParsed = parseLidlStoresResponse(result.data, STORES_URL);
+      const allParsed = parseLidlStoresResponse(data, STORES_URL);
       const filtered = filterStoresByQuery(allParsed, location);
       const stores = filtered.map((s) =>
         toNormalizedStore(s, liveProvenanceWithCacheExpiry(provenance, record.expiresAt))

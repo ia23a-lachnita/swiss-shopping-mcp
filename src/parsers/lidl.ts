@@ -212,6 +212,68 @@ export function parseLidlLeafletProducts(
   return products;
 }
 
+export function parseLidlSearchPage(
+  html: string,
+  sourceUrl: string
+): LidlParsedProduct[] {
+  const products: LidlParsedProduct[] = [];
+  const $ = cheerio.load(html);
+
+  // Parse product cards from search results
+  // Each product has a data-gridbox-impression attribute with JSON data
+  $('[data-gridbox-impression]').each((_index, element) => {
+    const el = $(element);
+
+    // Extract JSON data from data-gridbox-impression attribute
+    const impressionRaw = el.attr('data-gridbox-impression');
+    if (!impressionRaw) return;
+
+    try {
+      const impressionData = JSON.parse(decodeURIComponent(impressionRaw));
+
+      const id = typeof impressionData.id === 'string' ? impressionData.id : '';
+      const name = typeof impressionData.name === 'string' ? impressionData.name : '';
+      const price = typeof impressionData.price === 'number' ? impressionData.price : 0;
+      const category = typeof impressionData.categoryPrimary === 'string'
+        ? impressionData.categoryPrimary
+        : typeof impressionData.category === 'string'
+          ? impressionData.category
+          : undefined;
+
+      if (!id || !name || price <= 0) return;
+
+      // Get brand from DOM
+      const brandEl = el.find('[class*="brand"], [class*="subtitle"]');
+      const brand = brandEl.length > 0 ? brandEl.first().text().trim() : undefined;
+
+      // Get image from img tag
+      const imgEl = el.find('img');
+      const image = imgEl.attr('src') || imgEl.attr('data-src') || undefined;
+
+      // Get product URL
+      const linkEl = el.find('a[href*="/p/"]');
+      const href = linkEl.length > 0 ? linkEl.attr('href') : undefined;
+      const productUrl = href
+        ? new URL(href, 'https://www.lidl.ch').toString()
+        : sourceUrl;
+
+      products.push({
+        id,
+        sourceUrl: productUrl,
+        name,
+        brand,
+        price: { current: price, currency: 'CHF' },
+        category,
+        image,
+      });
+    } catch {
+      // Skip invalid JSON
+    }
+  });
+
+  return products;
+}
+
 export function parseLidlStoresResponse(
   data: unknown,
   _sourceUrl: string

@@ -3,29 +3,6 @@ import { FileTtlCache } from '../../cache/fileTtlCache.js';
 import { LidlLiveAdapter } from './lidlLiveAdapter.js';
 import { SourceWarningCode } from '../types.js';
 
-vi.mock('../../sources/sourceClient.js', () => {
-  const mockFetchJson = vi.fn();
-  const mockFetchText = vi.fn();
-  return {
-    SourceHttpClient: vi.fn().mockImplementation(() => ({
-      fetchJson: mockFetchJson,
-      fetchText: mockFetchText,
-    })),
-    SourceClientError: class SourceClientError extends Error {
-      code: string;
-      sourceUrl: string;
-      status?: number;
-      constructor(code: string, message: string, sourceUrl: string, status?: number) {
-        super(message);
-        this.code = code;
-        this.sourceUrl = sourceUrl;
-        this.status = status;
-      }
-    },
-    __mocks: { mockFetchJson, mockFetchText },
-  };
-});
-
 function createMockCache() {
   return {
     get: vi.fn(),
@@ -33,22 +10,36 @@ function createMockCache() {
   } as unknown as FileTtlCache;
 }
 
-const mockCampaignResponse = {
-  groups: [
-    {
-      title: 'Aktuelle Angebote',
-      campaigns: [
-        {
-          id: 'camp-1',
-          title: 'Lidl Plus Angebote',
-          subtitle: 'Weekly deals',
-          image4x3Url: 'https://example.com/camp.jpg',
-          kind: 'PROMOTION',
-        },
-      ],
-    },
-  ],
-};
+const mockSearchHtml = `
+<html>
+<body>
+<div data-gridbox-impression="${encodeURIComponent(JSON.stringify({
+  id: '10054750',
+  name: 'Vollmilch',
+  price: 1.49,
+  category: 'Food',
+  categoryPrimary: 'Food',
+}))}" data-qa-label="product-grid-box-link-10054750">
+  <a href="/p/de-CH/vollmilch/p10054750">
+    <img src="https://example.com/image.jpg" />
+  </a>
+  <div class="brand">Test Brand</div>
+</div>
+<div data-gridbox-impression="${encodeURIComponent(JSON.stringify({
+  id: '10054753',
+  name: 'Vollmilch Bio',
+  price: 1.99,
+  category: 'Food',
+  categoryPrimary: 'Food',
+}))}" data-qa-label="product-grid-box-link-10054753">
+  <a href="/p/de-CH/vollmilch-bio/p10054753">
+    <img src="https://example.com/image2.jpg" />
+  </a>
+  <div class="brand">Qualité Suisse</div>
+</div>
+</body>
+</html>
+`;
 
 const mockStoresResponse = {
   stores: [
@@ -65,23 +56,24 @@ const mockStoresResponse = {
   ],
 };
 
-const mockProvenance = {
-  provider: 'Lidl Schweiz',
-  chain: 'lidl' as const,
-  sourceType: 'retailer-web' as const,
-  sourceUrl: 'https://digital-leaflet.lidlplus.com/api/v1/CH/campaignGroups',
-  observedAt: '2026-06-16T10:00:00.000Z',
-  freshness: 'live' as const,
-  confidence: 'medium' as const,
-};
-
 const mockCacheRecord = {
   expiresAt: '2026-06-17T10:00:00.000Z',
 };
 
 const mockStaleCacheHit = {
-  data: mockCampaignResponse,
-  provenance: { ...mockProvenance, freshness: 'stale' as const, cacheExpiresAt: '2026-06-15T10:00:00.000Z' },
+  data: [
+    { id: '10054750', name: 'Vollmilch', price: { current: 1.49, currency: 'CHF' }, sourceUrl: 'https://www.lidl.ch/p/de-CH/vollmilch/p10054750' },
+  ],
+  provenance: {
+    provider: 'Lidl Schweiz',
+    chain: 'lidl' as const,
+    sourceType: 'retailer-web' as const,
+    sourceUrl: 'https://www.lidl.ch/q/de-CH/search',
+    observedAt: '2026-06-15T10:00:00.000Z',
+    freshness: 'stale' as const,
+    confidence: 'medium' as const,
+    cacheExpiresAt: '2026-06-15T10:00:00.000Z',
+  },
   observedAt: '2026-06-15T10:00:00.000Z',
   expiresAt: '2026-06-15T10:00:00.000Z',
   isStale: true,
@@ -90,17 +82,16 @@ const mockStaleCacheHit = {
 describe('LidlLiveAdapter', () => {
   let cache: ReturnType<typeof createMockCache>;
   let adapter: LidlLiveAdapter;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let mocks: any;
+  const originalFetch = globalThis.fetch;
 
-  beforeEach(async () => {
+  beforeEach(() => {
     cache = createMockCache();
     adapter = new LidlLiveAdapter({ cache });
+    globalThis.fetch = vi.fn();
+  });
 
-    const sourceClientModule = await import('../../sources/sourceClient.js');
-    mocks = (sourceClientModule as unknown as { __mocks: { mockFetchJson: ReturnType<typeof vi.fn>; mockFetchText: ReturnType<typeof vi.fn> } }).__mocks;
-    mocks.mockFetchJson.mockReset();
-    mocks.mockFetchText.mockReset();
+  afterEach(() => {
+    globalThis.fetch = originalFetch;
   });
 
   describe('searchProducts', () => {
@@ -112,27 +103,31 @@ describe('LidlLiveAdapter', () => {
       }
     });
 
-    it('returns products on valid API response', async () => {
+    it('returns products on valid HTML response', async () => {
       cache.get.mockResolvedValue(undefined);
-      mocks.mockFetchJson.mockResolvedValue({
-        data: mockCampaignResponse,
-        provenance: mockProvenance,
-      });
+      vi.mocked(globalThis.fetch).mockResolvedValue({
+        ok: true,
+        text: () => Promise.resolve(mockSearchHtml),
+      } as Response);
       cache.set.mockResolvedValue(mockCacheRecord);
 
       const result = await adapter.searchProducts({ query: 'Milch' });
 
       expect(result.ok).toBe(true);
       if (result.ok) {
-        // Lidl campaigns API now returns only campaign metadata without product items
-        expect(result.data.length).toBe(0);
+        expect(result.data.length).toBe(2);
+        expect(result.data[0].name).toBe('Vollmilch');
+        expect(result.data[0].price.current).toBe(1.49);
       }
-      expect(mocks.mockFetchJson).toHaveBeenCalled();
+      expect(globalThis.fetch).toHaveBeenCalledWith(
+        expect.stringContaining('lidl.ch/q/de-CH/search'),
+        expect.any(Object)
+      );
     });
 
     it('returns error when fetch fails and no cache', async () => {
       cache.get.mockResolvedValue(undefined);
-      mocks.mockFetchJson.mockRejectedValue(new Error('HTTP 503: Service Unavailable'));
+      vi.mocked(globalThis.fetch).mockRejectedValue(new Error('HTTP 503: Service Unavailable'));
 
       const result = await adapter.searchProducts({ query: 'Milch' });
 
@@ -144,14 +139,14 @@ describe('LidlLiveAdapter', () => {
 
     it('falls back to stale cache on fetch failure', async () => {
       cache.get.mockResolvedValue(mockStaleCacheHit);
-      mocks.mockFetchJson.mockRejectedValue(new Error('HTTP 503: Service Unavailable'));
+      vi.mocked(globalThis.fetch).mockRejectedValue(new Error('HTTP 503: Service Unavailable'));
 
       const result = await adapter.searchProducts({ query: 'Milch' });
 
       expect(result.ok).toBe(true);
       if (result.ok) {
-        // Lidl campaigns API now returns only campaign metadata without product items
-        expect(result.data.length).toBe(0);
+        expect(result.data.length).toBe(1);
+        expect(result.data[0].name).toBe('Vollmilch');
       }
     });
   });
@@ -167,10 +162,10 @@ describe('LidlLiveAdapter', () => {
 
     it('returns stores on valid response', async () => {
       cache.get.mockResolvedValue(undefined);
-      mocks.mockFetchJson.mockResolvedValue({
-        data: mockStoresResponse,
-        provenance: { ...mockProvenance, sourceUrl: 'https://stores.lidlplus.com/api/v2/CH' },
-      });
+      vi.mocked(globalThis.fetch).mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve(mockStoresResponse),
+      } as Response);
       cache.set.mockResolvedValue(mockCacheRecord);
 
       const result = await adapter.findStores({ location: 'Zürich' });

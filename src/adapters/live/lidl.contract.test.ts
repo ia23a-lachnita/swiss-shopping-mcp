@@ -22,16 +22,18 @@ describe.skipIf(process.env.RUN_CONTRACT_TESTS !== '1')('Lidl contract', () => {
     );
   });
 
-  it('search endpoint returns valid response (may be empty — Lidl API only exposes campaign metadata, not individual products)', async () => {
+  it('search endpoint returns products from Lidl website', async () => {
     const adapter = new LidlLiveAdapter({ cache: await createCache() });
     const result = await adapter.searchProducts({ query: 'milch', limit: 2 });
 
     expect(result.ok).toBe(true);
     if (!result.ok) return;
     expect(Array.isArray(result.data)).toBe(true);
-    // Lidl campaigns API returns campaign metadata only, not product items
-    // This is a known limitation documented in sourceRegistry.ts
-  }, 10_000);
+    expect(result.data.length).toBeGreaterThan(0);
+    expect(result.data[0]).toHaveProperty('chain', 'lidl');
+    expect(result.data[0]).toHaveProperty('name');
+    expect(result.data[0]).toHaveProperty('price');
+  }, 15_000);
 
   it('store endpoint returns valid JSON with stores', async () => {
     const adapter = new LidlLiveAdapter({ cache: await createCache() });

@@ -141,8 +141,9 @@ export const SOURCE_REGISTRY: Record<Chain, CapabilitySourceStatus[]> = {
     {
       chain: 'lidl',
       capability: 'productSearch',
-      status: 'unsupported',
-      reason: 'Lidl.ch has no product catalog or search. The Lidl Plus app API (digital-leaflet.lidlplus.com) returns only campaign group metadata without product items.',
+      status: 'live-beta',
+      provider: 'Lidl Schweiz',
+      sourceType: 'retailer-web',
     },
     {
       chain: 'lidl',
