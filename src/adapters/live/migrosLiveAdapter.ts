@@ -131,6 +131,22 @@ export class MigrosLiveAdapter implements ChainAdapter {
     this.language = options.language ?? 'en';
   }
 
+  private isMaintenanceError(error: unknown): boolean {
+    // Check if error message is the maintenance error we threw in ensureAuth
+    if (error instanceof Error && error.message === 'Migros.ch is currently down for maintenance') {
+      return true;
+    }
+    // Check response body for maintenance page
+    if (!error || typeof error !== 'object') return false;
+    const err = error as Record<string, unknown>;
+    const response = err.response as Record<string, unknown> | undefined;
+    if (!response) return false;
+    if (response.status !== 403 && response.status !== 503) return false;
+    const data = response.data;
+    if (typeof data === 'string' && data.includes('<title>maintenance</title>')) return true;
+    return false;
+  }
+
   private async ensureAuth(): Promise<string> {
     if (this.guestToken && !this.authFailed) {
       return this.guestToken;
@@ -155,6 +171,9 @@ export class MigrosLiveAdapter implements ChainAdapter {
       return token;
     } catch (error) {
       this.authFailed = true;
+      if (this.isMaintenanceError(error)) {
+        throw new Error('Migros.ch is currently down for maintenance');
+      }
       throw error;
     }
   }
@@ -212,6 +231,13 @@ export class MigrosLiveAdapter implements ChainAdapter {
         query
       );
     } catch (error) {
+      if (this.isMaintenanceError(error)) {
+        return {
+          ok: false,
+          error: { code: 'SOURCE_UNAVAILABLE', message: `${MIGROS_PROVIDER} is currently down for maintenance` },
+        };
+      }
+
       const warning = warningFromError(error, SEARCH_URL, `${MIGROS_PROVIDER} API fetch failed`, 'migros', MIGROS_PROVIDER);
 
       if (this.isAuthError(error) && !this.authFailed) {
@@ -490,6 +516,13 @@ export class MigrosLiveAdapter implements ChainAdapter {
         limit
       );
     } catch (error) {
+      if (this.isMaintenanceError(error)) {
+        return {
+          ok: false,
+          error: { code: 'SOURCE_UNAVAILABLE', message: `${MIGROS_PROVIDER} is currently down for maintenance` },
+        };
+      }
+
       const warning = warningFromError(error, STORES_URL, `${MIGROS_PROVIDER} store API fetch failed`, 'migros', MIGROS_PROVIDER);
 
       if (this.isAuthError(error) && !this.authFailed) {

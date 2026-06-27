@@ -143,9 +143,8 @@ export const SOURCE_REGISTRY: Record<Chain, CapabilitySourceStatus[]> = {
     {
       chain: 'lidl',
       capability: 'productSearch',
-      status: 'live-beta',
-      provider: 'Lidl Schweiz',
-      sourceType: 'retailer-web',
+      status: 'degraded',
+      reason: 'Lidl.ch uses client-side rendering for search results; server-side scraping returns no product data.',
     },
     {
       chain: 'lidl',
