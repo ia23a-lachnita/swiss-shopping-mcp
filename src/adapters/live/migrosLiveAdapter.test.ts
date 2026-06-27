@@ -7,29 +7,24 @@ vi.mock('../../util/geo.js', () => ({
   resolveLocationAsync: vi.fn().mockResolvedValue({ latitude: 47.3769, longitude: 8.5417 }),
 }));
 
-vi.mock('axios', () => {
-  const mockGet = vi.fn();
-  const mockPost = vi.fn();
-  return {
-    default: {
-      create: vi.fn().mockReturnValue({
-        get: mockGet,
-        post: mockPost,
-      }),
-    },
-    __mocks: { mockGet, mockPost },
-  };
-});
+vi.mock('./migrosBrowser.js', () => ({
+  getGuestToken: vi.fn(),
+  searchProducts: vi.fn(),
+  fetchProductCards: vi.fn(),
+  searchStores: vi.fn(),
+  checkAvailability: vi.fn(),
+}));
 
 function createMockCache() {
   return {
     get: vi.fn(),
     set: vi.fn(),
-  } as unknown as FileTtlCache;
+  } as unknown as FileTtlCache & { get: ReturnType<typeof vi.fn>; set: ReturnType<typeof vi.fn> };
 }
 
 const mockSearchApiResponse = {
-  productIds: [123, 456],
+  items: [{ id: 123 }, { id: 456 }],
+  numberOfProducts: 2,
 };
 
 const mockProductDetailsResponse = {
@@ -72,16 +67,6 @@ const mockStoresApiResponse = [
   },
 ];
 
-const mockProvenance = {
-  provider: 'Migros',
-  chain: 'migros' as const,
-  sourceType: 'retailer-web' as const,
-  sourceUrl: 'https://www.migros.ch/onesearch-oc-seaapi/public/v5/search',
-  observedAt: '2026-06-16T10:00:00.000Z',
-  freshness: 'live' as const,
-  confidence: 'medium' as const,
-};
-
 const mockCacheRecord = {
   expiresAt: '2026-06-16T16:00:00.000Z',
 };
@@ -93,7 +78,7 @@ const mockStaleCacheHit = {
       { id: 456, name: 'Butter', brand_name: 'Migros', price: { amount: 2.50, currency: 'CHF' }, category_name: 'Milchprodukte', image_url: '' },
     ],
   },
-  provenance: { ...mockProvenance, freshness: 'stale' as const, cacheExpiresAt: '2026-06-16T04:00:00.000Z' },
+  provenance: { provider: 'Migros', chain: 'migros' as const, sourceType: 'retailer-web' as const, sourceUrl: 'test', observedAt: '2026-06-16T10:00:00.000Z', freshness: 'stale' as const, confidence: 'medium' as const, cacheExpiresAt: '2026-06-16T04:00:00.000Z' },
   observedAt: '2026-06-16T00:00:00.000Z',
   expiresAt: '2026-06-16T04:00:00.000Z',
   isStale: true,
@@ -103,16 +88,19 @@ describe('MigrosLiveAdapter', () => {
   let cache: ReturnType<typeof createMockCache>;
   let adapter: MigrosLiveAdapter;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let mocks: any;
+  let browserMocks: any;
 
   beforeEach(async () => {
     cache = createMockCache();
     adapter = new MigrosLiveAdapter({ cache });
 
-    const axiosModule = await import('axios');
-    mocks = (axiosModule as unknown as { __mocks: typeof import('axios') }).__mocks;
-    mocks.mockGet.mockReset();
-    mocks.mockPost.mockReset();
+    const browserModule = await import('./migrosBrowser.js');
+    browserMocks = browserModule;
+    browserMocks.getGuestToken.mockReset();
+    browserMocks.searchProducts.mockReset();
+    browserMocks.fetchProductCards.mockReset();
+    browserMocks.searchStores.mockReset();
+    browserMocks.checkAvailability.mockReset();
   });
 
   describe('searchProducts', () => {
@@ -126,19 +114,9 @@ describe('MigrosLiveAdapter', () => {
 
     it('returns products on valid API response', async () => {
       cache.get.mockResolvedValue(undefined);
-      // Mock guest token response
-      mocks.mockGet.mockResolvedValueOnce({
-        headers: { leshopch: 'mock-token' },
-        data: { userid: 'guest-mock' },
-      });
-      // Mock search response
-      mocks.mockPost.mockResolvedValueOnce({
-        data: mockSearchApiResponse,
-      });
-      // Mock product details response (POST endpoint)
-      mocks.mockPost.mockResolvedValueOnce({
-        data: mockProductDetailsResponse,
-      });
+      browserMocks.getGuestToken.mockResolvedValue('mock-token');
+      browserMocks.searchProducts.mockResolvedValue(mockSearchApiResponse);
+      browserMocks.fetchProductCards.mockResolvedValue(mockProductDetailsResponse);
       cache.set.mockResolvedValue(mockCacheRecord);
 
       const result = await adapter.searchProducts({ query: 'Milch' });
@@ -152,19 +130,15 @@ describe('MigrosLiveAdapter', () => {
           price: { current: 1.85 },
         });
       }
-      expect(mocks.mockGet).toHaveBeenCalled();
-      expect(mocks.mockPost).toHaveBeenCalledTimes(2);
+      expect(browserMocks.getGuestToken).toHaveBeenCalled();
+      expect(browserMocks.searchProducts).toHaveBeenCalledTimes(1);
+      expect(browserMocks.fetchProductCards).toHaveBeenCalledTimes(1);
     });
 
-    it('returns error when wrapper call fails and no cache', async () => {
+    it('returns error when search fails and no cache', async () => {
       cache.get.mockResolvedValue(undefined);
-      // Mock guest token response
-      mocks.mockGet.mockResolvedValueOnce({
-        headers: { leshopch: 'mock-token' },
-        data: { userid: 'guest-mock' },
-      });
-      // Mock search failure
-      mocks.mockPost.mockRejectedValueOnce(new Error('HTTP 503: Service Unavailable'));
+      browserMocks.getGuestToken.mockResolvedValue('mock-token');
+      browserMocks.searchProducts.mockRejectedValue(new Error('HTTP 503: Service Unavailable'));
 
       const result = await adapter.searchProducts({ query: 'Milch' });
 
@@ -176,13 +150,8 @@ describe('MigrosLiveAdapter', () => {
 
     it('falls back to stale cache on fetch failure', async () => {
       cache.get.mockResolvedValue(mockStaleCacheHit);
-      // Mock guest token response
-      mocks.mockGet.mockResolvedValueOnce({
-        headers: { leshopch: 'mock-token' },
-        data: { userid: 'guest-mock' },
-      });
-      // Mock search failure
-      mocks.mockPost.mockRejectedValueOnce(new Error('HTTP 503: Service Unavailable'));
+      browserMocks.getGuestToken.mockResolvedValue('mock-token');
+      browserMocks.searchProducts.mockRejectedValue(new Error('HTTP 503: Service Unavailable'));
 
       const result = await adapter.searchProducts({ query: 'Milch' });
 
@@ -205,15 +174,8 @@ describe('MigrosLiveAdapter', () => {
 
     it('returns stores on valid response', async () => {
       cache.get.mockResolvedValue(undefined);
-      // Mock guest token response
-      mocks.mockGet.mockResolvedValueOnce({
-        headers: { leshopch: 'mock-token' },
-        data: { userid: 'guest-mock' },
-      });
-      // Mock store search response
-      mocks.mockGet.mockResolvedValueOnce({
-        data: mockStoresApiResponse,
-      });
+      browserMocks.getGuestToken.mockResolvedValue('mock-token');
+      browserMocks.searchStores.mockResolvedValue(mockStoresApiResponse);
       cache.set.mockResolvedValue(mockCacheRecord);
 
       const result = await adapter.findStores({ location: 'Zürich' });
@@ -240,7 +202,7 @@ describe('MigrosLiveAdapter', () => {
   });
 
   describe('getStoreAvailabilitySupport', () => {
-    it('returns unsupported (Migros site in maintenance)', () => {
+    it('returns supported', () => {
       const support = adapter.getStoreAvailabilitySupport();
       expect(support).toEqual({
         chain: 'migros',
@@ -251,30 +213,20 @@ describe('MigrosLiveAdapter', () => {
 
   describe('lookupStoreProductAvailability', () => {
     it('returns availability when product found', async () => {
-      // ensureAuth() in searchProducts -> GET (guest token) — cached after first call
-      mocks.mockGet.mockResolvedValueOnce({
-        headers: { leshopch: 'mock-token' },
-        data: { userid: 'guest-mock' },
-      });
-      // searchProducts -> POST (search)
-      mocks.mockPost.mockResolvedValueOnce({
-        data: mockSearchApiResponse,
-      });
-      // searchProducts -> POST (product details)
-      mocks.mockPost.mockResolvedValueOnce({
-        data: mockProductDetailsResponse,
-      });
-      // cache.set returns record with expiresAt
+      // searchProducts -> getGuestToken
+      browserMocks.getGuestToken.mockResolvedValue('mock-token');
+      // searchProducts -> searchProducts (browser)
+      browserMocks.searchProducts.mockResolvedValue(mockSearchApiResponse);
+      // searchProducts -> fetchProductCards
+      browserMocks.fetchProductCards.mockResolvedValue(mockProductDetailsResponse);
       cache.set.mockResolvedValueOnce({ expiresAt: '2099-01-01T00:00:00.000Z' });
-      // availability API -> GET (ensureAuth returns cached token, no second GET)
-      mocks.mockGet.mockResolvedValueOnce({
-        data: {
-          availabilities: [
-            { id: '0150164', stock: 5 },
-            { id: '0150165', stock: 0 },
-          ],
-          catalogItemId: 123,
-        },
+      // availability -> checkAvailability
+      browserMocks.checkAvailability.mockResolvedValue({
+        availabilities: [
+          { id: '0150164', stock: 5 },
+          { id: '0150165', stock: 0 },
+        ],
+        catalogItemId: 123,
       });
 
       const result = await adapter.lookupStoreProductAvailability({

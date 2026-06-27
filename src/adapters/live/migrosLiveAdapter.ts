@@ -1,5 +1,3 @@
-import https from 'https';
-import axios from 'axios';
 import { FileTtlCache } from '../../cache/fileTtlCache.js';
 import {
   MigrosApiProduct,
@@ -10,7 +8,6 @@ import {
   parseMigrosStoresResponse,
 } from '../../parsers/migros.js';
 import { sortProducts } from '../../util/matcher.js';
-// geo.ts not currently needed for this adapter
 import {
   cacheableProvenance,
   liveProvenanceWithCacheExpiry,
@@ -19,6 +16,13 @@ import {
   staleCacheWarning,
   warningFromError,
 } from './baseLiveAdapter.js';
+import {
+  getGuestToken,
+  searchProducts as browserSearchProducts,
+  fetchProductCards,
+  searchStores as browserSearchStores,
+  checkAvailability as browserCheckAvailability,
+} from './migrosBrowser.js';
 import {
   ChainAdapter,
   NormalizedProduct,
@@ -39,17 +43,9 @@ import {
 const MIGROS_PROVIDER = 'Migros';
 const DEFAULT_CACHE_TTL_MS = 6 * 60 * 60 * 1000;
 const DEFAULT_SEARCH_LIMIT = 20;
-const SEARCH_URL = 'https://www.migros.ch/onesearch-oc-seaapi/public/v5/search';
+const SEARCH_URL = 'https://www.migros.ch/product-display/public/v2/products/search';
 const STORES_URL = 'https://www.migros.ch/store/public/v1/stores/search';
 const AVAILABILITY_URL = 'https://www.migros.ch/store-availability/public/v2/availabilities/products';
-const IOS_SAFARI_UA = 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1';
-
-// Axios client with TLS 1.3 for Cloudflare bypass
-const tls13Agent = new https.Agent({ minVersion: 'TLSv1.3' });
-const migrosAxios = axios.create({
-  httpsAgent: tls13Agent,
-  timeout: 30000,
-});
 
 export interface MigrosLiveAdapterOptions {
   cache: FileTtlCache;
@@ -119,7 +115,6 @@ export class MigrosLiveAdapter implements ChainAdapter {
   public readonly chain = 'migros' as const;
   private readonly cache: FileTtlCache;
   private readonly cacheTtlMs: number;
-  private readonly regionId: string;
   private readonly language: string;
   private guestToken: string | null = null;
   private authFailed = false;
@@ -127,24 +122,7 @@ export class MigrosLiveAdapter implements ChainAdapter {
   public constructor(options: MigrosLiveAdapterOptions) {
     this.cache = options.cache;
     this.cacheTtlMs = options.cacheTtlMs ?? DEFAULT_CACHE_TTL_MS;
-    this.regionId = options.regionId ?? process.env.SWISSGROCERIES_MIGROS_REGION_ID ?? 'national';
     this.language = options.language ?? 'en';
-  }
-
-  private isMaintenanceError(error: unknown): boolean {
-    // Check if error message is the maintenance error we threw in ensureAuth
-    if (error instanceof Error && error.message === 'Migros.ch is currently down for maintenance') {
-      return true;
-    }
-    // Check response body for maintenance page
-    if (!error || typeof error !== 'object') return false;
-    const err = error as Record<string, unknown>;
-    const response = err.response as Record<string, unknown> | undefined;
-    if (!response) return false;
-    if (response.status !== 403 && response.status !== 503) return false;
-    const data = response.data;
-    if (typeof data === 'string' && data.includes('<title>maintenance</title>')) return true;
-    return false;
   }
 
   private async ensureAuth(): Promise<string> {
@@ -152,28 +130,13 @@ export class MigrosLiveAdapter implements ChainAdapter {
       return this.guestToken;
     }
     try {
-      // Fetch guest token using TLS 1.3 to bypass Cloudflare
-      const response = await migrosAxios.get(
-        'https://www.migros.ch/authentication/public/v1/api/guest',
-        {
-          headers: {
-            'Accept': 'application/json',
-            'User-Agent': IOS_SAFARI_UA,
-          },
-        }
-      );
-      const token = response.headers['leshopch'];
-      if (!token || typeof token !== 'string') {
-        throw new Error('No guest token in response');
-      }
+      // Fetch guest token via Playwright browser (bypasses Cloudflare)
+      const token = await getGuestToken();
       this.guestToken = token;
       this.authFailed = false;
       return token;
     } catch (error) {
       this.authFailed = true;
-      if (this.isMaintenanceError(error)) {
-        throw new Error('Migros.ch is currently down for maintenance');
-      }
       throw error;
     }
   }
@@ -231,13 +194,6 @@ export class MigrosLiveAdapter implements ChainAdapter {
         query
       );
     } catch (error) {
-      if (this.isMaintenanceError(error)) {
-        return {
-          ok: false,
-          error: { code: 'SOURCE_UNAVAILABLE', message: `${MIGROS_PROVIDER} is currently down for maintenance` },
-        };
-      }
-
       const warning = warningFromError(error, SEARCH_URL, `${MIGROS_PROVIDER} API fetch failed`, 'migros', MIGROS_PROVIDER);
 
       if (this.isAuthError(error) && !this.authFailed) {
@@ -272,62 +228,31 @@ export class MigrosLiveAdapter implements ChainAdapter {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private async searchAndFetchDetails(query: string, limit: number): Promise<MigrosApiProduct[]> {
     const token = await this.ensureAuth();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const body: any = {
-      query,
-      regionId: this.regionId,
+
+    // Search via Playwright browser (bypasses Cloudflare)
+    const searchResult = await browserSearchProducts(query, {
       language: this.language,
-      productIds: [],
-      sortFields: [],
-      sortOrder: 'asc',
-      algorithm: 'DEFAULT',
-    };
-
-    // Search using axios with TLS 1.3
-    const searchResponse = await migrosAxios.post(SEARCH_URL, body, {
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        'leshopch': token,
-        'User-Agent': IOS_SAFARI_UA,
-      },
+      storeType: 'OFFLINE',
+      region: 'national',
+      limit,
+      token,
     });
-    const searchResult = searchResponse.data;
 
-    // Search returns productIds, not full product data — fetch details
+    // Search returns items with IDs, not full product data — fetch details
     const searchRecord = searchResult as Record<string, unknown>;
     const productIds: number[] =
-      (Array.isArray(searchRecord.productIds) ? searchRecord.productIds :
+      (Array.isArray(searchRecord.items)
+        ? searchRecord.items.map((i: unknown) => (i as Record<string, unknown>).id as number).filter((id): id is number => typeof id === 'number')
+        : Array.isArray(searchRecord.productIds) ? searchRecord.productIds :
        Array.isArray(searchRecord.hits) ? searchRecord.hits.map((h: unknown) => (h as Record<string, unknown>).uid ?? (h as Record<string, unknown>).id) :
        Array.isArray(searchRecord.data) ? searchRecord.data.map((d: unknown) => (d as Record<string, unknown>).uid ?? (d as Record<string, unknown>).id) :
        Array.isArray(searchRecord.results) ? searchRecord.results.map((r: unknown) => (r as Record<string, unknown>).uid ?? (r as Record<string, unknown>).id ?? (r as Record<string, unknown>).productId) :
-       Array.isArray(searchRecord.items) ? searchRecord.items.map((i: unknown) => (i as Record<string, unknown>).uid ?? (i as Record<string, unknown>).id ?? (i as Record<string, unknown>).productId) :
        extractIdsFromNested(searchRecord)) as number[];
     if (productIds.length === 0) return [];
 
-    const uids = productIds.slice(0, limit).map(String);
-    // Fetch product details using axios with TLS 1.3 (POST endpoint)
-    const detailsBody = {
-      productFilter: { uids: uids.map(Number) },
-      offerFilter: {
-        storeType: 'OFFLINE',
-        region: 'NATIONAL',
-        ongoingOfferDate: new Date().toISOString().split('T')[0] + 'T00:00:00',
-      },
-    };
-    const detailsResponse = await migrosAxios.post(
-      'https://www.migros.ch/product-display/public/v4/product-cards',
-      detailsBody,
-      {
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          'leshopch': token,
-          'User-Agent': IOS_SAFARI_UA,
-        },
-      }
-    );
-    const detailsResult = detailsResponse.data;
+    const uids = productIds.slice(0, limit).map(Number);
+    // Fetch product details via Playwright browser
+    const detailsResult = await fetchProductCards(uids, token);
 
     // Details returned as { "0": product, "1": product, ... }
     const detailsRecord = detailsResult as Record<string, unknown>;
@@ -486,18 +411,8 @@ export class MigrosLiveAdapter implements ChainAdapter {
 
     try {
       const token = await this.ensureAuth();
-      // Search stores using axios with TLS 1.3
-      const storeResponse = await migrosAxios.get(
-        `https://www.migros.ch/store/public/v1/stores/search?query=${encodeURIComponent(location)}`,
-        {
-          headers: {
-            'Accept': 'application/json',
-            'leshopch': token,
-            'User-Agent': IOS_SAFARI_UA,
-          },
-        }
-      );
-      const storeResult = storeResponse.data;
+      // Search stores via Playwright browser (bypasses Cloudflare)
+      const storeResult = await browserSearchStores(location, token);
 
       const stores = this.extractStoresFromResult(storeResult);
       const provenance = this.buildProvenance(STORES_URL);
@@ -516,31 +431,13 @@ export class MigrosLiveAdapter implements ChainAdapter {
         limit
       );
     } catch (error) {
-      if (this.isMaintenanceError(error)) {
-        return {
-          ok: false,
-          error: { code: 'SOURCE_UNAVAILABLE', message: `${MIGROS_PROVIDER} is currently down for maintenance` },
-        };
-      }
-
       const warning = warningFromError(error, STORES_URL, `${MIGROS_PROVIDER} store API fetch failed`, 'migros', MIGROS_PROVIDER);
 
       if (this.isAuthError(error) && !this.authFailed) {
         this.invalidateAuth();
         try {
           const token = await this.ensureAuth();
-          // Retry store search using axios with TLS 1.3
-          const storeRetryResponse = await migrosAxios.get(
-            `https://www.migros.ch/store/public/v1/stores/search?query=${encodeURIComponent(location)}`,
-            {
-              headers: {
-                'Accept': 'application/json',
-                'leshopch': token,
-                'User-Agent': IOS_SAFARI_UA,
-              },
-            }
-          );
-          const storeResultRetry = storeRetryResponse.data;
+          const storeResultRetry = await browserSearchStores(location, token);
           const stores = this.extractStoresFromResult(storeResultRetry);
           const provenance = this.buildProvenance(STORES_URL);
           const record = await this.cache.set(cacheKey, { stores }, cacheableProvenance(provenance), this.cacheTtlMs);
@@ -746,19 +643,9 @@ export class MigrosLiveAdapter implements ChainAdapter {
         storeIds = storeResult.data.map((s) => s.id);
       }
 
-      // Step 3: Call availability API (GET with TLS 1.3)
+      // Step 3: Call availability API via Playwright browser (bypasses Cloudflare)
       const token = await this.ensureAuth();
-      const costCenterIds = storeIds.join(',');
-      const availabilityUrl = `${AVAILABILITY_URL}/${productId}?costCenterIds=${costCenterIds}`;
-
-      const availabilityResponse = await migrosAxios.get(availabilityUrl, {
-        headers: {
-          'Accept': 'application/json, text/plain, */*',
-          'leshopch': token,
-          'User-Agent': IOS_SAFARI_UA,
-        },
-      });
-      const availabilityData = availabilityResponse.data as {
+      const availabilityData = await browserCheckAvailability(productId, storeIds, token) as {
         availabilities: Array<{ id: string; stock: number }>;
         catalogItemId: number;
       };

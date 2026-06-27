@@ -179,6 +179,7 @@ export const SOURCE_REGISTRY: Record<Chain, CapabilitySourceStatus[]> = {
       status: 'live-beta',
       provider: 'Migros',
       sourceType: 'retailer-web',
+      reason: 'Uses Playwright browser to bypass Cloudflare bot protection.',
     },
     {
       chain: 'migros',
@@ -192,6 +193,7 @@ export const SOURCE_REGISTRY: Record<Chain, CapabilitySourceStatus[]> = {
       status: 'live-beta',
       provider: 'Migros',
       sourceType: 'retailer-web',
+      reason: 'Uses Playwright browser to bypass Cloudflare bot protection.',
     },
     {
       chain: 'migros',
@@ -199,7 +201,7 @@ export const SOURCE_REGISTRY: Record<Chain, CapabilitySourceStatus[]> = {
       status: 'live-beta',
       provider: 'Migros',
       sourceType: 'retailer-web',
-      reason: 'Store availability via GET /store-availability/public/v2/availabilities/products/{pid}?costCenterIds={storeId} with TLS 1.3 bypass.',
+      reason: 'Uses Playwright browser to bypass Cloudflare bot protection. Store availability via GET /store-availability/public/v2/availabilities/products/{pid}?costCenterIds={storeId}.',
     },
     {
       chain: 'migros',
@@ -207,6 +209,7 @@ export const SOURCE_REGISTRY: Record<Chain, CapabilitySourceStatus[]> = {
       status: 'live-beta',
       provider: 'Migros',
       sourceType: 'retailer-web',
+      reason: 'Uses Playwright browser to bypass Cloudflare bot protection.',
     },
   ],
   ottos: [
