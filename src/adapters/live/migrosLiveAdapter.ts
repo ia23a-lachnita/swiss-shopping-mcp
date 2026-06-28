@@ -654,6 +654,7 @@ export class MigrosLiveAdapter implements ChainAdapter {
       const matches = availabilityData.availabilities.map((avail) => ({
         product,
         available: avail.stock > 0,
+        stockCount: avail.stock,
       }));
 
       const isAvailable = matches.some((m) => m.available);

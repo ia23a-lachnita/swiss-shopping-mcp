@@ -1,7 +1,11 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest';
+import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import { FileTtlCache } from '../../cache/fileTtlCache.js';
 import { LidlLiveAdapter } from './lidlLiveAdapter.js';
 import { SourceWarningCode } from '../types.js';
+
+vi.mock('./lidlBrowser.js', () => ({
+  searchProducts: vi.fn().mockResolvedValue([]),
+}));
 
 function createMockCache() {
   return {

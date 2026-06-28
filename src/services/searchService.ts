@@ -437,9 +437,11 @@ export class SearchService {
               storeId: store.id,
             });
             if (result.ok && result.data.supported) {
+              const bestMatch = result.data.matches.find((m) => m.available) || result.data.matches[0];
               return {
                 ...store,
                 available: result.data.isAvailable,
+                stockCount: bestMatch && 'stockCount' in bestMatch ? (bestMatch as { stockCount?: number }).stockCount : undefined,
                 isOpen: this.isStoreOpen(store.openingHours, now),
               } as StoreWithProductAvailability;
             }

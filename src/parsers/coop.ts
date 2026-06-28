@@ -15,6 +15,7 @@ export interface CoopProduct {
     currencyIso: string;
     formattedValue?: string;
   };
+  content?: number;
   contentUnit?: string;
   primaryCategory?: { name?: string };
   images?: { url?: string }[];
@@ -147,12 +148,14 @@ export function parseCoopSearchResponse(
       {
         id: product.code,
         sourceUrl,
-        productUrl: product.url || undefined,
+        productUrl: product.url ? `https://www.coop.ch${product.url}` : undefined,
         name: product.name,
         brand: product.brandName,
         price,
         unit,
-        size: product.contentUnit || undefined,
+        size: (product.content != null && product.contentUnit)
+          ? `${product.content}${product.contentUnit}`
+          : product.contentUnit || undefined,
         category,
         image,
         allergens: allergens.length > 0 ? allergens : undefined,

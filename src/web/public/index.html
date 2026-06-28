@@ -540,11 +540,12 @@
       });
     }
 
-    async function apiPost(path, body) {
+    async function apiPost(path, body, signal) {
       const res = await fetch(path, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
+        body: JSON.stringify(body),
+        signal
       });
       return res.json();
     }
@@ -567,9 +568,13 @@
     });
 
     // Product Search
+    let currentSearchAbort = null;
     document.getElementById('search-btn').addEventListener('click', async () => {
       const query = document.getElementById('search-query').value.trim();
       if (!query) { showError('search-error', 'Please enter a search query.'); return; }
+
+      if (currentSearchAbort) currentSearchAbort.abort();
+      currentSearchAbort = new AbortController();
 
       hideError('search-error');
       document.getElementById('search-results').innerHTML = '';
@@ -582,7 +587,7 @@
       const showIngredients = document.getElementById('search-show-ingredients').checked;
 
       try {
-        const result = await apiPost('/api/search-products', { query, chains, maxPrice, limit });
+        const result = await apiPost('/api/search-products', { query, chains, maxPrice, limit }, currentSearchAbort.signal);
         hideLoading('search-loading');
 
         if (!result.ok) {
@@ -692,7 +697,9 @@
         });
       } catch (e) {
         hideLoading('search-loading');
-        showError('search-error', 'Network error: ' + e.message);
+        if (e.name !== 'AbortError') {
+          showError('search-error', 'Network error: ' + e.message);
+        }
       }
     });
 
@@ -723,8 +730,12 @@
       if (query) document.getElementById('search-btn').click();
     }
 
-    // Vendor checkbox changes -> auto search
-    document.getElementById('search-chains').addEventListener('change', autoSearchIfReady);
+    // Vendor checkbox changes -> auto search (debounced)
+    let searchDebounceTimer = null;
+    document.getElementById('search-chains').addEventListener('change', () => {
+      clearTimeout(searchDebounceTimer);
+      searchDebounceTimer = setTimeout(autoSearchIfReady, 300);
+    });
 
     // Limit change -> auto search
     document.getElementById('search-limit').addEventListener('change', autoSearchIfReady);
@@ -1024,6 +1035,8 @@
               let availDot;
               if (s.availabilitySupported === false) {
                 availDot = '<span style="color:#9ca3af;font-weight:600;">&#9675; N/A</span>';
+              } else if (s.available && s.stockCount !== undefined && s.stockCount <= 3) {
+                availDot = '<span style="color:#d97706;font-weight:600;">&#9679; Few Available</span>';
               } else if (s.available) {
                 availDot = '<span style="color:#059669;font-weight:600;">&#9679; In Stock</span>';
               } else {

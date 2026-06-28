@@ -118,14 +118,29 @@ export class LidlLiveAdapter implements ChainAdapter {
 
   private async searchProductsFromWebsite(query: string): Promise<LidlParsedProduct[]> {
     const searchUrl = `${SEARCH_URL}?q=${encodeURIComponent(query)}`;
-    const html = await this.fetchHtml(searchUrl);
-    const products = parseLidlSearchPage(html, searchUrl);
-    // If no products found in HTML, Lidl is using client-side rendering
-    // which cannot be scraped via server-side fetch
-    if (products.length === 0) {
-      throw new Error('Lidl.ch uses client-side rendering for search results; server-side scraping is not supported');
+
+    // Try server-side HTML scraping first (faster)
+    try {
+      const html = await this.fetchHtml(searchUrl);
+      const products = parseLidlSearchPage(html, searchUrl);
+      if (products.length > 0) return products;
+    } catch {
+      // Fall through to Playwright
     }
-    return products;
+
+    // Fallback: use Playwright to render the page (handles client-side rendering)
+    const { searchProducts } = await import('./lidlBrowser.js');
+    const browserProducts = await searchProducts(query);
+    return browserProducts.map((bp) => ({
+      id: bp.id,
+      name: bp.name,
+      brand: undefined,
+      price: { current: bp.price ?? 0, currency: 'CHF' },
+      category: bp.category,
+      image: bp.image,
+      sourceUrl: bp.url || searchUrl,
+      productUrl: bp.url,
+    }));
   }
 
   public async searchProducts(filters: ProductSearchFilters): Promise<Result<NormalizedProduct[]>> {
