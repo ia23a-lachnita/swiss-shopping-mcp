@@ -354,9 +354,8 @@ export class SearchService {
           });
           if (result.ok && result.data.supported) {
             const isAvailable = result.data.isAvailable;
-            const stockCount = result.data.matches.find((m) => m.available)?.product
-              ? result.data.matches.filter((m) => m.available).length
-              : undefined;
+            const bestMatch = result.data.matches.find((m) => m.available) ?? result.data.matches[0];
+            const stockCount = bestMatch && 'stockCount' in bestMatch ? (bestMatch as { stockCount?: number }).stockCount : undefined;
             return {
               ...store,
               available: isAvailable,

@@ -101,6 +101,9 @@ Phase: `V1 - core read/search foundation`
 | Migros availability stock levels     | done                   | Passes `stockCount` from Migros availability API through to SPA; displays "Few Available" (amber) for stock ≤ 3, "In Stock" (green) for stock > 3, "Out" (red) for stock = 0 |
 | SPA search race condition fix        | done                   | Added AbortController to cancel stale search requests; added 300ms debounce on vendor checkbox auto-search; abort errors silently ignored |
 | Lidl Playwright search fallback      | done                   | Created `lidlBrowser.ts` using Playwright to render Lidl.ch search pages (handles client-side rendering); adapter falls back to Playwright when HTML scraping returns no products; source registry updated to `live-beta`; 467 tests pass |
+| Coop per-unit price fix              | done                   | Fixed `parseUnit()` in `coop.ts` to handle `content` as string or number (Coop API returns `"6"` not `6`); combines `content` + `contentUnit` to compute per-unit price (e.g., CHF 1.95/L for 6l milk); price comparison table now shows Coop per-unit prices; 477 tests pass |
+| Migros ingredients HTML strip        | done                   | Migros MGB endpoint returns ingredients with HTML tags (e.g., `<strong>Vollmilch</strong>`); added `.replace(/<[^>]*>/g, '')` to strip tags before storing; SPA now shows clean ingredient text; 477 tests pass |
+| Price comparison image column        | done                   | Added product image thumbnails to the price comparison table alongside chain badges; size, per-unit, and total columns added |
 
 ## Next tasks
 

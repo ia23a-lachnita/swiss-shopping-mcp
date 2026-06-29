@@ -114,11 +114,20 @@ function parsePrice(product: CoopProduct): { current: number; currency: string }
   return undefined;
 }
 
-function parseUnit(unitStr: string | undefined): { value: number; per: string } | undefined {
+function parseUnit(unitStr: string | undefined, content?: number | string): { value: number; per: string } | undefined {
+  // First try parsing with a number prefix (e.g., "6l", "500g")
   if (typeof unitStr === 'string') {
     const match = unitStr.match(/(\d+(?:\.\d+)?)\s*(kg|g|l|ml|cl|stk|piece)/i);
     if (match) {
       return { value: Number(match[1]), per: match[2].toLowerCase() };
+    }
+  }
+  // Combine content + contentUnit (e.g., content=6, contentUnit="l" -> {value:6, per:"l"})
+  const contentNum = typeof content === 'number' ? content : typeof content === 'string' ? Number(content) : undefined;
+  if (typeof contentNum === 'number' && contentNum > 0 && typeof unitStr === 'string') {
+    const bareMatch = unitStr.trim().match(/^(kg|g|l|ml|cl|stk|piece)$/i);
+    if (bareMatch) {
+      return { value: contentNum, per: bareMatch[1].toLowerCase() };
     }
   }
   return undefined;
@@ -135,7 +144,7 @@ export function parseCoopSearchResponse(
       return [];
     }
 
-    const unit = parseUnit(product.contentUnit);
+    const unit = parseUnit(product.contentUnit, product.content);
     const image = product.images?.[0]?.url;
     const category = product.primaryCategory?.name;
     const allergens: string[] = [];

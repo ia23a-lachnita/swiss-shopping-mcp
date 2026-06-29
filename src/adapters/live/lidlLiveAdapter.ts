@@ -47,6 +47,7 @@ function toNormalizedProduct(product: LidlParsedProduct, provenance: SourceProve
     price: { current: product.price.current },
     category: product.category,
     image: product.image,
+    productUrl: product.sourceUrl !== provenance.sourceUrl ? product.sourceUrl : undefined,
     provenance: { ...provenance, sourceUrl: product.sourceUrl },
   };
 }

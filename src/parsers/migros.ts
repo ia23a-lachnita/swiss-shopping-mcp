@@ -26,6 +26,7 @@ export interface MigrosApiProduct {
   ingredients?: string;
   url?: string;
   quantity?: string;
+  migrosId?: string;
 }
 
 export interface MigrosSearchResponse {
@@ -121,10 +122,15 @@ function parsePrice(value: unknown): { current: number; currency: string } | und
 }
 
 function parseUnit(value: unknown): { value: number; per: string } | undefined {
-  if (typeof value === 'string') {
+  if (typeof value === 'string' && value.length > 0) {
     const match = value.match(/(\d+(?:\.\d+)?)\s*(kg|g|l|ml|cl|stk|piece)/i);
     if (match) {
       return { value: Number(match[1]), per: match[2].toLowerCase() };
+    }
+    // Handle bare unit strings like "l", "kg", "stk" (derive value = 1)
+    const bareMatch = value.match(/^(kg|g|l|ml|cl|stk|piece)$/i);
+    if (bareMatch) {
+      return { value: 1, per: bareMatch[1].toLowerCase() };
     }
   }
   return undefined;
@@ -142,7 +148,7 @@ export function parseMigrosSearchResponse(
     }
 
     const id = product.article_code ?? String(product.id);
-    const unit = parseUnit(product.price?.unit);
+    const unit = parseUnit(product.quantity) ?? parseUnit(product.price?.unit);
 
     return [
       {

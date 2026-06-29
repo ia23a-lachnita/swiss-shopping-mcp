@@ -906,7 +906,7 @@
         }
 
         let tableHtml = summaryHtml + infoText + '<div style="overflow-x:auto"><table class="comparison-table">' +
-          '<thead><tr><th>Chain</th><th>Product</th><th>Price</th><th>Total</th><th>Basis</th></tr></thead><tbody>';
+          '<thead><tr><th style="width:48px"></th><th>Chain</th><th>Product</th><th>Size</th><th>Price</th><th>Per Unit</th><th>Total</th></tr></thead><tbody>';
 
         offers.forEach(o => {
           let rowClass = '';
@@ -914,15 +914,32 @@
           if (data.mostExpensiveOffer && o.chain === data.mostExpensiveOffer.chain && rowClass !== 'cheapest') rowClass = 'most-expensive';
 
           const productNameHtml = o.product.productUrl
-            ? '<a href="' + escapeHtml(o.product.productUrl) + '" target="_blank" rel="noopener" style="color:inherit;text-decoration:none">' + escapeHtml(o.product.name) + '</a>'
-            : escapeHtml(o.product.name);
+            ? '<a href="' + escapeHtml(o.product.productUrl) + '" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;font-weight:500">' + escapeHtml(o.product.name) + '</a>'
+            : '<span style="font-weight:500">' + escapeHtml(o.product.name) + '</span>';
+
+          const imgHtml = o.product.image
+            ? '<img src="' + escapeHtml(o.product.image) + '" alt="" style="width:40px;height:40px;object-fit:contain;border-radius:4px;background:var(--gray-50)" onerror="this.style.display=\'none\'">'
+            : '<div style="width:40px;height:40px;background:var(--gray-100);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--gray-500)">No img</div>';
+
+          const sizeHtml = o.product.size ? escapeHtml(o.product.size) : '<span style="color:var(--gray-300)">—</span>';
+
+          // Price per standard unit (per kg, per l, per 100g, etc.)
+          let perUnitHtml = '<span style="color:var(--gray-300)">—</span>';
+          if (o.baseUnitPrice !== undefined && o.baseUnit) {
+            const unitLabel = o.baseUnit === 'kg' ? '/ kg' : o.baseUnit === 'l' ? '/ L' : '/ ' + o.baseUnit;
+            perUnitHtml = formatPrice(o.baseUnitPrice) + ' <span style="color:var(--gray-500);font-size:11px">' + unitLabel + '</span>';
+          } else if (o.unitPrice !== undefined) {
+            perUnitHtml = formatPrice(o.unitPrice) + ' <span style="color:var(--gray-500);font-size:11px">/ unit</span>';
+          }
 
           tableHtml += '<tr class="' + rowClass + '">' +
+            '<td style="padding:8px">' + imgHtml + '</td>' +
             '<td><span class="chain-badge ' + chainBadgeClass(o.chain) + '">' + o.chain + '</span></td>' +
-            '<td>' + productNameHtml + (o.product.size ? ' <span style="color:var(--gray-500);font-size:12px">(' + escapeHtml(o.product.size) + ')</span>' : '') + (o.promotion ? ' <em>(promo)</em>' : '') + '</td>' +
-            '<td>' + formatPrice(o.effectivePrice) + (o.unitPrice ? ' <span style="color:var(--gray-500);font-size:12px;">(' + formatPrice(o.unitPrice) + ' / unit)</span>' : '') + '</td>' +
+            '<td>' + productNameHtml + (o.promotion ? ' <span style="color:var(--green);font-size:11px;font-weight:500">(promo)</span>' : '') + '</td>' +
+            '<td>' + sizeHtml + '</td>' +
+            '<td>' + formatPrice(o.effectivePrice) + '</td>' +
+            '<td>' + perUnitHtml + '</td>' +
             '<td><strong>' + formatPrice(o.totalPrice) + '</strong></td>' +
-            '<td>' + o.priceBasis + '</td>' +
             '</tr>';
         });
 
@@ -1035,7 +1052,7 @@
               let availDot;
               if (s.availabilitySupported === false) {
                 availDot = '<span style="color:#9ca3af;font-weight:600;">&#9675; N/A</span>';
-              } else if (s.available && s.stockCount !== undefined && s.stockCount <= 3) {
+              } else if (s.available && s.stockCount !== undefined && s.stockCount <= 5) {
                 availDot = '<span style="color:#d97706;font-weight:600;">&#9679; Few Available</span>';
               } else if (s.available) {
                 availDot = '<span style="color:#059669;font-weight:600;">&#9679; In Stock</span>';

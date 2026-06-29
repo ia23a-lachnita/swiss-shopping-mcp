@@ -98,7 +98,12 @@ export async function searchProducts(query: string): Promise<LidlBrowserProduct[
           category: data.category,
           price: typeof data.price === 'number' ? data.price : undefined,
           image: imgEl?.getAttribute('src') || undefined,
-          url: linkEl?.getAttribute('href') || undefined,
+          url: (() => {
+            const href = linkEl?.getAttribute('href') || '';
+            if (!href) return undefined;
+            if (href.startsWith('http')) return href;
+            return (globalThis as any).location.origin + (href.startsWith('/') ? href : '/' + href);
+          })(),
         });
       } catch {
         // Skip malformed entries

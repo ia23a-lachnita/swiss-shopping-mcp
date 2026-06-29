@@ -261,6 +261,48 @@ export async function checkAvailability(
   return resp.data;
 }
 
+/**
+ * Fetch detailed product information including nutrition/ingredients via the MGB endpoint.
+ * This endpoint returns productInformation which is NOT available via product-cards.
+ */
+export async function fetchProductDetail(
+  migrosId: string,
+  token: string
+): Promise<unknown> {
+  const page = await ensureBrowser();
+
+  const result = await page.evaluate(
+    async (args) => {
+      const { fetchUrl, fetchToken } = args;
+      const resp = await fetch(fetchUrl, {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json, text/plain, */*',
+          'Content-Type': 'application/json',
+          'leshopch': fetchToken,
+          'x-correlation-id': 'mcp-' + Date.now(),
+          'accept-language': 'de',
+          'migros-language': 'de',
+          'peer-id': 'website-js-1192.0.0',
+        },
+        body: JSON.stringify({ storeType: 'OFFLINE', warehouseId: 2, region: 'national' }),
+      });
+
+      let data: unknown;
+      const text = await resp.text();
+      try { data = JSON.parse(text); } catch { data = text; }
+
+      return { status: resp.status, data };
+    },
+    { fetchUrl: `${MIGROS_ORIGIN}/product-display/public/v1/products/mgb/${migrosId}`, fetchToken: token }
+  );
+
+  if (result.status !== 200) {
+    throw new Error(`Product detail request failed with status ${result.status}`);
+  }
+  return result.data;
+}
+
 export async function closeBrowser(): Promise<void> {
   if (migrosPage && !migrosPage.isClosed()) {
     await migrosPage.close().catch(() => {});

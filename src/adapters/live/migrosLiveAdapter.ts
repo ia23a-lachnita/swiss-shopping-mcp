@@ -20,6 +20,7 @@ import {
   getGuestToken,
   searchProducts as browserSearchProducts,
   fetchProductCards,
+  fetchProductDetail as browserFetchProductDetail,
   searchStores as browserSearchStores,
   checkAvailability as browserCheckAvailability,
 } from './migrosBrowser.js';
@@ -263,6 +264,79 @@ export class MigrosLiveAdapter implements ChainAdapter {
         products.push(this.normalizeProductDetail(raw));
       }
     }
+
+    // Fetch nutrition/ingredients from MGB endpoint for each product (in parallel, max 20)
+    const enrichable = products.filter(p => p.id && !p.nutrition_facts).slice(0, 20);
+    console.log(`[Migros] Enriching ${enrichable.length} products with nutrition data`);
+    await Promise.all(
+      enrichable.map(async (product) => {
+        try {
+          const migrosId = String((product as unknown as Record<string, unknown>).migrosId ?? product.id);
+          console.log(`[Migros] Fetching MGB detail for product ${product.id} (migrosId: ${migrosId})`);
+          const detail = await browserFetchProductDetail(migrosId, token) as {
+            productInformation?: {
+              nutrientsInformation?: {
+                nutrientsTable?: {
+                  rows?: Array<{ label: string; values: string[] }>;
+                };
+              };
+              mainInformation?: {
+                allergens?: string;
+                ingredients?: string;
+              };
+            };
+          };
+          const pi = detail?.productInformation;
+          if (!pi) return;
+
+          // Parse nutrition from nutrientsTable
+          const rows = pi.nutrientsInformation?.nutrientsTable?.rows;
+          if (rows && Array.isArray(rows)) {
+            const parseFirst = (label: string): number | undefined => {
+              const row = rows.find(r => r.label === label);
+              if (!row?.values?.[0]) return undefined;
+              const match = String(row.values[0]).match(/([\d.,]+)/);
+              return match ? parseFloat(match[1].replace(',', '.')) : undefined;
+            };
+            product.nutrition_facts = {
+              energy_kcal: (() => {
+                const energyRow = rows.find(r => r.label === 'Energie');
+                if (!energyRow?.values?.[0]) return undefined;
+                const match = String(energyRow.values[0]).match(/\((\d+)\s*kcal\)/);
+                return match ? parseInt(match[1], 10) : undefined;
+              })(),
+              protein: parseFirst('Eiweiss'),
+              carbohydrates: parseFirst('Kohlenhydrate'),
+              fat: parseFirst('Fett'),
+              fiber: parseFirst('Ballaststoffe'),
+              sugar: (() => {
+                const sugarRow = rows.find(r => r.label === 'davon Zucker');
+                if (!sugarRow?.values?.[0]) return undefined;
+                const match = String(sugarRow.values[0]).match(/([\d.,]+)/);
+                return match ? parseFloat(match[1].replace(',', '.')) : undefined;
+              })(),
+            };
+          }
+
+          // Parse allergens
+          const allergensRaw = pi.mainInformation?.allergens;
+          if (typeof allergensRaw === 'string' && allergensRaw.length > 0) {
+            product.allergens = allergensRaw.split(',').map((a: string) => a.trim()).filter(Boolean);
+          }
+
+          // Parse ingredients (if available) — strip HTML tags from MGB response
+          const ingredientsRaw = pi.mainInformation?.ingredients;
+          if (typeof ingredientsRaw === 'string' && ingredientsRaw.length > 0) {
+            product.ingredients = ingredientsRaw.replace(/<[^>]*>/g, '');
+          }
+          console.log(`[Migros] Enriched product ${product.id}: nutrition=${!!product.nutrition_facts}, allergens=${!!product.allergens}`);
+        } catch (e) {
+          // Nutrition enrichment is best-effort; don't fail the search
+          console.log(`[Migros] Failed to enrich product ${product.id}:`, e instanceof Error ? e.message : e);
+        }
+      })
+    );
+
     return products;
   }
 
@@ -278,58 +352,6 @@ export class MigrosLiveAdapter implements ChainAdapter {
     const firstUrl = Array.isArray(urls) ? urls[0] : urls;
     const productUrl = typeof firstUrl === 'string' ? firstUrl : firstUrl?.url ?? '';
 
-    // Extract nutrition from productInformation.nutrientsInformation.nutrientsTable
-    const nutrientsTable = raw.productInformation?.nutrientsInformation?.nutrientsTable;
-    let nutrition_facts: MigrosApiProduct['nutrition_facts'];
-    if (nutrientsTable?.rows && Array.isArray(nutrientsTable.rows)) {
-      const rows = nutrientsTable.rows as Array<{ label: string; values: string[] }>;
-      const parseFirst = (label: string): number | undefined => {
-        const row = rows.find(r => r.label === label);
-        if (!row?.values?.[0]) return undefined;
-        const match = String(row.values[0]).match(/([\d.,]+)/);
-        return match ? parseFloat(match[1].replace(',', '.')) : undefined;
-      };
-      const rawNutrition = {
-        energy_kcal: (() => {
-          const energyRow = rows.find(r => r.label === 'Energie');
-          if (!energyRow?.values?.[0]) return undefined;
-          const match = String(energyRow.values[0]).match(/\((\d+)\s*kcal\)/);
-          return match ? parseInt(match[1], 10) : undefined;
-        })(),
-        protein: parseFirst('Eiweiss'),
-        carbohydrates: parseFirst('Kohlenhydrate'),
-        fat: parseFirst('Fett'),
-        fiber: parseFirst('Ballaststoffe'),
-        sugar: (() => {
-          const sugarRow = rows.find(r => r.label === 'davon Zucker');
-          if (!sugarRow?.values?.[0]) return undefined;
-          const match = String(sugarRow.values[0]).match(/([\d.,]+)/);
-          return match ? parseFloat(match[1].replace(',', '.')) : undefined;
-        })(),
-      };
-      nutrition_facts = {
-        energy_kcal: rawNutrition.energy_kcal,
-        protein: rawNutrition.protein,
-        carbohydrates: rawNutrition.carbohydrates,
-        fat: rawNutrition.fat,
-        fiber: rawNutrition.fiber,
-        sugar: rawNutrition.sugar,
-      };
-    }
-
-    // Extract allergens from productInformation.mainInformation.allergens
-    const mainInfo = raw.productInformation?.mainInformation;
-    const allergensRaw = mainInfo?.allergens;
-    const allergens = typeof allergensRaw === 'string' && allergensRaw.length > 0
-      ? allergensRaw.split(',').map((a: string) => a.trim()).filter(Boolean)
-      : undefined;
-
-    // Extract ingredients from productInformation.mainInformation.ingredients
-    const ingredientsRaw = mainInfo?.ingredients;
-    const ingredients = typeof ingredientsRaw === 'string' && ingredientsRaw.length > 0
-      ? ingredientsRaw
-      : undefined;
-
     return {
       id: raw.uid ?? raw.migrosId ?? raw.migrosOnlineId ?? 0,
       name: raw.name ?? raw.title ?? '',
@@ -343,9 +365,7 @@ export class MigrosLiveAdapter implements ChainAdapter {
       image_url: imageUrl,
       url: productUrl,
       quantity: offer.quantity ?? raw.quantity ?? '',
-      nutrition_facts,
-      allergens,
-      ingredients,
+      migrosId: raw.migrosId,
     } as MigrosApiProduct;
   }
 
