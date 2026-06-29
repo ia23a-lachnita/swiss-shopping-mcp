@@ -109,6 +109,11 @@ export interface NormalizedPrice {
     value: number;
     per: string; // e.g., "100g", "1l", "piece"
   };
+  vendorUnitPrice?: {
+    value: number;  // numeric per-unit price from vendor (e.g., 5.37)
+    unit: string;   // display unit (e.g., "100g", "1l")
+    display?: string; // vendor's display string (e.g., "3.75/100g")
+  };
 }
 
 export interface NormalizedProduct {
@@ -218,11 +223,16 @@ export interface StoreProductAvailabilityFilters {
   query: string;
   storeId: string;
   matchMode?: ProductMatchMode;
+  storeLatitude?: number;
+  storeLongitude?: number;
 }
 
 export interface ProductAvailabilityMatch {
   product: NormalizedProduct;
   available: boolean;
+  storeId?: string;
+  storeName?: string;
+  distance?: number;
 }
 
 export interface StoreProductAvailabilityResult {

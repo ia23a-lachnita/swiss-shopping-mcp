@@ -434,13 +434,15 @@ export class SearchService {
             const result = await this.lookupStoreProductAvailability(chain as Chain, {
               query,
               storeId: store.id,
+              storeLatitude: store.location?.latitude,
+              storeLongitude: store.location?.longitude,
             });
             if (result.ok && result.data.supported) {
-              const bestMatch = result.data.matches.find((m) => m.available) || result.data.matches[0];
+              const storeMatch = result.data.matches.find((m) => m.storeId === store.id);
               return {
                 ...store,
-                available: result.data.isAvailable,
-                stockCount: bestMatch && 'stockCount' in bestMatch ? (bestMatch as { stockCount?: number }).stockCount : undefined,
+                available: storeMatch ? storeMatch.available : result.data.isAvailable,
+                stockCount: storeMatch && 'stockCount' in storeMatch ? (storeMatch as { stockCount?: number }).stockCount : undefined,
                 isOpen: this.isStoreOpen(store.openingHours, now),
               } as StoreWithProductAvailability;
             }

@@ -61,6 +61,7 @@ function toNormalizedProduct(
     price: {
       current: product.price.current,
       unit: product.unit,
+      vendorUnitPrice: product.vendorUnitPrice,
     },
     size: product.size,
     category: product.category,
@@ -497,16 +498,23 @@ export class CoopLiveAdapter implements ChainAdapter {
       const product = productResult.data[0];
       const productId = product.id;
 
-      // Step 2: Get coordinates from location or use default (Zurich)
-      const point = await resolveLocationAsync(query);
-      const lat = point?.latitude ?? 47.3769;
-      const lon = point?.longitude ?? 8.5417;
+      // Step 2: Get coordinates — prefer store coordinates from caller, fall back to geocoding the query
+      const lat = filters.storeLatitude ?? (await resolveLocationAsync(query))?.latitude ?? 47.3769;
+      const lon = filters.storeLongitude ?? (await resolveLocationAsync(query))?.longitude ?? 8.5417;
 
       // Step 3: Call stock API using locations endpoint with availabilityProductId
-      const stockUrl = `${STOCK_URL}?latitude=${lat}&longitude=${lon}&availabilityProductId=${productId}&onlyWithAvailableProductId=true&currentPage=0`;
+      // NOTE: Do NOT add onlyWithAvailableProductId=true — the API returns ALL nearby stores
+      // with productIsAvailable field indicating per-store availability
+      const stockUrl = `${STOCK_URL}?latitude=${lat}&longitude=${lon}&availabilityProductId=${productId}&currentPage=0`;
 
       const result = await this.storeClient.fetchJson<{
-        locations: Array<{ address: { id: string }; distance: number }>;
+        locations: Array<{
+          name?: string;
+          vstId?: string;
+          address: { id: string; postalCode?: string; town?: string };
+          distance: number;
+          productIsAvailable?: boolean;
+        }>;
       }>(stockUrl, {
         provider: COOP_PROVIDER,
         chain: 'coop',
@@ -514,12 +522,14 @@ export class CoopLiveAdapter implements ChainAdapter {
         confidence: 'medium',
       });
 
-      // Step 4: Build availability matches from locations that have the product
+      // Step 4: Build availability matches from locations using productIsAvailable field
+      // Use vstId (not address.id) to match with findStores which also uses vstId
       const locations = result.data.locations ?? [];
       const matches = locations.map((loc) => ({
         product,
-        available: true, // Only locations with the product are returned
-        storeId: loc.address?.id,
+        available: loc.productIsAvailable ?? false,
+        storeId: loc.vstId ?? loc.address?.id,
+        storeName: loc.name,
         distance: loc.distance,
       }));
 

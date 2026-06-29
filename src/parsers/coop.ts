@@ -15,6 +15,11 @@ export interface CoopProduct {
     currencyIso: string;
     formattedValue?: string;
   };
+  basePrice?: {
+    value: number;
+    currencyIso?: string;
+  };
+  basePriceUnit?: string;
   content?: number;
   contentUnit?: string;
   primaryCategory?: { name?: string };
@@ -73,6 +78,11 @@ export interface CoopParsedProduct {
   unit?: {
     value: number;
     per: string;
+  };
+  vendorUnitPrice?: {
+    value: number;
+    unit: string;
+    display?: string;
   };
   size?: string;
   category?: string;
@@ -147,6 +157,17 @@ export function parseCoopSearchResponse(
     const unit = parseUnit(product.contentUnit, product.content);
     const image = product.images?.[0]?.url;
     const category = product.primaryCategory?.name;
+    
+    // Extract vendor per-unit price from basePrice field
+    let vendorUnitPrice: { value: number; unit: string; display?: string } | undefined;
+    if (product.basePrice && typeof product.basePrice.value === 'number' && product.basePrice.value > 0) {
+      vendorUnitPrice = {
+        value: product.basePrice.value,
+        unit: product.basePriceUnit || '',
+        display: product.basePriceUnit ? `${product.basePrice.value}/${product.basePriceUnit}` : undefined,
+      };
+    }
+    
     const allergens: string[] = [];
     if (product.glutenFree) allergens.push('gluten-free');
     if (product.lactoseFree) allergens.push('lactose-free');
@@ -162,6 +183,7 @@ export function parseCoopSearchResponse(
         brand: product.brandName,
         price,
         unit,
+        vendorUnitPrice,
         size: (product.content != null && product.contentUnit)
           ? `${product.content}${product.contentUnit}`
           : product.contentUnit || undefined,

@@ -66,7 +66,9 @@ function toNormalizedProduct(
     brand: product.brand,
     price: {
       current: product.price.current,
+      original: product.original,
       unit: product.unit,
+      vendorUnitPrice: product.vendorUnitPrice,
     },
     size: product.size,
     category: product.category,
@@ -345,6 +347,7 @@ export class MigrosLiveAdapter implements ChainAdapter {
     const offer = raw.offer ?? {};
     const priceData = offer.price ?? {};
     const unitPriceData = priceData.unitPrice ?? {};
+    const promoPriceData = offer.promotionPrice ?? {};
     const images = raw.images ?? [];
     const firstImage = Array.isArray(images) ? images[0] : images;
     const imageUrl = typeof firstImage === 'string' ? firstImage : firstImage?.url ?? firstImage?.medium ?? '';
@@ -352,20 +355,36 @@ export class MigrosLiveAdapter implements ChainAdapter {
     const firstUrl = Array.isArray(urls) ? urls[0] : urls;
     const productUrl = typeof firstUrl === 'string' ? firstUrl : firstUrl?.url ?? '';
 
+    // Determine effective price: use promotionPrice if available, otherwise effectiveValue
+    const hasPromotion = promoPriceData && typeof promoPriceData.effectiveValue === 'number' && promoPriceData.effectiveValue > 0;
+    const currentPrice = hasPromotion ? promoPriceData.effectiveValue : priceData.effectiveValue;
+    const originalPrice = hasPromotion ? priceData.effectiveValue : undefined;
+
+    // Extract promotion badges
+    const badges = offer.badges;
+    const promotionLabel = Array.isArray(badges)
+      ? badges.map((b: { description?: string; type?: string }) => b.description).filter(Boolean).join(' ')
+      : undefined;
+
     return {
       id: raw.uid ?? raw.migrosId ?? raw.migrosOnlineId ?? 0,
       name: raw.name ?? raw.title ?? '',
       brand_name: raw.brand ?? raw.brandName ?? '',
       price: {
-        amount: typeof priceData.effectiveValue === 'number' ? priceData.effectiveValue : Number(priceData.effectiveValue) || undefined,
+        amount: typeof currentPrice === 'number' ? currentPrice : Number(currentPrice) || undefined,
         currency: 'CHF',
         unit: typeof unitPriceData.unit === 'string' ? unitPriceData.unit : undefined,
+        vendorUnitPrice: typeof unitPriceData.value === 'number' && unitPriceData.value > 0
+          ? { value: hasPromotion ? promoPriceData.unitPrice?.value ?? unitPriceData.value : unitPriceData.value, unit: unitPriceData.unit || '', display: offer.quantityPrice }
+          : undefined,
+        original: typeof originalPrice === 'number' ? originalPrice : undefined,
       },
       category_name: raw.primaryCategory?.name ?? raw.categoryName ?? '',
       image_url: imageUrl,
       url: productUrl,
       quantity: offer.quantity ?? raw.quantity ?? '',
       migrosId: raw.migrosId,
+      promotionLabel,
     } as MigrosApiProduct;
   }
 
@@ -493,6 +512,15 @@ export class MigrosLiveAdapter implements ChainAdapter {
     else if (Array.isArray(result.results)) raw = result.results;
     else if (Array.isArray(result)) raw = result;
     else if (Array.isArray(result.items)) raw = result.items;
+    // Handle object with numeric keys: { "0": store, "1": store, ... }
+    else if (typeof result === 'object' && !Array.isArray(result)) {
+      const keys = Object.keys(result);
+      if (keys.length > 0 && keys.every(k => /^\d+$/.test(k))) {
+        raw = keys.map(k => result[k]);
+      } else {
+        return [];
+      }
+    }
     else return [];
 
     // Normalize Migros store format: { storeId, storeName, location: { latitude, longitude }, openingHours }

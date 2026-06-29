@@ -77,10 +77,19 @@ function createOffer(product: NormalizedProduct, quantity: number): ChainPriceOf
   let baseUnit: string | undefined;
   let isEligibleForUnitComparison = false;
 
+  // Prefer vendor-provided per-unit price when available
+  const vendorUP = product.price.vendorUnitPrice;
+  if (vendorUP && typeof vendorUP.value === 'number' && vendorUP.value > 0) {
+    baseUnitPrice = roundCurrency(vendorUP.value);
+    baseUnit = vendorUP.unit || undefined;
+    isEligibleForUnitComparison = true;
+  }
+
   if (typeof unitValue === 'number' && unitValue > 0) {
     unitPrice = roundCurrency(product.price.current / unitValue);
 
-    if (per) {
+    // Fall back to computed per-unit price if no vendor price
+    if (!baseUnitPrice && per) {
       const normalized = getBaseUnitPrice(product.price.current, unitValue, per);
       if (normalized) {
         baseUnitPrice = roundCurrency(normalized.price);

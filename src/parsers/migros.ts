@@ -9,6 +9,12 @@ export interface MigrosApiProduct {
     amount?: number;
     currency: string;
     unit?: string;
+    vendorUnitPrice?: {
+      value: number;
+      unit: string;
+      display?: string;
+    };
+    original?: number;
   };
   category_name?: string;
   category?: string[];
@@ -27,6 +33,7 @@ export interface MigrosApiProduct {
   url?: string;
   quantity?: string;
   migrosId?: string;
+  promotionLabel?: string;
 }
 
 export interface MigrosSearchResponse {
@@ -84,6 +91,13 @@ export interface MigrosParsedProduct {
     value: number;
     per: string;
   };
+  vendorUnitPrice?: {
+    value: number;
+    unit: string;
+    display?: string;
+  };
+  original?: number;
+  promotionLabel?: string;
   size?: string;
   category?: string;
   image?: string;
@@ -159,6 +173,9 @@ export function parseMigrosSearchResponse(
         brand: product.brand_name,
         price,
         unit,
+        vendorUnitPrice: product.price?.vendorUnitPrice,
+        original: product.price?.original,
+        promotionLabel: product.promotionLabel,
         size: product.quantity || undefined,
         category: product.category_name ?? product.category?.join(' > '),
         image: product.image_url,
