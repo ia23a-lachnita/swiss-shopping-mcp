@@ -8,6 +8,12 @@ import {
   parseSwissDate,
 } from '../util/html.js';
 
+function cleanContentSize(raw: string | undefined): string | undefined {
+  if (!raw) return undefined;
+  const cleaned = raw.replace(/\bunit\./g, '').trim();
+  return cleaned || undefined;
+}
+
 export interface DennerParsedPromotion {
   id: string;
   sourceUrl: string;
@@ -332,7 +338,7 @@ export function parseDennerSearchApiResponse(
 
       const imageUrl = extractPrediggoAttr(attrs, 'imageUrl');
       const itemUrl = extractPrediggoAttr(attrs, 'itemUrl');
-      const size = extractPrediggoAttr(attrs, 'content_size_text');
+      const size = cleanContentSize(extractPrediggoAttr(attrs, 'content_size_text'));
       const categoryLabel = extractPrediggoAttr(attrs, 'category');
 
       const productUrl = itemUrl

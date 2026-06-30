@@ -401,18 +401,22 @@ export class SearchService {
       return { ok: false, error: { code: 'INVALID_LOCATION', message: 'Location is required.' } };
     }
 
-    // Search for products first
-    const productResult = await this.searchProducts({
-      query,
-      chains: filters.chains,
-      limit: 10,
-    });
+    // Search products per chain to guarantee all chains are represented
+    const requestedChains = filters.chains ?? this.adapters.map((a) => a.chain);
+    const perChainProducts = await Promise.all(
+      requestedChains.map(async (chain) => {
+        const result = await this.searchProducts({ query, chains: [chain], limit: 5 });
+        if (!result.ok || result.data.length === 0) return [];
+        return result.data;
+      })
+    );
+    const representativeProducts = perChainProducts.flat();
 
-    if (!productResult.ok || productResult.data.length === 0) {
+    if (representativeProducts.length === 0) {
       return { ok: false, error: { code: 'NO_PRODUCTS', message: 'No products found for this query.' } };
     }
 
-    const chainsNeeded = [...new Set(productResult.data.map((p) => p.chain))];
+    const chainsNeeded = [...new Set(representativeProducts.map((p) => p.chain))];
     const storeLimit = typeof filters.limit === 'number' ? filters.limit : 10;
     const now = new Date();
 
@@ -468,7 +472,7 @@ export class SearchService {
     }
 
     // Map each product to stores from its own chain
-    const results: ProductAvailabilityResult[] = productResult.data.map((product) => ({
+    const results: ProductAvailabilityResult[] = representativeProducts.map((product) => ({
       product,
       stores: allStoresWithAvail.filter((s) => s.chain === product.chain),
     }));
