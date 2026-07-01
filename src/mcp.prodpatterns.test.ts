@@ -887,7 +887,7 @@ describe('8. get_store_availability_support', () => {
 
   it('unsupported chains provide a reason', async () => {
     const result = await callTool(client, 'get_store_availability_support', {
-      chains: ['aldi'],
+      chains: ['denner'],
     });
     const data = structured<{
       support: Array<{ chain: string; supported: boolean; reason?: string }>;
@@ -1043,13 +1043,13 @@ describe('10. Cross-Tool Integration Scenarios', () => {
 
   it('unsupported chain availability support is false', async () => {
     const availResult = await callTool(client, 'get_store_availability_support', {
-      chains: ['aldi'],
+      chains: ['denner'],
     });
     const availData = structured<{
       support: Array<{ chain: string; supported: boolean }>;
     }>(availResult);
-    const aldiSupport = availData.support.find((s) => s.chain === 'aldi');
-    expect(aldiSupport?.supported).toBe(false);
+    const dennerSupport = availData.support.find((s) => s.chain === 'denner');
+    expect(dennerSupport?.supported).toBe(false);
   });
 
   it('get_source_status and search_products are consistent for denner', async () => {

@@ -19,6 +19,7 @@ import {
 } from '../adapters/types.js';
 import { sourceWarningFromError } from '../sources/warnings.js';
 import { buildTaxonomy } from '../util/taxonomyBuilder.js';
+import { resolveLocationAsync } from '../util/geo.js';
 import { calculateMatchStrength, sortProducts } from '../util/matcher.js';
 
 function sortStores(a: NormalizedStore, b: NormalizedStore): number {
@@ -420,6 +421,19 @@ export class SearchService {
     const storeLimit = typeof filters.limit === 'number' ? filters.limit : 10;
     const now = new Date();
 
+    // Geocode user location once for all adapters (Migros needs user coords for store finding)
+    let userLat: number | undefined;
+    let userLon: number | undefined;
+    try {
+      const userLoc = await resolveLocationAsync(location);
+      if (userLoc) {
+        userLat = userLoc.latitude;
+        userLon = userLoc.longitude;
+      }
+    } catch {
+      // Geocation is best-effort; adapters will fall back to their own logic
+    }
+
     // Fetch stores per chain SEQUENTIALLY to avoid API rate-limiting conflicts
     const allStoresWithAvail: StoreWithProductAvailability[] = [];
 
@@ -440,6 +454,8 @@ export class SearchService {
               storeId: store.id,
               storeLatitude: store.location?.latitude,
               storeLongitude: store.location?.longitude,
+              userLatitude: userLat,
+              userLongitude: userLon,
             });
             if (result.ok && result.data.supported) {
               const storeMatch = result.data.matches.find((m) => m.storeId === store.id);

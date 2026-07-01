@@ -74,6 +74,7 @@ function toNormalizedProduct(
     category: product.category,
     image: product.image,
     productUrl: product.productUrl,
+    promotionLabel: product.promotionLabel,
     nutrition: product.nutrition,
     allergens: product.allergens,
     ingredients: product.ingredients ? [product.ingredients] : undefined,
@@ -171,7 +172,8 @@ export class MigrosLiveAdapter implements ChainAdapter {
     }
 
     const limit = typeof filters.limit === 'number' ? filters.limit : DEFAULT_SEARCH_LIMIT;
-    const cacheKey = `migros:search:${query}:${limit}`;
+    // Normalize cache key: ignore limit so inner availability lookups (limit:1) reuse outer search results (limit:5)
+    const cacheKey = `migros:search:${query}`;
 
     const cached = await this.cache.get<{ products: MigrosApiProduct[] }>(cacheKey, { allowStale: true });
     if (cached && !cached.isStale) {
@@ -530,7 +532,7 @@ export class MigrosLiveAdapter implements ChainAdapter {
       const loc = s.location as Record<string, unknown> | undefined;
       const addr = s.address as Record<string, unknown> | undefined;
       return {
-        id: s.storeId ?? s.id ?? s.storeId,
+        id: s.costCenterId ?? s.storeId ?? s.id,
         name: String(s.storeName ?? s.name ?? ''),
         latitude: typeof loc?.latitude === 'number' ? loc.latitude : undefined,
         longitude: typeof loc?.longitude === 'number' ? loc.longitude : undefined,
@@ -565,8 +567,8 @@ export class MigrosLiveAdapter implements ChainAdapter {
       // Find valid hours (with open and close times)
       for (const h of hours) {
         if (h.open && h.close && !h.invalidated) {
-          const openTime = h.open.split(' ')[1]; // Extract "07:30" from "2026-06-20 07:30"
-          const closeTime = h.close.split(' ')[1];
+          const openTime = h.open.includes(' ') ? h.open.split(' ')[1] : h.open;
+          const closeTime = h.close.includes(' ') ? h.close.split(' ')[1] : h.close;
           const timeRange = `${openTime}-${closeTime}`;
 
           if (isWeekend) {
@@ -673,7 +675,11 @@ export class MigrosLiveAdapter implements ChainAdapter {
       if (filters.storeId) {
         storeIds = [filters.storeId];
       } else {
-        const storeResult = await this.findStores({ location: query, limit: 10 });
+        // Use user coordinates if available, otherwise fall back to product query as location
+        const storeLocation = (filters.userLatitude && filters.userLongitude)
+          ? `${filters.userLatitude},${filters.userLongitude}`
+          : query;
+        const storeResult = await this.findStores({ location: storeLocation, limit: 10 });
         if (!storeResult.ok || storeResult.data.length === 0) {
           return {
             ok: true,
@@ -720,13 +726,15 @@ export class MigrosLiveAdapter implements ChainAdapter {
       };
     } catch (error) {
       const warning = warningFromError(error, AVAILABILITY_URL, `${MIGROS_PROVIDER} availability API fetch failed`, 'migros', MIGROS_PROVIDER);
+      const msg = error instanceof Error ? error.message : String(error);
+      const is404 = msg.includes('status 404');
       return {
         ok: true,
         data: {
           chain: this.chain,
           storeId: filters.storeId,
           query,
-          supported: false,
+          supported: !is404,
           matches: [],
           isAvailable: false,
           reason: warning.message,

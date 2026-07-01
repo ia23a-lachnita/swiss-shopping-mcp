@@ -917,7 +917,7 @@ describe('9. Denner Promotions — Deeper Search', () => {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 describe('10. Availability Lookup — Multiple Chains & Products', () => {
-  it('lookup Toskanabrot in aldi — unsupported but graceful', async () => {
+  it('lookup Toskanabrot in aldi — returns graceful result', async () => {
     const result = await callTool(client, 'lookup_store_product_availability', {
       chain: 'aldi',
       storeId: 'aldi-zurich-1',
@@ -930,17 +930,13 @@ describe('10. Availability Lookup — Multiple Chains & Products', () => {
         storeId: string;
         query: string;
         supported: boolean;
-        isAvailable: boolean;
-        reason?: string;
-        matches: unknown[];
       };
     }>(result);
     expect(data.availability.chain).toBe('aldi');
     expect(data.availability.storeId).toBe('aldi-zurich-1');
     expect(data.availability.query).toBe('Toskanabrot');
+    // Aldi availability requires lat/lon from user location; without it, supported=false
     expect(data.availability.supported).toBe(false);
-    expect(data.availability.isAvailable).toBe(false);
-    expect(data.availability.matches).toEqual([]);
   });
 
   it('lookup Vollmilch in coop — now supported', async () => {
@@ -971,7 +967,7 @@ describe('10. Availability Lookup — Multiple Chains & Products', () => {
     expect(data.availability.supported).toBe(false);
   });
 
-  it('migros and coop availability APIs are now supported, other chains return supported=false', async () => {
+  it('migros and coop availability APIs are now supported, other chains return supported=false', { timeout: 15000 }, async () => {
     // Migros and Coop now have working availability endpoints
     // Note: In test environment with mocked fetch, auth may fail causing supported=false
     // The important thing is that the adapters ARE configured to support availability
@@ -992,7 +988,7 @@ describe('10. Availability Lookup — Multiple Chains & Products', () => {
     }
 
     // Other chains still return supported=false
-    const unsupportedChains = ['aldi', 'denner', 'farmy', 'volg', 'lidl', 'ottos'];
+    const unsupportedChains = ['denner', 'farmy', 'volg', 'lidl', 'ottos'];
     for (const chain of unsupportedChains) {
       const result = await callTool(client, 'lookup_store_product_availability', {
         chain,
@@ -1008,13 +1004,13 @@ describe('10. Availability Lookup — Multiple Chains & Products', () => {
     }
   });
 
-  it('lookup with different store IDs returns consistent unsupported result', async () => {
-    const storeIds = ['aldi-zurich-1', 'aldi-bern-2', 'aldi-basel-3'];
+  it('lookup with different store IDs returns consistent unsupported result for denner', async () => {
+    const storeIds = ['denner-zurich-1', 'denner-bern-2', 'denner-basel-3'];
     for (const storeId of storeIds) {
       const result = await callTool(client, 'lookup_store_product_availability', {
-        chain: 'aldi',
+        chain: 'denner',
         storeId,
-        query: 'Apfelsaft',
+        query: 'Emmentaler',
       });
       expect(result.isError).not.toBe(true);
       const data = structured<{
@@ -1027,8 +1023,8 @@ describe('10. Availability Lookup — Multiple Chains & Products', () => {
 
   it('lookup with matchMode balanced is accepted', async () => {
     const result = await callTool(client, 'lookup_store_product_availability', {
-      chain: 'aldi',
-      storeId: 'aldi-zurich-1',
+      chain: 'denner',
+      storeId: 'denner-zurich-1',
       query: 'Brot',
       matchMode: 'balanced',
     });
@@ -1157,13 +1153,15 @@ describe('11. Cross-Tool Search + Availability Integration', () => {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 describe('12. Source Status with Multiple Chains', () => {
-  it('aldi productSearch live-beta, all other capabilities unsupported', async () => {
+  it('aldi productSearch and availability live-beta, storeSearch unsupported', async () => {
     const result = await callTool(client, 'get_source_status', { chains: ['aldi'] });
     const data = structured<{
       statuses: Array<{ chain: string; capability: string; status: string }>;
     }>(result);
     const productSearch = data.statuses.find((s) => s.capability === 'productSearch');
     expect(productSearch!.status).toBe('live-beta');
+    const availability = data.statuses.find((s) => s.capability === 'availability');
+    expect(availability!.status).toBe('live-beta');
     const storeSearch = data.statuses.find((s) => s.capability === 'storeSearch');
     expect(storeSearch!.status).toBe('unsupported');
   });

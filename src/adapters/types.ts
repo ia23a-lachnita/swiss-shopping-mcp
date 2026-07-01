@@ -127,6 +127,7 @@ export interface NormalizedProduct {
   image?: string;
   productUrl?: string;
   tags?: string[]; // e.g., "organic", "vegan", "budget"
+  promotionLabel?: string; // e.g., "40%", "Aktion", "Week Promotion"
   nutrition?: {
     energyKcal?: number;
     protein?: number;
@@ -225,6 +226,8 @@ export interface StoreProductAvailabilityFilters {
   matchMode?: ProductMatchMode;
   storeLatitude?: number;
   storeLongitude?: number;
+  userLatitude?: number;
+  userLongitude?: number;
 }
 
 export interface ProductAvailabilityMatch {
@@ -233,6 +236,7 @@ export interface ProductAvailabilityMatch {
   storeId?: string;
   storeName?: string;
   distance?: number;
+  isOpen?: boolean;
 }
 
 export interface StoreProductAvailabilityResult {

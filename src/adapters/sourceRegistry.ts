@@ -25,8 +25,8 @@ export const SOURCE_REGISTRY: Record<Chain, CapabilitySourceStatus[]> = {
     {
       chain: 'aldi',
       capability: 'availability',
-      status: 'unsupported',
-      reason: 'No store-level Aldi availability source is implemented.',
+      status: 'live-beta',
+      reason: 'Aldi store availability is sourced from the Aldi Switzerland service-point API.',
     },
     {
       chain: 'aldi',

@@ -10,7 +10,13 @@ import {
 
 function cleanContentSize(raw: string | undefined): string | undefined {
   if (!raw) return undefined;
-  const cleaned = raw.replace(/\bunit\./g, '').trim();
+  const kgMatch = raw.match(/^([\d.]+)\s*unit\.g$/);
+  if (kgMatch) {
+    const kg = parseFloat(kgMatch[1]);
+    const grams = Math.round(kg * 1000);
+    return `${grams} g`;
+  }
+  const cleaned = raw.replace(/\bunit\.\w+/g, '').trim();
   return cleaned || undefined;
 }
 

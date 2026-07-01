@@ -104,6 +104,25 @@ Phase: `V1 - core read/search foundation`
 | Coop per-unit price fix              | done                   | Fixed `parseUnit()` in `coop.ts` to handle `content` as string or number (Coop API returns `"6"` not `6`); combines `content` + `contentUnit` to compute per-unit price (e.g., CHF 1.95/L for 6l milk); price comparison table now shows Coop per-unit prices; 477 tests pass |
 | Migros ingredients HTML strip        | done                   | Migros MGB endpoint returns ingredients with HTML tags (e.g., `<strong>Vollmilch</strong>`); added `.replace(/<[^>]*>/g, '')` to strip tags before storing; SPA now shows clean ingredient text; 477 tests pass |
 | Price comparison image column        | done                   | Added product image thumbnails to the price comparison table alongside chain badges; size, per-unit, and total columns added |
+| Availability N/A cache fix           | done                   | Normalized cache keys in Migros/Coop adapters (removed limit from key) so inner availability lookups (limit:1) reuse outer search results (limit:5); eliminates redundant browser round-trips on first load |
+| Migros availability store-finder fix | done                   | Added `userLatitude`/`userLongitude` to `StoreProductAvailabilityFilters`; geocodes user location once in `lookupAvailabilityByLocationProductsFirst` and passes coords to adapters; Migros adapter uses user coords instead of product query for `findStores` fallback |
+| Coop sale detection                  | done                   | Mapped Coop API `hasPromotion`, `originalPrice`, and `listPromotions` fields to `price.original` and `promotionLabel` on `NormalizedProduct`; handles `listPromotions` as `string | string[]`; SPA shows strikethrough original price + green promotion label; 48 tests pass |
+| Aldi special-buy tag extraction      | done                   | Parser extracts `¹`/`²` superscript markers from Aldi product page HTML (`base-price__superscript` class); adds `special-buy`/`limited-stock` tags to `NormalizedProduct`; SPA shows amber "Special Buy" or red "Limited Stock" badges |
+| SPA promotion label display          | done                   | Product cards and availability tab now render `promotionLabel` as green text next to price; works for Migros (badge labels) and Coop (discount percentages like "40%") |
+| `NormalizedProduct.promotionLabel`   | done                   | Added `promotionLabel?: string` field to `NormalizedProduct` type; propagated from Migros `promotionLabel` and Coop `listPromotions` |
+| SPA loading indicator race fix       | done                   | Fixed AbortError in search catch block: early return prevents hiding loading spinner when a new search replaces the aborted one |
+| Denner size parsing fix              | done                   | Fixed `cleanContentSize` to convert Prediggo `unit.g` (kilograms) to grams (e.g., `0.5 unit.g` → `500 g`); was incorrectly showing raw value as grams |
+| Aldi Vue.js superscript fix          | done                   | Updated regex to handle Vue.js SSR comments (`<!---->`) between tag content and superscript character; now correctly captures `²` markers on products like BIO-Protein-Vollkornbrötli |
+| Migros 404 availability graceful degradation | done | Stores returning 404 from Migros availability API now keep `supported: true` (instead of `false`) so UI shows stock status attempt rather than hard N/A |
+| Denner promotion passthrough         | done                   | `promotionAsProduct` now passes `price.original` and `promotionLabel` from Denner promotion data; SPA shows strikethrough original price + discount label |
+| SPA availability store filters       | done                   | "In Stock" and "Currently Open" checkboxes now filter displayed stores client-side; shows "(filtered)" in header and "No stores match filter criteria" empty state |
+| Aldi availability investigation      | done                   | Investigated Aldi product pages: no per-store availability data available; only generic `schema.org/InStock` from JSON-LD; Aldi store finder is general location service not product-specific |
+| Migros Glattzentrum costCenterId fix | done                   | `extractStoresFromResult` now uses `costCenterId ?? storeId ?? id` for Migros store IDs; MMM stores (like Glattzentrum) have different `costCenterId` vs `storeId`; availability API requires `costCenterId`; 404 errors keep `supported: true` instead of `false` |
+| Migros open/closed detection fix     | done                   | `parseOpeningHours` now handles time-only strings (e.g., `"06:30"`) from Migros API in addition to datetime strings; `h.open.includes(' ') ? h.open.split(' ')[1] : h.open` extracts time component; stores now correctly show "Open" status |
+| Aldi store availability API          | done                   | Implemented `findStores` (service-points API), `lookupStoreProductAvailability` (product-availability API), parsers for service-points and availability responses, Vue.js SSR comment regex fix; source registry updated to `live-beta`; API returns 403 from server (bot protection) |
+| Denner amount parsing fix            | done                   | `cleanContentSize` now converts Prediggo `unit.g` (kilograms) to grams (e.g., `0.5 unit.g` → `500 g`); `unit.g` means kilograms in Prediggo API, not grams |
+| Lidl promotions investigation        | done                   | Confirmed NOT possible: HTML scraping only returns single `price` per product; campaign API returns metadata only; no original/discount data from any Lidl source |
+| Aldi product-page availability       | done                   | Confirmed NOT available from product pages; only generic `schema.org/InStock` from JSON-LD; no per-store stock data exists |
 
 ## Next tasks
 
@@ -116,7 +135,6 @@ Phase: `V1 - core read/search foundation`
 7. Decide whether live product search requires an approved provider/central index instead of local runtime crawling
 8. Normalize Migros nutrition data to per-100g/100ml basis (currently raw API values)
 9. Investigate Aldi/Volg/Otto's product detail pages for size/quantity extraction (currently no size data)
-10. Add size/unit extraction to Denner Prediggo search API parser (currently only HTML parsers set size)
 
 ## Decisions
 
@@ -131,3 +149,10 @@ Phase: `V1 - core read/search foundation`
 - Real-data migration must prove each chain independently; unsolved chains should return explicit source warnings instead of static fallback data
 - Real-data infrastructure should remain backward compatible until a chain source audit chooses the first live-beta adapter
 - Aldi product search is the first live-beta runtime path; deterministic tests use `createDefaultAdapters({ dataMode: "legacy-static" })` when they need the old static catalog behavior
+- Aldi `^1`/`^2` superscript markers indicate "special buy" / limited stock, NOT sale with original price; rendered as colored badges with tooltips
+- Aldi availability API: `GET https://api.aldi-suisse.ch/v2/service-point-product-availability?productSku={sku}&servicePointReference={ref}`; `productSku` is trailing 18-digit number in product URLs
+- Aldi store finder: `GET https://api.aldi-suisse.ch/v2/service-points?latitude={lat}&longitude={lon}`; returns 233 Swiss stores; `id` field is `servicePointReference`
+- Denner `unit.g` means kilograms, NOT grams (e.g., `0.5 unit.g` = 500g); `cleanContentSize` converts correctly
+- Migros MMM stores (like Glattzentrum) have different `costCenterId` vs `storeId`; availability API requires `costCenterId`
+- Migros API `openingHours[].hours[].open` can be time-only (`"06:30"`) or datetime (`"2026-06-20 07:30"`)
+- Availability filters (In Stock, Currently Open) are purely client-side; `renderAvailResults()` re-renders from cached `lastAvailProducts` without server calls

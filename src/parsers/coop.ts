@@ -15,6 +15,14 @@ export interface CoopProduct {
     currencyIso: string;
     formattedValue?: string;
   };
+  originalPrice?: {
+    value: number;
+    currencyIso: string;
+    formattedValue?: string;
+  };
+  hasPromotion?: boolean;
+  discountPercentage?: number;
+  listPromotions?: string | string[];
   basePrice?: {
     value: number;
     currencyIso?: string;
@@ -74,6 +82,7 @@ export interface CoopParsedProduct {
   price: {
     current: number;
     currency: string;
+    original?: number;
   };
   unit?: {
     value: number;
@@ -97,6 +106,7 @@ export interface CoopParsedProduct {
   };
   allergens?: string[];
   ingredients?: string;
+  promotionLabel?: string;
 }
 
 export interface CoopParsedStore {
@@ -174,6 +184,16 @@ export function parseCoopSearchResponse(
     if (product.vegan) allergens.push('vegan');
     if (product.vegetarian) allergens.push('vegetarian');
 
+    // Extract sale/promotion data
+    const hasPromotion = product.hasPromotion === true;
+    const original = hasPromotion && product.originalPrice && typeof product.originalPrice.value === 'number' && product.originalPrice.value > 0
+      ? product.originalPrice.value
+      : undefined;
+    // listPromotions can be a string or string[] from the Coop API
+    const rawPromo = product.listPromotions;
+    const promoStr = Array.isArray(rawPromo) ? rawPromo.join(', ') : rawPromo;
+    const promotionLabel = promoStr || (hasPromotion && product.discountPercentage ? `${product.discountPercentage}% off` : undefined);
+
     return [
       {
         id: product.code,
@@ -181,7 +201,7 @@ export function parseCoopSearchResponse(
         productUrl: product.url ? `https://www.coop.ch${product.url}` : undefined,
         name: product.name,
         brand: product.brandName,
-        price,
+        price: { ...price, original },
         unit,
         vendorUnitPrice,
         size: (product.content != null && product.contentUnit)
@@ -190,6 +210,7 @@ export function parseCoopSearchResponse(
         category,
         image,
         allergens: allergens.length > 0 ? allergens : undefined,
+        promotionLabel,
       },
     ];
   });

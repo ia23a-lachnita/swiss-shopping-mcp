@@ -60,6 +60,7 @@ function toNormalizedProduct(
     brand: product.brand,
     price: {
       current: product.price.current,
+      original: product.price.original,
       unit: product.unit,
       vendorUnitPrice: product.vendorUnitPrice,
     },
@@ -70,6 +71,7 @@ function toNormalizedProduct(
     nutrition: product.nutrition,
     allergens: product.allergens,
     ingredients: product.ingredients ? [product.ingredients] : undefined,
+    promotionLabel: product.promotionLabel,
     provenance: { ...provenance, sourceUrl: product.sourceUrl },
   };
 }
@@ -127,7 +129,8 @@ export class CoopLiveAdapter implements ChainAdapter {
 
     const limit = typeof filters.limit === 'number' ? filters.limit : DEFAULT_SEARCH_LIMIT;
     const searchUrl = `${BASE_URL}/products/search/${encodeURIComponent(query)}?currentPage=0&pageSize=${limit}&fields=FULL`;
-    const cacheKey = `coop:search:${query}:${limit}`;
+    // Normalize cache key: ignore limit so inner availability lookups (limit:1) reuse outer search results (limit:5)
+    const cacheKey = `coop:search:${query}`;
 
     const cached = await this.cache.get<CoopSearchResponse>(cacheKey, { allowStale: true });
     if (cached && !cached.isStale) {
@@ -533,7 +536,7 @@ export class CoopLiveAdapter implements ChainAdapter {
         distance: loc.distance,
       }));
 
-      const isAvailable = matches.length > 0;
+      const isAvailable = matches.some((m) => m.available);
 
       return {
         ok: true,

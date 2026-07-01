@@ -162,6 +162,10 @@ function revivePromotion(promotion: DennerParsedPromotion): DennerParsedPromotio
 }
 
 function promotionAsProduct(promotion: NormalizedPromotion): NormalizedProduct {
+  const discount = promotion.discount;
+  const label = discount
+    ? discount.type === 'percentage' ? `${discount.value}%` : `-CHF ${discount.value.toFixed(2)}`
+    : promotion.title;
   return {
     id: promotion.id,
     chain: promotion.chain,
@@ -169,7 +173,11 @@ function promotionAsProduct(promotion: NormalizedPromotion): NormalizedProduct {
     brand: promotion.brand,
     category: promotion.category,
     size: promotion.description,
-    price: promotion.price ?? { current: Number.POSITIVE_INFINITY },
+    price: {
+      current: promotion.price?.current ?? Number.POSITIVE_INFINITY,
+      original: promotion.originalPrice,
+    },
+    promotionLabel: label,
     tags: ['promotion'],
   };
 }

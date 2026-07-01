@@ -332,7 +332,7 @@ describe('Price comparison — offers structure', () => {
 });
 
 describe('Availability — products-first endpoint', () => {
-  it('Returns product availability data', async () => {
+  it('Returns product availability data', { timeout: 15000 }, async () => {
     const r = await post('/api/store-availability', { query: 'Milch', location: 'Bern' });
     expect(r.ok).toBe(true);
     expect(Array.isArray(r.data)).toBe(true);

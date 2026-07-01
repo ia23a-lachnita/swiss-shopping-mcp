@@ -476,6 +476,7 @@
 
   <script>
     const ALL_CHAINS = ['migros','coop','aldi','denner','lidl','ottos','volg'];
+    let lastAvailProducts = [];
 
     const CAPABILITY_LABELS = {
       productSearch: 'Product Search',
@@ -627,8 +628,11 @@
             (p.brand ? '<div class="brand">' + escapeHtml(p.brand) + '</div>' : '') +
             (p.category ? '<div class="category">' + escapeHtml(p.category) + '</div>' : '') +
             (p.size ? '<div class="size">' + escapeHtml(p.size) + '</div>' : '') +
+            (p.tags && p.tags.includes('special-buy') ? '<div style="margin-top:2px;"><span title="Special Buy: Limited-time promotional item, available while supplies last" style="background:#f59e0b;color:#fff;font-size:10px;padding:1px 6px;border-radius:3px;font-weight:500;cursor:help;">Special Buy</span></div>' : '') +
+            (p.tags && p.tags.includes('limited-stock') ? '<div style="margin-top:2px;"><span title="Limited Stock: Product has limited availability at this location" style="background:#ef4444;color:#fff;font-size:10px;padding:1px 6px;border-radius:3px;font-weight:500;cursor:help;">Limited Stock</span></div>' : '') +
             '<div class="price">' + formatPrice(p.price.current) +
             (p.price.original ? '<span class="original">' + formatPrice(p.price.original) + '</span>' : '') +
+            (p.promotionLabel ? ' <span style="color:var(--green);font-size:11px;font-weight:500;">' + escapeHtml(p.promotionLabel) + '</span>' : '') +
             '</div>';
 
           const hasNutrition = p.nutrition && (
@@ -696,10 +700,9 @@
           grid.appendChild(card);
         });
       } catch (e) {
+        if (e.name === 'AbortError') return;
         hideLoading('search-loading');
-        if (e.name !== 'AbortError') {
-          showError('search-error', 'Network error: ' + e.message);
-        }
+        showError('search-error', 'Network error: ' + e.message);
       }
     });
 
@@ -952,7 +955,7 @@
     });
 
     // Availability Check
-    const AVAIL_CHAINS = ['migros', 'coop'];
+    const AVAIL_CHAINS = ['migros', 'coop', 'aldi'];
     function renderAvailChainFilters() {
       const container = document.getElementById('avail-chains');
       AVAIL_CHAINS.forEach(chain => {
@@ -963,6 +966,107 @@
       });
     }
     renderAvailChainFilters();
+
+    function renderAvailResults() {
+      const products = lastAvailProducts;
+      const grid = document.getElementById('avail-results');
+      if (!products.length) { grid.innerHTML = ''; return; }
+
+      const allStores = products.flatMap(item => item.stores || []);
+      const allUnsupported = allStores.length > 0 && allStores.every(s => s.availabilitySupported === false);
+
+      let html = '';
+      if (allUnsupported) {
+        html += '<div class="error-box" style="background:#fef3cd;border-color:#fbbf24;color:#92400e;margin-bottom:16px;">';
+        html += '<strong>Availability data is not available.</strong><br>';
+        html += 'The retailer availability APIs are currently unavailable (blocked or deprecated). ';
+        html += 'Product search results below show stores near your location, but real-time stock status cannot be retrieved.';
+        html += '</div>';
+      }
+
+      html += '<div class="product-grid" style="grid-template-columns: repeat(2, 1fr); gap: 16px;">';
+
+      products.forEach(item => {
+        const p = item.product;
+        const itemStores = item.stores || [];
+        const inStockOnly = document.getElementById('avail-instock').checked;
+        const openNow = document.getElementById('avail-open').checked;
+        const stores = itemStores.filter(s => {
+          if (inStockOnly && !s.available) return false;
+          if (openNow && s.isOpen === false) return false;
+          return true;
+        });
+        const inStockCount = stores.filter(s => s.available).length;
+
+        html += '<div class="product-card">';
+        const imageHtml = p.image
+          ? '<img class="image" src="' + escapeHtml(p.image) + '" alt="" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'"><div class="no-image" style="display:none">No image</div>'
+          : '<div class="no-image">No image</div>';
+        html += imageHtml;
+        html += '<span class="chain-badge ' + chainBadgeClass(p.chain) + '">' + p.chain + '</span>';
+        html += '<div class="name">' + escapeHtml(p.name) + '</div>';
+        if (p.brand) html += '<div class="brand">' + escapeHtml(p.brand) + '</div>';
+        if (p.category) html += '<div class="category">' + escapeHtml(p.category) + '</div>';
+        html += '<div class="price">' + formatPrice(p.price.current);
+        if (p.price.original) html += '<span class="original">' + formatPrice(p.price.original) + '</span>';
+        if (p.promotionLabel) html += ' <span style="color:var(--green);font-size:11px;font-weight:500;">' + escapeHtml(p.promotionLabel) + '</span>';
+        html += '</div>';
+        if (p.tags && p.tags.includes('special-buy')) html += '<div style="margin-top:2px;"><span title="Special Buy: Limited-time promotional item, available while supplies last" style="background:#f59e0b;color:#fff;font-size:10px;padding:1px 6px;border-radius:3px;font-weight:500;cursor:help;">Special Buy</span></div>';
+        if (p.tags && p.tags.includes('limited-stock')) html += '<div style="margin-top:2px;"><span title="Limited Stock: Product has limited availability at this location" style="background:#ef4444;color:#fff;font-size:10px;padding:1px 6px;border-radius:3px;font-weight:500;cursor:help;">Limited Stock</span></div>';
+
+        if (p.nutrition && p.nutrition.energyKcal !== undefined) {
+          html += '<div style="margin-top:6px;font-size:11px;color:var(--gray-500);">';
+          html += p.nutrition.energyKcal + ' kcal';
+          if (p.nutrition.protein !== undefined) html += ' | ' + p.nutrition.protein + 'g protein';
+          if (p.nutrition.fat !== undefined) html += ' | ' + p.nutrition.fat + 'g fat';
+          html += '</div>';
+        }
+
+        html += '<div style="margin-top:8px;padding:8px;background:var(--gray-50);border-radius:6px;font-size:12px;">';
+        const unsupportedStores = itemStores.filter(s => s.availabilitySupported === false);
+        const filterActive = inStockOnly || openNow;
+        if (unsupportedStores.length === itemStores.length && itemStores.length > 0) {
+          html += '<div style="font-weight:600;margin-bottom:4px;color:var(--gray-500);">' + p.chain.charAt(0).toUpperCase() + p.chain.slice(1) + ' stores: stock status unavailable</div>';
+        } else {
+          html += '<div style="font-weight:600;margin-bottom:4px;">' + p.chain.charAt(0).toUpperCase() + p.chain.slice(1) + ' stores: ' + inStockCount + '/' + stores.length + ' in stock' + (filterActive ? ' (filtered)' : '') + '</div>';
+        }
+        if (stores.length > 0) {
+          stores.forEach(s => {
+            let availDot;
+            if (s.availabilitySupported === false) {
+              availDot = '<span style="color:#9ca3af;font-weight:600;">&#9675; N/A</span>';
+            } else if (s.available && s.stockCount !== undefined && s.stockCount <= 5) {
+              availDot = '<span style="color:#d97706;font-weight:600;">&#9679; Few Available</span>';
+            } else if (s.available) {
+              availDot = '<span style="color:#059669;font-weight:600;">&#9679; In Stock</span>';
+            } else {
+              availDot = '<span style="color:#dc2626;font-weight:600;">&#9675; Out</span>';
+            }
+            const openTag = s.isOpen === true ? ' <span style="color:#059669;font-size:10px;">Open</span>'
+              : s.isOpen === false ? ' <span style="color:#dc2626;font-size:10px;">Closed</span>' : '';
+            const reasonTag = s.availabilityReason ? ' <span style="color:#9ca3af;font-size:10px;">(' + escapeHtml(s.availabilityReason) + ')</span>' : '';
+            html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:2px 0;border-top:1px solid var(--gray-200);">';
+            html += '<span>' + escapeHtml(s.name) + openTag + reasonTag + '</span>';
+            html += availDot + '</div>';
+          });
+        } else {
+          if (filterActive && itemStores.length > 0) {
+            html += '<div style="color:var(--gray-500);font-style:italic;">No stores match your filter criteria (' + (inStockOnly ? 'in stock' : '') + (inStockOnly && openNow ? ' + ' : '') + (openNow ? 'currently open' : '') + ')</div>';
+          } else {
+            html += '<div style="color:var(--gray-500);font-style:italic;">No nearby stores found</div>';
+          }
+        }
+        html += '</div>';
+
+        if (p.productUrl) {
+          html += '<a class="vendor-link" href="' + escapeHtml(p.productUrl) + '" target="_blank" rel="noopener" style="margin-top:auto;">View on ' + p.chain.charAt(0).toUpperCase() + p.chain.slice(1) + ' &rarr;</a>';
+        }
+        html += '</div>';
+      });
+
+      html += '</div>';
+      grid.innerHTML = html;
+    }
 
     document.getElementById('avail-btn').addEventListener('click', async () => {
       const query = document.getElementById('avail-query').value.trim();
@@ -976,11 +1080,9 @@
 
       const chains = getSelectedChains('avail-chains');
       const limit = parseInt(document.getElementById('avail-limit').value, 10);
-      const inStockOnly = document.getElementById('avail-instock').checked;
-      const openNow = document.getElementById('avail-open').checked;
 
       try {
-        const result = await apiPost('/api/product-availability', { query, location, chains, limit, inStockOnly, openNow });
+        const result = await apiPost('/api/product-availability', { query, location, chains, limit });
         hideLoading('avail-loading');
 
         if (!result.ok) {
@@ -988,97 +1090,8 @@
           return;
         }
 
-        const products = result.data || [];
-        const grid = document.getElementById('avail-results');
-
-        if (products.length === 0) {
-          showError('avail-error', 'No products found with availability data for this query.');
-          return;
-        }
-
-        // Check if ALL stores across all products are unsupported
-        const allStores = products.flatMap(item => item.stores || []);
-        const allUnsupported = allStores.length > 0 && allStores.every(s => s.availabilitySupported === false);
-
-        let html = '';
-
-        if (allUnsupported) {
-          html += '<div class="error-box" style="background:#fef3cd;border-color:#fbbf24;color:#92400e;margin-bottom:16px;">';
-          html += '<strong>Availability data is not available.</strong><br>';
-          html += 'The retailer availability APIs are currently unavailable (blocked or deprecated). ';
-          html += 'Product search results below show stores near your location, but real-time stock status cannot be retrieved.';
-          html += '</div>';
-        }
-
-        html += '<div class="product-grid" style="grid-template-columns: repeat(2, 1fr); gap: 16px;">';
-
-        products.forEach(item => {
-          const p = item.product;
-          const stores = item.stores || [];
-          const inStockCount = stores.filter(s => s.available).length;
-
-          html += '<div class="product-card">';
-          const imageHtml = p.image
-            ? '<img class="image" src="' + escapeHtml(p.image) + '" alt="" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'"><div class="no-image" style="display:none">No image</div>'
-            : '<div class="no-image">No image</div>';
-          html += imageHtml;
-          html += '<span class="chain-badge ' + chainBadgeClass(p.chain) + '">' + p.chain + '</span>';
-          html += '<div class="name">' + escapeHtml(p.name) + '</div>';
-          if (p.brand) html += '<div class="brand">' + escapeHtml(p.brand) + '</div>';
-          if (p.category) html += '<div class="category">' + escapeHtml(p.category) + '</div>';
-          html += '<div class="price">' + formatPrice(p.price.current);
-          if (p.price.original) html += '<span class="original">' + formatPrice(p.price.original) + '</span>';
-          html += '</div>';
-
-          // Nutrition preview (compact)
-          if (p.nutrition && p.nutrition.energyKcal !== undefined) {
-            html += '<div style="margin-top:6px;font-size:11px;color:var(--gray-500);">';
-            html += p.nutrition.energyKcal + ' kcal';
-            if (p.nutrition.protein !== undefined) html += ' | ' + p.nutrition.protein + 'g protein';
-            if (p.nutrition.fat !== undefined) html += ' | ' + p.nutrition.fat + 'g fat';
-            html += '</div>';
-          }
-
-          // Store availability
-          html += '<div style="margin-top:8px;padding:8px;background:var(--gray-50);border-radius:6px;font-size:12px;">';
-          const unsupportedStores = stores.filter(s => s.availabilitySupported === false);
-          if (unsupportedStores.length === stores.length && stores.length > 0) {
-            html += '<div style="font-weight:600;margin-bottom:4px;color:var(--gray-500);">' + p.chain.charAt(0).toUpperCase() + p.chain.slice(1) + ' stores: stock status unavailable</div>';
-          } else {
-            html += '<div style="font-weight:600;margin-bottom:4px;">' + p.chain.charAt(0).toUpperCase() + p.chain.slice(1) + ' stores: ' + inStockCount + '/' + stores.length + ' in stock</div>';
-          }
-          if (stores.length > 0) {
-            stores.forEach(s => {
-              let availDot;
-              if (s.availabilitySupported === false) {
-                availDot = '<span style="color:#9ca3af;font-weight:600;">&#9675; N/A</span>';
-              } else if (s.available && s.stockCount !== undefined && s.stockCount <= 5) {
-                availDot = '<span style="color:#d97706;font-weight:600;">&#9679; Few Available</span>';
-              } else if (s.available) {
-                availDot = '<span style="color:#059669;font-weight:600;">&#9679; In Stock</span>';
-              } else {
-                availDot = '<span style="color:#dc2626;font-weight:600;">&#9675; Out</span>';
-              }
-              const openTag = s.isOpen === true ? ' <span style="color:#059669;font-size:10px;">Open</span>'
-                : s.isOpen === false ? ' <span style="color:#dc2626;font-size:10px;">Closed</span>' : '';
-              const reasonTag = s.availabilityReason ? ' <span style="color:#9ca3af;font-size:10px;">(' + escapeHtml(s.availabilityReason) + ')</span>' : '';
-              html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:2px 0;border-top:1px solid var(--gray-200);">';
-              html += '<span>' + escapeHtml(s.name) + openTag + reasonTag + '</span>';
-              html += availDot + '</div>';
-            });
-          } else {
-            html += '<div style="color:var(--gray-500);font-style:italic;">No nearby stores found</div>';
-          }
-          html += '</div>';
-
-          if (p.productUrl) {
-            html += '<a class="vendor-link" href="' + escapeHtml(p.productUrl) + '" target="_blank" rel="noopener" style="margin-top:auto;">View on ' + p.chain.charAt(0).toUpperCase() + p.chain.slice(1) + ' &rarr;</a>';
-          }
-          html += '</div>';
-        });
-
-        html += '</div>';
-        grid.innerHTML = html;
+        lastAvailProducts = result.data || [];
+        renderAvailResults();
       } catch (e) {
         hideLoading('avail-loading');
         showError('avail-error', 'Network error: ' + e.message);
@@ -1100,8 +1113,8 @@
     }
     document.getElementById('avail-chains').addEventListener('change', autoAvailIfReady);
     document.getElementById('avail-limit').addEventListener('change', autoAvailIfReady);
-    document.getElementById('avail-instock').addEventListener('change', autoAvailIfReady);
-    document.getElementById('avail-open').addEventListener('change', autoAvailIfReady);
+    document.getElementById('avail-instock').addEventListener('change', renderAvailResults);
+    document.getElementById('avail-open').addEventListener('change', renderAvailResults);
 
     // Source Status
     async function loadSourceStatus() {

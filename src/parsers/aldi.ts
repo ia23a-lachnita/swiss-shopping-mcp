@@ -15,6 +15,29 @@ export interface AldiParsedProduct {
   category?: string;
   image?: string;
   availability?: string;
+  tags?: string[];
+  productSku?: string;
+}
+
+export interface AldiServicePoint {
+  id: string;
+  name: string;
+  latitude?: number;
+  longitude?: number;
+  isOpenNow?: boolean;
+  distance?: string;
+  city?: string;
+  zip?: string;
+  street?: string;
+}
+
+export interface AldiAvailabilityResult {
+  servicePointReference: string;
+  availabilityTrafficLight: string;
+  stockInfoDisplay: string;
+  servicePointName: string;
+  distance?: string;
+  isOpenNow?: boolean;
 }
 
 interface JsonLdObject {
@@ -70,6 +93,50 @@ function getJsonLdType(value: JsonLdObject): string[] {
 function extractProductId(sourceUrl: string): string | undefined {
   const productSlug = new URL(sourceUrl).pathname.split('/').filter(Boolean).at(-1);
   return productSlug;
+}
+
+export function extractProductSku(productId: string): string | undefined {
+  const match = productId.match(/(\d{18})$/);
+  return match ? match[1] : undefined;
+}
+
+export function parseAldiServicePointsResponse(data: unknown): AldiServicePoint[] {
+  const response = data as Record<string, unknown>;
+  const items = response?.data;
+  if (!Array.isArray(items)) return [];
+
+  return items.map((item) => {
+    const s = item as Record<string, unknown>;
+    const addr = s.address as Record<string, unknown> | undefined;
+    return {
+      id: String(s.id ?? ''),
+      name: String(addr?.address1 ?? s.name ?? ''),
+      latitude: typeof addr?.latitude === 'string' ? parseFloat(addr.latitude) : undefined,
+      longitude: typeof addr?.longitude === 'string' ? parseFloat(addr.longitude) : undefined,
+      isOpenNow: typeof s.isOpenNow === 'boolean' ? s.isOpenNow : undefined,
+      distance: typeof s.distance === 'string' ? s.distance : undefined,
+      city: typeof addr?.city === 'string' ? addr.city : undefined,
+      zip: typeof addr?.zipCode === 'string' ? addr.zipCode : undefined,
+      street: typeof addr?.address1 === 'string' ? addr.address1 : undefined,
+    };
+  });
+}
+
+export function parseAldiAvailabilityResponse(data: unknown): AldiAvailabilityResult[] {
+  const response = data as Record<string, unknown>;
+  const items = response?.data;
+  if (!Array.isArray(items)) return [];
+
+  return items.map((item) => {
+    const s = item as Record<string, unknown>;
+    return {
+      servicePointReference: String(s.servicePointReference ?? ''),
+      availabilityTrafficLight: String(s.availabilityTrafficLight ?? 'red'),
+      stockInfoDisplay: String(s.stockInfoDisplay ?? ''),
+      servicePointName: String(s.servicePointName ?? ''),
+      distance: typeof s.distance === 'string' ? s.distance : undefined,
+    };
+  });
 }
 
 function parseJsonLdBlocks(html: string): JsonLdObject[] {
@@ -170,6 +237,13 @@ export function parseAldiProductPage(html: string, sourceUrl?: string): AldiPars
 
   const currency = getString(offer?.priceCurrency) ?? 'CHF';
 
+  // Extract superscript markers (¹, ²) from HTML — indicate "special buy" / limited availability
+  const tags: string[] = [];
+  const superscriptMatch = html.match(/base-price__superscript[^>]*>(?:<!--.*?-->)?\s*([¹²])\s*<\/span>/);
+  if (superscriptMatch) {
+    tags.push(superscriptMatch[1] === '¹' ? 'special-buy' : 'limited-stock');
+  }
+
   return {
     id,
     sourceUrl: resolvedSourceUrl,
@@ -182,5 +256,6 @@ export function parseAldiProductPage(html: string, sourceUrl?: string): AldiPars
     category: findCategory(blocks),
     image: getImage(product.image),
     availability: getString(offer?.availability),
+    tags: tags.length > 0 ? tags : undefined,
   };
 }

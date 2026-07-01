@@ -153,32 +153,23 @@ describe('AldiLiveAdapter', () => {
     }
   });
 
-  it('does not implement store search or store-level availability', async () => {
+  it('getStoreAvailabilitySupport returns supported: true', () => {
+    const adapter = new AldiLiveAdapter({
+      cache: undefined as unknown as FileTtlCache,
+      sourceClient: new SourceHttpClient({ fetchImpl: vi.fn() as unknown as typeof fetch, retries: 0 }),
+    });
+    const support = adapter.getStoreAvailabilitySupport();
+    expect(support.chain).toBe('aldi');
+    expect(support.supported).toBe(true);
+    expect(support.reason).toBeTruthy();
+  });
+
+  it('findStores returns error when fetch fails', async () => {
     const adapter = new AldiLiveAdapter({
       cache: await createCache(),
       sourceClient: new SourceHttpClient({ fetchImpl: vi.fn() as unknown as typeof fetch, retries: 0 }),
     });
-
-    const stores = await adapter.findStores({ location: 'Zürich' });
-    const support = adapter.getStoreAvailabilitySupport();
-    const availability = await adapter.lookupStoreProductAvailability({
-      storeId: 'aldi-zurich',
-      query: 'toskanabrot',
-    });
-
+    const stores = await adapter.findStores({ location: 'Zürich', latitude: 47.3769, longitude: 8.5417 });
     expect(stores.ok).toBe(false);
-    if (!stores.ok) {
-      expect(stores.error.code).toBe(SourceWarningCode.RealSourceNotImplemented);
-    }
-    expect(support).toEqual({
-      chain: 'aldi',
-      supported: false,
-      reason: 'Aldi live-beta adapter does not expose store-level product availability.',
-    });
-    expect(availability.ok).toBe(true);
-    if (availability.ok) {
-      expect(availability.data.supported).toBe(false);
-      expect(availability.data.isAvailable).toBe(false);
-    }
   });
 });
