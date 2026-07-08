@@ -526,6 +526,8 @@ export class MigrosLiveAdapter implements ChainAdapter {
     else return [];
 
     // Normalize Migros store format: { storeId, storeName, location: { latitude, longitude }, openingHours }
+    // Only keep supermarket stores (mm, m, mmm) — exclude Migrolino, PickMup, VOI, etc.
+    const SUPERMARKET_TYPES = new Set(['m', 'mm', 'mmm', '']);
     return raw.map((item) => {
       if (!item || typeof item !== 'object') return item as MigrosApiStore;
       const s = item as Record<string, unknown>;
@@ -542,7 +544,7 @@ export class MigrosLiveAdapter implements ChainAdapter {
         street: String(addr?.street ?? s.street ?? ''),
         storeType: String(s.storeType ?? ''),
       } as unknown as MigrosApiStore;
-    });
+    }).filter((store) => SUPERMARKET_TYPES.has(store.storeType ?? ''));
   }
 
   private parseOpeningHours(openingHours: unknown): string | undefined {

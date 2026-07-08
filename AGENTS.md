@@ -27,10 +27,21 @@ Build a TypeScript MCP server for Swiss retail/grocery discovery and comparison.
 Only use development MCPs relevant to this codebase:
 - `context7` for library docs
 - `context-mode` for large-output command execution
-- `gemini-cli` only for optional design/code review second opinion
+- `antigravity-mcp` for AI-powered code review, brainstorming, and second opinion (uses Gemini via Google subscription)
 - `stealth-browser-mcp` for manual SPA testing and vendor website investigation
 
 Do not add runtime/business MCPs (e.g., external shopping/account MCPs) to this repository config.
+
+## antigravity-mcp model priority
+
+When using `antigravity-mcp` for code review or brainstorming, prefer models in this order (fall back to next if usage exhausted):
+1. `gemini-3.1-pro-preview`
+2. `gemini-3.5-flash-preview`
+3. `gemini-3-pro`
+4. `gemini-3-flash`
+5. (weaker models down the list)
+
+Do NOT specify a model unless explicitly asked — let the default handle it.
 
 ## Execution workflow (MANDATORY MANUAL TESTING CONTRACT)
 

@@ -956,12 +956,14 @@
 
     // Availability Check
     const AVAIL_CHAINS = ['migros', 'coop', 'aldi'];
+    const AVAIL_CHAINS_DEFAULT_CHECKED = ['migros', 'coop'];
     function renderAvailChainFilters() {
       const container = document.getElementById('avail-chains');
       AVAIL_CHAINS.forEach(chain => {
         const label = document.createElement('label');
         label.className = 'chain-checkbox';
-        label.innerHTML = '<input type="checkbox" value="' + chain + '" checked> ' + chain.charAt(0).toUpperCase() + chain.slice(1);
+        const checked = AVAIL_CHAINS_DEFAULT_CHECKED.includes(chain) ? ' checked' : '';
+        label.innerHTML = '<input type="checkbox" value="' + chain + '"' + checked + '> ' + chain.charAt(0).toUpperCase() + chain.slice(1);
         container.appendChild(label);
       });
     }

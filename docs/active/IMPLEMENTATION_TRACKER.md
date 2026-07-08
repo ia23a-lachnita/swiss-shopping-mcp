@@ -123,6 +123,9 @@ Phase: `V1 - core read/search foundation`
 | Denner amount parsing fix            | done                   | `cleanContentSize` now converts Prediggo `unit.g` (kilograms) to grams (e.g., `0.5 unit.g` → `500 g`); `unit.g` means kilograms in Prediggo API, not grams |
 | Lidl promotions investigation        | done                   | Confirmed NOT possible: HTML scraping only returns single `price` per product; campaign API returns metadata only; no original/discount data from any Lidl source |
 | Aldi product-page availability       | done                   | Confirmed NOT available from product pages; only generic `schema.org/InStock` from JSON-LD; no per-store stock data exists |
+| Aldi availability checkbox default   | done                   | Aldi checkbox defaults to unchecked in availability tab since Aldi store availability API returns 403 (bot protection); Migros and Coop remain checked by default |
+| Migros store type filtering          | done                   | `extractStoresFromResult` now filters by `storeType` to only include supermarket stores (`m`, `mm`, `mmm`); excludes Migrolino, PickMup, VOI convenience/pickup stores that don't have product availability |
+| AGENTS.md: antigravity-mcp          | done                   | Replaced deprecated `gemini-cli` MCP with `antigravity-mcp` for AI-powered code review; added model priority order: gemini-3.1-pro-preview → gemini-3.5-flash-preview → gemini-3-pro → gemini-3-flash |
 
 ## Next tasks
 

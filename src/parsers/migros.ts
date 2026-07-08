@@ -54,6 +54,7 @@ export interface MigrosApiStore {
   longitude?: number;
   opening_hours?: string;
   canton?: string;
+  storeType?: string;
 }
 
 export interface MigrosStoresResponse {
