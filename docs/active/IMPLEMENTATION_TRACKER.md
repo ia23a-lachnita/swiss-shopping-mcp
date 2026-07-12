@@ -126,9 +126,13 @@ Phase: `V1 - core read/search foundation`
 | Aldi availability checkbox default   | done                   | Aldi checkbox defaults to unchecked in availability tab since Aldi store availability API returns 403 (bot protection); Migros and Coop remain checked by default |
 | Migros store type filtering          | done                   | `extractStoresFromResult` now filters by `storeType` to only include supermarket stores (`m`, `mm`, `mmm`); excludes Migrolino, PickMup, VOI convenience/pickup stores that don't have product availability |
 | AGENTS.md: antigravity-mcp          | done                   | Replaced deprecated `gemini-cli` MCP with `antigravity-mcp` for AI-powered code review; added model priority order: gemini-3.1-pro-preview → gemini-3.5-flash-preview → gemini-3-pro → gemini-3-flash |
+| Web-augmented semantic search       | done                   | `src/sources/webSearch.ts` (GoogleCustomSearchProvider + DuckDuckGoHtmlProvider with 202/anomaly challenge detection and request serialization), `src/services/webProductSearchService.ts` (site-restricted search → product-ID extraction → adapter hydration, per-query ID cache, never caches empty lists), `getProductsByIds` on Migros (product-cards) and Coop (detail API) adapters, hybrid merge in `SearchService` (web-ranked results lead, vendor dedupe keeps enrichment); env: `SWISS_SHOPPING_WEB_SEARCH=auto\|google\|ddg\|off`, `GOOGLE_CSE_API_KEY`, `GOOGLE_CSE_CX`; vitest env pins web search off; verified in browser: "toothpaste for sensitive teeth" 0→5 relevant results |
+| Delivery model decision             | done                   | `docs/active/DELIVERY_MODEL_DECISION.md`: PWA-first on small VPS (Docker, Playwright-capable), MCP as secondary agent interface, optional Telegram bot Phase 3; native app and agent-only delivery rejected with reasons |
 
 ## Next tasks
 
+0. Delivery Phase 1 (PWA): mobile-first CSS pass, web app manifest + install support, "Use my location" geolocation button, availability tab as landing view (see `docs/active/DELIVERY_MODEL_DECISION.md`)
+0b. Delivery Phase 2: Dockerfile + VPS deploy + `GOOGLE_CSE_API_KEY`/`GOOGLE_CSE_CX` for reliable semantic web search
 1. Run `RUN_CONTRACT_TESTS=1 pnpm test:contract` to validate real API endpoints (first time)
 2. Run `LIVE_SOURCE_TESTS=1 pnpm test:live` to validate live adapter smoke tests
 3. Add richer store geospatial filtering (distance/radius)

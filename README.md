@@ -68,6 +68,19 @@ Or configure in your MCP client's settings:
 }
 ```
 
+## Configuration
+
+Environment variables:
+
+| Variable | Default | Description |
+| --- | --- | --- |
+| `SWISS_SHOPPING_WEB_SEARCH` | `auto` | Semantic web-augmented product search: `auto` (Google when keys are set, otherwise DuckDuckGo), `google`, `ddg`, or `off`. |
+| `GOOGLE_CSE_API_KEY` | — | Google Programmable Search API key (recommended: 100 free queries/day; far more reliable than the keyless DuckDuckGo fallback, which rate-limits bursts). |
+| `GOOGLE_CSE_CX` | — | Google Programmable Search engine ID (`cx`). Create one at https://programmablesearchengine.google.com with "Search the entire web" enabled. |
+| `SWISS_SHOPPING_CACHE_DIR` | OS temp dir | Directory for the file TTL cache. |
+
+Web-augmented search issues site-restricted engine queries (e.g. `site:migros.ch/de/product zahncreme empfindliche zaehne`), extracts product IDs from the ranked result URLs, and hydrates full product data through the vendor detail APIs (currently Migros and Coop). It fixes the semantic gap of literal vendor search — English or paraphrased queries like "toothpaste for sensitive teeth" return products instead of zero results. Engine failures degrade gracefully to vendor-only results with a source warning.
+
 ## Development
 
 ```bash
