@@ -65,6 +65,7 @@ Proceeding without browser verification is a contract violation.
 13. Run full test suite (`npm test -- --run`)
 14. Lint (`npm run lint`)
 15. Update tracker
+16. **Commit AND push** (`git push origin main`) — committing without pushing is a contract violation. Verify with `git status` that the branch is not ahead of origin before ending the task.
 
 ### Key rule
 **Never mark a fix as done without browser verification. Build/test passing is NOT sufficient.**
@@ -100,6 +101,7 @@ Adapters translate source data into this contract only.
 - Tests cover normal path + edge/error path
 - Lint/build/test pass
 - Tracker updated
+- Changes **committed and pushed** to origin (never leave local-only commits)
 
 ## References
 
