@@ -6,11 +6,19 @@ import { Transport } from '@modelcontextprotocol/sdk/shared/transport.js';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 import { createServer } from './index.js';
+import { UnsupportedChainAdapter } from './adapters/unsupportedAdapter.js';
 import {
+  Chain,
+  ChainAdapter,
   NormalizedProduct,
   NormalizedPromotion,
+  NormalizedStore,
   CapabilitySourceStatus,
+  Result,
   SourceWarningCode,
+  StoreAvailabilitySupport,
+  StoreProductAvailabilityFilters,
+  StoreProductAvailabilityResult,
 } from './adapters/types.js';
 
 // ─── Loopback Transport ──────────────────────────────────────────────────────
@@ -407,34 +415,6 @@ describe('3. search_products', () => {
     expect(product.provenance!.sourceType).toBe('retailer-web');
   });
 
-  it('unsupported chains return source warnings but do not block results', async () => {
-    const result = await callTool(client, 'search_products', {
-      query: 'Toskanabrot',
-      chains: ['aldi', 'farmy'],
-    });
-    expect(result.isError).not.toBe(true);
-    const data = structured<{
-      products: NormalizedProduct[];
-      sourceWarnings?: Array<{ code: string; chain: string }>;
-    }>(result);
-    expect(data.products.length).toBeGreaterThan(0);
-    expect(data.sourceWarnings).toBeDefined();
-    const farmyWarnings = data.sourceWarnings!.filter((w) => w.chain === 'farmy');
-    expect(farmyWarnings.length).toBeGreaterThan(0);
-    expect(farmyWarnings[0].code).toBe(SourceWarningCode.RealSourceNotImplemented);
-  });
-
-  it('returns ALL_SOURCES_FAILED when all requested chains are unsupported', async () => {
-    const result = await callTool(client, 'search_products', {
-      query: 'milk',
-      chains: ['farmy'],
-    });
-    expect(result.isError).not.toBe(true);
-    const data = structured<{ products: NormalizedProduct[]; sourceWarnings?: Array<{ chain: string }> }>(result);
-    expect(data.products).toEqual([]);
-    expect(data.sourceWarnings).toBeDefined();
-    expect(data.sourceWarnings!.some((w) => w.chain === 'farmy')).toBe(true);
-  });
 });
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -530,55 +510,10 @@ describe('5. find_stores', () => {
     expect(data.sourceWarnings!.some((w) => w.chain === 'aldi')).toBe(true);
   });
 
-  it('Farmy store search returns ALL_SOURCES_FAILED (store lookup unsupported)', async () => {
-    const result = await callTool(client, 'find_stores', {
-      location: 'Zürich',
-      chains: ['farmy'],
-    });
-    expect(result.isError).not.toBe(true);
-    const data = structured<{ stores: unknown[]; sourceWarnings?: Array<{ chain: string }> }>(result);
-    expect(data.stores).toEqual([]);
-    expect(data.sourceWarnings).toBeDefined();
-    expect(data.sourceWarnings!.some((w) => w.chain === 'farmy')).toBe(true);
-  });
-
-  it('ALL_SOURCES_FAILED when all requested chains unsupported', async () => {
-    const result = await callTool(client, 'find_stores', {
-      location: 'Bern',
-      chains: ['farmy'],
-    });
-    expect(result.isError).not.toBe(true);
-    const data = structured<{ stores: unknown[]; sourceWarnings?: Array<{ chain: string }> }>(result);
-    expect(data.stores).toEqual([]);
-    expect(data.sourceWarnings).toBeDefined();
-  });
-
   it('empty location returns INVALID_ARGUMENTS', async () => {
     const result = await callTool(client, 'find_stores', { location: '   ' });
     expect(result.isError).toBe(true);
     expect(result.content[0].text).toContain('INVALID_ARGUMENTS');
-  });
-
-  it('Farmy store search returns ALL_SOURCES_FAILED (chain unsupported)', async () => {
-    const result = await callTool(client, 'find_stores', {
-      location: 'Zürich',
-      chains: ['farmy'],
-    });
-    expect(result.isError).not.toBe(true);
-    const data = structured<{ stores: unknown[]; sourceWarnings?: Array<{ chain: string }> }>(result);
-    expect(data.stores).toEqual([]);
-    expect(data.sourceWarnings).toBeDefined();
-    expect(data.sourceWarnings!.some((w) => w.chain === 'farmy')).toBe(true);
-  });
-
-  it('mixed supported/unsupported chains returns partial error with warnings', async () => {
-    const result = await callTool(client, 'find_stores', {
-      location: 'Bern',
-      chains: ['aldi', 'farmy'],
-    });
-    expect(result.isError).not.toBe(true);
-    const data = structured<{ stores: unknown[]; sourceWarnings?: Array<{ chain: string }> }>(result);
-    expect(data.sourceWarnings).toBeDefined();
   });
 });
 
@@ -689,17 +624,6 @@ describe('6. compare_prices', () => {
     expect(data.comparison.offers.every((o) => o.effectivePrice <= 1.0)).toBe(true);
   });
 
-  it('ALL_SOURCES_FAILED for completely unsupported chain set', async () => {
-    const result = await callTool(client, 'compare_prices', {
-      query: 'milk',
-      chains: ['farmy'],
-    });
-    expect(result.isError).not.toBe(true);
-    const data = structured<{ comparison: { offers: unknown[] }; sourceWarnings?: Array<{ chain: string }> }>(result);
-    expect(data.comparison.offers).toEqual([]);
-    expect(data.sourceWarnings).toBeDefined();
-  });
-
   it('includePromotions does not crash when promotions are empty (expired fixtures)', async () => {
     const result = await callTool(client, 'compare_prices', {
       query: 'Orangensaft',
@@ -740,20 +664,6 @@ describe('6. compare_prices', () => {
     expect(result.content[0].text).toContain('INVALID_ARGUMENTS');
   });
 
-  it('compare_prices with unsupported chains produces warnings not errors', async () => {
-    const result = await callTool(client, 'compare_prices', {
-      query: 'Toskanabrot',
-      chains: ['aldi', 'farmy'],
-    });
-    expect(result.isError).not.toBe(true);
-    const data = structured<{
-      comparison: { offers: Array<{ chain: string }> };
-      sourceWarnings?: Array<{ chain: string }>;
-    }>(result);
-    expect(data.comparison.offers.some((o) => o.chain === 'aldi')).toBe(true);
-    expect(data.sourceWarnings).toBeDefined();
-    expect(data.sourceWarnings!.some((w) => w.chain === 'farmy')).toBe(true);
-  });
 });
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -761,7 +671,7 @@ describe('6. compare_prices', () => {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 describe('7. get_source_status', () => {
-  it('returns status for all 8 chains when called without filters', async () => {
+  it('returns status for all 7 chains when called without filters', async () => {
     const result = await callTool(client, 'get_source_status', {});
     expect(result.isError).not.toBe(true);
     const data = structured<{ statuses: CapabilitySourceStatus[] }>(result);
@@ -773,7 +683,6 @@ describe('7. get_source_status', () => {
     expect(chains.has('migros')).toBe(true);
     expect(chains.has('coop')).toBe(true);
     expect(chains.has('lidl')).toBe(true);
-    expect(chains.has('farmy')).toBe(true);
     expect(chains.has('volg')).toBe(true);
     expect(chains.has('ottos')).toBe(true);
   });
@@ -783,7 +692,7 @@ describe('7. get_source_status', () => {
     const data = structured<{ statuses: CapabilitySourceStatus[] }>(result);
     const capabilities = ['productSearch', 'promotions', 'storeSearch', 'availability', 'nutrition'];
 
-    for (const chain of ['aldi', 'denner', 'migros', 'coop', 'lidl', 'farmy', 'volg', 'ottos']) {
+    for (const chain of ['aldi', 'denner', 'migros', 'coop', 'lidl', 'volg', 'ottos']) {
       const chainCaps = data.statuses.filter((s) => s.chain === chain).map((s) => s.capability);
       for (const cap of capabilities) {
         expect(chainCaps).toContain(cap);
@@ -809,12 +718,6 @@ describe('7. get_source_status', () => {
     );
     expect(dennerPromos).toBeDefined();
     expect(dennerPromos!.status).toBe('live-beta');
-  });
-
-  it('farmy all capabilities are blocked', async () => {
-    const result = await callTool(client, 'get_source_status', { chains: ['farmy'] });
-    const data = structured<{ statuses: CapabilitySourceStatus[] }>(result);
-    expect(data.statuses.every((s) => s.status === 'blocked')).toBe(true);
   });
 
   it('capability filter returns only requested capabilities', async () => {
@@ -941,19 +844,6 @@ describe('9. lookup_store_product_availability', () => {
     expect(data.availability.isAvailable).toBe(false);
   });
 
-  it('returns unsupported for farmy', async () => {
-    const result = await callTool(client, 'lookup_store_product_availability', {
-      chain: 'farmy',
-      storeId: 'farmy-store-1',
-      query: 'vegetables',
-    });
-    expect(result.isError).not.toBe(true);
-    const data = structured<{
-      availability: { chain: string; supported: boolean; isAvailable: boolean };
-    }>(result);
-    expect(data.availability.supported).toBe(false);
-  });
-
   it('denner store availability returns unsupported via delegate', async () => {
     const result = await callTool(client, 'lookup_store_product_availability', {
       chain: 'denner',
@@ -1007,18 +897,6 @@ describe('10. Cross-Tool Integration Scenarios', () => {
       const searchData = structured<{ products: NormalizedProduct[] }>(searchResult);
       expect(searchData.products.length).toBeGreaterThan(0);
     }
-  });
-
-  it('unsupported chain status matches search_products error behavior', async () => {
-    const searchResult = await callTool(client, 'search_products', {
-      query: 'milk',
-      chains: ['farmy'],
-    });
-    expect(searchResult.isError).not.toBe(true);
-    const searchData = structured<{ products: NormalizedProduct[]; sourceWarnings?: Array<{ chain: string }> }>(searchResult);
-    expect(searchData.products).toEqual([]);
-    expect(searchData.sourceWarnings).toBeDefined();
-    expect(searchData.sourceWarnings!.some((w) => w.chain === 'farmy')).toBe(true);
   });
 
   it('search then compare for same product returns consistent pricing', async () => {
@@ -1107,7 +985,7 @@ describe('11. Data Integrity & Model Contracts', () => {
   it('NormalizedProduct chain matches valid Chain enum', async () => {
     const result = await callTool(client, 'search_products', { query: 'Toskanabrot' });
     const data = structured<{ products: NormalizedProduct[] }>(result);
-    const validChains = ['migros', 'coop', 'aldi', 'denner', 'lidl', 'farmy', 'volg', 'ottos'];
+    const validChains = ['migros', 'coop', 'aldi', 'denner', 'lidl', 'volg', 'ottos'];
     expect(validChains).toContain(data.products[0].chain);
   });
 
@@ -1326,17 +1204,6 @@ describe('13. Metadata & Provenance Propagation', () => {
     expect(dennerSource!.provider).toBe('Denner');
   });
 
-  it('compare_prices propagates source warnings from failed chains', async () => {
-    const result = await callTool(client, 'compare_prices', {
-      query: 'Toskanabrot',
-      chains: ['aldi', 'farmy'],
-    });
-    const data = structured<{
-      sourceWarnings?: Array<{ chain: string; code: string }>;
-    }>(result);
-    expect(data.sourceWarnings).toBeDefined();
-    expect(data.sourceWarnings!.some((w) => w.chain === 'farmy')).toBe(true);
-  });
 });
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -1399,29 +1266,6 @@ describe('14. MatchMode & Taxonomy Behavior', () => {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 describe('15. Source Warning Codes & Error Patterns', () => {
-  it('unsupported chain search returns REAL_SOURCE_NOT_IMPLEMENTED', async () => {
-    const result = await callTool(client, 'search_products', {
-      query: 'milk',
-      chains: ['farmy'],
-    });
-    expect(result.isError).not.toBe(true);
-    const data = structured<{ products: NormalizedProduct[]; sourceWarnings?: Array<{ chain: string }> }>(result);
-    expect(data.products).toEqual([]);
-    expect(data.sourceWarnings).toBeDefined();
-    expect(data.sourceWarnings!.some((w) => w.chain === 'farmy')).toBe(true);
-  });
-
-  it('unsupported chain find_stores returns ALL_SOURCES_FAILED', async () => {
-    const result = await callTool(client, 'find_stores', {
-      location: 'Bern',
-      chains: ['farmy'],
-    });
-    expect(result.isError).not.toBe(true);
-    const data = structured<{ stores: unknown[]; sourceWarnings?: Array<{ chain: string }> }>(result);
-    expect(data.stores).toEqual([]);
-    expect(data.sourceWarnings).toBeDefined();
-  });
-
   it('unsupported chain promotions returns REAL_SOURCE_NOT_IMPLEMENTED', async () => {
     const result = await callTool(client, 'search_promotions', {
       query: 'wine',
@@ -1433,39 +1277,6 @@ describe('15. Source Warning Codes & Error Patterns', () => {
     expect(data.sourceWarnings).toBeDefined();
   });
 
-  it('partial failure: aldi succeeds, farmy fails with warning', async () => {
-    const result = await callTool(client, 'search_products', {
-      query: 'Toskanabrot',
-      chains: ['aldi', 'farmy'],
-    });
-    expect(result.isError).not.toBe(true);
-    const data = structured<{
-      products: NormalizedProduct[];
-      sourceWarnings?: Array<{ code: string; chain: string; message: string }>;
-    }>(result);
-    expect(data.products.length).toBeGreaterThan(0);
-    expect(data.sourceWarnings).toBeDefined();
-    const farmyWarning = data.sourceWarnings!.find((w) => w.chain === 'farmy');
-    expect(farmyWarning).toBeDefined();
-    expect(farmyWarning!.code).toBe(SourceWarningCode.RealSourceNotImplemented);
-    expect(farmyWarning!.message.toLowerCase()).toContain('farmy');
-  });
-
-  it('partial failure: denner succeeds, farmy fails with warning', async () => {
-    const result = await callTool(client, 'search_promotions', {
-      query: 'aktion',
-      chains: ['denner', 'farmy'],
-    });
-    expect(result.isError).not.toBe(true);
-    const data = structured<{
-      promotions: NormalizedPromotion[];
-      sourceWarnings?: Array<{ code: string; chain: string }>;
-    }>(result);
-    expect(data.sourceWarnings).toBeDefined();
-    const farmyWarning = data.sourceWarnings!.find((w) => w.chain === 'farmy');
-    expect(farmyWarning).toBeDefined();
-    expect(farmyWarning!.code).toBe(SourceWarningCode.RealSourceNotImplemented);
-  });
 });
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -1538,5 +1349,195 @@ describe('16. Production Readiness Patterns', () => {
     const elapsed = Date.now() - start;
     expect(result.isError).not.toBe(true);
     expect(elapsed).toBeLessThan(3000);
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 17. UNSUPPORTED CHAIN BEHAVIOR (STUB ADAPTERS)
+// ═══════════════════════════════════════════════════════════════════════════════
+//
+// No default chain is fully unsupported anymore, so unsupported-chain contract
+// behavior is pinned here with an injected stub adapter set: a healthy 'aldi'
+// stub and an UnsupportedChainAdapter registered as 'volg'.
+
+function stubChainAdapter(
+  chain: Chain,
+  data: {
+    products?: NormalizedProduct[];
+    promotions?: NormalizedPromotion[];
+    stores?: NormalizedStore[];
+  }
+): ChainAdapter {
+  return {
+    chain,
+    async searchProducts(): Promise<Result<NormalizedProduct[]>> {
+      return { ok: true, data: data.products ?? [] };
+    },
+    async searchPromotions(): Promise<Result<NormalizedPromotion[]>> {
+      return { ok: true, data: data.promotions ?? [] };
+    },
+    async findStores(): Promise<Result<NormalizedStore[]>> {
+      return { ok: true, data: data.stores ?? [] };
+    },
+    getStoreAvailabilitySupport(): StoreAvailabilitySupport {
+      return { chain, supported: false, reason: 'Stub adapter without availability.' };
+    },
+    async lookupStoreProductAvailability(
+      filters: StoreProductAvailabilityFilters
+    ): Promise<Result<StoreProductAvailabilityResult>> {
+      return {
+        ok: true,
+        data: {
+          chain,
+          storeId: filters.storeId,
+          query: filters.query,
+          supported: false,
+          isAvailable: false,
+          matches: [],
+        },
+      };
+    },
+  };
+}
+
+describe('17. Unsupported Chain Behavior (stub adapters)', () => {
+  let stubServer: ReturnType<typeof createServer> extends Promise<infer S> ? S : never;
+  let stubClient: Client;
+
+  beforeAll(async () => {
+    const healthy = stubChainAdapter('aldi', {
+      products: [
+        { id: 'stub-bread', chain: 'aldi', name: 'Stub Bread', price: { current: 2.5 } },
+      ],
+      promotions: [
+        {
+          id: 'stub-bread-aktion',
+          chain: 'aldi',
+          title: 'Stub Bread Aktion',
+          productName: 'Stub Bread',
+          price: { current: 1.9 },
+          validFrom: new Date('2026-01-01T00:00:00.000Z'),
+          validUntil: new Date('2099-12-31T23:59:59.999Z'),
+        },
+      ],
+      stores: [
+        {
+          id: 'aldi-stub-store',
+          chain: 'aldi',
+          name: 'Aldi Stub Store',
+          address: 'Teststrasse 1, 8000 Zürich',
+          location: { latitude: 47.3769, longitude: 8.5417 },
+        },
+      ],
+    });
+    const unsupported = new UnsupportedChainAdapter('volg', {
+      productSearch: 'Volg is not backed by a real source in this stub environment.',
+      promotions: 'Volg is not backed by a real source in this stub environment.',
+      storeSearch: 'Volg is not backed by a real source in this stub environment.',
+    });
+
+    stubServer = await createServer({ adapters: [healthy, unsupported] });
+    stubClient = new Client({ name: 'prodpatterns-stub-tests', version: '1.0.0' });
+    const { clientTransport, serverTransport } = createLoopbackTransportPair();
+    await stubServer.connect(serverTransport);
+    await stubClient.connect(clientTransport);
+  });
+
+  afterAll(async () => {
+    await stubClient.close();
+    await stubServer.close();
+  });
+
+  it('search: unsupported chain returns warnings but does not block results', async () => {
+    const result = await callTool(stubClient, 'search_products', {
+      query: 'bread',
+      chains: ['aldi', 'volg'],
+    });
+    expect(result.isError).not.toBe(true);
+    const data = structured<{
+      products: NormalizedProduct[];
+      sourceWarnings?: Array<{ code: string; chain: string; message: string }>;
+    }>(result);
+    expect(data.products.length).toBeGreaterThan(0);
+    const warning = data.sourceWarnings!.find((w) => w.chain === 'volg');
+    expect(warning).toBeDefined();
+    expect(warning!.code).toBe(SourceWarningCode.RealSourceNotImplemented);
+    expect(warning!.message.toLowerCase()).toContain('volg');
+  });
+
+  it('search: all-unsupported chain set returns empty products with warnings', async () => {
+    const result = await callTool(stubClient, 'search_products', {
+      query: 'bread',
+      chains: ['volg'],
+    });
+    expect(result.isError).not.toBe(true);
+    const data = structured<{ products: NormalizedProduct[]; sourceWarnings?: Array<{ chain: string }> }>(result);
+    expect(data.products).toEqual([]);
+    expect(data.sourceWarnings!.some((w) => w.chain === 'volg')).toBe(true);
+  });
+
+  it('find_stores: unsupported chain produces warning alongside healthy results', async () => {
+    const result = await callTool(stubClient, 'find_stores', {
+      location: 'Zürich',
+      chains: ['aldi', 'volg'],
+    });
+    expect(result.isError).not.toBe(true);
+    const data = structured<{
+      stores: Array<{ chain: string }>;
+      sourceWarnings?: Array<{ chain: string }>;
+    }>(result);
+    expect(data.stores.some((s) => s.chain === 'aldi')).toBe(true);
+    expect(data.sourceWarnings!.some((w) => w.chain === 'volg')).toBe(true);
+  });
+
+  it('find_stores: all-unsupported chain set returns empty stores with warnings', async () => {
+    const result = await callTool(stubClient, 'find_stores', {
+      location: 'Bern',
+      chains: ['volg'],
+    });
+    expect(result.isError).not.toBe(true);
+    const data = structured<{ stores: unknown[]; sourceWarnings?: Array<{ chain: string }> }>(result);
+    expect(data.stores).toEqual([]);
+    expect(data.sourceWarnings!.some((w) => w.chain === 'volg')).toBe(true);
+  });
+
+  it('compare_prices: unsupported chain produces warnings not errors', async () => {
+    const result = await callTool(stubClient, 'compare_prices', {
+      query: 'bread',
+      chains: ['aldi', 'volg'],
+    });
+    expect(result.isError).not.toBe(true);
+    const data = structured<{
+      comparison: { offers: Array<{ chain: string }> };
+      sourceWarnings?: Array<{ chain: string }>;
+    }>(result);
+    expect(data.comparison.offers.some((o) => o.chain === 'aldi')).toBe(true);
+    expect(data.sourceWarnings!.some((w) => w.chain === 'volg')).toBe(true);
+  });
+
+  it('compare_prices: all-unsupported chain set returns empty offers with warnings', async () => {
+    const result = await callTool(stubClient, 'compare_prices', {
+      query: 'bread',
+      chains: ['volg'],
+    });
+    expect(result.isError).not.toBe(true);
+    const data = structured<{ comparison: { offers: unknown[] }; sourceWarnings?: Array<{ chain: string }> }>(result);
+    expect(data.comparison.offers).toEqual([]);
+    expect(data.sourceWarnings).toBeDefined();
+  });
+
+  it('promotions: unsupported chain produces RealSourceNotImplemented warning', async () => {
+    const result = await callTool(stubClient, 'search_promotions', {
+      query: 'aktion',
+      chains: ['aldi', 'volg'],
+    });
+    expect(result.isError).not.toBe(true);
+    const data = structured<{
+      promotions: NormalizedPromotion[];
+      sourceWarnings?: Array<{ code: string; chain: string }>;
+    }>(result);
+    const warning = data.sourceWarnings!.find((w) => w.chain === 'volg');
+    expect(warning).toBeDefined();
+    expect(warning!.code).toBe(SourceWarningCode.RealSourceNotImplemented);
   });
 });

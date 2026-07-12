@@ -40,11 +40,6 @@ describe('sourceRegistry', () => {
     expect(promotions?.status).toBe('live-beta');
   });
 
-  it('returns blocked for farmy all capabilities', () => {
-    const statuses = getCapabilityStatuses('farmy');
-    expect(statuses.every((s) => s.status === 'blocked')).toBe(true);
-  });
-
   it('returns live-beta for migros productSearch', () => {
     const statuses = getCapabilityStatuses('migros');
     const productSearch = statuses.find((s) => s.capability === 'productSearch');

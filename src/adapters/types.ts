@@ -1,4 +1,4 @@
-export type Chain = 'migros' | 'coop' | 'aldi' | 'denner' | 'lidl' | 'farmy' | 'volg' | 'ottos';
+export type Chain = 'migros' | 'coop' | 'aldi' | 'denner' | 'lidl' | 'volg' | 'ottos';
 export type SourceCapability =
   | 'productSearch'
   | 'promotions'

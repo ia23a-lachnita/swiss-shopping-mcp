@@ -215,13 +215,13 @@ console.log('\n=== Test: Error Handling ===');
 }
 
 // =====================================================
-// 11. Unsupported chains
+// 11. Unknown chains
 // =====================================================
-console.log('\n=== Test: Unsupported Chain Graceful Degradation ===');
+console.log('\n=== Test: Unknown Chain Graceful Degradation ===');
 {
-  const r = await post('/api/search-products', { query: 'milk', chains: ['farmy'] });
-  assert('Farmy search returns ok:true (graceful)', r.ok === true);
-  assert('Farmy has empty or missing data', r.data?.length === 0 || !r.data);
+  const r = await post('/api/search-products', { query: 'milk', chains: ['unknown-chain'] });
+  assert('Unknown chain search returns ok:true (graceful)', r.ok === true);
+  assert('Unknown chain has empty or missing data', r.data?.length === 0 || !r.data);
 }
 
 // =====================================================

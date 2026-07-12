@@ -988,7 +988,7 @@ describe('10. Availability Lookup — Multiple Chains & Products', () => {
     }
 
     // Other chains still return supported=false
-    const unsupportedChains = ['denner', 'farmy', 'volg', 'lidl', 'ottos'];
+    const unsupportedChains = ['denner', 'volg', 'lidl', 'ottos'];
     for (const chain of unsupportedChains) {
       const result = await callTool(client, 'lookup_store_product_availability', {
         chain,
@@ -1182,7 +1182,7 @@ describe('12. Source Status with Multiple Chains', () => {
     const data = structured<{
       statuses: Array<{ chain: string; capability: string; status: string }>;
     }>(result);
-    const chains = ['aldi', 'coop', 'denner', 'farmy', 'lidl', 'migros', 'ottos', 'volg'];
+    const chains = ['aldi', 'coop', 'denner', 'lidl', 'migros', 'ottos', 'volg'];
     for (const chain of chains) {
       const chainStatuses = data.statuses.filter((s) => s.chain === chain);
       expect(chainStatuses.length).toBe(5);
@@ -1194,7 +1194,7 @@ describe('12. Source Status with Multiple Chains', () => {
     const data = structured<{
       support: Array<{ chain: string; supported: boolean }>;
     }>(result);
-    expect(data.support.length).toBe(8);
+    expect(data.support.length).toBe(7);
     // Both Coop and Migros now have working availability via TLS 1.3
     const migrosSupport = data.support.find((s) => s.chain === 'migros');
     const coopSupport = data.support.find((s) => s.chain === 'coop');
@@ -1448,65 +1448,9 @@ describe('15. Product Data Integrity Across Multiple Results', () => {
   });
 });
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// 16. SEARCH WITH MULTIPLE CHAINS — PARTIAL RESULTS
-// ═══════════════════════════════════════════════════════════════════════════════
-
-describe('16. Search with Multiple Chains — Partial Results', () => {
-  it('aldi + farmy: aldi returns products, farmy returns warning', async () => {
-    const result = await callTool(client, 'search_products', {
-      query: 'Toskanabrot',
-      chains: ['aldi', 'farmy'],
-    });
-    expect(result.isError).not.toBe(true);
-    const data = structured<{
-      products: NormalizedProduct[];
-      sourceWarnings?: Array<{ chain: string; code: string }>;
-    }>(result);
-    expect(data.products.length).toBeGreaterThan(0);
-    expect(data.sourceWarnings).toBeDefined();
-    expect(data.sourceWarnings!.some((w) => w.chain === 'farmy')).toBe(true);
-  });
-
-  it('denner + farmy: denner promotions, farmy warning', async () => {
-    const result = await callTool(client, 'search_promotions', {
-      query: 'Wein',
-      chains: ['denner', 'farmy'],
-    });
-    expect(result.isError).not.toBe(true);
-    const data = structured<{
-      promotions: NormalizedPromotion[];
-      sourceWarnings?: Array<{ chain: string }>;
-    }>(result);
-    expect(data.sourceWarnings!.some((w) => w.chain === 'farmy')).toBe(true);
-  });
-
-  it('compare with aldi + farmy: aldi offers, farmy warning', async () => {
-    const result = await callTool(client, 'compare_prices', {
-      query: 'Toskanabrot',
-      chains: ['aldi', 'farmy'],
-    });
-    expect(result.isError).not.toBe(true);
-    const data = structured<{
-      comparison: { offers: Array<{ chain: string }> };
-      sourceWarnings?: Array<{ chain: string }>;
-    }>(result);
-    expect(data.comparison.offers.some((o) => o.chain === 'aldi')).toBe(true);
-    expect(data.sourceWarnings!.some((w) => w.chain === 'farmy')).toBe(true);
-  });
-
-  it('all unsupported chains return ALL_SOURCES_FAILED', async () => {
-    const result = await callTool(client, 'search_products', {
-      query: 'milk',
-      chains: ['farmy'],
-    });
-    expect(result.isError).not.toBe(true);
-    const data = structured<{ products: NormalizedProduct[]; sourceWarnings?: Array<{ chain: string }> }>(result);
-    expect(data.products).toEqual([]);
-    expect(data.sourceWarnings).toBeDefined();
-    expect(data.sourceWarnings!.some((w) => w.chain === 'farmy')).toBe(true);
-  });
-});
+// Former section 16 (multi-chain partial results with the farmy fixture) was
+// removed with the farmy chain itself; the equivalent contract is covered by
+// the stub-adapter section in mcp.prodpatterns.test.ts.
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // 17. SEARCH + COMPARE ROUND-TRIP SCENARIOS

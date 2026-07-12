@@ -62,14 +62,13 @@ describe('createDefaultAdapters', () => {
   it('does not expose legacy static mode in default adapter creation', () => {
     const adapters = createDefaultAdapters({ cacheDirectory: 'test-cache' });
 
-    expect(adapters).toHaveLength(8);
+    expect(adapters).toHaveLength(7);
     expect(adapters.map((adapter) => adapter.constructor.name)).not.toContain('StaticChainAdapter');
   });
 
-  it('returns an UnsupportedChainAdapter only for farmy', () => {
+  it('does not include any top-level UnsupportedChainAdapter', () => {
     const adapters = createDefaultAdapters({ cacheDirectory: 'test-cache' });
-    const farmyAdapter = adapters.find((a) => a.chain === 'farmy');
 
-    expect(farmyAdapter?.constructor.name).toBe('UnsupportedChainAdapter');
+    expect(adapters.map((a) => a.constructor.name)).not.toContain('UnsupportedChainAdapter');
   });
 });

@@ -176,15 +176,14 @@ async function testProductAvailability() {
   }
 }
 
-// ─── Test 8: Graceful Degradation - Unsupported Chains ───
+// ─── Test 8: Graceful Degradation - Unknown Chains ───
 async function testGracefulDegradation() {
   console.log('\n=== Test: Graceful Degradation ===');
 
-  // Search with farmy (blocked)
-  const resultFarmy = await apiPost('/api/search-products', { query: 'milk', chains: ['farmy'] });
-  assert('Farmy returns ok:true (graceful)', resultFarmy.ok === true, JSON.stringify(resultFarmy.error));
-  assert('Farmy returns empty data', resultFarmy.data?.length === 0);
-  assert('Farmy has source warnings', resultFarmy.metadata?.sourceWarnings?.length > 0);
+  // Search with a chain that matches no adapter
+  const resultUnknown = await apiPost('/api/search-products', { query: 'milk', chains: ['unknown-chain'] });
+  assert('Unknown chain returns ok:true (graceful)', resultUnknown.ok === true, JSON.stringify(resultUnknown.error));
+  assert('Unknown chain returns empty data', resultUnknown.data?.length === 0);
 }
 
 // ─── Test 9: Error Handling - Empty Query ───

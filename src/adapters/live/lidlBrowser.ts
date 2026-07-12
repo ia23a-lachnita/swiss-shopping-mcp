@@ -77,13 +77,23 @@ export async function searchProducts(query: string): Promise<LidlBrowserProduct[
   }
 
   // Extract product data from rendered DOM
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const products = await page.evaluate((_: any) => {
-    // This code runs in the browser context where document is available
-    const gridboxes = (globalThis as any).document.querySelectorAll('[data-gridbox-impression]');
+  const products = await page.evaluate(() => {
+    // This code runs in the browser context where document is available.
+    // Minimal structural DOM types because the Node build has no DOM lib.
+    type DomElement = {
+      getAttribute(name: string): string | null;
+      querySelector(selector: string): DomElement | null;
+      textContent: string | null;
+    };
+    type BrowserGlobals = {
+      document: { querySelectorAll(selector: string): { forEach(cb: (el: DomElement) => void): void } };
+      location: { origin: string };
+    };
+    const browserGlobals = globalThis as unknown as BrowserGlobals;
+    const gridboxes = browserGlobals.document.querySelectorAll('[data-gridbox-impression]');
     const results: Array<{ id: string; name: string; category?: string; price?: number; image?: string; url?: string }> = [];
 
-    gridboxes.forEach((gb: any) => {
+    gridboxes.forEach((gb: DomElement) => {
       try {
         const rawData = gb.getAttribute('data-gridbox-impression');
         if (!rawData) return;
@@ -102,7 +112,7 @@ export async function searchProducts(query: string): Promise<LidlBrowserProduct[
             const href = linkEl?.getAttribute('href') || '';
             if (!href) return undefined;
             if (href.startsWith('http')) return href;
-            return (globalThis as any).location.origin + (href.startsWith('/') ? href : '/' + href);
+            return browserGlobals.location.origin + (href.startsWith('/') ? href : '/' + href);
           })(),
         });
       } catch {
@@ -111,7 +121,7 @@ export async function searchProducts(query: string): Promise<LidlBrowserProduct[
     });
 
     return results;
-  }, undefined);
+  });
 
   return products;
 }

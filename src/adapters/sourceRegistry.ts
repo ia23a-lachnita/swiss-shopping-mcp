@@ -107,38 +107,6 @@ export const SOURCE_REGISTRY: Record<Chain, CapabilitySourceStatus[]> = {
       reason: 'Nutrition and ingredients from REST product detail API (top 5 products enriched per search).',
     },
   ],
-  farmy: [
-    {
-      chain: 'farmy',
-      capability: 'productSearch',
-      status: 'blocked',
-      reason: 'Source audit found Farmy operations ceased.',
-    },
-    {
-      chain: 'farmy',
-      capability: 'promotions',
-      status: 'blocked',
-      reason: 'Source audit found Farmy operations ceased.',
-    },
-    {
-      chain: 'farmy',
-      capability: 'storeSearch',
-      status: 'blocked',
-      reason: 'Source audit found Farmy operations ceased.',
-    },
-    {
-      chain: 'farmy',
-      capability: 'availability',
-      status: 'blocked',
-      reason: 'Source audit found Farmy operations ceased.',
-    },
-    {
-      chain: 'farmy',
-      capability: 'nutrition',
-      status: 'blocked',
-      reason: 'Source audit found Farmy operations ceased.',
-    },
-  ],
   lidl: [
     {
       chain: 'lidl',

@@ -8,22 +8,23 @@ A Model Context Protocol (MCP) server for Swiss grocery and retail shopping — 
 
 ## Source Support Matrix
 
-| Chain  | Product Search        | Promotions       | Store Search  | Availability |
-|--------|-----------------------|------------------|---------------|--------------|
-| Aldi   | live-beta (constrained) | unsupported    | unsupported   | unsupported  |
-| Denner | unsupported           | live-beta        | unsupported   | unsupported  |
-| Migros | blocked / pending provider | blocked     | source-auditing | unsupported |
-| Coop   | blocked               | blocked          | source-auditing | unsupported |
-| Lidl   | source-auditing       | unsupported      | source-auditing | unsupported |
-| Farmy  | blocked (ceased)      | blocked (ceased) | blocked (ceased) | blocked   |
-| Volg   | blocked               | source-auditing  | source-auditing | unsupported |
-| Otto's | source-auditing       | source-auditing  | source-auditing | unsupported |
+| Chain  | Product Search | Promotions  | Store Search | Availability |
+|--------|----------------|-------------|--------------|--------------|
+| Migros | live-beta      | unsupported | live-beta    | live-beta    |
+| Coop   | live-beta      | unsupported | live-beta    | live-beta    |
+| Aldi   | live-beta      | unsupported | unsupported  | live-beta    |
+| Denner | live-beta      | live-beta   | unsupported  | unsupported  |
+| Lidl   | live-beta      | unsupported | live-beta    | unsupported  |
+| Volg   | live-beta      | unsupported | live-beta    | unsupported  |
+| Otto's | live-beta      | unsupported | live-beta    | unsupported  |
 
 Status meanings:
 - **live-beta** — real source, tested, may break on upstream changes
 - **source-auditing** — feasibility under review, not yet implemented
 - **blocked** — source audited and found unsuitable or ceased
 - **unsupported** — no source planned yet
+
+Farmy was removed entirely: the retailer has ceased operations.
 
 ## Requirements
 

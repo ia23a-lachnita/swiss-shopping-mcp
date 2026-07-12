@@ -11,7 +11,7 @@ import { MigrosLiveAdapter } from './live/migrosLiveAdapter.js';
 import { OttosLiveAdapter } from './live/ottosLiveAdapter.js';
 import { VolgLiveAdapter } from './live/volgLiveAdapter.js';
 import { UnsupportedChainAdapter } from './unsupportedAdapter.js';
-import { Chain, ChainAdapter, SourceCapability } from './types.js';
+import { Chain, ChainAdapter } from './types.js';
 
 export const ALL_CHAINS: Chain[] = [
   'migros',
@@ -19,21 +19,9 @@ export const ALL_CHAINS: Chain[] = [
   'aldi',
   'denner',
   'lidl',
-  'farmy',
   'volg',
   'ottos',
 ];
-
-const UNSUPPORTED_CHAIN_REASONS: Partial<Record<Chain, Partial<Record<SourceCapability, string>>>> =
-  {
-    farmy: {
-      productSearch: 'Farmy operations have ceased.',
-      promotions: 'Farmy operations have ceased.',
-      storeSearch: 'Farmy operations have ceased.',
-      availability: 'Farmy operations have ceased.',
-      nutrition: 'Farmy operations have ceased.',
-    },
-  };
 
 export interface CreateDefaultAdaptersOptions {
   cacheDirectory?: string;
@@ -83,15 +71,15 @@ export function createDefaultAdapters(options: CreateDefaultAdaptersOptions = {}
   const sharedCache = new FileTtlCache(cacheDirectory);
   const sharedSourceClient = new SourceHttpClient({ fetchImpl: options.fetchImpl, rateLimitPerHostMs: 1_000 });
 
-  return ALL_CHAINS.map((chain) => {
-    if (chain === 'aldi') return createAldiLiveAdapter(sharedCache, sharedSourceClient);
-    if (chain === 'denner') return createDennerPromotionsAdapter(sharedCache, sharedSourceClient);
-    if (chain === 'migros') return createMigrosLiveAdapter(sharedCache, sharedSourceClient);
-    if (chain === 'coop') return createCoopLiveAdapter(sharedCache, sharedSourceClient);
-    if (chain === 'lidl') return createLidlLiveAdapter(sharedCache, sharedSourceClient);
-    if (chain === 'ottos') return createOttosLiveAdapter(sharedCache, sharedSourceClient);
-    if (chain === 'volg') return createVolgLiveAdapter(sharedCache, sharedSourceClient);
+  const factories: Record<Chain, (cache: FileTtlCache, sourceClient: SourceHttpClient) => ChainAdapter> = {
+    migros: createMigrosLiveAdapter,
+    coop: createCoopLiveAdapter,
+    aldi: createAldiLiveAdapter,
+    denner: createDennerPromotionsAdapter,
+    lidl: createLidlLiveAdapter,
+    volg: createVolgLiveAdapter,
+    ottos: createOttosLiveAdapter,
+  };
 
-    return new UnsupportedChainAdapter(chain, UNSUPPORTED_CHAIN_REASONS[chain] ?? {});
-  });
+  return ALL_CHAINS.map((chain) => factories[chain](sharedCache, sharedSourceClient));
 }

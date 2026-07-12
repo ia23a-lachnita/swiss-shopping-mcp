@@ -11,6 +11,7 @@ import {
 import { fileURLToPath } from 'url';
 
 import { createDefaultAdapters, CreateDefaultAdaptersOptions } from './adapters/index.js';
+import { ChainAdapter } from './adapters/types.js';
 import { PriceComparisonService } from './services/priceComparisonService.js';
 import { SearchService } from './services/searchService.js';
 import { createDefaultWebProductSearch } from './services/webProductSearchService.js';
@@ -19,10 +20,12 @@ import { logger } from './util/log.js';
 
 export interface CreateServerOptions {
   adapterOptions?: CreateDefaultAdaptersOptions;
+  /** Override the default adapter set (tests inject stub adapters here). */
+  adapters?: ChainAdapter[];
 }
 
 export async function createServer(options: CreateServerOptions = {}): Promise<Server> {
-  const adapters = createDefaultAdapters(options.adapterOptions);
+  const adapters = options.adapters ?? createDefaultAdapters(options.adapterOptions);
   const webProductSearch = createDefaultWebProductSearch(adapters, {
     cacheDirectory: options.adapterOptions?.cacheDirectory,
   });

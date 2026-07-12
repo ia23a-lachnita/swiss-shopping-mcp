@@ -622,7 +622,7 @@ test.describe('SPA Browser Tests — Loop 2', () => {
     }
   });
 
-  test('2.14 Source status shows all 8 chains', async ({ page }) => {
+  test('2.14 Source status shows all 7 chains', async ({ page }) => {
     await page.click('nav button:has-text("Source Status")');
 
     await page.waitForFunction(() => {
@@ -631,7 +631,7 @@ test.describe('SPA Browser Tests — Loop 2', () => {
     }, { timeout: 15000 });
 
     const html = await page.locator('#status-results').innerHTML();
-    const chains = ['Aldi', 'Coop', 'Denner', 'Farmy', 'Lidl', 'Migros', 'Ottos', 'Volg'];
+    const chains = ['Aldi', 'Coop', 'Denner', 'Lidl', 'Migros', 'Ottos', 'Volg'];
     for (const chain of chains) {
       expect(html).toContain(chain);
     }

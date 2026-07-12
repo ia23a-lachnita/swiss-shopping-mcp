@@ -144,9 +144,9 @@ async function testAvailabilityEdgeCases() {
   const emptyLoc = await apiPost('/api/product-availability', { query: 'milk', location: '' });
   assert('Empty location returns ok:false', emptyLoc.ok === false);
 
-  // Valid with unsupported chain
-  const unsupportedChain = await apiPost('/api/product-availability', { query: 'milk', location: 'Zurich', chains: ['farmy'] });
-  assert('Unsupported chain returns ok:false or ok:true with empty', unsupportedChain.ok !== undefined);
+  // Valid with unknown chain (matches no adapter)
+  const unknownChain = await apiPost('/api/product-availability', { query: 'milk', location: 'Zurich', chains: ['unknown-chain'] });
+  assert('Unknown chain returns ok:false or ok:true with empty', unknownChain.ok !== undefined);
 
   // Store availability endpoint (old) still works
   const storeAvail = await apiPost('/api/store-availability', { query: 'milk', location: 'Zurich', chains: ['coop'], limit: 3 });

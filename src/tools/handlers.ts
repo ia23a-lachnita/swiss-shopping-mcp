@@ -16,7 +16,6 @@ const CHAINS = [
   'aldi',
   'denner',
   'lidl',
-  'farmy',
   'volg',
   'ottos',
 ] as const satisfies readonly Chain[];

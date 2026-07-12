@@ -193,7 +193,7 @@ describe('Product search — chain filtering', () => {
   it('Multi-chain search returns products from multiple chains', async () => {
     const r = await post('/api/search-products', { query: 'milk', chains: ['migros', 'coop'], limit: 10 });
     expect(r.ok).toBe(true);
-    const chains = new Set(r.data.map((p: any) => p.chain));
+    const chains = new Set(r.data.map((p: { chain: string }) => p.chain));
     expect(chains.size).toBeGreaterThanOrEqual(1);
   });
 });
@@ -252,12 +252,12 @@ describe('Store cards — structure validation', () => {
 });
 
 describe('Source status — all chains visible', () => {
-  it('Returns all 8 chains', async () => {
+  it('Returns all 7 chains', async () => {
     const r = await get('/api/source-status');
     expect(r.ok).toBe(true);
-    const chains = new Set(r.data.map((s: any) => s.chain));
-    expect(chains.size).toBe(8);
-    for (const chain of ['migros', 'coop', 'aldi', 'denner', 'lidl', 'ottos', 'volg', 'farmy']) {
+    const chains = new Set(r.data.map((s: { chain: string }) => s.chain));
+    expect(chains.size).toBe(7);
+    for (const chain of ['migros', 'coop', 'aldi', 'denner', 'lidl', 'ottos', 'volg']) {
       expect(chains.has(chain)).toBe(true);
     }
   });
@@ -266,7 +266,7 @@ describe('Source status — all chains visible', () => {
     const r = await get('/api/source-status');
     expect(r.ok).toBe(true);
     for (const chain of ['migros', 'coop', 'aldi']) {
-      const entry = r.data.find((s: any) => s.chain === chain && s.capability === 'productSearch');
+      const entry = r.data.find((s: { chain: string; capability: string; status?: string }) => s.chain === chain && s.capability === 'productSearch');
       expect(entry).toBeDefined();
       expect(typeof entry.status).toBe('string');
     }
@@ -274,8 +274,8 @@ describe('Source status — all chains visible', () => {
 
   it('Migros has live-beta for productSearch and storeSearch', async () => {
     const r = await get('/api/source-status');
-    const migrosSearch = r.data.find((s: any) => s.chain === 'migros' && s.capability === 'productSearch');
-    const migrosStore = r.data.find((s: any) => s.chain === 'migros' && s.capability === 'storeSearch');
+    const migrosSearch = r.data.find((s: { chain: string; capability: string; status?: string }) => s.chain === 'migros' && s.capability === 'productSearch');
+    const migrosStore = r.data.find((s: { chain: string; capability: string; status?: string }) => s.chain === 'migros' && s.capability === 'storeSearch');
     expect(migrosSearch?.status).toBe('live-beta');
     expect(migrosStore?.status).toBe('live-beta');
   });
@@ -366,8 +366,8 @@ describe('Limit parameter', () => {
 });
 
 describe('Graceful degradation', () => {
-  it('Unsupported chain returns ok:true with empty data', async () => {
-    const r = await post('/api/search-products', { query: 'milk', chains: ['farmy'] });
+  it('Unknown chain matches no adapter and returns ok:true with empty data', async () => {
+    const r = await post('/api/search-products', { query: 'milk', chains: ['unknown-chain'] });
     expect(r.ok).toBe(true);
     expect(r.data.length).toBe(0);
   });

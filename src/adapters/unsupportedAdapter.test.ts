@@ -68,15 +68,15 @@ describe('UnsupportedChainAdapter', () => {
   });
 
   it('includes chain and hint in error message', async () => {
-    const adapter = new UnsupportedChainAdapter('farmy', {
-      productSearch: 'Farmy operations ceased.',
+    const adapter = new UnsupportedChainAdapter('denner', {
+      productSearch: 'Denner product catalog search is not backed by a real source yet.',
     });
 
     const result = await adapter.searchProducts({ query: 'bread' });
 
     expect(result.ok).toBe(false);
     if (!result.ok) {
-      expect(result.error.message).toContain('farmy');
+      expect(result.error.message).toContain('denner');
       expect(result.error.message).toContain('get_source_status');
     }
   });
