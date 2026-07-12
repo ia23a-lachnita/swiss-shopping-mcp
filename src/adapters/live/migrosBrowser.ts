@@ -215,6 +215,45 @@ export async function fetchProductCards(
 }
 
 /**
+ * Fetch product card details by Migros IDs (the 12-digit IDs used in product
+ * page URLs). The product-cards endpoint's `uids` filter does NOT accept
+ * these; the `migrosIds` filter does.
+ */
+export async function fetchProductCardsByMigrosIds(
+  migrosIds: string[],
+  token: string,
+  offerFilter?: {
+    storeType?: string;
+    region?: string;
+    ongoingOfferDate?: string;
+  }
+): Promise<unknown> {
+  const body = {
+    productFilter: { migrosIds },
+    offerFilter: offerFilter ?? {
+      storeType: 'OFFLINE',
+      region: 'NATIONAL',
+      ongoingOfferDate: new Date().toISOString().split('T')[0] + 'T00:00:00',
+    },
+  };
+
+  const resp = await migrosFetch(PRODUCT_CARDS_URL, {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+      leshopch: token,
+    },
+    body,
+  });
+
+  if (resp.status !== 200) {
+    throw new Error(`Product cards request failed with status ${resp.status}`);
+  }
+  return resp.data;
+}
+
+/**
  * Search for stores via the browser context.
  */
 export async function searchStores(

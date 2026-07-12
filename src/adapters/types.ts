@@ -286,6 +286,12 @@ export interface ChainAdapter {
   lookupStoreProductAvailability(
     filters: StoreProductAvailabilityFilters
   ): Promise<Result<StoreProductAvailabilityResult>>;
+  /**
+   * Hydrate full product data for known vendor product IDs (e.g. IDs
+   * extracted from product page URLs discovered via web search). Results
+   * preserve the input ID order; unknown IDs are silently skipped.
+   */
+  getProductsByIds?(ids: string[]): Promise<Result<NormalizedProduct[]>>;
 }
 
 export type Result<T> =

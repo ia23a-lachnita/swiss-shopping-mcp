@@ -20,6 +20,7 @@ import {
   getGuestToken,
   searchProducts as browserSearchProducts,
   fetchProductCards,
+  fetchProductCardsByMigrosIds,
   fetchProductDetail as browserFetchProductDetail,
   searchStores as browserSearchStores,
   checkAvailability as browserCheckAvailability,
@@ -45,6 +46,7 @@ const MIGROS_PROVIDER = 'Migros';
 const DEFAULT_CACHE_TTL_MS = 6 * 60 * 60 * 1000;
 const DEFAULT_SEARCH_LIMIT = 20;
 const SEARCH_URL = 'https://www.migros.ch/product-display/public/v2/products/search';
+const PRODUCT_CARDS_URL = 'https://www.migros.ch/product-display/public/v4/product-cards';
 const STORES_URL = 'https://www.migros.ch/store/public/v1/stores/search';
 const AVAILABILITY_URL = 'https://www.migros.ch/store-availability/public/v2/availabilities/products';
 
@@ -257,17 +259,7 @@ export class MigrosLiveAdapter implements ChainAdapter {
 
     const uids = productIds.slice(0, limit).map(Number);
     // Fetch product details via Playwright browser
-    const detailsResult = await fetchProductCards(uids, token);
-
-    // Details returned as { "0": product, "1": product, ... }
-    const detailsRecord = detailsResult as Record<string, unknown>;
-    const products: MigrosApiProduct[] = [];
-    for (const key of Object.keys(detailsRecord)) {
-      const raw = detailsRecord[key];
-      if (raw && typeof raw === 'object') {
-        products.push(this.normalizeProductDetail(raw));
-      }
-    }
+    const products = await this.fetchCards(uids, token);
 
     // Fetch nutrition/ingredients from MGB endpoint for each product (in parallel, max 20)
     const enrichable = products.filter(p => p.id && !p.nutrition_facts).slice(0, 20);
@@ -342,6 +334,138 @@ export class MigrosLiveAdapter implements ChainAdapter {
     );
 
     return products;
+  }
+
+  private normalizeCards(detailsResult: unknown): MigrosApiProduct[] {
+    // Details returned as { "0": product, "1": product, ... } or an array
+    const detailsRecord = detailsResult as Record<string, unknown>;
+    const products: MigrosApiProduct[] = [];
+    for (const key of Object.keys(detailsRecord)) {
+      const raw = detailsRecord[key];
+      if (raw && typeof raw === 'object') {
+        products.push(this.normalizeProductDetail(raw));
+      }
+    }
+    return products;
+  }
+
+  private async fetchCards(uids: number[], token: string): Promise<MigrosApiProduct[]> {
+    return this.normalizeCards(await fetchProductCards(uids, token));
+  }
+
+  public async getProductsByIds(ids: string[]): Promise<Result<NormalizedProduct[]>> {
+    // Product page URLs carry migrosIds (12-digit, possibly with leading
+    // zeros) — keep them as strings; product-cards `uids` does not accept them.
+    const migrosIds = [...new Set(ids.map((id) => id.trim()).filter((id) => /^\d+$/.test(id)))];
+    if (migrosIds.length === 0) {
+      return { ok: true, data: [] };
+    }
+
+    const cacheKey = `migros:cards:${[...migrosIds].sort().join(',')}`;
+    const cached = await this.cache.get<{ products: MigrosApiProduct[] }>(cacheKey, { allowStale: true });
+    if (cached && !cached.isStale) {
+      return this.parseHydratedProducts(cached.data.products, migrosIds, cached.provenance, []);
+    }
+
+    try {
+      const token = await this.ensureAuth();
+      const products = this.normalizeCards(await fetchProductCardsByMigrosIds(migrosIds, token));
+      const provenance = this.buildProvenance(PRODUCT_CARDS_URL);
+
+      const record = await this.cache.set(
+        cacheKey,
+        { products },
+        cacheableProvenance(provenance),
+        this.cacheTtlMs
+      );
+
+      return this.parseHydratedProducts(
+        products,
+        migrosIds,
+        liveProvenanceWithCacheExpiry(provenance, record.expiresAt),
+        []
+      );
+    } catch (error) {
+      const warning = warningFromError(error, PRODUCT_CARDS_URL, `${MIGROS_PROVIDER} product cards fetch failed`, 'migros', MIGROS_PROVIDER);
+
+      if (this.isAuthError(error) && !this.authFailed) {
+        this.invalidateAuth();
+        try {
+          const token = await this.ensureAuth();
+          const products = this.normalizeCards(await fetchProductCardsByMigrosIds(migrosIds, token));
+          const provenance = this.buildProvenance(PRODUCT_CARDS_URL);
+          const record = await this.cache.set(cacheKey, { products }, cacheableProvenance(provenance), this.cacheTtlMs);
+          return this.parseHydratedProducts(products, migrosIds, liveProvenanceWithCacheExpiry(provenance, record.expiresAt), []);
+        } catch {
+          // Fall through to stale cache
+        }
+      }
+
+      if (cached) {
+        return this.parseHydratedProducts(
+          cached.data.products,
+          migrosIds,
+          cached.provenance,
+          [warning, staleCacheWarning(cached.provenance, 'migros', MIGROS_PROVIDER)]
+        );
+      }
+
+      return {
+        ok: false,
+        error: { code: warning.code, message: warning.message },
+      };
+    }
+  }
+
+  private parseHydratedProducts(
+    data: MigrosApiProduct[],
+    orderedIds: string[],
+    provenance: SourceProvenance,
+    warnings: SourceWarning[]
+  ): Result<NormalizedProduct[]> {
+    const parsed = parseMigrosSearchResponse(data, provenance.sourceUrl ?? PRODUCT_CARDS_URL);
+
+    // Preserve the caller's ID order (web-search rank). Callers pass
+    // migrosIds; products are keyed by both uid and migrosId so either
+    // namespace round-trips. Unmatched products are appended at the end.
+    const byId = new Map<string, MigrosParsedProduct>();
+    for (const p of parsed) {
+      byId.set(p.id, p);
+      if (p.migrosId !== undefined) {
+        byId.set(String(p.migrosId), p);
+      }
+    }
+
+    const orderedParsed: MigrosParsedProduct[] = [];
+    const used = new Set<MigrosParsedProduct>();
+    for (const id of orderedIds) {
+      const product = byId.get(id);
+      if (product && !used.has(product)) {
+        orderedParsed.push(product);
+        used.add(product);
+      }
+    }
+    for (const product of parsed) {
+      if (!used.has(product)) {
+        orderedParsed.push(product);
+        used.add(product);
+      }
+    }
+
+    const ordered = orderedParsed.map((p) => toNormalizedProduct(p, provenance));
+
+    return {
+      ok: true,
+      data: ordered,
+      metadata: metadataFrom(
+        [provenance],
+        warnings,
+        'migros',
+        MIGROS_PROVIDER,
+        'Migros data is sourced from live retailer API endpoints.',
+        'Migros data is sourced from cached retailer observations.'
+      ),
+    };
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

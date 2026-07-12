@@ -80,6 +80,8 @@ export interface MigrosPromotionsResponse {
 
 export interface MigrosParsedProduct {
   id: string;
+  /** 12-digit ID used in migros.ch product page URLs (differs from `id`/uid). */
+  migrosId?: string;
   sourceUrl: string;
   productUrl?: string;
   name: string;
@@ -168,6 +170,7 @@ export function parseMigrosSearchResponse(
     return [
       {
         id,
+        migrosId: product.migrosId,
         sourceUrl,
         productUrl: product.url || undefined,
         name: product.name,

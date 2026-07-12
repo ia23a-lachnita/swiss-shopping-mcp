@@ -11,6 +11,7 @@ vi.mock('./migrosBrowser.js', () => ({
   getGuestToken: vi.fn(),
   searchProducts: vi.fn(),
   fetchProductCards: vi.fn(),
+  fetchProductCardsByMigrosIds: vi.fn(),
   searchStores: vi.fn(),
   checkAvailability: vi.fn(),
 }));
@@ -254,5 +255,74 @@ describe('MigrosLiveAdapter', () => {
         expect(result.data.isAvailable).toBe(false);
       }
     });
+  });
+});
+
+describe('MigrosLiveAdapter.getProductsByIds', () => {
+  it('hydrates products preserving the input ID order and caches the result', async () => {
+    const cache = createMockCache();
+    const adapter = new MigrosLiveAdapter({ cache });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const browserMocks: any = await import('./migrosBrowser.js');
+    browserMocks.getGuestToken.mockReset();
+    browserMocks.fetchProductCardsByMigrosIds.mockReset();
+    cache.get.mockResolvedValue(undefined);
+    cache.set.mockResolvedValue(mockCacheRecord);
+    browserMocks.getGuestToken.mockResolvedValue('mock-token');
+    browserMocks.fetchProductCardsByMigrosIds.mockResolvedValue(mockProductDetailsResponse);
+
+    const result = await adapter.getProductsByIds(['456', '123']);
+
+    expect(browserMocks.fetchProductCardsByMigrosIds).toHaveBeenCalledWith(['456', '123'], 'mock-token');
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data.map((p) => p.id)).toEqual(['456', '123']);
+      expect(result.data[0].name).toBe('Butter');
+      expect(result.data[1].name).toBe('Milch');
+    }
+    expect(cache.set).toHaveBeenCalled();
+  });
+
+  it('returns empty data for non-numeric IDs without calling the API', async () => {
+    const cache = createMockCache();
+    const adapter = new MigrosLiveAdapter({ cache });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const browserMocks: any = await import('./migrosBrowser.js');
+    browserMocks.fetchProductCardsByMigrosIds.mockReset();
+
+    const result = await adapter.getProductsByIds(['abc', '']);
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data).toEqual([]);
+    }
+    expect(browserMocks.fetchProductCardsByMigrosIds).not.toHaveBeenCalled();
+  });
+
+  it('serves hydrated products from cache without hitting the API', async () => {
+    const cache = createMockCache();
+    const adapter = new MigrosLiveAdapter({ cache });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const browserMocks: any = await import('./migrosBrowser.js');
+    browserMocks.fetchProductCardsByMigrosIds.mockReset();
+    cache.get.mockResolvedValue({
+      data: { products: Object.values(mockProductDetailsResponse).map((raw) => ({
+        id: (raw as { uid: number }).uid,
+        name: (raw as { name: string }).name,
+        brand_name: 'Migros',
+        price: { amount: 1.85, currency: 'CHF' },
+        category_name: 'Milchprodukte',
+        image_url: '',
+        url: '',
+        quantity: '',
+      })) },
+      provenance: { provider: 'Migros', chain: 'migros', sourceType: 'retailer-web', sourceUrl: 'test', observedAt: '2026-06-16T10:00:00.000Z', freshness: 'cached', confidence: 'medium' },
+      isStale: false,
+    });
+
+    const result = await adapter.getProductsByIds(['123']);
+
+    expect(result.ok).toBe(true);
+    expect(browserMocks.fetchProductCardsByMigrosIds).not.toHaveBeenCalled();
   });
 });

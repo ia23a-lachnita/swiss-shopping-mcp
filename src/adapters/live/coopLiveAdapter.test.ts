@@ -254,3 +254,100 @@ describe('CoopLiveAdapter', () => {
     });
   });
 });
+
+describe('CoopLiveAdapter.getProductsByIds', () => {
+  async function setup() {
+    const sourceClientModule = await import('../../sources/sourceClient.js');
+    const mocks = (sourceClientModule as unknown as { __mocks: { mockFetchJson: ReturnType<typeof vi.fn> } }).__mocks;
+    mocks.mockFetchJson.mockReset();
+    const cache = createMockCache() as FileTtlCache & {
+      get: ReturnType<typeof vi.fn>;
+      set: ReturnType<typeof vi.fn>;
+    };
+    cache.get = vi.fn().mockResolvedValue(undefined);
+    cache.set = vi.fn().mockResolvedValue({ expiresAt: '2099-01-01T00:00:00.000Z' });
+    const adapter = new CoopLiveAdapter({ cache });
+    return { adapter, mocks, cache };
+  }
+
+  it('hydrates a product from the detail endpoint including ingredients', async () => {
+    const { adapter, mocks } = await setup();
+    mocks.mockFetchJson.mockResolvedValue({
+      data: {
+        code: '4940251',
+        name: 'Elmex Sensitive Professional',
+        brandName: 'Elmex',
+        price: { value: 5.95, currencyIso: 'CHF' },
+        primaryCategory: { name: 'Zahnpaste' },
+        images: [{ url: 'https://example.com/elmex.jpg' }],
+        url: '/de/x/p/4940251',
+        ingredients: '<p>Aqua, Hydrated Silica</p>',
+      },
+      provenance: {},
+    });
+
+    const result = await adapter.getProductsByIds(['4940251']);
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data).toHaveLength(1);
+      expect(result.data[0]).toMatchObject({
+        id: '4940251',
+        chain: 'coop',
+        name: 'Elmex Sensitive Professional',
+        price: { current: 5.95 },
+      });
+      expect(result.data[0].ingredients?.[0]).toBe('Aqua, Hydrated Silica');
+    }
+    expect(mocks.mockFetchJson).toHaveBeenCalledWith(
+      expect.stringContaining('/products/4940251?fields=FULL'),
+      expect.anything()
+    );
+  });
+
+  it('skips failed codes but returns the rest with a warning', async () => {
+    const { adapter, mocks } = await setup();
+    mocks.mockFetchJson.mockImplementation(async (url: string) => {
+      if (url.includes('/products/111')) {
+        throw new Error('HTTP 404');
+      }
+      return {
+        data: {
+          code: '222',
+          name: 'Working Product',
+          price: { value: 2.5, currencyIso: 'CHF' },
+        },
+        provenance: {},
+      };
+    });
+
+    const result = await adapter.getProductsByIds(['111', '222']);
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data.map((p) => p.id)).toEqual(['222']);
+      expect(result.metadata?.sourceWarnings?.length).toBe(1);
+    }
+  });
+
+  it('fails with an error when every code fails', async () => {
+    const { adapter, mocks } = await setup();
+    mocks.mockFetchJson.mockRejectedValue(new Error('HTTP 500'));
+
+    const result = await adapter.getProductsByIds(['111']);
+
+    expect(result.ok).toBe(false);
+  });
+
+  it('ignores non-numeric IDs', async () => {
+    const { adapter, mocks } = await setup();
+
+    const result = await adapter.getProductsByIds(['abc']);
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data).toEqual([]);
+    }
+    expect(mocks.mockFetchJson).not.toHaveBeenCalled();
+  });
+});

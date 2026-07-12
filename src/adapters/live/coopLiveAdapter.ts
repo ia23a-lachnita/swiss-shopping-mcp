@@ -2,6 +2,7 @@ import { FileTtlCache } from '../../cache/fileTtlCache.js';
 import {
   CoopParsedProduct,
   CoopParsedStore,
+  CoopProduct,
   CoopSearchResponse,
   CoopStoresResponse,
   parseCoopSearchResponse,
@@ -47,6 +48,19 @@ export interface CoopLiveAdapterOptions {
   cache: FileTtlCache;
   cacheTtlMs?: number;
   userAgent?: string;
+}
+
+interface CoopDetailExtras {
+  ingredients?: string;
+  nutritionInformation?: {
+    nutrients?: Array<{ name: string; assembledValue: string }>;
+    nutritionInformationPerUnit?: {
+      nutrients?: Array<{ name: string; assembledValue: string }>;
+    };
+    nutritionInformationPerPortion?: {
+      nutrients?: Array<{ name: string; assembledValue: string }>;
+    };
+  };
 }
 
 function toNormalizedProduct(
@@ -386,65 +400,194 @@ export class CoopLiveAdapter implements ChainAdapter {
 
       const data = result.data;
       if (!data) return undefined;
-
-      // Parse ingredients: strip HTML tags
-      let ingredients: string | undefined;
-      if (typeof data.ingredients === 'string' && data.ingredients.length > 0) {
-        ingredients = data.ingredients
-          .replace(/<[^>]+>/g, '')
-          .replace(/&amp;/g, '&')
-          .replace(/&#x25;/g, '%')
-          .trim();
-        if (ingredients.length === 0) ingredients = undefined;
-      }
-
-      // Parse nutrition from nutritionInformation (try multiple locations)
-      let nutrition: NormalizedProduct['nutrition'] | undefined;
-      const nutrients = data.nutritionInformation?.nutrients
-        ?? data.nutritionInformation?.nutritionInformationPerUnit?.nutrients
-        ?? data.nutritionInformation?.nutritionInformationPerPortion?.nutrients;
-      if (nutrients && Array.isArray(nutrients) && nutrients.length > 0) {
-        const parseNum = (raw: string): number | undefined => {
-          const cleaned = raw.replace(/[^0-9.,]/g, '').replace(',', '.');
-          const n = parseFloat(cleaned);
-          return Number.isFinite(n) ? n : undefined;
-        };
-
-        let energyKcal: number | undefined;
-        let fat: number | undefined;
-        let carbs: number | undefined;
-        let sugar: number | undefined;
-        let protein: number | undefined;
-
-        let energyCount = 0;
-        for (const n of nutrients) {
-          const name = (n.name || '').toLowerCase();
-          if (name === 'energie') {
-            energyCount++;
-            if (energyCount === 2) {
-              energyKcal = parseNum(n.assembledValue);
-            }
-          } else if (name === 'fett' && fat === undefined) {
-            fat = parseNum(n.assembledValue);
-          } else if ((name === 'kohlenhydrate' || name === 'kohlenhydrate') && carbs === undefined) {
-            carbs = parseNum(n.assembledValue);
-          } else if (name.startsWith('davon zucker') && sugar === undefined) {
-            sugar = parseNum(n.assembledValue);
-          } else if (name === 'eiweiss' && protein === undefined) {
-            protein = parseNum(n.assembledValue);
-          }
-        }
-
-        if (energyKcal !== undefined || fat !== undefined || carbs !== undefined || protein !== undefined) {
-          nutrition = { energyKcal, protein, carbs, fat, sugar };
-        }
-      }
-
-      if (!ingredients && !nutrition) return undefined;
-      return { ingredients, nutrition };
+      return this.parseDetailExtras(data);
     } catch {
       return undefined;
     }
+  }
+
+  private parseDetailExtras(
+    data: CoopDetailExtras
+  ): { ingredients?: string; nutrition?: NormalizedProduct['nutrition'] } | undefined {
+    // Parse ingredients: strip HTML tags
+    let ingredients: string | undefined;
+    if (typeof data.ingredients === 'string' && data.ingredients.length > 0) {
+      ingredients = data.ingredients
+        .replace(/<[^>]+>/g, '')
+        .replace(/&amp;/g, '&')
+        .replace(/&#x25;/g, '%')
+        .trim();
+      if (ingredients.length === 0) ingredients = undefined;
+    }
+
+    // Parse nutrition from nutritionInformation (try multiple locations)
+    let nutrition: NormalizedProduct['nutrition'] | undefined;
+    const nutrients = data.nutritionInformation?.nutrients
+      ?? data.nutritionInformation?.nutritionInformationPerUnit?.nutrients
+      ?? data.nutritionInformation?.nutritionInformationPerPortion?.nutrients;
+    if (nutrients && Array.isArray(nutrients) && nutrients.length > 0) {
+      const parseNum = (raw: string): number | undefined => {
+        const cleaned = raw.replace(/[^0-9.,]/g, '').replace(',', '.');
+        const n = parseFloat(cleaned);
+        return Number.isFinite(n) ? n : undefined;
+      };
+
+      let energyKcal: number | undefined;
+      let fat: number | undefined;
+      let carbs: number | undefined;
+      let sugar: number | undefined;
+      let protein: number | undefined;
+
+      let energyCount = 0;
+      for (const n of nutrients) {
+        const name = (n.name || '').toLowerCase();
+        if (name === 'energie') {
+          energyCount++;
+          if (energyCount === 2) {
+            energyKcal = parseNum(n.assembledValue);
+          }
+        } else if (name === 'fett' && fat === undefined) {
+          fat = parseNum(n.assembledValue);
+        } else if ((name === 'kohlenhydrate' || name === 'kohlenhydrate') && carbs === undefined) {
+          carbs = parseNum(n.assembledValue);
+        } else if (name.startsWith('davon zucker') && sugar === undefined) {
+          sugar = parseNum(n.assembledValue);
+        } else if (name === 'eiweiss' && protein === undefined) {
+          protein = parseNum(n.assembledValue);
+        }
+      }
+
+      if (energyKcal !== undefined || fat !== undefined || carbs !== undefined || protein !== undefined) {
+        nutrition = { energyKcal, protein, carbs, fat, sugar };
+      }
+    }
+
+    if (!ingredients && !nutrition) return undefined;
+    return { ingredients, nutrition };
+  }
+
+  public async getProductsByIds(ids: string[]): Promise<Result<NormalizedProduct[]>> {
+    const codes = [...new Set(ids.map((id) => id.trim()).filter((id) => /^\d+$/.test(id)))];
+    if (codes.length === 0) {
+      return { ok: true, data: [] };
+    }
+
+    const entries = await Promise.all(codes.map(async (code) => this.fetchProductByCode(code)));
+
+    const products: NormalizedProduct[] = [];
+    const warnings: SourceWarning[] = [];
+    for (const entry of entries) {
+      if (entry.ok) {
+        products.push(entry.product);
+      } else {
+        warnings.push(entry.warning);
+      }
+    }
+
+    if (products.length === 0 && warnings.length > 0) {
+      return {
+        ok: false,
+        error: { code: warnings[0].code, message: warnings[0].message },
+      };
+    }
+
+    const provenance = products[0]?.provenance ?? this.buildProvenance(`${BASE_URL}/products`);
+    return {
+      ok: true,
+      data: products,
+      metadata: metadataFrom(
+        [provenance],
+        warnings,
+        'coop',
+        COOP_PROVIDER,
+        'Coop data is sourced from live retailer API endpoints.',
+        'Coop data is sourced from cached retailer observations.'
+      ),
+    };
+  }
+
+  private async fetchProductByCode(
+    code: string
+  ): Promise<{ ok: true; product: NormalizedProduct } | { ok: false; warning: SourceWarning }> {
+    const detailUrl = `${BASE_URL}/products/${code}?fields=FULL`;
+    const cacheKey = `coop:product:${code}`;
+
+    let raw: (CoopProduct & CoopDetailExtras) | undefined;
+    let provenance: SourceProvenance | undefined;
+
+    const cached = await this.cache.get<CoopProduct & CoopDetailExtras>(cacheKey, { allowStale: true });
+    if (cached && !cached.isStale) {
+      raw = cached.data;
+      provenance = cached.provenance;
+    } else {
+      try {
+        const result = await this.sourceClient.fetchJson<CoopProduct & CoopDetailExtras>(detailUrl, {
+          provider: COOP_PROVIDER,
+          chain: 'coop',
+          sourceType: 'retailer-web',
+          confidence: 'medium',
+        });
+        raw = result.data;
+        const liveProvenance = this.buildProvenance(detailUrl);
+        const record = await this.cache.set(
+          cacheKey,
+          raw,
+          cacheableProvenance(liveProvenance),
+          this.cacheTtlMs
+        );
+        provenance = liveProvenanceWithCacheExpiry(liveProvenance, record.expiresAt);
+      } catch (error) {
+        if (cached) {
+          raw = cached.data;
+          provenance = cached.provenance;
+        } else {
+          return {
+            ok: false,
+            warning: warningFromError(error, detailUrl, `${COOP_PROVIDER} product detail fetch failed`, 'coop', COOP_PROVIDER),
+          };
+        }
+      }
+    }
+
+    if (!raw || !provenance) {
+      return {
+        ok: false,
+        warning: {
+          chain: 'coop',
+          provider: COOP_PROVIDER,
+          sourceUrl: detailUrl,
+          code: SourceWarningCode.SourceParseFailed,
+          message: `${COOP_PROVIDER} product detail response was empty for code ${code}.`,
+          observedAt: new Date().toISOString(),
+        },
+      };
+    }
+
+    const parsed = parseCoopSearchResponse({ products: [raw] }, detailUrl);
+    if (parsed.length === 0) {
+      return {
+        ok: false,
+        warning: {
+          chain: 'coop',
+          provider: COOP_PROVIDER,
+          sourceUrl: detailUrl,
+          code: SourceWarningCode.SourceParseFailed,
+          message: `${COOP_PROVIDER} product detail response could not be parsed for code ${code}.`,
+          observedAt: new Date().toISOString(),
+        },
+      };
+    }
+
+    let product = toNormalizedProduct(parsed[0], provenance);
+    const extras = this.parseDetailExtras(raw);
+    if (extras) {
+      product = {
+        ...product,
+        ingredients: extras.ingredients ? [extras.ingredients] : product.ingredients,
+        nutrition: extras.nutrition ?? product.nutrition,
+      };
+    }
+    return { ok: true, product };
   }
 
   private isDataDomeError(error: unknown): boolean {
