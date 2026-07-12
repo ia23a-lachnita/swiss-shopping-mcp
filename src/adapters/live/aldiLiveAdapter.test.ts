@@ -172,4 +172,71 @@ describe('AldiLiveAdapter', () => {
     const stores = await adapter.findStores({ location: 'Zürich', latitude: 47.3769, longitude: 8.5417 });
     expect(stores.ok).toBe(false);
   });
+
+  describe('getProductsByIds', () => {
+    it('hydrates products by slug via a direct product page fetch', async () => {
+      const productHtml = await readProductHtml();
+      const fetchImpl = createFetch(productHtml);
+      const adapter = new AldiLiveAdapter({
+        cache: await createCache(),
+        sourceClient: new SourceHttpClient({
+          fetchImpl: fetchImpl as unknown as typeof fetch,
+          retries: 0,
+          rateLimitPerHostMs: 0,
+        }),
+        cacheTtlMs: 60_000,
+      });
+
+      const result = await adapter.getProductsByIds(['backbox-toskanabrot-000000000000101698']);
+
+      expect(result.ok).toBe(true);
+      if (!result.ok) return;
+      expect(result.data).toHaveLength(1);
+      expect(result.data[0]).toMatchObject({
+        id: 'backbox-toskanabrot-000000000000101698',
+        chain: 'aldi',
+        name: 'Toskanabrot',
+      });
+      // Product page fetched directly — no sitemap round-trip needed.
+      const fetchedUrls = fetchImpl.mock.calls.map((call) => String(call[0]));
+      expect(fetchedUrls).toContain(PRODUCT_URL);
+      expect(fetchedUrls.some((url) => url.endsWith('/sitemap_products.xml'))).toBe(false);
+    });
+
+    it('skips ids without an 18-digit SKU suffix', async () => {
+      const fetchImpl = createFetch('unused');
+      const adapter = new AldiLiveAdapter({
+        cache: await createCache(),
+        sourceClient: new SourceHttpClient({
+          fetchImpl: fetchImpl as unknown as typeof fetch,
+          retries: 0,
+          rateLimitPerHostMs: 0,
+        }),
+      });
+
+      const result = await adapter.getProductsByIds(['kategorie-ohne-sku', '  ', '12345']);
+
+      expect(result.ok).toBe(true);
+      if (!result.ok) return;
+      expect(result.data).toEqual([]);
+      expect(fetchImpl).not.toHaveBeenCalled();
+    });
+
+    it('returns an error when all product pages fail and no cache exists', async () => {
+      const productHtml = await readProductHtml();
+      const fetchImpl = createFetch(productHtml);
+      const adapter = new AldiLiveAdapter({
+        cache: await createCache(),
+        sourceClient: new SourceHttpClient({
+          fetchImpl: fetchImpl as unknown as typeof fetch,
+          retries: 0,
+          rateLimitPerHostMs: 0,
+        }),
+      });
+
+      const result = await adapter.getProductsByIds(['unbekannt-000000000000999999']);
+
+      expect(result.ok).toBe(false);
+    });
+  });
 });

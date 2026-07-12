@@ -274,6 +274,89 @@ export function parseLidlSearchPage(
   return products;
 }
 
+/**
+ * Parse a Lidl product detail page. Product pages are server-rendered with a
+ * schema.org Product JSON-LD block containing sku, name, brand, image, and
+ * offer price — unlike the search page, no client-side rendering is needed.
+ */
+export function parseLidlProductPage(html: string, sourceUrl: string): LidlParsedProduct | undefined {
+  const $ = cheerio.load(html);
+  let parsed: LidlParsedProduct | undefined;
+
+  $('script[type="application/ld+json"]').each((_index, element) => {
+    if (parsed) return;
+    const raw = $(element).text();
+    if (!raw) return;
+
+    let data: unknown;
+    try {
+      data = JSON.parse(raw);
+    } catch {
+      return;
+    }
+
+    for (const candidate of Array.isArray(data) ? data : [data]) {
+      const product = productFromJsonLd(candidate, sourceUrl);
+      if (product) {
+        parsed = product;
+        return;
+      }
+    }
+  });
+
+  return parsed;
+}
+
+function productFromJsonLd(data: unknown, sourceUrl: string): LidlParsedProduct | undefined {
+  if (!data || typeof data !== 'object') return undefined;
+  const obj = data as Record<string, unknown>;
+  if (obj['@type'] !== 'Product') return undefined;
+
+  const name = typeof obj.name === 'string' ? obj.name.trim() : '';
+  const sku =
+    typeof obj.sku === 'string' ? obj.sku : typeof obj.sku === 'number' ? String(obj.sku) : '';
+  const url = typeof obj.url === 'string' ? obj.url : sourceUrl;
+
+  const offers = Array.isArray(obj.offers) ? obj.offers : obj.offers ? [obj.offers] : [];
+  const firstOffer = offers[0] as Record<string, unknown> | undefined;
+  const price =
+    typeof firstOffer?.price === 'number'
+      ? firstOffer.price
+      : typeof firstOffer?.price === 'string'
+        ? Number.parseFloat(firstOffer.price)
+        : Number.NaN;
+  const currency = typeof firstOffer?.priceCurrency === 'string' ? firstOffer.priceCurrency : 'CHF';
+
+  const brandObj = obj.brand as Record<string, unknown> | undefined;
+  const brand =
+    typeof brandObj?.name === 'string'
+      ? brandObj.name
+      : typeof obj.brand === 'string'
+        ? obj.brand
+        : undefined;
+
+  const image = Array.isArray(obj.image)
+    ? typeof obj.image[0] === 'string'
+      ? obj.image[0]
+      : undefined
+    : typeof obj.image === 'string'
+      ? obj.image
+      : undefined;
+
+  const idFromUrl = url.match(/\/p(\d{4,})\/?$/)?.[1];
+  const id = sku || idFromUrl || '';
+  if (!id || !name || !Number.isFinite(price) || price <= 0) return undefined;
+
+  return {
+    id,
+    sourceUrl: url,
+    name,
+    brand,
+    price: { current: price, currency },
+    image,
+  };
+}
+
 export function parseLidlStoresResponse(
   data: unknown,
   _sourceUrl: string

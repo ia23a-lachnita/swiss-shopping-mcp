@@ -115,6 +115,66 @@ describe('WebProductSearchService', () => {
     expect(result.productsByChain.get('coop')?.map((p) => p.id)).toEqual(['4940251']);
   });
 
+  it('extracts Aldi product slugs from /de/produkt/ URLs with an 18-digit SKU suffix', async () => {
+    const slug = 'backbox-toskanabrot-000000000000101698';
+    const adapter = hydratableAdapter('aldi', {
+      [slug]: product(slug, 'aldi'),
+    });
+    const provider = stubProvider({
+      'aldi-suisse.ch/de/produkt': ranked([
+        `https://www.aldi-suisse.ch/de/produkt/${slug}`,
+        'https://www.aldi-suisse.ch/de/produkt/kategorie-ohne-sku', // no SKU suffix -> ignored
+        'https://www.aldi-suisse.ch/de/aktionen/uebersicht', // not a product page -> ignored
+      ]),
+    });
+    const service = new WebProductSearchService({
+      provider,
+      adapters: [adapter],
+      cache: createMockCache(),
+    });
+
+    const result = await service.searchProducts({ query: 'brot' }, ['aldi']);
+
+    expect(adapter.getProductsByIds).toHaveBeenCalledWith([slug]);
+    expect(result.productsByChain.get('aldi')?.map((p) => p.id)).toEqual([slug]);
+  });
+
+  it('extracts Lidl product page paths from /p{id} URLs and caps hydration at 3 IDs', async () => {
+    const adapter = hydratableAdapter('lidl', {
+      '/p/de-CH/vollmilch/p10054750': product('10054750', 'lidl'),
+      '/p/de-CH/vollmilch-bio/p10054751': product('10054751', 'lidl'),
+      '/p/de-CH/magermilch/p10054752': product('10054752', 'lidl'),
+      '/p/de-CH/kaffeerahm/p10054753': product('10054753', 'lidl'),
+    });
+    const provider = stubProvider({
+      'lidl.ch': ranked([
+        'https://www.lidl.ch/p/de-CH/vollmilch/p10054750',
+        'https://www.lidl.ch/p/de-CH/vollmilch-bio/p10054751',
+        'https://www.lidl.ch/q/de-CH/search?q=milch', // no product path -> ignored
+        'https://www.lidl.ch/p/de-CH/magermilch/p10054752',
+        'https://www.lidl.ch/p/de-CH/kaffeerahm/p10054753', // beyond the 3-ID cap
+      ]),
+    });
+    const service = new WebProductSearchService({
+      provider,
+      adapters: [adapter],
+      cache: createMockCache(),
+    });
+
+    const result = await service.searchProducts({ query: 'milch' }, ['lidl']);
+
+    expect(adapter.getProductsByIds).toHaveBeenCalledWith([
+      '/p/de-CH/vollmilch/p10054750',
+      '/p/de-CH/vollmilch-bio/p10054751',
+      '/p/de-CH/magermilch/p10054752',
+    ]);
+    expect(result.productsByChain.get('lidl')?.map((p) => p.id)).toEqual([
+      '10054750',
+      '10054751',
+      '10054752',
+    ]);
+  });
+
   it('skips chains without getProductsByIds support', async () => {
     const provider = stubProvider({});
     const service = new WebProductSearchService({

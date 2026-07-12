@@ -7,6 +7,32 @@ vi.mock('./lidlBrowser.js', () => ({
   searchProducts: vi.fn().mockResolvedValue([]),
 }));
 
+const mockProductPageHtml = `
+<html>
+<head>
+<script type="application/ld+json">${JSON.stringify({
+  '@context': 'http://schema.org',
+  '@type': 'Product',
+  sku: '10054750',
+  name: 'Vollmilch',
+  image: ['https://example.com/vollmilch.png'],
+  url: 'https://www.lidl.ch/p/de-CH/vollmilch/p10054750',
+  brand: { '@type': 'Brand', name: 'Milbona' },
+  offers: [
+    {
+      '@type': 'Offer',
+      price: 1.49,
+      priceCurrency: 'CHF',
+      availability: 'InStock',
+      url: 'https://www.lidl.ch/p/de-CH/vollmilch/p10054750',
+    },
+  ],
+})}</script>
+</head>
+<body></body>
+</html>
+`;
+
 function createMockCache() {
   return {
     get: vi.fn(),
@@ -217,6 +243,97 @@ describe('LidlLiveAdapter', () => {
         expect(result.data.supported).toBe(false);
         expect(result.data.isAvailable).toBe(false);
       }
+    });
+  });
+
+  describe('getProductsByIds', () => {
+    it('hydrates a product page path via direct fetch and caches it for 6 hours', async () => {
+      cache.get.mockResolvedValue(undefined);
+      vi.mocked(globalThis.fetch).mockResolvedValue({
+        ok: true,
+        text: () => Promise.resolve(mockProductPageHtml),
+      } as Response);
+      cache.set.mockResolvedValue(mockCacheRecord);
+
+      const result = await adapter.getProductsByIds(['/p/de-CH/vollmilch/p10054750']);
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.data).toHaveLength(1);
+        expect(result.data[0].id).toBe('10054750');
+        expect(result.data[0].name).toBe('Vollmilch');
+        expect(result.data[0].brand).toBe('Milbona');
+        expect(result.data[0].price.current).toBe(1.49);
+      }
+      expect(globalThis.fetch).toHaveBeenCalledWith(
+        'https://www.lidl.ch/p/de-CH/vollmilch/p10054750',
+        expect.any(Object)
+      );
+      expect(cache.set).toHaveBeenCalledWith(
+        'lidl:product-by-id:10054750',
+        expect.objectContaining({ id: '10054750' }),
+        expect.anything(),
+        6 * 60 * 60 * 1000
+      );
+    });
+
+    it('accepts full product URLs and serves fresh cached products without fetching', async () => {
+      cache.get.mockResolvedValue({ ...mockStaleCacheHit, data: mockStaleCacheHit.data[0], isStale: false });
+
+      const result = await adapter.getProductsByIds(['https://www.lidl.ch/p/de-CH/vollmilch/p10054750']);
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.data).toHaveLength(1);
+        expect(result.data[0].id).toBe('10054750');
+      }
+      expect(globalThis.fetch).not.toHaveBeenCalled();
+    });
+
+    it('silently skips pages without parseable product JSON-LD', async () => {
+      cache.get.mockResolvedValue(undefined);
+      vi.mocked(globalThis.fetch).mockResolvedValue({
+        ok: true,
+        text: () => Promise.resolve('<html><body>no product here</body></html>'),
+      } as Response);
+
+      const result = await adapter.getProductsByIds(['/p/de-CH/unbekannt/p99999999']);
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.data).toEqual([]);
+      }
+      expect(cache.set).not.toHaveBeenCalled();
+    });
+
+    it('ignores IDs without a product path and caps hydration at 3 IDs', async () => {
+      cache.get.mockResolvedValue(undefined);
+      vi.mocked(globalThis.fetch).mockResolvedValue({
+        ok: true,
+        text: () => Promise.resolve('<html><body>no product here</body></html>'),
+      } as Response);
+
+      const result = await adapter.getProductsByIds([
+        '10054750', // bare numeric ID -> no path -> skipped
+        'not-a-product',
+        '/p/de-CH/a/p11111111',
+        '/p/de-CH/b/p22222222',
+        '/p/de-CH/c/p33333333',
+        '/p/de-CH/d/p44444444',
+      ]);
+
+      expect(result.ok).toBe(true);
+      // 4 valid paths supplied, but only 3 lookups are allowed.
+      expect(globalThis.fetch).toHaveBeenCalledTimes(3);
+    });
+
+    it('fails with an error when every page fetch fails and no cache exists', async () => {
+      cache.get.mockResolvedValue(undefined);
+      vi.mocked(globalThis.fetch).mockRejectedValue(new Error('network down'));
+
+      const result = await adapter.getProductsByIds(['/p/de-CH/vollmilch/p10054750']);
+
+      expect(result.ok).toBe(false);
     });
   });
 });

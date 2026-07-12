@@ -27,10 +27,19 @@ export interface WebSearchChainConfig {
   site: string;
   /** Extract the vendor product ID from a product page URL. */
   extractProductId: (url: URL) => string | undefined;
+  /** Per-chain cap on hydrated IDs (overrides the service default). */
+  maxProducts?: number;
 }
 
 const MIGROS_PRODUCT_ID_PATTERN = /\/product\/(?:mo\/)?(\d{4,})/;
 const COOP_PRODUCT_ID_PATTERN = /\/p\/(\d+)/;
+// Lidl product pages end in /p{numericId}, e.g. /p/de-CH/vollmilch/p10054750.
+// The whole pathname is the hydration ID because the product page fetch needs
+// the full slug, not just the numeric ID (Lidl search cannot resolve bare IDs).
+const LIDL_PRODUCT_PATH_PATTERN = /\/p(\d{5,})\/?$/;
+// Aldi product slugs end in an 18-digit SKU, e.g.
+// /de/produkt/backbox-toskanabrot-000000000000101698.
+const ALDI_PRODUCT_SKU_SUFFIX = /\d{18}$/;
 
 export const DEFAULT_WEB_SEARCH_CHAIN_CONFIGS: WebSearchChainConfig[] = [
   {
@@ -42,6 +51,25 @@ export const DEFAULT_WEB_SEARCH_CHAIN_CONFIGS: WebSearchChainConfig[] = [
     chain: 'coop',
     site: 'coop.ch',
     extractProductId: (url) => url.pathname.match(COOP_PRODUCT_ID_PATTERN)?.[1],
+  },
+  {
+    chain: 'aldi',
+    site: 'aldi-suisse.ch/de/produkt',
+    extractProductId: (url) => {
+      if (!url.pathname.includes('/produkt/')) {
+        return undefined;
+      }
+      const slug = url.pathname.split('/').filter(Boolean).at(-1);
+      return slug && ALDI_PRODUCT_SKU_SUFFIX.test(slug) ? slug : undefined;
+    },
+  },
+  {
+    chain: 'lidl',
+    site: 'lidl.ch',
+    extractProductId: (url) =>
+      LIDL_PRODUCT_PATH_PATTERN.test(url.pathname) ? url.pathname : undefined,
+    // Each cold lookup is a full product page fetch — keep it tight.
+    maxProducts: 3,
   },
 ];
 
@@ -202,6 +230,7 @@ export class WebProductSearchService {
       return cached.data.ids;
     }
 
+    const maxProducts = config.maxProducts ?? this.maxProductsPerChain;
     let ids: string[];
     try {
       const results = await this.provider.search(query, { site: config.site });
@@ -218,7 +247,7 @@ export class WebProductSearchService {
         if (!id || seen.has(id)) continue;
         seen.add(id);
         ids.push(id);
-        if (ids.length >= this.maxProductsPerChain) break;
+        if (ids.length >= maxProducts) break;
       }
     } catch (error) {
       if (cached) {

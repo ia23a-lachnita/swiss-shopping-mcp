@@ -39,6 +39,7 @@ import {
 
 const ALDI_PROVIDER = 'ALDI SUISSE';
 const ALDI_PRODUCT_SITEMAP_URL = 'https://www.aldi-suisse.ch/de/sitemap_products.xml';
+const ALDI_PRODUCT_PAGE_BASE = 'https://www.aldi-suisse.ch/de/produkt';
 const ALDI_API_BASE = 'https://api.aldi-suisse.ch/v2';
 const ALDI_SERVICE_POINTS_URL = `${ALDI_API_BASE}/service-points`;
 const ALDI_AVAILABILITY_URL = `${ALDI_API_BASE}/service-point-product-availability`;
@@ -190,6 +191,52 @@ export class AldiLiveAdapter implements ChainAdapter {
       data: limitedProducts,
       metadata: metadataFrom(
         provenances,
+        warnings,
+        'aldi',
+        ALDI_PROVIDER,
+        'Aldi products are sourced from live retailer web pages.',
+        'Aldi products are sourced from cached retailer web observations.'
+      ),
+    };
+  }
+
+  /**
+   * Hydrate products for Aldi product page slugs discovered via web search
+   * (e.g. /de/produkt/backbox-toskanabrot-000000000000101698). The slug is
+   * this adapter's canonical product ID; each one maps directly to a product
+   * page fetch through the cached loadProduct path. Results preserve input
+   * order; slugs without an 18-digit SKU suffix are skipped.
+   */
+  public async getProductsByIds(ids: string[]): Promise<Result<NormalizedProduct[]>> {
+    const slugs = [
+      ...new Set(ids.map((id) => id.trim()).filter((id) => extractProductSku(id) !== undefined)),
+    ];
+    if (slugs.length === 0) {
+      return { ok: true, data: [] };
+    }
+
+    const loaded = await Promise.all(
+      slugs.map(async (slug) => this.loadProduct(`${ALDI_PRODUCT_PAGE_BASE}/${slug}`))
+    );
+
+    const warnings = loaded.flatMap((result) => result.warnings);
+    const successes = loaded.filter(
+      (result): result is LoadSuccess<AldiParsedProduct> => result.ok
+    );
+    const products = successes.map((result) => toNormalizedProduct(result.data, result.provenance));
+
+    if (products.length === 0) {
+      const failed = loaded.find((result) => !result.ok);
+      if (failed && !failed.ok) {
+        return { ok: false, error: failed.error };
+      }
+    }
+
+    return {
+      ok: true,
+      data: products,
+      metadata: metadataFrom(
+        successes.map((result) => result.provenance),
         warnings,
         'aldi',
         ALDI_PROVIDER,

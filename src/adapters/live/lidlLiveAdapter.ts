@@ -1,5 +1,11 @@
 import { FileTtlCache } from '../../cache/fileTtlCache.js';
-import { LidlParsedProduct, LidlParsedStore, parseLidlSearchPage, parseLidlStoresResponse } from '../../parsers/lidl.js';
+import {
+  LidlParsedProduct,
+  LidlParsedStore,
+  parseLidlProductPage,
+  parseLidlSearchPage,
+  parseLidlStoresResponse,
+} from '../../parsers/lidl.js';
 import { sortProducts } from '../../util/matcher.js';
 import {
   cacheableProvenance,
@@ -28,7 +34,11 @@ import {
 
 const LIDL_PROVIDER = 'Lidl Schweiz';
 const DEFAULT_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
+const HYDRATION_CACHE_TTL_MS = 6 * 60 * 60 * 1000;
+const MAX_HYDRATED_IDS = 3;
 const DEFAULT_SEARCH_LIMIT = 20;
+const LIDL_BASE_URL = 'https://www.lidl.ch';
+const LIDL_PRODUCT_PATH_PATTERN = /\/p(\d{4,})\/?$/;
 const SEARCH_URL = 'https://www.lidl.ch/q/de-CH/search';
 const STORES_URL = 'https://stores.lidlplus.com/api/v4/CH';
 const LIDL_PLUS_UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
@@ -62,6 +72,18 @@ function toNormalizedStore(store: LidlParsedStore, provenance: SourceProvenance)
     openingHours: store.openingHours,
     provenance,
   };
+}
+
+/** Accept a product page path or full URL and return the path, if usable. */
+function productPagePath(id: string): string | undefined {
+  if (!id.startsWith('http')) {
+    return id || undefined;
+  }
+  try {
+    return new URL(id).pathname;
+  } catch {
+    return undefined;
+  }
 }
 
 function filterStoresByQuery(stores: LidlParsedStore[], query: string): LidlParsedStore[] {
@@ -191,6 +213,85 @@ export class LidlLiveAdapter implements ChainAdapter {
         error: { code: warning.code, message: warning.message },
       };
     }
+  }
+
+  /**
+   * Hydrate products for Lidl product page paths discovered via web search
+   * (e.g. /p/de-CH/vollmilch/p10054750; full URLs are accepted too). Lidl's
+   * website search cannot look up bare product IDs, but product pages are
+   * server-rendered with schema.org JSON-LD, so each path maps to one direct
+   * page fetch. Capped at 3 IDs per call; paths that do not resolve to a
+   * parseable product page are silently skipped.
+   */
+  public async getProductsByIds(ids: string[]): Promise<Result<NormalizedProduct[]>> {
+    const paths: string[] = [];
+    const seenNumericIds = new Set<string>();
+    for (const raw of ids) {
+      const id = raw.trim();
+      const path = productPagePath(id);
+      const numericId = path?.match(LIDL_PRODUCT_PATH_PATTERN)?.[1];
+      if (!path || !numericId || seenNumericIds.has(numericId)) continue;
+      seenNumericIds.add(numericId);
+      paths.push(path.startsWith('/') ? path : `/${path}`);
+      if (paths.length >= MAX_HYDRATED_IDS) break;
+    }
+    if (paths.length === 0) {
+      return { ok: true, data: [] };
+    }
+
+    const products: NormalizedProduct[] = [];
+    const warnings: SourceWarning[] = [];
+
+    // Sequential on purpose: keeps the load on lidl.ch predictable and the
+    // per-ID stale-cache fallback simple.
+    for (const path of paths) {
+      const numericId = path.match(LIDL_PRODUCT_PATH_PATTERN)![1];
+      const cacheKey = `lidl:product-by-id:${numericId}`;
+      const cached = await this.cache.get<LidlParsedProduct>(cacheKey, { allowStale: true });
+      if (cached && !cached.isStale) {
+        products.push(toNormalizedProduct(cached.data, cached.provenance));
+        continue;
+      }
+
+      const pageUrl = `${LIDL_BASE_URL}${path}`;
+      try {
+        const html = await this.fetchHtml(pageUrl);
+        const product = parseLidlProductPage(html, pageUrl);
+        if (!product) {
+          continue;
+        }
+        const provenance = this.buildProvenance(product.sourceUrl);
+        await this.cache.set(cacheKey, product, cacheableProvenance(provenance), HYDRATION_CACHE_TTL_MS);
+        products.push(toNormalizedProduct(product, provenance));
+      } catch (error) {
+        if (cached) {
+          products.push(toNormalizedProduct(cached.data, cached.provenance));
+          warnings.push(staleCacheWarning(cached.provenance, 'lidl', LIDL_PROVIDER));
+          continue;
+        }
+        warnings.push(
+          warningFromError(error, pageUrl, `${LIDL_PROVIDER} product hydration failed`, 'lidl', LIDL_PROVIDER)
+        );
+      }
+    }
+
+    if (products.length === 0 && warnings.length > 0) {
+      return { ok: false, error: { code: warnings[0].code, message: warnings[0].message } };
+    }
+
+    const provenance = products[0]?.provenance ?? this.buildProvenance(SEARCH_URL);
+    return {
+      ok: true,
+      data: products,
+      metadata: metadataFrom(
+        [provenance],
+        warnings,
+        'lidl',
+        LIDL_PROVIDER,
+        'Lidl data is sourced from the Lidl.ch website search.',
+        'Lidl data is sourced from cached retailer observations.'
+      ),
+    };
   }
 
   private parseProductResult(
