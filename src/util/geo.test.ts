@@ -1,6 +1,6 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 
-import { resolveLocation, resolveLocationAsync, clearAsyncCache, findNearbyLocations, distanceBetween } from './geo.js';
+import { resolveLocation, resolveLocationAsync, clearAsyncCache, findNearbyLocations, distanceBetween, reverseGeocode } from './geo.js';
 
 describe('geo utility', () => {
   describe('resolveLocation', () => {
@@ -153,6 +153,22 @@ describe('geo utility', () => {
     it('returns 0 for same point', () => {
       const point = { latitude: 47.3769, longitude: 8.5417 };
       expect(distanceBetween(point, point)).toBe(0);
+    });
+  });
+
+  describe('reverseGeocode', () => {
+    it('maps coordinates to the nearest known locality as a usable location string', () => {
+      const result = reverseGeocode({ latitude: 47.3769, longitude: 8.5417 });
+
+      expect(result).toBeDefined();
+      expect(result!.city).toBe('Zürich');
+      expect(result!.location).toMatch(/^\d{4} Zürich$/);
+      expect(result!.distanceKm).toBeLessThan(1);
+    });
+
+    it('returns undefined for coordinates far outside Switzerland', () => {
+      // Berlin is well beyond the 30 km default radius of any Swiss locality.
+      expect(reverseGeocode({ latitude: 52.52, longitude: 13.405 })).toBeUndefined();
     });
   });
 });

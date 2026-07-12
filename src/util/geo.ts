@@ -399,3 +399,30 @@ export function findNearbyLocations(
 export function distanceBetween(a: GeoPoint, b: GeoPoint): number {
   return haversineDistance(a, b);
 }
+
+export interface ReverseGeocodeResult {
+  zip: string;
+  city: string;
+  /** "8001 Zürich" — directly usable as a `location` filter value. */
+  location: string;
+  distanceKm: number;
+}
+
+/**
+ * Map coordinates (e.g. from the browser geolocation API) to the nearest
+ * known Swiss locality in the static ZIP database. Returns undefined when the
+ * point is farther than `maxDistanceKm` from every known locality (e.g. the
+ * user is outside Switzerland).
+ */
+export function reverseGeocode(point: GeoPoint, maxDistanceKm = 30): ReverseGeocodeResult | undefined {
+  const nearest = findNearbyLocations(point, maxDistanceKm)[0];
+  if (!nearest) {
+    return undefined;
+  }
+  return {
+    zip: nearest.entry.zip,
+    city: nearest.entry.city,
+    location: `${nearest.entry.zip} ${nearest.entry.city}`,
+    distanceKm: nearest.distance,
+  };
+}

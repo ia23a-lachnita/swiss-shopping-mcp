@@ -1,9 +1,10 @@
 import { createServer, IncomingMessage, ServerResponse } from 'node:http';
 import { readFile, stat } from 'node:fs/promises';
-import { join, extname } from 'node:path';
+import { join, extname, normalize } from 'node:path';
 
 
 import { createDefaultAdapters } from '../adapters/index.js';
+import { reverseGeocode } from '../util/geo.js';
 import { getAllCapabilityStatuses } from '../adapters/sourceRegistry.js';
 import { PriceComparisonService } from '../services/priceComparisonService.js';
 import { SearchService } from '../services/searchService.js';
@@ -12,6 +13,8 @@ import { Chain, StoreAvailabilityByLocationFilters } from '../adapters/types.js'
 
 const PORT = Number(process.env.PORT) || 3000;
 const PUBLIC_DIR = join(process.cwd(), 'src', 'web', 'public');
+// Built PWA assets (vite build output; see pwa/vite.config.ts).
+const PWA_DIR = join(process.cwd(), 'dist', 'pwa');
 
 const adapters = createDefaultAdapters();
 const webProductSearch = createDefaultWebProductSearch(adapters);
@@ -27,6 +30,9 @@ const MIME_TYPES: Record<string, string> = {
   '.jpg': 'image/jpeg',
   '.svg': 'image/svg+xml',
   '.ico': 'image/x-icon',
+  '.webmanifest': 'application/manifest+json; charset=utf-8',
+  '.webp': 'image/webp',
+  '.woff2': 'font/woff2',
 };
 
 function setCorsHeaders(res: ServerResponse): void {
@@ -299,6 +305,50 @@ async function handleRequest(req: IncomingMessage, res: ServerResponse): Promise
   if (req.method === 'POST' && url.pathname === '/api/product-availability') {
     const body = await readBody(req);
     await handleProductAvailability(res, body);
+    return;
+  }
+
+  if (req.method === 'GET' && url.pathname === '/api/reverse-geocode') {
+    const lat = Number(url.searchParams.get('lat'));
+    const lon = Number(url.searchParams.get('lon'));
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
+      sendJson(res, 400, {
+        ok: false,
+        error: { code: 'INVALID_PARAMS', message: 'lat and lon query parameters are required numbers.' },
+      });
+      return;
+    }
+    const resolved = reverseGeocode({ latitude: lat, longitude: lon });
+    if (!resolved) {
+      sendJson(res, 404, {
+        ok: false,
+        error: { code: 'NO_MATCH', message: 'No known Swiss locality near these coordinates.' },
+      });
+      return;
+    }
+    sendJson(res, 200, { ok: true, data: resolved });
+    return;
+  }
+
+  // Built PWA (mobile-first app) under /app with SPA fallback for client routes.
+  if (req.method === 'GET' && (url.pathname === '/app' || url.pathname.startsWith('/app/'))) {
+    const relative = normalize(url.pathname.replace(/^\/app\/?/, '')).replace(/^([.][.][\\/])+/, '');
+    const candidate = relative ? join(PWA_DIR, relative) : join(PWA_DIR, 'index.html');
+    if (!candidate.startsWith(PWA_DIR)) {
+      res.writeHead(403);
+      res.end('Forbidden');
+      return;
+    }
+    try {
+      const info = await stat(candidate);
+      if (info.isFile()) {
+        await serveStaticFile(res, candidate);
+        return;
+      }
+    } catch {
+      // Fall through to the SPA index for client-side routes.
+    }
+    await serveStaticFile(res, join(PWA_DIR, 'index.html'));
     return;
   }
 
