@@ -4,10 +4,12 @@ import type {
   CatalogPriceHistory,
   CatalogSearchResult,
   CatalogStats,
+  ObservationStatus,
   ProductObservation,
   ProductStatus,
 } from './types.js';
 import { normalizeQuery } from './queryNormalizer.js';
+import { validateObservation, resolveWithPriorPending, type ObservationInput } from './observationValidation.js';
 
 export class CatalogService {
   private readonly db: Database.Database;
@@ -103,6 +105,19 @@ export class CatalogService {
       firstSeen = now;
     }
 
+    // Fetch stored product name/size BEFORE the upsert overwrites them
+    let baselineName: string | null = null;
+    let baselineSize: string | null = null;
+    if (existing) {
+      const storedProduct = this.db
+        .prepare('SELECT name, package_size FROM products WHERE chain = ? AND product_id = ?')
+        .get(product.chain, product.id) as { name: string; package_size: string | null } | undefined;
+      if (storedProduct) {
+        baselineName = storedProduct.name;
+        baselineSize = storedProduct.package_size;
+      }
+    }
+
     upsert.run(
       product.chain,
       product.id,
@@ -123,11 +138,45 @@ export class CatalogService {
 
     // Append observation when price is present
     if (product.price && typeof product.price.current === 'number' && product.price.current > 0) {
+      // Phase D: validate observation against credible baseline
+      const latestObs = this.latestObservation(product.chain, product.id);
+
+      const baseline = latestObs
+        ? {
+            price: latestObs.price,
+            promotionPrice: latestObs.promotionPrice,
+            currency: latestObs.currency,
+            size: baselineSize,
+            name: baselineName,
+            status: latestObs.status,
+          }
+        : undefined;
+
+      const incoming: ObservationInput = {
+        price: product.price.current,
+        promotionPrice: product.price.original ?? null,
+        currency: 'CHF',
+        size: product.size ?? null,
+        name: product.name,
+      };
+
+      const validation = validateObservation(incoming, baseline);
+      let observationStatus: ObservationStatus = validation.status;
+
+      // Two-consecutive rule: if this observation is suspicious AND the
+      // previous observation was also pending, accept as new truth
+      if (
+        observationStatus === 'pending_verification' &&
+        latestObs?.status === 'pending_verification'
+      ) {
+        observationStatus = resolveWithPriorPending(observationStatus, latestObs.status);
+      }
+
       this.db
         .prepare(
           `INSERT INTO product_observations (
-            chain, product_id, price, promotion_price, currency, availability, observed_at, source
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+            chain, product_id, price, promotion_price, currency, availability, observed_at, source, status
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
         )
         .run(
           product.chain,
@@ -137,7 +186,8 @@ export class CatalogService {
           'CHF',
           null,
           now,
-          source
+          source,
+          observationStatus
         );
     }
   }
@@ -272,15 +322,28 @@ export class CatalogService {
     const row = this.db
       .prepare(
         `SELECT id, chain, product_id, price, promotion_price, currency,
-                availability, observed_at, source
+                availability, observed_at, source, status
          FROM product_observations
          WHERE chain = ? AND product_id = ?
          ORDER BY observed_at DESC
          LIMIT 1`
       )
-      .get(chain, productId) as ProductObservation | undefined;
+      .get(chain, productId) as Record<string, unknown> | undefined;
 
-    return row ?? undefined;
+    if (!row) return undefined;
+
+    return {
+      id: row.id as number,
+      chain: row.chain as Chain,
+      productId: row.product_id as string,
+      price: row.price as number | null,
+      promotionPrice: row.promotion_price as number | null,
+      currency: row.currency as string | null,
+      availability: row.availability as string | null,
+      observedAt: row.observed_at as string,
+      source: row.source as string | null,
+      status: row.status as ObservationStatus,
+    };
   }
 
   public priceHistory(
@@ -290,7 +353,7 @@ export class CatalogService {
   ): CatalogPriceHistory[] {
     const rows = this.db
       .prepare(
-        `SELECT price, promotion_price, currency, observed_at, source
+        `SELECT price, promotion_price, currency, observed_at, source, status
          FROM product_observations
          WHERE chain = ? AND product_id = ?
          ORDER BY observed_at DESC
@@ -302,6 +365,7 @@ export class CatalogService {
       currency: string | null;
       observed_at: string;
       source: string | null;
+      status: ObservationStatus;
     }>;
 
     return rows.map((row) => ({
@@ -310,6 +374,7 @@ export class CatalogService {
       currency: row.currency,
       observedAt: row.observed_at,
       source: row.source,
+      status: row.status,
     }));
   }
 
@@ -347,6 +412,18 @@ export class CatalogService {
     ).c;
 
     return { totalProducts, productsByStatus, productsByChain, totalObservations };
+  }
+
+  /**
+   * Phase D: count observations in pending_verification status.
+   */
+  public getPendingObservationCount(): number {
+    const row = this.db
+      .prepare(
+        "SELECT COUNT(*) as c FROM product_observations WHERE status = 'pending_verification'"
+      )
+      .get() as { c: number };
+    return row.c;
   }
 
   public close(): void {

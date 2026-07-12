@@ -140,6 +140,20 @@ export interface NormalizedProduct {
   ingredients?: string[];
   provenance?: SourceProvenance;
   matchExplanation?: MatchExplanation;
+  /** Phase D: provenance enrichment — which chain produced this result. */
+  _source?: Chain;
+  /** Phase D: how the product was discovered. */
+  _discoveredBy?: 'vendor' | 'web-google' | 'web-ddg' | 'catalog';
+  /** Phase D: adapter id when hydration occurred. */
+  _hydratedBy?: string;
+  /** Phase D: when product data was fetched (ISO timestamp). */
+  _observedAt?: string;
+  /** Phase D: when the price was fetched (may differ from _observedAt). */
+  _priceObservedAt?: string;
+  /** Phase D: served from a stale-fallback cache window. */
+  _stale?: boolean;
+  /** Phase D: heuristic confidence score (0..1). */
+  _confidence?: number;
 }
 
 export interface NormalizedStore {

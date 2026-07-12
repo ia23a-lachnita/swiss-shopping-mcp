@@ -2,6 +2,8 @@ import type { Chain } from '../adapters/types.js';
 
 export type ProductStatus = 'active' | 'suspected_removed' | 'removed';
 
+export type ObservationStatus = 'accepted' | 'pending_verification';
+
 export interface CatalogProduct {
   chain: Chain;
   productId: string;
@@ -31,6 +33,7 @@ export interface ProductObservation {
   availability: string | null;
   observedAt: string;
   source: string | null;
+  status: ObservationStatus;
 }
 
 export interface CatalogSearchResult {
@@ -52,4 +55,5 @@ export interface CatalogPriceHistory {
   currency: string | null;
   observedAt: string;
   source: string | null;
+  status: ObservationStatus;
 }

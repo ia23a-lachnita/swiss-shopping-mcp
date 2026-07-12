@@ -53,7 +53,7 @@ describe('CatalogService', () => {
       const count = (
         db2.prepare('SELECT COUNT(*) as c FROM schema_migrations').get() as { c: number }
       ).c;
-      expect(count).toBe(1);
+      expect(count).toBe(2);
       db2.close();
     });
   });

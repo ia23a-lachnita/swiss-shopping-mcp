@@ -118,6 +118,14 @@ const MIGRATIONS: Migration[] = [
         ('olivenöl', 'olive_oil', 'de'), ('olive oil', 'olive_oil', 'en'), ('huile d olive', 'olive_oil', 'fr');
     `,
   },
+  {
+    version: 2,
+    up: `
+      -- Phase D: observation status for suspicious-value validation
+      -- 'accepted' (default for existing rows) | 'pending_verification'
+      ALTER TABLE product_observations ADD COLUMN status TEXT NOT NULL DEFAULT 'accepted';
+    `,
+  },
 ];
 
 export function runMigrations(db: Database.Database): void {

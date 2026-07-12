@@ -18,6 +18,7 @@ import { SearchService } from './services/searchService.js';
 import { createDefaultWebProductSearch } from './services/webProductSearchService.js';
 import { executeToolCall, listTools } from './tools/handlers.js';
 import { logger } from './util/log.js';
+import { MetricsCollector } from './util/metrics.js';
 
 export interface CreateServerOptions {
   adapterOptions?: CreateDefaultAdaptersOptions;
@@ -41,7 +42,8 @@ export async function createServer(options: CreateServerOptions = {}): Promise<S
     cacheDirectory: options.adapterOptions?.cacheDirectory,
     catalog,
   });
-  const searchService = new SearchService(adapters, { webProductSearch, catalog });
+  const metrics = new MetricsCollector(options.adapterOptions?.cacheDirectory);
+  const searchService = new SearchService(adapters, { webProductSearch, catalog, metrics });
   const priceComparisonService = new PriceComparisonService(adapters);
 
   const server = new Server(

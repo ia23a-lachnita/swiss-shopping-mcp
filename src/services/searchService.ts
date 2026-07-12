@@ -24,6 +24,8 @@ import { calculateMatchStrength, sortProducts } from '../util/matcher.js';
 import { logger } from '../util/log.js';
 import { CatalogService } from '../catalog/catalogService.js';
 import { WebProductSearchService, WebProductSearchResult } from './webProductSearchService.js';
+import { computeConfidence, type DiscoveryMethod } from '../catalog/provenance.js';
+import { MetricsCollector } from '../util/metrics.js';
 
 function sortStores(a: NormalizedStore, b: NormalizedStore): number {
   return a.name.localeCompare(b.name);
@@ -115,6 +117,8 @@ export interface SearchServiceOptions {
   /** Minimum share (0-1) of results with a price to skip web discovery. Default 0.8. */
   vendorPriceShareThreshold?: number;
   catalog?: CatalogService;
+  /** Phase D: metrics collector for observability. */
+  metrics?: MetricsCollector;
 }
 
 export class SearchService {
@@ -122,12 +126,14 @@ export class SearchService {
   private readonly webProductSearch?: WebProductSearchService;
   private readonly vendorPriceShareThreshold: number;
   private readonly catalog?: CatalogService;
+  private readonly metrics?: MetricsCollector;
 
   public constructor(adapters: ChainAdapter[], options: SearchServiceOptions = {}) {
     this.adapters = adapters;
     this.webProductSearch = options.webProductSearch;
     this.vendorPriceShareThreshold = options.vendorPriceShareThreshold ?? 0.8;
     this.catalog = options.catalog;
+    this.metrics = options.metrics;
   }
 
   public async searchProducts(filters: ProductSearchFilters): Promise<Result<NormalizedProduct[]>> {
@@ -149,13 +155,24 @@ export class SearchService {
     }
 
     const requestedChainList = [...requestedChains];
+    const now = new Date().toISOString();
 
     // Step 1: Run vendor searches first to evaluate strength
     const adapterResults = await Promise.all(
-      relevantAdapters.map(async (adapter) => ({
-        chain: adapter.chain,
-        result: await adapter.searchProducts({ ...filters, query, matchMode }),
-      }))
+      relevantAdapters.map(async (adapter) => {
+        const startMs = Date.now();
+        const result = await adapter.searchProducts({ ...filters, query, matchMode });
+        const elapsedMs = Date.now() - startMs;
+        if (this.metrics) {
+          this.metrics.recordLatency(adapter.chain, elapsedMs);
+          if (result.ok) {
+            this.metrics.recordHydrationSuccess();
+          } else {
+            this.metrics.recordHydrationFailure();
+          }
+        }
+        return { chain: adapter.chain, result };
+      })
     );
 
     const successfulResults = adapterResults.filter((entry) => entry.result.ok);
@@ -189,6 +206,10 @@ export class SearchService {
     // Step 3: Run web search only if vendor results are weak, or only for weak chains
     let webResult: WebProductSearchResult | undefined;
     if (this.webProductSearch && webSearchChains.length > 0) {
+      if (this.metrics) {
+        this.metrics.recordWebSearch();
+        this.metrics.recordWebSearchPerQuery(webSearchChains.length);
+      }
       try {
         webResult = await this.webProductSearch
           .searchProducts({ ...filters, query, matchMode }, webSearchChains)
@@ -248,6 +269,7 @@ export class SearchService {
     );
 
     // Catalog: search for additional results not returned by vendor search
+    const catalogProductIds = new Set<string>();
     if (this.catalog) {
       try {
         const vendorKeySet = new Set(products.map((p) => `${p.chain}:${p.id}`));
@@ -315,6 +337,7 @@ export class SearchService {
             if (typeof filters.maxPrice === 'number' && hydrated.price.current > filters.maxPrice) continue;
             products.push(hydrated);
             vendorKeySet.add(key);
+            catalogProductIds.add(key);
           }
 
           if (hydratedProducts.length > 0) {
@@ -333,7 +356,57 @@ export class SearchService {
         summary: `Results augmented with semantic web search (${webResult.providerName}).`,
       });
     }
+
+    // Phase D: Enrich every product with provenance + freshness metadata
+    const webProductIds = new Set<string>();
+    if (webResult) {
+      for (const products of webResult.productsByChain.values()) {
+        for (const p of products) {
+          webProductIds.add(`${p.chain}:${p.id}`);
+        }
+      }
+    }
+    for (const product of products) {
+      const key = `${product.chain}:${product.id}`;
+      const isFromWeb = webProductIds.has(key);
+      const isCatalogAugmented = catalogProductIds.has(key);
+
+      const discoveredBy: DiscoveryMethod = isCatalogAugmented
+        ? 'catalog'
+        : isFromWeb
+          ? 'web-google'
+          : 'vendor';
+
+      const confidence = computeConfidence({
+        discoveredBy,
+        stale: false,
+        cacheFresh: false,
+        cacheNeedsRefresh: false,
+      });
+
+      product._source = product.chain;
+      product._discoveredBy = discoveredBy;
+      product._observedAt = now;
+      product._priceObservedAt = now;
+      product._stale = false;
+      product._confidence = confidence;
+    }
+
     const metadata = mergeMetadata(metadataEntries, sourceWarnings);
+
+    // Phase D: update catalog coverage metrics
+    if (this.metrics && this.catalog) {
+      try {
+        const stats = this.catalog.stats();
+        const pendingCount = this.catalog.getPendingObservationCount?.() ?? 0;
+        this.metrics.updateCatalogCoverage({
+          ...stats,
+          pendingObservations: pendingCount,
+        });
+      } catch {
+        // Metrics update is best-effort
+      }
+    }
 
     if (typeof filters.limit === 'number') {
       return { ok: true, data: products.slice(0, filters.limit), metadata };

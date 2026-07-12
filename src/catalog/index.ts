@@ -7,6 +7,7 @@ export type {
   CatalogProduct,
   CatalogSearchResult,
   CatalogStats,
+  ObservationStatus,
   ProductObservation,
   ProductStatus,
 } from './types.js';

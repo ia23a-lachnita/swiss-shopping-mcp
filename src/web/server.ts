@@ -12,6 +12,7 @@ import { SearchService } from '../services/searchService.js';
 import { createDefaultWebProductSearch } from '../services/webProductSearchService.js';
 import { Chain, StoreAvailabilityByLocationFilters } from '../adapters/types.js';
 import { logger } from '../util/log.js';
+import { MetricsCollector } from '../util/metrics.js';
 
 const PORT = Number(process.env.PORT) || 3000;
 const PUBLIC_DIR = join(process.cwd(), 'src', 'web', 'public');
@@ -31,7 +32,9 @@ try {
 }
 
 const webProductSearch = createDefaultWebProductSearch(adapters, { catalog });
-const searchService = new SearchService(adapters, { webProductSearch, catalog });
+const metrics = new MetricsCollector();
+metrics.startPeriodicSnapshot();
+const searchService = new SearchService(adapters, { webProductSearch, catalog, metrics });
 const priceComparisonService = new PriceComparisonService(adapters);
 
 const MIME_TYPES: Record<string, string> = {
@@ -195,6 +198,11 @@ function handleSourceStatus(res: ServerResponse): void {
   sendJson(res, 200, { ok: true, data: statuses });
 }
 
+function handleMetrics(res: ServerResponse): void {
+  const snapshot = metrics.snapshot();
+  sendJson(res, 200, { ok: true, data: snapshot });
+}
+
 async function handleLookupAvailability(res: ServerResponse, raw: string): Promise<void> {
   const parsed = parseBody<{
     chain: string;
@@ -300,6 +308,11 @@ async function handleRequest(req: IncomingMessage, res: ServerResponse): Promise
 
   if (req.method === 'GET' && url.pathname === '/api/source-status') {
     handleSourceStatus(res);
+    return;
+  }
+
+  if (req.method === 'GET' && url.pathname === '/api/metrics') {
+    handleMetrics(res);
     return;
   }
 

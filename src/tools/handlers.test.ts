@@ -104,6 +104,7 @@ describe('tool handlers', () => {
       'get_store_availability_support',
       'lookup_store_product_availability',
       'get_source_status',
+      'get_metrics',
     ]);
   });
 

@@ -9,6 +9,7 @@ import { getAllCapabilityStatuses } from '../adapters/sourceRegistry.js';
 import { Chain, DietaryPreference, ResultMetadata, SourceCapability } from '../adapters/types.js';
 import { PriceComparisonService } from '../services/priceComparisonService.js';
 import { SearchService } from '../services/searchService.js';
+import { getMetricsCollector } from '../util/metrics.js';
 
 const CHAINS = [
   'migros',
@@ -124,6 +125,7 @@ const TOOL_NAMES = [
   'get_store_availability_support',
   'lookup_store_product_availability',
   'get_source_status',
+  'get_metrics',
 ] as const;
 
 type ToolName = (typeof TOOL_NAMES)[number];
@@ -327,6 +329,14 @@ function getInputSchemaForTool(name: ToolName): ToolInputSchema {
     };
   }
 
+  if (name === 'get_metrics') {
+    return {
+      type: 'object',
+      properties: {},
+      additionalProperties: false,
+    };
+  }
+
   return {
     type: 'object',
     properties: {
@@ -384,7 +394,9 @@ export function listTools(): ListToolsResult {
                   ? 'Check whether products matching a query are available in a specific store'
                   : name === 'get_source_status'
                     ? 'Get the source capability status matrix for all supported Swiss chains'
-                    : 'Compare cross-chain prices for matching products',
+                    : name === 'get_metrics'
+                      ? 'Get observability metrics: cache hits, web searches, hydration, latency, catalog coverage, and Google quota'
+                      : 'Compare cross-chain prices for matching products',
       inputSchema: getInputSchemaForTool(name),
     })),
   };
@@ -488,6 +500,12 @@ export async function executeToolCall(
       parsedInput.data.capabilities as SourceCapability[] | undefined
     );
     return toolSuccess({ statuses });
+  }
+
+  if (params.name === 'get_metrics') {
+    const collector = getMetricsCollector();
+    const snapshot = collector.snapshot();
+    return toolSuccess({ metrics: snapshot });
   }
 
   const parsedInput = comparePricesInputSchema.safeParse(params.arguments ?? {});

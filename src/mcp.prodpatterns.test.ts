@@ -155,7 +155,7 @@ afterAll(async () => {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 describe('1. Tool Registration & Schema Validation', () => {
-  it('registers all 7 V1 MCP tools', async () => {
+  it('registers all 8 V1 MCP tools', async () => {
     const tools = await client.listTools();
     const names = tools.tools.map((t) => t.name);
     expect(names).toEqual([
@@ -166,6 +166,7 @@ describe('1. Tool Registration & Schema Validation', () => {
       'get_store_availability_support',
       'lookup_store_product_availability',
       'get_source_status',
+      'get_metrics',
     ]);
   });
 
