@@ -1,0 +1,19 @@
+services:
+  swiss-shopping:
+    build: .
+    image: swiss-shopping-mcp:local
+    ports:
+      - "3000:3000"
+    volumes:
+      - cache:/data
+    environment:
+      # Web-augmented search: defaults to the keyless DuckDuckGo provider.
+      # Set the Google CSE variables for reliable semantic search in production.
+      - SWISS_SHOPPING_WEB_SEARCH=${SWISS_SHOPPING_WEB_SEARCH:-auto}
+      - GOOGLE_CSE_API_KEY=${GOOGLE_CSE_API_KEY:-}
+      - GOOGLE_CSE_CX=${GOOGLE_CSE_CX:-}
+    restart: unless-stopped
+    init: true
+
+volumes:
+  cache:

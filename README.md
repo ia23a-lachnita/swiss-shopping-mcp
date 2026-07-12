@@ -56,6 +56,29 @@ npm run build
 node dist/index.js
 ```
 
+### Web UI + mobile PWA
+
+```bash
+npm run build && npm run build:pwa
+node dist/web/server.js
+```
+
+- `http://localhost:3000/` — manual testing UI
+- `http://localhost:3000/app/` — installable mobile-first PWA (availability-first
+  landing, geolocation, product search); built from `pwa/` with Vite + React
+
+### Docker
+
+Multi-arch image (amd64 + arm64) on the official Playwright base so the
+Migros/Lidl browser automation works inside the container:
+
+```bash
+docker compose up --build          # http://localhost:3000
+```
+
+The file TTL cache persists in the `cache` volume (`/data/cache`). For
+multi-arch builds: `docker buildx build --platform linux/amd64,linux/arm64 .`
+
 Or configure in your MCP client's settings:
 
 ```json

@@ -1,0 +1,16 @@
+node_modules
+dist
+.git
+.github
+docs
+fixtures
+tests
+scripts/test-*.mjs
+coverage
+test-cache*
+*.md
+.mcp.json
+.claude
+.vscode
+start-server.ps1
+kill-server.ps1
