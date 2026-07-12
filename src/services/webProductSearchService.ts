@@ -3,9 +3,13 @@ import { tmpdir } from 'node:os';
 
 import { FileTtlCache } from '../cache/fileTtlCache.js';
 import { DISCOVERY, EMPTY_SEARCH } from '../cache/freshnessPolicy.js';
+import { createProviderBudgetFromEnv } from '../cache/providerBudget.js';
+import { SourceCircuitBreaker } from './sourceCircuitBreaker.js';
 import {
   createWebSearchProviderFromEnv,
+  CompositeWebSearchProvider,
   WebSearchProvider,
+  WebSearchResult,
 } from '../sources/webSearch.js';
 import {
   Chain,
@@ -98,6 +102,13 @@ interface CachedDiscoveryMapping {
   ids: string[];
   /** Distinguishes confirmed zero results from a provider error. */
   emptyResult?: boolean;
+  /** Timestamp when a forced rediscovery was last triggered for this mapping. */
+  lastRediscoveryAt?: string;
+}
+
+interface HydrationHealth {
+  total: number;
+  succeeded: number;
 }
 
 function passesFilterConstraints(product: NormalizedProduct, filters: ProductSearchFilters): boolean {
@@ -131,6 +142,10 @@ export class WebProductSearchService {
   private readonly adaptersByChain: Map<Chain, ChainAdapter>;
   /** In-flight dedup: key → promise. Cleaned up in finally. */
   private readonly inFlight = new Map<string, Promise<string[]>>();
+  /** Per-query hydration health tracking to prevent rediscovery loops. */
+  private readonly hydrationHealth = new Map<string, HydrationHealth>();
+  /** Set of cache keys where a forced rediscovery already happened this soft-TTL cycle. */
+  private readonly rediscoveryDone = new Set<string>();
 
   public constructor(options: WebProductSearchServiceOptions) {
     this.provider = options.provider;
@@ -164,35 +179,157 @@ export class WebProductSearchService {
       return { productsByChain, warnings, providerName: this.provider.name };
     }
 
-    await Promise.all(
-      supportedChains.map(async (chain) => {
-        try {
-          const products = await this.searchChain(chain, query, filters, warnings);
-          if (products.length > 0) {
-            productsByChain.set(chain, products);
+    // Deliverable 5: aggregated multi-site search when provider supports it
+    const compositeProvider = this.provider instanceof CompositeWebSearchProvider
+      ? this.provider
+      : undefined;
+
+    if (compositeProvider && supportedChains.length > 1) {
+      await this.searchAggregated(compositeProvider, query, filters, supportedChains, productsByChain, warnings);
+    } else {
+      await Promise.all(
+        supportedChains.map(async (chain) => {
+          try {
+            const products = await this.searchChain(chain, query, filters, warnings);
+            if (products.length > 0) {
+              productsByChain.set(chain, products);
+            }
+          } catch (error) {
+            warnings.push(this.warningFor(chain, error));
           }
-        } catch (error) {
-          warnings.push(this.warningFor(chain, error));
-        }
-      })
-    );
+        })
+      );
+    }
 
     return { productsByChain, warnings, providerName: this.provider.name };
   }
 
-  private async searchChain(
-    chain: Chain,
+  private async searchAggregated(
+    compositeProvider: CompositeWebSearchProvider,
     query: string,
     filters: ProductSearchFilters,
-    warnings: SourceWarning[]
+    supportedChains: Chain[],
+    productsByChain: Map<Chain, NormalizedProduct[]>,
+    warnings: SourceWarning[],
+  ): Promise<void> {
+    const sites = supportedChains
+      .map((chain) => this.configsByChain.get(chain))
+      .filter((config): config is WebSearchChainConfig => config !== undefined)
+      .map((config) => config.site);
+
+    let aggregatedResults: WebSearchResult[];
+    try {
+      aggregatedResults = await compositeProvider.searchAggregated(query, sites);
+    } catch (error) {
+      // Aggregated search failed — fall back to per-chain searches
+      aggregatedResults = [];
+      warnings.push({
+        provider: WEB_SEARCH_PROVIDER_LABEL,
+        code: SourceWarningCode.SourceUnavailable,
+        message: `Aggregated web search failed: ${error instanceof Error ? error.message : String(error)}`,
+        observedAt: new Date().toISOString(),
+      });
+    }
+
+    // Group results by chain using the site restriction
+    const resultsByChain = this.groupResultsByChain(aggregatedResults, supportedChains);
+
+    // For chains with results from aggregated search, extract and hydrate IDs
+    const chainsWithResults = new Set<Chain>();
+    await Promise.all(
+      supportedChains.map(async (chain) => {
+        const chainResults = resultsByChain.get(chain);
+        if (chainResults && chainResults.length > 0) {
+          try {
+            const products = await this.hydrateFromResults(chain, chainResults, query, filters, warnings);
+            if (products.length > 0) {
+              productsByChain.set(chain, products);
+              chainsWithResults.add(chain);
+            }
+          } catch (error) {
+            warnings.push(this.warningFor(chain, error));
+          }
+        }
+      })
+    );
+
+    // Deliverable 5: per-retailer targeted searches for retailers missing from aggregated results
+    const missingChains = supportedChains.filter((chain) => !chainsWithResults.has(chain));
+    if (missingChains.length > 0) {
+      await Promise.all(
+        missingChains.map(async (chain) => {
+          try {
+            const products = await this.searchChain(chain, query, filters, warnings);
+            if (products.length > 0) {
+              productsByChain.set(chain, products);
+            }
+          } catch (error) {
+            warnings.push(this.warningFor(chain, error));
+          }
+        })
+      );
+    }
+  }
+
+  private groupResultsByChain(
+    results: WebSearchResult[],
+    chains: Chain[],
+  ): Map<Chain, WebSearchResult[]> {
+    const byChain = new Map<Chain, WebSearchResult[]>();
+    for (const chain of chains) {
+      byChain.set(chain, []);
+    }
+
+    for (const result of results) {
+      let parsed: URL;
+      try {
+        parsed = new URL(result.url);
+      } catch {
+        continue;
+      }
+      for (const chain of chains) {
+        const config = this.configsByChain.get(chain);
+        if (!config) continue;
+        const host = config.site.split('/')[0].toLowerCase();
+        const hostname = parsed.hostname.toLowerCase();
+        if (hostname === host || hostname.endsWith(`.${host}`)) {
+          byChain.get(chain)!.push(result);
+          break;
+        }
+      }
+    }
+
+    return byChain;
+  }
+
+  private async hydrateFromResults(
+    chain: Chain,
+    results: WebSearchResult[],
+    query: string,
+    filters: ProductSearchFilters,
+    warnings: SourceWarning[],
   ): Promise<NormalizedProduct[]> {
     const config = this.configsByChain.get(chain)!;
     const adapter = this.adaptersByChain.get(chain)!;
+    const maxProducts = config.maxProducts ?? this.maxProductsPerChain;
 
-    const ids = await this.discoverProductIds(chain, config, query);
-    if (ids.length === 0) {
-      return [];
+    const seen = new Set<string>();
+    const ids: string[] = [];
+    for (const result of results) {
+      let parsed: URL;
+      try {
+        parsed = new URL(result.url);
+      } catch {
+        continue;
+      }
+      const id = config.extractProductId(parsed);
+      if (!id || seen.has(id)) continue;
+      seen.add(id);
+      ids.push(id);
+      if (ids.length >= maxProducts) break;
     }
+
+    if (ids.length === 0) return [];
 
     const hydrated = await adapter.getProductsByIds!(ids);
     if (!hydrated.ok) {
@@ -222,6 +359,102 @@ export class WebProductSearchService {
           matchedTerms: [query],
         },
       }));
+  }
+
+  private async searchChain(
+    chain: Chain,
+    query: string,
+    filters: ProductSearchFilters,
+    warnings: SourceWarning[]
+  ): Promise<NormalizedProduct[]> {
+    const config = this.configsByChain.get(chain)!;
+    const adapter = this.adaptersByChain.get(chain)!;
+
+    const ids = await this.discoverProductIds(chain, config, query);
+    if (ids.length === 0) {
+      return [];
+    }
+
+    const hydrated = await adapter.getProductsByIds!(ids);
+    if (!hydrated.ok) {
+      warnings.push({
+        chain,
+        provider: WEB_SEARCH_PROVIDER_LABEL,
+        code: (Object.values(SourceWarningCode) as string[]).includes(hydrated.error.code)
+          ? (hydrated.error.code as SourceWarningCode)
+          : SourceWarningCode.SourceUnavailable,
+        message: `Web-discovered ${chain} products could not be hydrated: ${hydrated.error.message ?? hydrated.error.code}`,
+        observedAt: new Date().toISOString(),
+      });
+      // Deliverable 6: track hydration health
+      this.recordHydrationHealth(chain, query, ids.length, 0);
+      return [];
+    }
+
+    if (hydrated.metadata?.sourceWarnings) {
+      warnings.push(...hydrated.metadata.sourceWarnings);
+    }
+
+    const successfulCount = hydrated.data.filter((p) => passesFilterConstraints(p, filters)).length;
+    // Deliverable 6: track hydration health
+    this.recordHydrationHealth(chain, query, ids.length, successfulCount);
+
+    // Deliverable 6: check if we need to force rediscovery
+    const normalizedQuery = normalize(query);
+    const cacheKey = `websearch:${this.provider.name}:${chain}:${normalizedQuery}`;
+    await this.checkHydrationHealthAndMaybeRediscover(chain, config, cacheKey, query, normalizedQuery);
+
+    return hydrated.data
+      .filter((product) => passesFilterConstraints(product, filters))
+      .map((product) => ({
+        ...product,
+        matchExplanation: {
+          strength: 1,
+          matchedBy: ['provider-rank' as const],
+          matchedTerms: [query],
+        },
+      }));
+  }
+
+  private recordHydrationHealth(chain: Chain, query: string, total: number, succeeded: number): void {
+    const key = `${chain}:${normalize(query)}`;
+    const existing = this.hydrationHealth.get(key);
+    if (existing) {
+      existing.total += total;
+      existing.succeeded += succeeded;
+    } else {
+      this.hydrationHealth.set(key, { total, succeeded });
+    }
+  }
+
+  private async checkHydrationHealthAndMaybeRediscover(
+    chain: Chain,
+    config: WebSearchChainConfig,
+    cacheKey: string,
+    query: string,
+    normalizedQuery: string,
+  ): Promise<void> {
+    const key = `${chain}:${normalizedQuery}`;
+    const health = this.hydrationHealth.get(key);
+    if (!health || health.total === 0) return;
+
+    const successRate = health.succeeded / health.total;
+    if (successRate >= 0.5) return;
+
+    // Less than half hydrated successfully — invalidate and force rediscovery
+    if (this.rediscoveryDone.has(cacheKey)) {
+      return; // Already forced rediscovery this soft-TTL cycle — don't loop
+    }
+
+    this.rediscoveryDone.add(cacheKey);
+    await this.cache.delete(cacheKey);
+
+    // Re-run discovery (budget permitting — budget is checked at provider level)
+    try {
+      await this.discoverProductIds(chain, config, query);
+    } catch {
+      // Rediscovery failure is not fatal — we already have the degraded results
+    }
   }
 
   private async discoverProductIds(
@@ -360,10 +593,6 @@ export function createDefaultWebProductSearch(
   options: CreateDefaultWebProductSearchOptions = {}
 ): WebProductSearchService | undefined {
   const env = options.env ?? process.env;
-  const provider = createWebSearchProviderFromEnv(env, options.fetchImpl);
-  if (!provider) {
-    return undefined;
-  }
 
   const cacheDirectory =
     options.cacheDirectory ??
@@ -372,6 +601,20 @@ export function createDefaultWebProductSearch(
 
   const cache = new FileTtlCache(cacheDirectory);
   cache.startPeriodicPrune();
+
+  // Circuit breaker: 3 failures → open for 5 minutes
+  const breaker = new SourceCircuitBreaker({
+    failureThreshold: 3,
+    cooldownMs: 5 * 60_000,
+  });
+
+  // Budget tracker (persists across restarts)
+  const budget = createProviderBudgetFromEnv(env, cacheDirectory);
+
+  const provider = createWebSearchProviderFromEnv(env, options.fetchImpl, breaker, budget);
+  if (!provider) {
+    return undefined;
+  }
 
   return new WebProductSearchService({
     provider,

@@ -110,15 +110,19 @@ function interleaveWebProducts(
 
 export interface SearchServiceOptions {
   webProductSearch?: WebProductSearchService;
+  /** Minimum share (0-1) of results with a price to skip web discovery. Default 0.8. */
+  vendorPriceShareThreshold?: number;
 }
 
 export class SearchService {
   private readonly adapters: ChainAdapter[];
   private readonly webProductSearch?: WebProductSearchService;
+  private readonly vendorPriceShareThreshold: number;
 
   public constructor(adapters: ChainAdapter[], options: SearchServiceOptions = {}) {
     this.adapters = adapters;
     this.webProductSearch = options.webProductSearch;
+    this.vendorPriceShareThreshold = options.vendorPriceShareThreshold ?? 0.8;
   }
 
   public async searchProducts(filters: ProductSearchFilters): Promise<Result<NormalizedProduct[]>> {
@@ -139,24 +143,20 @@ export class SearchService {
       return { ok: true, data: [] };
     }
 
-    // Web search (semantic discovery via site-restricted engine queries) runs
-    // in parallel with the vendor adapter fan-out and never fails the search.
     const requestedChainList = [...requestedChains];
-    const webSearchPromise: Promise<WebProductSearchResult | undefined> = this.webProductSearch
-      ? this.webProductSearch
-          .searchProducts({ ...filters, query, matchMode }, requestedChainList)
-          .catch(() => undefined)
-      : Promise.resolve(undefined);
 
-    const [adapterResults, webResult] = await Promise.all([
-      Promise.all(
-        relevantAdapters.map(async (adapter) => ({
-          chain: adapter.chain,
-          result: await adapter.searchProducts({ ...filters, query, matchMode }),
-        }))
-      ),
-      webSearchPromise,
-    ]);
+    // Step 1: Run vendor searches first to evaluate strength
+    const adapterResults = await Promise.all(
+      relevantAdapters.map(async (adapter) => ({
+        chain: adapter.chain,
+        result: await adapter.searchProducts({ ...filters, query, matchMode }),
+      }))
+    );
+
+    const successfulResults = adapterResults.filter((entry) => entry.result.ok);
+    const vendorProducts = successfulResults.flatMap((entry) =>
+      entry.result.ok ? entry.result.data : []
+    );
 
     const sourceWarnings = adapterResults
       .filter((entry) => !entry.result.ok)
@@ -166,21 +166,32 @@ export class SearchService {
           entry.result.ok ? { code: 'UNKNOWN' } : entry.result.error
         )
       );
+
+    // Step 2: Deliverable 4 — evaluate vendor strength to decide about web search
+    const webSearchChains = this.shouldRunWebSearch(vendorProducts, requestedChainList);
+
+    // Step 3: Run web search only if vendor results are weak, or only for weak chains
+    let webResult: WebProductSearchResult | undefined;
+    if (this.webProductSearch && webSearchChains.length > 0) {
+      try {
+        webResult = await this.webProductSearch
+          .searchProducts({ ...filters, query, matchMode }, webSearchChains)
+          .catch(() => undefined);
+      } catch {
+        // Web search errors never fail the overall search
+      }
+    }
+
     if (webResult) {
       sourceWarnings.push(...webResult.warnings);
     }
 
     const webProducts = webResult ? interleaveWebProducts(webResult.productsByChain, requestedChainList) : [];
 
-    const successfulResults = adapterResults.filter((entry) => entry.result.ok);
     if (successfulResults.length === 0 && webProducts.length === 0 && sourceWarnings.length > 0) {
       const metadata = mergeMetadata([], sourceWarnings);
       return { ok: true, data: [], metadata };
     }
-
-    const vendorProducts = successfulResults.flatMap((entry) =>
-      entry.result.ok ? entry.result.data : []
-    );
 
     // Build dynamic taxonomy from the product data
     const dynamicTaxonomy = buildTaxonomy([...vendorProducts, ...webProducts]);
@@ -231,6 +242,44 @@ export class SearchService {
     }
 
     return { ok: true, data: products, metadata };
+  }
+
+  /**
+   * Deliverable 4: Evaluate vendor result strength and decide which chains
+   * need web discovery augmentation.
+   *
+   * Returns the list of chains that should have web search run for them.
+   * Empty array means vendor results are strong enough to skip web search entirely.
+   */
+  private shouldRunWebSearch(
+    vendorProducts: NormalizedProduct[],
+    requestedChains: Chain[],
+  ): Chain[] {
+    const countByChain = new Map<Chain, number>();
+    for (const product of vendorProducts) {
+      countByChain.set(product.chain, (countByChain.get(product.chain) ?? 0) + 1);
+    }
+
+    // Identify chains with weak or missing results
+    const weakChains: Chain[] = [];
+    for (const chain of requestedChains) {
+      const chainCount = countByChain.get(chain) ?? 0;
+      const chainProducts = vendorProducts.filter((p) => p.chain === chain);
+      const chainPriceShare = chainCount > 0
+        ? chainProducts.filter((p) => p.price.current > 0).length / chainCount
+        : 0;
+
+      if (chainCount < 3 || chainPriceShare < this.vendorPriceShareThreshold) {
+        weakChains.push(chain);
+      }
+    }
+
+    // If no chains are weak, skip web search entirely
+    if (weakChains.length === 0) {
+      return [];
+    }
+
+    return weakChains;
   }
 
   public async findStores(filters: StoreSearchFilters): Promise<Result<NormalizedStore[]>> {

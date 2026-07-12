@@ -1,6 +1,7 @@
 import { describe, expect, it, vi, afterEach } from 'vitest';
 
 import {
+  CompositeWebSearchProvider,
   createWebSearchProviderFromEnv,
   DuckDuckGoHtmlProvider,
   GoogleCustomSearchProvider,
@@ -161,7 +162,7 @@ describe('GoogleCustomSearchProvider', () => {
     const provider = new GoogleCustomSearchProvider({ apiKey: 'secret-key', cx: 'cx', fetchImpl });
 
     await expect(provider.search('milch', { site: 'migros.ch' })).rejects.toThrow(
-      /status 429(?!.*secret-key)/
+      /rate-limited.*429(?!.*secret-key)/
     );
   });
 });
@@ -193,7 +194,7 @@ describe('createWebSearchProviderFromEnv', () => {
       GOOGLE_CSE_API_KEY: 'k',
       GOOGLE_CSE_CX: 'c',
     } as NodeJS.ProcessEnv);
-    expect(withKeys).toBeInstanceOf(GoogleCustomSearchProvider);
+    expect(withKeys).toBeInstanceOf(CompositeWebSearchProvider);
 
     const withoutKeys = createWebSearchProviderFromEnv({} as NodeJS.ProcessEnv);
     expect(withoutKeys).toBeInstanceOf(DuckDuckGoHtmlProvider);
