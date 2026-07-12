@@ -1,11 +1,18 @@
 {
   "mcpServers": {
-    "swiss-shopping-mcp": {
-      "command": "node",
-      "args": ["C:\\Users\\xursc\\projects\\swiss-shopping-mcp\\dist\\index.js"],
+    "stealth-browser-mcp": {
+      "type": "stdio",
+      "command": "C:\\Users\\xursc\\projects\\stealth-browser-mcp\\venv\\Scripts\\python.exe",
+      "args": [
+        "-u",
+        "C:\\Users\\xursc\\projects\\stealth-browser-mcp\\src\\server.py",
+        "--minimal"
+      ],
       "env": {
-        "LOG_LEVEL": "info"
-      }
+        "PYTHONUNBUFFERED": "1",
+        "PYTHONPATH": "C:\\Users\\xursc\\projects\\stealth-browser-mcp"
+      },
+      "timeout": 60000
     }
   }
 }
