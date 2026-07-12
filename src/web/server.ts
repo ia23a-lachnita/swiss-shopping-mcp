@@ -6,10 +6,12 @@ import { join, extname, normalize } from 'node:path';
 import { createDefaultAdapters } from '../adapters/index.js';
 import { reverseGeocode } from '../util/geo.js';
 import { getAllCapabilityStatuses } from '../adapters/sourceRegistry.js';
+import { CatalogService, openCatalogDb, runMigrations } from '../catalog/index.js';
 import { PriceComparisonService } from '../services/priceComparisonService.js';
 import { SearchService } from '../services/searchService.js';
 import { createDefaultWebProductSearch } from '../services/webProductSearchService.js';
 import { Chain, StoreAvailabilityByLocationFilters } from '../adapters/types.js';
+import { logger } from '../util/log.js';
 
 const PORT = Number(process.env.PORT) || 3000;
 const PUBLIC_DIR = join(process.cwd(), 'src', 'web', 'public');
@@ -17,8 +19,19 @@ const PUBLIC_DIR = join(process.cwd(), 'src', 'web', 'public');
 const PWA_DIR = join(process.cwd(), 'dist', 'pwa');
 
 const adapters = createDefaultAdapters();
-const webProductSearch = createDefaultWebProductSearch(adapters);
-const searchService = new SearchService(adapters, { webProductSearch });
+
+// Initialize catalog (SQLite) — best-effort, never blocks startup
+let catalog: CatalogService | undefined;
+try {
+  const db = openCatalogDb(undefined, process.env);
+  runMigrations(db);
+  catalog = new CatalogService(db);
+} catch (err) {
+  logger.warn('Catalog DB init failed — running without local index:', err);
+}
+
+const webProductSearch = createDefaultWebProductSearch(adapters, { catalog });
+const searchService = new SearchService(adapters, { webProductSearch, catalog });
 const priceComparisonService = new PriceComparisonService(adapters);
 
 const MIME_TYPES: Record<string, string> = {

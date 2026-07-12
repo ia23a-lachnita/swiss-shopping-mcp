@@ -12,6 +12,7 @@ import { fileURLToPath } from 'url';
 
 import { createDefaultAdapters, CreateDefaultAdaptersOptions } from './adapters/index.js';
 import { ChainAdapter } from './adapters/types.js';
+import { CatalogService, openCatalogDb, runMigrations } from './catalog/index.js';
 import { PriceComparisonService } from './services/priceComparisonService.js';
 import { SearchService } from './services/searchService.js';
 import { createDefaultWebProductSearch } from './services/webProductSearchService.js';
@@ -26,10 +27,21 @@ export interface CreateServerOptions {
 
 export async function createServer(options: CreateServerOptions = {}): Promise<Server> {
   const adapters = options.adapters ?? createDefaultAdapters(options.adapterOptions);
+  // Initialize catalog (SQLite) — best-effort, never blocks startup
+  let catalog: CatalogService | undefined;
+  try {
+    const db = openCatalogDb(undefined, process.env);
+    runMigrations(db);
+    catalog = new CatalogService(db);
+  } catch (err) {
+    logger.warn('Catalog DB init failed — running without local index:', err);
+  }
+
   const webProductSearch = createDefaultWebProductSearch(adapters, {
     cacheDirectory: options.adapterOptions?.cacheDirectory,
+    catalog,
   });
-  const searchService = new SearchService(adapters, { webProductSearch });
+  const searchService = new SearchService(adapters, { webProductSearch, catalog });
   const priceComparisonService = new PriceComparisonService(adapters);
 
   const server = new Server(

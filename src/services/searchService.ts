@@ -21,6 +21,8 @@ import { sourceWarningFromError } from '../sources/warnings.js';
 import { buildTaxonomy } from '../util/taxonomyBuilder.js';
 import { resolveLocationAsync } from '../util/geo.js';
 import { calculateMatchStrength, sortProducts } from '../util/matcher.js';
+import { logger } from '../util/log.js';
+import { CatalogService } from '../catalog/catalogService.js';
 import { WebProductSearchService, WebProductSearchResult } from './webProductSearchService.js';
 
 function sortStores(a: NormalizedStore, b: NormalizedStore): number {
@@ -112,17 +114,20 @@ export interface SearchServiceOptions {
   webProductSearch?: WebProductSearchService;
   /** Minimum share (0-1) of results with a price to skip web discovery. Default 0.8. */
   vendorPriceShareThreshold?: number;
+  catalog?: CatalogService;
 }
 
 export class SearchService {
   private readonly adapters: ChainAdapter[];
   private readonly webProductSearch?: WebProductSearchService;
   private readonly vendorPriceShareThreshold: number;
+  private readonly catalog?: CatalogService;
 
   public constructor(adapters: ChainAdapter[], options: SearchServiceOptions = {}) {
     this.adapters = adapters;
     this.webProductSearch = options.webProductSearch;
     this.vendorPriceShareThreshold = options.vendorPriceShareThreshold ?? 0.8;
+    this.catalog = options.catalog;
   }
 
   public async searchProducts(filters: ProductSearchFilters): Promise<Result<NormalizedProduct[]>> {
@@ -157,6 +162,17 @@ export class SearchService {
     const vendorProducts = successfulResults.flatMap((entry) =>
       entry.result.ok ? entry.result.data : []
     );
+
+    // Catalog: upsert successful vendor results (fire-and-forget)
+    if (this.catalog) {
+      try {
+        for (const product of vendorProducts) {
+          this.catalog.upsertFromNormalizedProduct(product, 'vendor-search');
+        }
+      } catch (err) {
+        logger.warn('Catalog upsert failed after vendor search:', err);
+      }
+    }
 
     const sourceWarnings = adapterResults
       .filter((entry) => !entry.result.ok)
@@ -230,6 +246,88 @@ export class SearchService {
     const metadataEntries = successfulResults.flatMap((entry) =>
       entry.result.ok && entry.result.metadata ? [entry.result.metadata] : []
     );
+
+    // Catalog: search for additional results not returned by vendor search
+    if (this.catalog) {
+      try {
+        const vendorKeySet = new Set(products.map((p) => `${p.chain}:${p.id}`));
+        const catalogResults = this.catalog.search(query, { limit: (filters.limit ?? 20) * 2 });
+        const catalogOnly = catalogResults
+          .filter((r) => !vendorKeySet.has(`${r.product.chain}:${r.product.productId}`))
+          .filter((r) => requestedChains.has(r.product.chain as Chain));
+
+        if (catalogOnly.length > 0) {
+          // Hydrate catalog-only hits via getProductsByIds (respecting Phase A/B caching)
+          const byChain = new Map<Chain, string[]>();
+          for (const hit of catalogOnly) {
+            const chain = hit.product.chain;
+            if (!byChain.has(chain)) byChain.set(chain, []);
+            byChain.get(chain)!.push(hit.product.productId);
+          }
+
+          const hydratedProducts: NormalizedProduct[] = [];
+          for (const [chain, ids] of byChain) {
+            const adapter = this.adapters.find((a) => a.chain === chain);
+            if (!adapter || typeof adapter.getProductsByIds !== 'function') continue;
+            try {
+              const result = await adapter.getProductsByIds(ids);
+              if (result.ok) {
+                hydratedProducts.push(...result.data);
+                // Catalog: record 'gone' for IDs the adapter silently skipped
+                const foundIds = new Set(result.data.map((p) => p.id));
+                for (const id of ids) {
+                  if (!foundIds.has(id)) {
+                    try {
+                      this.catalog.recordHydrationFailure(chain, id, 'gone');
+                    } catch (err) {
+                      logger.warn('Catalog recordHydrationFailure (catalog-hit gone) failed:', err);
+                    }
+                  }
+                }
+              } else {
+                // Catalog: entire call failed — record 'transient' for all requested IDs
+                for (const id of ids) {
+                  try {
+                    this.catalog.recordHydrationFailure(chain, id, 'transient');
+                  } catch (err) {
+                    logger.warn('Catalog recordHydrationFailure (catalog-hit transient) failed:', err);
+                  }
+                }
+              }
+            } catch {
+              // Hydration failure for catalog hits is non-fatal
+              // But still record transient for each ID
+              for (const id of ids) {
+                try {
+                  this.catalog.recordHydrationFailure(chain, id, 'transient');
+                } catch (err) {
+                  logger.warn('Catalog recordHydrationFailure (catalog-hit exception transient) failed:', err);
+                }
+              }
+            }
+          }
+
+          // Merge: catalog hits that got hydrated are appended
+          for (const hydrated of hydratedProducts) {
+            const key = `${hydrated.chain}:${hydrated.id}`;
+            if (vendorKeySet.has(key)) continue;
+            // Apply the same filters as vendor search
+            if (typeof filters.maxPrice === 'number' && hydrated.price.current > filters.maxPrice) continue;
+            products.push(hydrated);
+            vendorKeySet.add(key);
+          }
+
+          if (hydratedProducts.length > 0) {
+            metadataEntries.push({
+              summary: `Results augmented with local catalog index (${hydratedProducts.length} additional products).`,
+            });
+          }
+        }
+      } catch (err) {
+        logger.warn('Catalog search failed:', err);
+      }
+    }
+
     if (webResult && webResult.productsByChain.size > 0) {
       metadataEntries.push({
         summary: `Results augmented with semantic web search (${webResult.providerName}).`,

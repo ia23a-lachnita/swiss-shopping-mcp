@@ -19,7 +19,9 @@ import {
   SourceWarning,
   SourceWarningCode,
 } from '../adapters/types.js';
+import { CatalogService } from '../catalog/catalogService.js';
 import { normalize } from '../util/matcher.js';
+import { logger } from '../util/log.js';
 
 /**
  * Per-chain configuration for mapping web-search result URLs back to vendor
@@ -92,6 +94,8 @@ export interface WebProductSearchServiceOptions {
   chainConfigs?: WebSearchChainConfig[];
   /** Max product IDs hydrated per chain per query. Default 6. */
   maxProductsPerChain?: number;
+  /** Optional catalog for recording hydration outcomes and upserting web-discovered products. */
+  catalog?: CatalogService;
 }
 
 const DEFAULT_MAX_PRODUCTS_PER_CHAIN = 6;
@@ -146,11 +150,13 @@ export class WebProductSearchService {
   private readonly hydrationHealth = new Map<string, HydrationHealth>();
   /** Set of cache keys where a forced rediscovery already happened this soft-TTL cycle. */
   private readonly rediscoveryDone = new Set<string>();
+  private readonly catalog?: CatalogService;
 
   public constructor(options: WebProductSearchServiceOptions) {
     this.provider = options.provider;
     this.cache = options.cache;
     this.maxProductsPerChain = options.maxProductsPerChain ?? DEFAULT_MAX_PRODUCTS_PER_CHAIN;
+    this.catalog = options.catalog;
 
     const configs = options.chainConfigs ?? DEFAULT_WEB_SEARCH_CHAIN_CONFIGS;
     this.configsByChain = new Map(configs.map((config) => [config.chain, config]));
@@ -342,11 +348,38 @@ export class WebProductSearchService {
         message: `Web-discovered ${chain} products could not be hydrated: ${hydrated.error.message ?? hydrated.error.code}`,
         observedAt: new Date().toISOString(),
       });
+      // Catalog: record transient failure for all requested IDs
+      if (this.catalog) {
+        try {
+          for (const id of ids) {
+            this.catalog.recordHydrationFailure(chain, id, 'transient');
+          }
+        } catch (err) {
+          logger.warn('Catalog recordHydrationFailure (web-discovery transient) failed:', err);
+        }
+      }
       return [];
     }
 
     if (hydrated.metadata?.sourceWarnings) {
       warnings.push(...hydrated.metadata.sourceWarnings);
+    }
+
+    // Catalog: record gone for missing IDs, upsert found products
+    if (this.catalog) {
+      try {
+        const foundIds = new Set(hydrated.data.map((p) => p.id));
+        for (const id of ids) {
+          if (!foundIds.has(id)) {
+            this.catalog.recordHydrationFailure(chain, id, 'gone');
+          }
+        }
+        for (const product of hydrated.data) {
+          this.catalog.upsertFromNormalizedProduct(product, 'web-discovery');
+        }
+      } catch (err) {
+        logger.warn('Catalog upsert (web-discovery) failed:', err);
+      }
     }
 
     return hydrated.data
@@ -386,6 +419,16 @@ export class WebProductSearchService {
         message: `Web-discovered ${chain} products could not be hydrated: ${hydrated.error.message ?? hydrated.error.code}`,
         observedAt: new Date().toISOString(),
       });
+      // Catalog: record transient failure for all requested IDs
+      if (this.catalog) {
+        try {
+          for (const id of ids) {
+            this.catalog.recordHydrationFailure(chain, id, 'transient');
+          }
+        } catch (err) {
+          logger.warn('Catalog recordHydrationFailure (web-search transient) failed:', err);
+        }
+      }
       // Deliverable 6: track hydration health
       this.recordHydrationHealth(chain, query, ids.length, 0);
       return [];
@@ -393,6 +436,23 @@ export class WebProductSearchService {
 
     if (hydrated.metadata?.sourceWarnings) {
       warnings.push(...hydrated.metadata.sourceWarnings);
+    }
+
+    // Catalog: record gone for missing IDs, upsert found products
+    if (this.catalog) {
+      try {
+        const foundIds = new Set(hydrated.data.map((p) => p.id));
+        for (const id of ids) {
+          if (!foundIds.has(id)) {
+            this.catalog.recordHydrationFailure(chain, id, 'gone');
+          }
+        }
+        for (const product of hydrated.data) {
+          this.catalog.upsertFromNormalizedProduct(product, 'web-discovery');
+        }
+      } catch (err) {
+        logger.warn('Catalog upsert (web-search-discovery) failed:', err);
+      }
     }
 
     const successfulCount = hydrated.data.filter((p) => passesFilterConstraints(p, filters)).length;
@@ -581,6 +641,7 @@ export interface CreateDefaultWebProductSearchOptions {
   cacheDirectory?: string;
   fetchImpl?: typeof fetch;
   env?: NodeJS.ProcessEnv;
+  catalog?: CatalogService;
 }
 
 /**
@@ -620,5 +681,6 @@ export function createDefaultWebProductSearch(
     provider,
     adapters,
     cache,
+    catalog: options.catalog,
   });
 }

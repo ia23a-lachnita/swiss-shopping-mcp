@@ -4,6 +4,11 @@
 # browsers baked into the image are revision-locked to that version.
 FROM mcr.microsoft.com/playwright:v1.61.1-noble AS build
 
+# better-sqlite3 needs native compilation tools (python3, make, g++)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3 make g++ \
+    && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 
 COPY package.json package-lock.json ./
@@ -15,11 +20,15 @@ COPY pwa ./pwa
 RUN npm run build && npm run build:pwa \
   && npm prune --omit=dev
 
+# Smoke-check: verify better-sqlite3 native binding loads
+RUN node -e "require('better-sqlite3')"
+
 FROM mcr.microsoft.com/playwright:v1.61.1-noble
 
 ENV NODE_ENV=production \
     PORT=3000 \
-    SWISS_SHOPPING_CACHE_DIR=/data/cache
+    SWISS_SHOPPING_CACHE_DIR=/data/cache \
+    SWISS_SHOPPING_DB_PATH=/data/cache/catalog.sqlite3
 
 WORKDIR /app
 
