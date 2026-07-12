@@ -13,6 +13,7 @@ import { fileURLToPath } from 'url';
 import { createDefaultAdapters, CreateDefaultAdaptersOptions } from './adapters/index.js';
 import { PriceComparisonService } from './services/priceComparisonService.js';
 import { SearchService } from './services/searchService.js';
+import { createDefaultWebProductSearch } from './services/webProductSearchService.js';
 import { executeToolCall, listTools } from './tools/handlers.js';
 import { logger } from './util/log.js';
 
@@ -22,7 +23,10 @@ export interface CreateServerOptions {
 
 export async function createServer(options: CreateServerOptions = {}): Promise<Server> {
   const adapters = createDefaultAdapters(options.adapterOptions);
-  const searchService = new SearchService(adapters);
+  const webProductSearch = createDefaultWebProductSearch(adapters, {
+    cacheDirectory: options.adapterOptions?.cacheDirectory,
+  });
+  const searchService = new SearchService(adapters, { webProductSearch });
   const priceComparisonService = new PriceComparisonService(adapters);
 
   const server = new Server(

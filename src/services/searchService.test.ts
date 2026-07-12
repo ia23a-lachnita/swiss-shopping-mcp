@@ -1,5 +1,6 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
+import { FileTtlCache } from '../cache/fileTtlCache.js';
 import { UnsupportedChainAdapter } from '../adapters/unsupportedAdapter.js';
 import {
   Chain,
@@ -18,6 +19,7 @@ import {
   StoreSearchFilters,
 } from '../adapters/types.js';
 import { SearchService } from './searchService.js';
+import { WebProductSearchService } from './webProductSearchService.js';
 
 function stubAdapter(
   chain: Chain,
@@ -353,6 +355,146 @@ describe('SearchService', () => {
     if (result.ok) {
       expect(result.data.supported).toBe(false);
       expect(result.data.reason).toBeTruthy();
+    }
+  });
+});
+
+describe('SearchService web-augmented search', () => {
+  function webService(
+    adapters: ChainAdapter[],
+    urlsBySite: Record<string, string[]>,
+    options: { failSearch?: boolean } = {}
+  ): WebProductSearchService {
+    const provider = {
+      name: 'ddg' as const,
+      search: vi.fn(async (_query: string, opts: { site: string }) => {
+        if (options.failSearch) throw new Error('engine down');
+        return (urlsBySite[opts.site] ?? []).map((url, rank) => ({ url, rank }));
+      }),
+    };
+    const cache = {
+      get: vi.fn().mockResolvedValue(undefined),
+      set: vi.fn().mockResolvedValue({ expiresAt: '2099-01-01T00:00:00.000Z' }),
+    } as unknown as FileTtlCache;
+    return new WebProductSearchService({ provider, adapters, cache });
+  }
+
+  function migrosAdapterWithHydration(
+    vendorProducts: NormalizedProduct[],
+    hydratedById: Record<string, NormalizedProduct>
+  ): ChainAdapter {
+    return {
+      ...stubAdapter('migros', { products: vendorProducts }),
+      async getProductsByIds(ids: string[]): Promise<Result<NormalizedProduct[]>> {
+        return { ok: true, data: ids.map((id) => hydratedById[id]).filter(Boolean) };
+      },
+    };
+  }
+
+  it('ranks web-discovered products first and keeps enriched vendor copies on duplicates', async () => {
+    const vendorCopy: NormalizedProduct = {
+      ...testProduct('1001', 'migros'),
+      nutrition: { energyKcal: 250 },
+    };
+    const vendorOnly = testProduct('2002', 'migros');
+    const webOnly = testProduct('1003', 'migros');
+
+    const adapter = migrosAdapterWithHydration([vendorCopy, vendorOnly], {
+      '1001': testProduct('1001', 'migros'),
+      '1003': webOnly,
+    });
+    const service = new SearchService([adapter], {
+      webProductSearch: webService([adapter], {
+        'migros.ch/de/product': [
+          'https://www.migros.ch/de/product/1001',
+          'https://www.migros.ch/de/product/1003',
+        ],
+      }),
+    });
+
+    const result = await service.searchProducts({ query: 'zahnpasta' });
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data.map((p) => p.id)).toEqual(['1001', '1003', '2002']);
+      // Duplicate keeps the vendor copy (enrichment) at the web-ranked position
+      expect(result.data[0].nutrition?.energyKcal).toBe(250);
+      expect(result.data[0].matchExplanation?.matchedBy).toEqual(['provider-rank']);
+      expect(result.metadata?.summary).toContain('semantic web search');
+    }
+  });
+
+  it('falls back to vendor-only results with a warning when the web search fails', async () => {
+    const vendorProduct = testProduct('2002', 'migros');
+    const adapter = migrosAdapterWithHydration([vendorProduct], {});
+    const service = new SearchService([adapter], {
+      webProductSearch: webService([adapter], {}, { failSearch: true }),
+    });
+
+    const result = await service.searchProducts({ query: 'zahnpasta' });
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data.map((p) => p.id)).toEqual(['2002']);
+      const webWarning = result.metadata?.sourceWarnings?.find((w) => w.provider === 'WebSearch');
+      expect(webWarning?.message).toContain('engine down');
+    }
+  });
+
+  it('returns web-discovered products even when every vendor search fails', async () => {
+    const webOnly = testProduct('1003', 'migros');
+    const adapter: ChainAdapter = {
+      ...stubAdapter('migros', { errorCode: SourceWarningCode.SourceUnavailable }),
+      async getProductsByIds(): Promise<Result<NormalizedProduct[]>> {
+        return { ok: true, data: [webOnly] };
+      },
+    };
+    const service = new SearchService([adapter], {
+      webProductSearch: webService([adapter], {
+        'migros.ch/de/product': ['https://www.migros.ch/de/product/1003'],
+      }),
+    });
+
+    const result = await service.searchProducts({ query: 'zahnpasta' });
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data.map((p) => p.id)).toEqual(['1003']);
+      expect(result.metadata?.sourceWarnings?.length).toBeGreaterThan(0);
+    }
+  });
+
+  it('interleaves web results across chains round-robin by rank', async () => {
+    const migrosAdapter = migrosAdapterWithHydration([], {
+      '1001': testProduct('1001', 'migros'),
+      '1002': testProduct('1002', 'migros'),
+    });
+    const coopAdapter: ChainAdapter = {
+      ...stubAdapter('coop', {}),
+      async getProductsByIds(ids: string[]): Promise<Result<NormalizedProduct[]>> {
+        return { ok: true, data: ids.map((id) => testProduct(id, 'coop')) };
+      },
+    };
+    const adapters = [migrosAdapter, coopAdapter];
+    const service = new SearchService(adapters, {
+      webProductSearch: webService(adapters, {
+        'migros.ch/de/product': [
+          'https://www.migros.ch/de/product/1001',
+          'https://www.migros.ch/de/product/1002',
+        ],
+        'coop.ch': ['https://www.coop.ch/de/x/p/3001'],
+      }),
+    });
+
+    const result = await service.searchProducts({ query: 'zahnpasta', chains: ['migros', 'coop'] });
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data.map((p) => `${p.chain}:${p.id}`)).toEqual([
+        'migros:1001',
+        'coop:3001',
+        'migros:1002',
+      ]);
     }
   });
 });

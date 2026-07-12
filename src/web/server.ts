@@ -7,13 +7,15 @@ import { createDefaultAdapters } from '../adapters/index.js';
 import { getAllCapabilityStatuses } from '../adapters/sourceRegistry.js';
 import { PriceComparisonService } from '../services/priceComparisonService.js';
 import { SearchService } from '../services/searchService.js';
+import { createDefaultWebProductSearch } from '../services/webProductSearchService.js';
 import { Chain, StoreAvailabilityByLocationFilters } from '../adapters/types.js';
 
 const PORT = Number(process.env.PORT) || 3000;
 const PUBLIC_DIR = join(process.cwd(), 'src', 'web', 'public');
 
 const adapters = createDefaultAdapters();
-const searchService = new SearchService(adapters);
+const webProductSearch = createDefaultWebProductSearch(adapters);
+const searchService = new SearchService(adapters, { webProductSearch });
 const priceComparisonService = new PriceComparisonService(adapters);
 
 const MIME_TYPES: Record<string, string> = {

@@ -21,6 +21,7 @@ import { sourceWarningFromError } from '../sources/warnings.js';
 import { buildTaxonomy } from '../util/taxonomyBuilder.js';
 import { resolveLocationAsync } from '../util/geo.js';
 import { calculateMatchStrength, sortProducts } from '../util/matcher.js';
+import { WebProductSearchService, WebProductSearchResult } from './webProductSearchService.js';
 
 function sortStores(a: NormalizedStore, b: NormalizedStore): number {
   return a.name.localeCompare(b.name);
@@ -87,11 +88,37 @@ function mergeMetadata(
   };
 }
 
+function interleaveWebProducts(
+  productsByChain: Map<Chain, NormalizedProduct[]>,
+  chainOrder: Chain[]
+): NormalizedProduct[] {
+  const lists = chainOrder
+    .filter((chain) => productsByChain.has(chain))
+    .map((chain) => productsByChain.get(chain)!);
+  const merged: NormalizedProduct[] = [];
+  const maxLength = lists.reduce((max, list) => Math.max(max, list.length), 0);
+  // Round-robin by web rank so a single chain cannot dominate the top results.
+  for (let rank = 0; rank < maxLength; rank++) {
+    for (const list of lists) {
+      if (rank < list.length) {
+        merged.push(list[rank]);
+      }
+    }
+  }
+  return merged;
+}
+
+export interface SearchServiceOptions {
+  webProductSearch?: WebProductSearchService;
+}
+
 export class SearchService {
   private readonly adapters: ChainAdapter[];
+  private readonly webProductSearch?: WebProductSearchService;
 
-  public constructor(adapters: ChainAdapter[]) {
+  public constructor(adapters: ChainAdapter[], options: SearchServiceOptions = {}) {
     this.adapters = adapters;
+    this.webProductSearch = options.webProductSearch;
   }
 
   public async searchProducts(filters: ProductSearchFilters): Promise<Result<NormalizedProduct[]>> {
@@ -112,12 +139,24 @@ export class SearchService {
       return { ok: true, data: [] };
     }
 
-    const adapterResults = await Promise.all(
-      relevantAdapters.map(async (adapter) => ({
-        chain: adapter.chain,
-        result: await adapter.searchProducts({ ...filters, query, matchMode }),
-      }))
-    );
+    // Web search (semantic discovery via site-restricted engine queries) runs
+    // in parallel with the vendor adapter fan-out and never fails the search.
+    const requestedChainList = [...requestedChains];
+    const webSearchPromise: Promise<WebProductSearchResult | undefined> = this.webProductSearch
+      ? this.webProductSearch
+          .searchProducts({ ...filters, query, matchMode }, requestedChainList)
+          .catch(() => undefined)
+      : Promise.resolve(undefined);
+
+    const [adapterResults, webResult] = await Promise.all([
+      Promise.all(
+        relevantAdapters.map(async (adapter) => ({
+          chain: adapter.chain,
+          result: await adapter.searchProducts({ ...filters, query, matchMode }),
+        }))
+      ),
+      webSearchPromise,
+    ]);
 
     const sourceWarnings = adapterResults
       .filter((entry) => !entry.result.ok)
@@ -127,27 +166,65 @@ export class SearchService {
           entry.result.ok ? { code: 'UNKNOWN' } : entry.result.error
         )
       );
+    if (webResult) {
+      sourceWarnings.push(...webResult.warnings);
+    }
+
+    const webProducts = webResult ? interleaveWebProducts(webResult.productsByChain, requestedChainList) : [];
 
     const successfulResults = adapterResults.filter((entry) => entry.result.ok);
-    if (successfulResults.length === 0 && sourceWarnings.length > 0) {
+    if (successfulResults.length === 0 && webProducts.length === 0 && sourceWarnings.length > 0) {
       const metadata = mergeMetadata([], sourceWarnings);
       return { ok: true, data: [], metadata };
     }
 
-    const products = successfulResults.flatMap((entry) =>
+    const vendorProducts = successfulResults.flatMap((entry) =>
       entry.result.ok ? entry.result.data : []
     );
 
     // Build dynamic taxonomy from the product data
-    const dynamicTaxonomy = buildTaxonomy(products);
+    const dynamicTaxonomy = buildTaxonomy([...vendorProducts, ...webProducts]);
 
-    products.sort((a, b) => sortProducts(a, b, query, matchMode, dynamicTaxonomy));
-    const metadata = mergeMetadata(
-      successfulResults.flatMap((entry) =>
-        entry.result.ok && entry.result.metadata ? [entry.result.metadata] : []
-      ),
-      sourceWarnings
+    vendorProducts.sort((a, b) => sortProducts(a, b, query, matchMode, dynamicTaxonomy));
+
+    // Merge: web-discovered products lead in engine-rank order (that ranking IS
+    // the semantic signal), vendor-only products follow in match-strength order.
+    // Duplicates keep the vendor copy (it may carry extra enrichment) at the
+    // web-ranked position.
+    let products: NormalizedProduct[];
+    if (webProducts.length > 0) {
+      const keyOf = (product: NormalizedProduct): string => `${product.chain}:${product.id}`;
+      const vendorByKey = new Map(vendorProducts.map((product) => [keyOf(product), product]));
+      const seen = new Set<string>();
+      products = [];
+      for (const webProduct of webProducts) {
+        const key = keyOf(webProduct);
+        if (seen.has(key)) continue;
+        seen.add(key);
+        const vendorCopy = vendorByKey.get(key);
+        products.push(
+          vendorCopy ? { ...vendorCopy, matchExplanation: webProduct.matchExplanation } : webProduct
+        );
+      }
+      for (const vendorProduct of vendorProducts) {
+        const key = keyOf(vendorProduct);
+        if (seen.has(key)) continue;
+        seen.add(key);
+        products.push(vendorProduct);
+      }
+    } else {
+      products = vendorProducts;
+    }
+
+    const metadataEntries = successfulResults.flatMap((entry) =>
+      entry.result.ok && entry.result.metadata ? [entry.result.metadata] : []
     );
+    if (webResult && webResult.productsByChain.size > 0) {
+      metadataEntries.push({
+        summary: `Results augmented with semantic web search (${webResult.providerName}).`,
+      });
+    }
+    const metadata = mergeMetadata(metadataEntries, sourceWarnings);
 
     if (typeof filters.limit === 'number') {
       return { ok: true, data: products.slice(0, filters.limit), metadata };
