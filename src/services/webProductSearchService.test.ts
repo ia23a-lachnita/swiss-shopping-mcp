@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { FileTtlCache } from '../cache/fileTtlCache.js';
+import { CacheHit, FileTtlCache } from '../cache/fileTtlCache.js';
 import { WebSearchProvider, WebSearchResult } from '../sources/webSearch.js';
 import {
   Chain,
@@ -11,11 +11,12 @@ import {
 } from '../adapters/types.js';
 import { WebProductSearchService } from './webProductSearchService.js';
 
-function createMockCache(): FileTtlCache & { get: ReturnType<typeof vi.fn>; set: ReturnType<typeof vi.fn> } {
+function createMockCache(): FileTtlCache & { get: ReturnType<typeof vi.fn>; set: ReturnType<typeof vi.fn>; delete: ReturnType<typeof vi.fn> } {
   return {
     get: vi.fn().mockResolvedValue(undefined),
     set: vi.fn().mockResolvedValue({ expiresAt: '2099-01-01T00:00:00.000Z' }),
-  } as unknown as FileTtlCache & { get: ReturnType<typeof vi.fn>; set: ReturnType<typeof vi.fn> };
+    delete: vi.fn().mockResolvedValue(undefined),
+  } as unknown as FileTtlCache & { get: ReturnType<typeof vi.fn>; set: ReturnType<typeof vi.fn>; delete: ReturnType<typeof vi.fn> };
 }
 
 function stubProvider(resultsBySite: Record<string, WebSearchResult[]>): WebSearchProvider & {
@@ -63,6 +64,21 @@ function plainAdapter(chain: Chain): ChainAdapter {
 
 function ranked(urls: string[]): WebSearchResult[] {
   return urls.map((url, rank) => ({ url, rank }));
+}
+
+function freshCacheHit<T>(data: T): CacheHit<T> {
+  return {
+    data,
+    provenance: { provider: 'Test', sourceType: 'third-party' as const, freshness: 'cached' as const, confidence: 'medium' as const },
+    observedAt: '2026-01-01T00:00:00.000Z',
+    refreshAfter: '2099-01-01T00:00:00.000Z',
+    expiresAt: '2099-01-01T00:00:00.000Z',
+    staleUntil: '2099-01-01T00:00:00.000Z',
+    fresh: true,
+    needsRefresh: false,
+    staleFallback: undefined,
+    isStale: false,
+  };
 }
 
 describe('WebProductSearchService', () => {
@@ -264,11 +280,7 @@ describe('WebProductSearchService', () => {
     });
     const provider = stubProvider({});
     const cache = createMockCache();
-    cache.get.mockResolvedValue({
-      data: { ids: ['514160800000'] },
-      provenance: {},
-      isStale: false,
-    });
+    cache.get.mockResolvedValue(freshCacheHit({ ids: ['514160800000'] }));
     const service = new WebProductSearchService({ provider, adapters: [adapter], cache });
 
     const result = await service.searchProducts({ query: 'milch' }, ['migros']);
@@ -277,7 +289,7 @@ describe('WebProductSearchService', () => {
     expect(result.productsByChain.get('migros')?.map((p) => p.id)).toEqual(['514160800000']);
   });
 
-  it('does not cache empty ID lists', async () => {
+  it('caches confirmed zero results via emptySearch tier', async () => {
     const adapter = hydratableAdapter('migros', {});
     const provider = stubProvider({ 'migros.ch/de/product': [] });
     const cache = createMockCache();
@@ -286,6 +298,22 @@ describe('WebProductSearchService', () => {
     const result = await service.searchProducts({ query: 'milch' }, ['migros']);
 
     expect(result.productsByChain.size).toBe(0);
+    expect(cache.set).toHaveBeenCalledTimes(1);
+    // The cached value should include the emptyResult flag
+    const setCall = cache.set.mock.calls[0];
+    expect(setCall[1]).toEqual({ ids: [], emptyResult: true });
+  });
+
+  it('does NOT cache provider errors (only caches confirmed empty results)', async () => {
+    const adapter = hydratableAdapter('migros', {});
+    const provider = stubProvider({});
+    provider.search.mockRejectedValue(new Error('DDG 202 challenge'));
+    const cache = createMockCache();
+    const service = new WebProductSearchService({ provider, adapters: [adapter], cache });
+
+    await service.searchProducts({ query: 'milch' }, ['migros']);
+
+    // set should NOT have been called — provider errors are never cached
     expect(cache.set).not.toHaveBeenCalled();
   });
 
@@ -306,5 +334,85 @@ describe('WebProductSearchService', () => {
     await service.searchProducts({ query: 'milch' }, ['migros']);
 
     expect(adapter.getProductsByIds).toHaveBeenCalledWith(['100000', '100001', '100002']);
+  });
+
+  it('serves stale mapping when provider fails (stale fallback)', async () => {
+    const adapter = hydratableAdapter('migros', {
+      '514160800000': product('514160800000', 'migros'),
+    });
+    const provider = stubProvider({});
+    provider.search.mockRejectedValue(new Error('engine down'));
+    const cache = createMockCache();
+    // Simulate a stale cache hit with staleFallback present
+    cache.get.mockResolvedValue({
+      data: { ids: ['514160800000'] },
+      provenance: { provider: 'WebSearch', sourceType: 'third-party', freshness: 'stale', confidence: 'medium' },
+      observedAt: '2026-01-01T00:00:00.000Z',
+      refreshAfter: '2026-01-08T00:00:00.000Z',
+      expiresAt: '2026-02-01T00:00:00.000Z',
+      staleUntil: '2099-01-01T00:00:00.000Z',
+      fresh: false,
+      needsRefresh: true,
+      staleFallback: { ids: ['514160800000'] },
+    });
+    const service = new WebProductSearchService({ provider, adapters: [adapter], cache });
+
+    const result = await service.searchProducts({ query: 'milch' }, ['migros']);
+
+    // Should fall back to stale IDs and still hydrate
+    expect(result.productsByChain.get('migros')?.map((p) => p.id)).toEqual(['514160800000']);
+    expect(result.warnings).toHaveLength(0);
+  });
+
+  it('deduplicates concurrent requests for the same key', async () => {
+    const adapter = hydratableAdapter('migros', {
+      '514160800000': product('514160800000', 'migros'),
+    });
+    const provider = stubProvider({
+      'migros.ch/de/product': ranked(['https://www.migros.ch/de/product/514160800000']),
+    });
+    const cache = createMockCache();
+    const service = new WebProductSearchService({ provider, adapters: [adapter], cache });
+
+    // Fire 3 concurrent searches for the same query
+    const [r1, r2, r3] = await Promise.all([
+      service.searchProducts({ query: 'milch' }, ['migros']),
+      service.searchProducts({ query: 'milch' }, ['migros']),
+      service.searchProducts({ query: 'milch' }, ['migros']),
+    ]);
+
+    // Provider should only be called once (dedup)
+    expect(provider.search).toHaveBeenCalledTimes(1);
+    expect(r1.productsByChain.get('migros')?.map((p) => p.id)).toEqual(['514160800000']);
+    expect(r2.productsByChain.get('migros')?.map((p) => p.id)).toEqual(['514160800000']);
+    expect(r3.productsByChain.get('migros')?.map((p) => p.id)).toEqual(['514160800000']);
+  });
+
+  it('removes dedup key after promise settles so failed promises are not reused', async () => {
+    const adapter = hydratableAdapter('migros', {
+      '514160800000': product('514160800000', 'migros'),
+    });
+    let callCount = 0;
+    const provider: WebSearchProvider & { search: ReturnType<typeof vi.fn> } = {
+      name: 'ddg',
+      search: vi.fn(async () => {
+        callCount++;
+        if (callCount === 1) {
+          throw new Error('first call fails');
+        }
+        return [{ url: 'https://www.migros.ch/de/product/514160800000', rank: 0 }];
+      }),
+    } as unknown as WebSearchProvider & { search: ReturnType<typeof vi.fn> };
+    const cache = createMockCache();
+    const service = new WebProductSearchService({ provider, adapters: [adapter], cache });
+
+    // First call fails
+    const r1 = await service.searchProducts({ query: 'milch' }, ['migros']);
+    expect(r1.warnings).toHaveLength(1);
+
+    // Second call should NOT reuse the failed promise — it should make a new call
+    const r2 = await service.searchProducts({ query: 'milch' }, ['migros']);
+    expect(provider.search).toHaveBeenCalledTimes(2);
+    expect(r2.productsByChain.get('migros')?.map((p) => p.id)).toEqual(['514160800000']);
   });
 });

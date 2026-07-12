@@ -69,6 +69,7 @@ export function createDefaultAdapters(options: CreateDefaultAdaptersOptions = {}
     join(tmpdir(), 'swiss-shopping-mcp-cache');
 
   const sharedCache = new FileTtlCache(cacheDirectory);
+  sharedCache.startPeriodicPrune();
   const sharedSourceClient = new SourceHttpClient({ fetchImpl: options.fetchImpl, rateLimitPerHostMs: 1_000 });
 
   const factories: Record<Chain, (cache: FileTtlCache, sourceClient: SourceHttpClient) => ChainAdapter> = {

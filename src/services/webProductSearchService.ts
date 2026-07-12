@@ -2,6 +2,7 @@ import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 
 import { FileTtlCache } from '../cache/fileTtlCache.js';
+import { DISCOVERY, EMPTY_SEARCH } from '../cache/freshnessPolicy.js';
 import {
   createWebSearchProviderFromEnv,
   WebSearchProvider,
@@ -55,7 +56,7 @@ export const DEFAULT_WEB_SEARCH_CHAIN_CONFIGS: WebSearchChainConfig[] = [
   {
     chain: 'aldi',
     site: 'aldi-suisse.ch/de/produkt',
-    extractProductId: (url) => {
+    extractProductId: (url): string | undefined => {
       if (!url.pathname.includes('/produkt/')) {
         return undefined;
       }
@@ -85,15 +86,19 @@ export interface WebProductSearchServiceOptions {
   adapters: ChainAdapter[];
   cache: FileTtlCache;
   chainConfigs?: WebSearchChainConfig[];
-  /** TTL for cached query -> product-ID lists. Default 24h. */
-  cacheTtlMs?: number;
   /** Max product IDs hydrated per chain per query. Default 6. */
   maxProductsPerChain?: number;
 }
 
-const DEFAULT_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 const DEFAULT_MAX_PRODUCTS_PER_CHAIN = 6;
 const WEB_SEARCH_PROVIDER_LABEL = 'WebSearch';
+
+/** Shape of a cached discovery mapping. */
+interface CachedDiscoveryMapping {
+  ids: string[];
+  /** Distinguishes confirmed zero results from a provider error. */
+  emptyResult?: boolean;
+}
 
 function passesFilterConstraints(product: NormalizedProduct, filters: ProductSearchFilters): boolean {
   if (product.price.current <= 0) {
@@ -121,15 +126,15 @@ function passesFilterConstraints(product: NormalizedProduct, filters: ProductSea
 export class WebProductSearchService {
   private readonly provider: WebSearchProvider;
   private readonly cache: FileTtlCache;
-  private readonly cacheTtlMs: number;
   private readonly maxProductsPerChain: number;
   private readonly configsByChain: Map<Chain, WebSearchChainConfig>;
   private readonly adaptersByChain: Map<Chain, ChainAdapter>;
+  /** In-flight dedup: key → promise. Cleaned up in finally. */
+  private readonly inFlight = new Map<string, Promise<string[]>>();
 
   public constructor(options: WebProductSearchServiceOptions) {
     this.provider = options.provider;
     this.cache = options.cache;
-    this.cacheTtlMs = options.cacheTtlMs ?? DEFAULT_CACHE_TTL_MS;
     this.maxProductsPerChain = options.maxProductsPerChain ?? DEFAULT_MAX_PRODUCTS_PER_CHAIN;
 
     const configs = options.chainConfigs ?? DEFAULT_WEB_SEARCH_CHAIN_CONFIGS;
@@ -224,16 +229,50 @@ export class WebProductSearchService {
     config: WebSearchChainConfig,
     query: string
   ): Promise<string[]> {
-    const cacheKey = `websearch:${this.provider.name}:${chain}:${normalize(query)}`;
-    const cached = await this.cache.get<{ ids: string[] }>(cacheKey, { allowStale: true });
-    if (cached && !cached.isStale) {
-      return cached.data.ids;
+    const normalizedQuery = normalize(query);
+    const cacheKey = `websearch:${this.provider.name}:${chain}:${normalizedQuery}`;
+    const dedupKey = `${this.provider.name}:${chain}:${normalizedQuery}`;
+
+    // In-flight dedup: if another caller is already fetching this key, reuse it.
+    const existing = this.inFlight.get(dedupKey);
+    if (existing !== undefined) {
+      return existing;
+    }
+
+    const promise = this.doDiscoverProductIds(cacheKey, chain, config, query);
+    this.inFlight.set(dedupKey, promise);
+    try {
+      return await promise;
+    } finally {
+      this.inFlight.delete(dedupKey);
+    }
+  }
+
+  private async doDiscoverProductIds(
+    cacheKey: string,
+    chain: Chain,
+    config: WebSearchChainConfig,
+    query: string
+  ): Promise<string[]> {
+    const cached = await this.cache.get<CachedDiscoveryMapping>(cacheKey);
+
+    if (cached) {
+      if (cached.fresh || cached.needsRefresh) {
+        // Fresh or soft-expired but still within hard TTL → return IDs.
+        // Caller *could* refresh opportunistically when needsRefresh, but
+        // for discovery the benefit is low — return as-is.
+        return cached.data.ids;
+      }
+      // staleFallback: expiresAt ≤ now < staleUntil → we MUST attempt a
+      // refresh below; if that fails, we fall back to stale data.
     }
 
     const maxProducts = config.maxProducts ?? this.maxProductsPerChain;
     let ids: string[];
+    let searchSucceeded = false;
     try {
       const results = await this.provider.search(query, { site: config.site });
+      searchSucceeded = true;
       const seen = new Set<string>();
       ids = [];
       for (const result of results) {
@@ -250,29 +289,45 @@ export class WebProductSearchService {
         if (ids.length >= maxProducts) break;
       }
     } catch (error) {
-      if (cached) {
-        // Stale ID list is better than none when the search engine is down.
-        return cached.data.ids;
+      // Provider failure — NOT cached as empty.
+      if (cached?.staleFallback !== undefined) {
+        // Serve the stale mapping rather than failing.
+        return cached.staleFallback.ids;
       }
       throw error;
     }
 
-    // Never cache empty ID lists: they are usually transient engine issues
-    // (rate limiting, index lag) and would pin bad results for a whole day.
-    if (ids.length > 0) {
-      await this.cache.set(
-        cacheKey,
-        { ids },
-        {
-          provider: WEB_SEARCH_PROVIDER_LABEL,
-          chain,
-          sourceType: 'third-party',
-          sourceUrl: undefined,
-          confidence: 'medium',
-        },
-        this.cacheTtlMs
-      );
+    if (ids.length === 0) {
+      if (searchSucceeded) {
+        // Confirmed zero results → negative cache via emptySearch tier.
+        await this.cache.set(
+          cacheKey,
+          { ids: [], emptyResult: true } satisfies CachedDiscoveryMapping,
+          {
+            provider: WEB_SEARCH_PROVIDER_LABEL,
+            chain,
+            sourceType: 'third-party',
+            sourceUrl: undefined,
+            confidence: 'medium',
+          },
+          EMPTY_SEARCH,
+        );
+      }
+      return ids;
     }
+
+    await this.cache.set(
+      cacheKey,
+      { ids } satisfies CachedDiscoveryMapping,
+      {
+        provider: WEB_SEARCH_PROVIDER_LABEL,
+        chain,
+        sourceType: 'third-party',
+        sourceUrl: undefined,
+        confidence: 'medium',
+      },
+      DISCOVERY,
+    );
 
     return ids;
   }
@@ -315,9 +370,12 @@ export function createDefaultWebProductSearch(
     env.SWISS_SHOPPING_CACHE_DIR ??
     join(tmpdir(), 'swiss-shopping-mcp-cache');
 
+  const cache = new FileTtlCache(cacheDirectory);
+  cache.startPeriodicPrune();
+
   return new WebProductSearchService({
     provider,
     adapters,
-    cache: new FileTtlCache(cacheDirectory),
+    cache,
   });
 }
