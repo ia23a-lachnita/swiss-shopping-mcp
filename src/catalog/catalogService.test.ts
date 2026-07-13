@@ -351,6 +351,192 @@ describe('CatalogService', () => {
     });
   });
 
+  describe('Observation deduplication', () => {
+    it('should skip identical observation within dedup window', () => {
+      const product = makeProduct({ price: { current: 1.95 } });
+      service.upsertFromNormalizedProduct(product, 'vendor-search');
+
+      const count1 = (
+        db
+          .prepare(
+            'SELECT COUNT(*) as c FROM product_observations WHERE chain = ? AND product_id = ?'
+          )
+          .get('migros', 'prod-001') as { c: number }
+      ).c;
+      expect(count1).toBe(1);
+
+      service.upsertFromNormalizedProduct(product, 'vendor-search');
+
+      const count2 = (
+        db
+          .prepare(
+            'SELECT COUNT(*) as c FROM product_observations WHERE chain = ? AND product_id = ?'
+          )
+          .get('migros', 'prod-001') as { c: number }
+      ).c;
+      expect(count2).toBe(1);
+    });
+
+    it('should append identical observation after dedup window expires', () => {
+      const product = makeProduct({ price: { current: 1.95 } });
+      service.upsertFromNormalizedProduct(product, 'vendor-search');
+
+      // Backdate the observation to outside the window
+      db.prepare(
+        "UPDATE product_observations SET observed_at = datetime('now', '-120 minutes') WHERE chain = 'migros' AND product_id = 'prod-001'"
+      ).run();
+
+      service.upsertFromNormalizedProduct(product, 'vendor-search');
+
+      const count = (
+        db
+          .prepare(
+            'SELECT COUNT(*) as c FROM product_observations WHERE chain = ? AND product_id = ?'
+          )
+          .get('migros', 'prod-001') as { c: number }
+      ).c;
+      expect(count).toBe(2);
+    });
+
+    it('should append when price changes within dedup window', () => {
+      const product1 = makeProduct({ price: { current: 1.95 } });
+      service.upsertFromNormalizedProduct(product1, 'vendor-search');
+
+      const product2 = makeProduct({ price: { current: 2.50 } });
+      service.upsertFromNormalizedProduct(product2, 'vendor-search');
+
+      const count = (
+        db
+          .prepare(
+            'SELECT COUNT(*) as c FROM product_observations WHERE chain = ? AND product_id = ?'
+          )
+          .get('migros', 'prod-001') as { c: number }
+      ).c;
+      expect(count).toBe(2);
+    });
+
+    it('should append when availability changes within dedup window', () => {
+      const product = makeProduct({ price: { current: 1.95 } });
+      service.upsertFromNormalizedProduct(product, 'vendor-search');
+
+      // Modify the latest observation's availability so it differs from incoming
+      db.prepare(
+        "UPDATE product_observations SET availability = 'in-stock' WHERE chain = 'migros' AND product_id = 'prod-001'"
+      ).run();
+
+      // Now upsert with availability=null (default) — values differ
+      service.upsertFromNormalizedProduct(product, 'vendor-search');
+
+      const count = (
+        db
+          .prepare(
+            'SELECT COUNT(*) as c FROM product_observations WHERE chain = ? AND product_id = ?'
+          )
+          .get('migros', 'prod-001') as { c: number }
+      ).c;
+      expect(count).toBe(2);
+    });
+
+    it('should respect SWISS_SHOPPING_OBSERVATION_DEDUPE_MINUTES env override', () => {
+      const db2 = createTestDb();
+      const svc = new CatalogService(db2, { SWISS_SHOPPING_OBSERVATION_DEDUPE_MINUTES: '5' });
+
+      const product = makeProduct({ price: { current: 1.95 } });
+      svc.upsertFromNormalizedProduct(product, 'vendor-search');
+
+      const count1 = (
+        db2
+          .prepare(
+            'SELECT COUNT(*) as c FROM product_observations WHERE chain = ? AND product_id = ?'
+          )
+          .get('migros', 'prod-001') as { c: number }
+      ).c;
+      expect(count1).toBe(1);
+
+      // Backdate to 10 minutes ago — outside 5-min window but inside default 60-min
+      db2.prepare(
+        "UPDATE product_observations SET observed_at = datetime('now', '-10 minutes') WHERE chain = 'migros' AND product_id = 'prod-001'"
+      ).run();
+
+      svc.upsertFromNormalizedProduct(product, 'vendor-search');
+
+      const count2 = (
+        db2
+          .prepare(
+            'SELECT COUNT(*) as c FROM product_observations WHERE chain = ? AND product_id = ?'
+          )
+          .get('migros', 'prod-001') as { c: number }
+      ).c;
+      expect(count2).toBe(2);
+      svc.close();
+    });
+
+    it('should not suppress observations with pending_verification status', () => {
+      // First observation: normal price
+      const product1 = makeProduct({ price: { current: 1.95 } });
+      service.upsertFromNormalizedProduct(product1, 'vendor-search');
+
+      // Second observation: suspicious 90% price drop → pending_verification
+      const product2 = makeProduct({ price: { current: 0.19 } });
+      service.upsertFromNormalizedProduct(product2, 'vendor-search');
+
+      const pendingCount = (
+        db
+          .prepare(
+            "SELECT COUNT(*) as c FROM product_observations WHERE chain = 'migros' AND product_id = 'prod-001' AND status = 'pending_verification'"
+          )
+          .get() as { c: number }
+      ).c;
+      expect(pendingCount).toBe(1);
+
+      // Third observation: same suspicious price — should still append
+      // (pending_verification must not suppress, even with identical values)
+      service.upsertFromNormalizedProduct(product2, 'vendor-search');
+
+      const totalCount = (
+        db
+          .prepare(
+            'SELECT COUNT(*) as c FROM product_observations WHERE chain = ? AND product_id = ?'
+          )
+          .get('migros', 'prod-001') as { c: number }
+      ).c;
+      expect(totalCount).toBe(3);
+    });
+
+    it('should still update product identity when observation is deduped', () => {
+      const product1 = makeProduct({ price: { current: 1.95 }, name: 'Vollmilch' });
+      service.upsertFromNormalizedProduct(product1, 'vendor-search');
+
+      service.recordHydrationFailure('migros', 'prod-001', 'transient');
+
+      // Same price, within window → deduped, but product upsert still runs
+      service.upsertFromNormalizedProduct(product1, 'vendor-search');
+
+      const row = db
+        .prepare(
+          'SELECT consecutive_failures, status, last_seen_at FROM products WHERE chain = ? AND product_id = ?'
+        )
+        .get('migros', 'prod-001') as {
+        consecutive_failures: number;
+        status: string;
+        last_seen_at: string;
+      };
+      expect(row.consecutive_failures).toBe(0);
+      expect(row.status).toBe('active');
+      expect(row.last_seen_at).toBeDefined();
+
+      // Only 1 observation (deduped)
+      const obsCount = (
+        db
+          .prepare(
+            'SELECT COUNT(*) as c FROM product_observations WHERE chain = ? AND product_id = ?'
+          )
+          .get('migros', 'prod-001') as { c: number }
+      ).c;
+      expect(obsCount).toBe(1);
+    });
+  });
+
   describe('stats()', () => {
     it('should return correct counts', () => {
       const p1 = makeProduct({ id: 'p1' });

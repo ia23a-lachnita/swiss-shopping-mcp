@@ -11,12 +11,24 @@ import type {
 import { normalizeQuery } from './queryNormalizer.js';
 import { validateObservation, resolveWithPriorPending, type ObservationInput } from './observationValidation.js';
 
+const DEFAULT_DEDUPE_MINUTES = 60;
+
+function getDedupeMinutes(env?: NodeJS.ProcessEnv): number {
+  const e = env ?? process.env;
+  const raw = e.SWISS_SHOPPING_OBSERVATION_DEDUPE_MINUTES;
+  if (raw === undefined || raw === '') return DEFAULT_DEDUPE_MINUTES;
+  const n = Number(raw);
+  return Number.isFinite(n) && n >= 0 ? n : DEFAULT_DEDUPE_MINUTES;
+}
+
 export class CatalogService {
   private readonly db: Database.Database;
   private synonymGroups: Map<string, Set<string>> | null = null;
+  private readonly dedupeMinutes: number;
 
-  public constructor(db: Database.Database) {
+  public constructor(db: Database.Database, env?: NodeJS.ProcessEnv) {
     this.db = db;
+    this.dedupeMinutes = getDedupeMinutes(env);
   }
 
   /**
@@ -140,6 +152,37 @@ export class CatalogService {
     if (product.price && typeof product.price.current === 'number' && product.price.current > 0) {
       // Phase D: validate observation against credible baseline
       const latestObs = this.latestObservation(product.chain, product.id);
+
+      // Short-window deduplication: skip append when identical values observed
+      // within the configured window. Observations in pending_verification
+      // status must NOT suppress a new incoming observation (two-consecutive
+      // fetch validation flow). Name and size changes always append because
+      // the validation layer inspects them.
+      const dedupeMs = this.dedupeMinutes * 60_000;
+      const incomingPrice = product.price.current;
+      const incomingPromo = product.price.original ?? null;
+      const incomingCurrency = 'CHF';
+      const incomingAvailability = null;
+      const incomingSize = product.size ?? null;
+      const incomingName = product.name;
+
+      if (latestObs && latestObs.status !== 'pending_verification') {
+        const obsTime = new Date(latestObs.observedAt).getTime();
+        const nowMs = new Date(now).getTime();
+        const withinWindow = nowMs - obsTime < dedupeMs;
+
+        const identical =
+          latestObs.price === incomingPrice &&
+          latestObs.promotionPrice === incomingPromo &&
+          latestObs.currency === incomingCurrency &&
+          latestObs.availability === incomingAvailability &&
+          baselineSize === incomingSize &&
+          baselineName === incomingName;
+
+        if (withinWindow && identical) {
+          return;
+        }
+      }
 
       const baseline = latestObs
         ? {
