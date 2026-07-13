@@ -7,11 +7,24 @@ services:
     volumes:
       - cache:/data
     environment:
-      # Web-augmented search: defaults to the keyless DuckDuckGo provider.
-      # Set the Google CSE variables for reliable semantic search in production.
+      # Web-augmented search: defaults to auto mode with all configured providers.
+      # Set provider API keys to enable specific search engines.
       - SWISS_SHOPPING_WEB_SEARCH=${SWISS_SHOPPING_WEB_SEARCH:-auto}
+      # Google Custom Search (CLOSED to new customers as of 2026-07-13)
       - GOOGLE_CSE_API_KEY=${GOOGLE_CSE_API_KEY:-}
       - GOOGLE_CSE_CX=${GOOGLE_CSE_CX:-}
+      # SerpAPI (free tier 250/month, default daily budget 8)
+      - SERP_API_KEY=${SERP_API_KEY:-}
+      - SWISS_SHOPPING_SERPAPI_DAILY_BUDGET=${SWISS_SHOPPING_SERPAPI_DAILY_BUDGET:-8}
+      # HasData (1000 credits/month, default daily budget 33)
+      - HASDATA_API_KEY=${HASDATA_API_KEY:-}
+      - SWISS_SHOPPING_HASDATA_DAILY_BUDGET=${SWISS_SHOPPING_HASDATA_DAILY_BUDGET:-33}
+      # Searlo (3000 credits/90 days, default daily budget 33)
+      - SEARLO_API_KEY=${SEARLO_API_KEY:-}
+      - SWISS_SHOPPING_SEARLO_DAILY_BUDGET=${SWISS_SHOPPING_SEARLO_DAILY_BUDGET:-33}
+      # Firecrawl (1000 credits/month, default daily budget 16)
+      - FIRECRAWL_API_KEY=${FIRECRAWL_API_KEY:-}
+      - SWISS_SHOPPING_FIRECRAWL_DAILY_BUDGET=${SWISS_SHOPPING_FIRECRAWL_DAILY_BUDGET:-16}
     restart: unless-stopped
     init: true
 

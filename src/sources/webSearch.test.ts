@@ -5,11 +5,19 @@ import {
   createWebSearchProviderFromEnv,
   DuckDuckGoHtmlProvider,
   GoogleCustomSearchProvider,
+  SerpApiProvider,
+  HasDataProvider,
+  SearloProvider,
+  FirecrawlSearchProvider,
   parseDuckDuckGoHtml,
   resolveDuckDuckGoHref,
   resolveWebSearchMode,
   siteHost,
+  TypedWebSearchError,
+  WebSearchResult,
+  WebSearchProvider,
 } from './webSearch.js';
+import { SourceCircuitBreaker } from '../services/sourceCircuitBreaker.js';
 
 function jsonResponse(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
@@ -37,6 +45,24 @@ const DDG_FIXTURE = `
   <a class="result__a" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Fwww.migros.ch%2Fde%2Fproduct%2F514160800000%3Fcontext%3Decommerce&amp;rut=dup">Duplicate</a>
   <a class="result__snippet" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Fwww.migros.ch%2Fde%2Fproduct%2F999999999999&amp;rut=mno">Snippet link ignored</a>
 </div>`;
+
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+function mockProviderEntry(
+  name: 'google' | 'ddg' | 'serpapi' | 'hasdata' | 'searlo' | 'firecrawl',
+  results: WebSearchResult[],
+  options: { failWith?: Error } = {},
+) {
+  return {
+    provider: {
+      name,
+      search: vi.fn(async () => {
+        if (options.failWith) throw options.failWith;
+        return results;
+      }),
+    } as unknown as WebSearchProvider,
+    breaker: new SourceCircuitBreaker({ failureThreshold: 5, cooldownMs: 60_000 }),
+  };
+}
 
 describe('siteHost', () => {
   it('strips the path prefix from a site restriction', () => {
@@ -196,12 +222,609 @@ describe('createWebSearchProviderFromEnv', () => {
     } as NodeJS.ProcessEnv);
     expect(withKeys).toBeInstanceOf(CompositeWebSearchProvider);
 
+    // Without any keys, auto mode returns composite with DDG only
     const withoutKeys = createWebSearchProviderFromEnv({} as NodeJS.ProcessEnv);
-    expect(withoutKeys).toBeInstanceOf(DuckDuckGoHtmlProvider);
+    expect(withoutKeys).toBeInstanceOf(CompositeWebSearchProvider);
   });
 
   it('resolves unknown mode values to auto', () => {
     expect(resolveWebSearchMode({ SWISS_SHOPPING_WEB_SEARCH: 'banana' } as NodeJS.ProcessEnv)).toBe('auto');
     expect(resolveWebSearchMode({} as NodeJS.ProcessEnv)).toBe('auto');
+  });
+
+  it('returns SerpApiProvider for mode=serpapi with key', () => {
+    const provider = createWebSearchProviderFromEnv({
+      SWISS_SHOPPING_WEB_SEARCH: 'serpapi',
+      SERP_API_KEY: 'key',
+    } as NodeJS.ProcessEnv);
+    expect(provider).toBeInstanceOf(SerpApiProvider);
+  });
+
+  it('returns undefined for mode=serpapi without key', () => {
+    expect(createWebSearchProviderFromEnv({ SWISS_SHOPPING_WEB_SEARCH: 'serpapi' } as NodeJS.ProcessEnv)).toBeUndefined();
+  });
+
+  it('returns HasDataProvider for mode=hasdata with key', () => {
+    const provider = createWebSearchProviderFromEnv({
+      SWISS_SHOPPING_WEB_SEARCH: 'hasdata',
+      HASDATA_API_KEY: 'key',
+    } as NodeJS.ProcessEnv);
+    expect(provider).toBeInstanceOf(HasDataProvider);
+  });
+
+  it('returns undefined for mode=hasdata without key', () => {
+    expect(createWebSearchProviderFromEnv({ SWISS_SHOPPING_WEB_SEARCH: 'hasdata' } as NodeJS.ProcessEnv)).toBeUndefined();
+  });
+
+  it('returns SearloProvider for mode=searlo with key', () => {
+    const provider = createWebSearchProviderFromEnv({
+      SWISS_SHOPPING_WEB_SEARCH: 'searlo',
+      SEARLO_API_KEY: 'key',
+    } as NodeJS.ProcessEnv);
+    expect(provider).toBeInstanceOf(SearloProvider);
+  });
+
+  it('returns undefined for mode=searlo without key', () => {
+    expect(createWebSearchProviderFromEnv({ SWISS_SHOPPING_WEB_SEARCH: 'searlo' } as NodeJS.ProcessEnv)).toBeUndefined();
+  });
+
+  it('returns FirecrawlSearchProvider for mode=firecrawl with key', () => {
+    const provider = createWebSearchProviderFromEnv({
+      SWISS_SHOPPING_WEB_SEARCH: 'firecrawl',
+      FIRECRAWL_API_KEY: 'key',
+    } as NodeJS.ProcessEnv);
+    expect(provider).toBeInstanceOf(FirecrawlSearchProvider);
+  });
+
+  it('returns undefined for mode=firecrawl without key', () => {
+    expect(createWebSearchProviderFromEnv({ SWISS_SHOPPING_WEB_SEARCH: 'firecrawl' } as NodeJS.ProcessEnv)).toBeUndefined();
+  });
+
+  it('auto mode with all four keys creates composite with correct chain order', () => {
+    const provider = createWebSearchProviderFromEnv({
+      SERP_API_KEY: 'sk',
+      HASDATA_API_KEY: 'hk',
+      SEARLO_API_KEY: 'sek',
+      FIRECRAWL_API_KEY: 'fk',
+    } as NodeJS.ProcessEnv);
+    expect(provider).toBeInstanceOf(CompositeWebSearchProvider);
+    // Chain should have 4 new providers + DDG (always last) = 5 entries
+  });
+
+  it('auto mode with only serpapi key creates composite with serpapi + ddg', () => {
+    const provider = createWebSearchProviderFromEnv({
+      SERP_API_KEY: 'sk',
+    } as NodeJS.ProcessEnv);
+    expect(provider).toBeInstanceOf(CompositeWebSearchProvider);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// SerpApiProvider tests
+// ---------------------------------------------------------------------------
+
+describe('SerpApiProvider', () => {
+  it('parses happy-path organic results and filters by site', async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(
+      jsonResponse({
+        organic_results: [
+          { link: 'https://www.migros.ch/de/product/514160800000', title: 'Milk' },
+          { link: 'https://www.example.com/other', title: 'Other' },
+          { link: 'https://www.migros.ch/de/product/mo/106497', title: 'Online' },
+        ],
+        search_information: { total_results: 2 },
+      })
+    );
+    const provider = new SerpApiProvider({ apiKey: 'key', fetchImpl });
+    const results = await provider.search('milch', { site: 'migros.ch/de/product' });
+
+    expect(results.map((r) => r.url)).toEqual([
+      'https://www.migros.ch/de/product/514160800000',
+      'https://www.migros.ch/de/product/mo/106497',
+    ]);
+    const requestedUrl = fetchImpl.mock.calls[0][0] as string;
+    expect(requestedUrl).toContain('serpapi.com/search');
+    expect(requestedUrl).toContain('engine=google');
+  });
+
+  it('throws non-retryable on 401', async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(jsonResponse({ error: 'Unauthorized' }, 401));
+    const provider = new SerpApiProvider({ apiKey: 'bad', fetchImpl });
+    await expect(provider.search('milch', { site: 'migros.ch' })).rejects.toMatchObject({
+      retryable: false,
+      httpStatus: 401,
+    });
+  });
+
+  it('throws non-retryable on 403', async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(jsonResponse({ error: 'Forbidden' }, 403));
+    const provider = new SerpApiProvider({ apiKey: 'bad', fetchImpl });
+    await expect(provider.search('milch', { site: 'migros.ch' })).rejects.toMatchObject({
+      retryable: false,
+      httpStatus: 403,
+    });
+  });
+
+  it('throws retryable on 429', async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(jsonResponse({ error: 'Rate limited' }, 429));
+    const provider = new SerpApiProvider({ apiKey: 'key', fetchImpl });
+    await expect(provider.search('milch', { site: 'migros.ch' })).rejects.toMatchObject({
+      retryable: true,
+      httpStatus: 429,
+    });
+  });
+
+  it('throws retryable on 500', async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(jsonResponse({ error: 'Server error' }, 500));
+    const provider = new SerpApiProvider({ apiKey: 'key', fetchImpl });
+    await expect(provider.search('milch', { site: 'migros.ch' })).rejects.toMatchObject({
+      retryable: true,
+      httpStatus: 500,
+    });
+  });
+
+  it('throws non-retryable on malformed (non-JSON) response body', async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(new Response('not json', { status: 200 }));
+    const provider = new SerpApiProvider({ apiKey: 'key', fetchImpl });
+    await expect(provider.search('milch', { site: 'migros.ch' })).rejects.toMatchObject({
+      retryable: false,
+    });
+  });
+
+  it('returns empty array on 200 with no-results error (not a throw)', async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(
+      jsonResponse({ error: "Google hasn't returned any results for this query." })
+    );
+    const provider = new SerpApiProvider({ apiKey: 'key', fetchImpl });
+    const results = await provider.search('zzzznonexistent12345', { site: 'migros.ch' });
+    expect(results).toEqual([]);
+  });
+
+  it('throws retryable error on "run out of searches"', async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(
+      jsonResponse({ error: 'You have run out of searches.' })
+    );
+    const provider = new SerpApiProvider({ apiKey: 'key', fetchImpl });
+    await expect(provider.search('milch', { site: 'migros.ch' })).rejects.toMatchObject({
+      retryable: true,
+    });
+  });
+
+  it('filters results across multiple sites in aggregated mode', async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(
+      jsonResponse({
+        organic_results: [
+          { link: 'https://www.migros.ch/de/product/1', title: 'Milk' },
+          { link: 'https://www.coop.ch/p/2', title: 'Bread' },
+          { link: 'https://www.example.com/other', title: 'Foreign' },
+          { link: 'https://www.migros.ch/de/product/3', title: 'Cheese' },
+        ],
+      })
+    );
+    const provider = new SerpApiProvider({ apiKey: 'key', fetchImpl });
+    const results = await provider.search('food', { site: 'migros.ch OR site:coop.ch', sites: ['migros.ch', 'coop.ch'] });
+
+    expect(results.map((r) => r.url)).toEqual([
+      'https://www.migros.ch/de/product/1',
+      'https://www.coop.ch/p/2',
+      'https://www.migros.ch/de/product/3',
+    ]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// HasDataProvider tests
+// ---------------------------------------------------------------------------
+
+describe('HasDataProvider', () => {
+  it('parses happy-path organicResults (camelCase) and filters by site', async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(
+      jsonResponse({
+        organicResults: [
+          { link: 'https://www.migros.ch/de/product/514160800000', title: 'Milk' },
+          { link: 'https://www.coop.ch/p/123', title: 'Wrong site' },
+        ],
+        searchInformation: { totalResults: 1 },
+      })
+    );
+    const provider = new HasDataProvider({ apiKey: 'key', fetchImpl });
+    const results = await provider.search('milch', { site: 'migros.ch/de/product' });
+
+    expect(results).toHaveLength(1);
+    expect(results[0].url).toBe('https://www.migros.ch/de/product/514160800000');
+    const init = fetchImpl.mock.calls[0][1] as RequestInit;
+    expect(init.headers).toMatchObject({ 'x-api-key': 'key' });
+  });
+
+  it('throws non-retryable on 401', async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(jsonResponse({ error: 'Unauthorized' }, 401));
+    const provider = new HasDataProvider({ apiKey: 'bad', fetchImpl });
+    await expect(provider.search('milch', { site: 'migros.ch' })).rejects.toMatchObject({
+      retryable: false,
+      httpStatus: 401,
+    });
+  });
+
+  it('throws retryable on 429', async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(jsonResponse({ error: 'Rate limited' }, 429));
+    const provider = new HasDataProvider({ apiKey: 'key', fetchImpl });
+    await expect(provider.search('milch', { site: 'migros.ch' })).rejects.toMatchObject({
+      retryable: true,
+      httpStatus: 429,
+    });
+  });
+
+  it('throws retryable on 500', async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(jsonResponse({ error: 'Server error' }, 500));
+    const provider = new HasDataProvider({ apiKey: 'key', fetchImpl });
+    await expect(provider.search('milch', { site: 'migros.ch' })).rejects.toMatchObject({
+      retryable: true,
+      httpStatus: 500,
+    });
+  });
+
+  it('throws non-retryable on malformed response body', async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(new Response('<html>error</html>', { status: 200 }));
+    const provider = new HasDataProvider({ apiKey: 'key', fetchImpl });
+    await expect(provider.search('milch', { site: 'migros.ch' })).rejects.toMatchObject({
+      retryable: false,
+    });
+  });
+
+  it('filters results across multiple sites in aggregated mode', async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(
+      jsonResponse({
+        organicResults: [
+          { link: 'https://www.migros.ch/de/product/1', title: 'Milk' },
+          { link: 'https://www.coop.ch/p/2', title: 'Bread' },
+          { link: 'https://www.example.com/other', title: 'Foreign' },
+        ],
+      })
+    );
+    const provider = new HasDataProvider({ apiKey: 'key', fetchImpl });
+    const results = await provider.search('food', { site: 'migros.ch OR site:coop.ch', sites: ['migros.ch', 'coop.ch'] });
+
+    expect(results.map((r) => r.url)).toEqual([
+      'https://www.migros.ch/de/product/1',
+      'https://www.coop.ch/p/2',
+    ]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// SearloProvider tests
+// ---------------------------------------------------------------------------
+
+describe('SearloProvider', () => {
+  it('parses happy-path organic results (real shape with position) and filters by site', async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(
+      jsonResponse({
+        searchParameters: { q: 'site:migros.ch milch' },
+        page: 1,
+        totalResults: 42,
+        organic: [
+          { position: 1, title: 'Milk', link: 'https://www.migros.ch/de/product/514160800000', snippet: 'Fresh milk' },
+          { position: 2, title: 'Other', link: 'https://www.example.com/other', snippet: '' },
+          { position: 3, title: 'Online', link: 'https://www.migros.ch/de/product/mo/106497', snippet: '' },
+        ],
+      })
+    );
+    const provider = new SearloProvider({ apiKey: 'key', fetchImpl });
+    const results = await provider.search('milch', { site: 'migros.ch/de/product' });
+
+    expect(results.map((r) => r.url)).toEqual([
+      'https://www.migros.ch/de/product/514160800000',
+      'https://www.migros.ch/de/product/mo/106497',
+    ]);
+    const requestedUrl = fetchImpl.mock.calls[0][0] as string;
+    expect(requestedUrl).toContain('api.searlo.tech/api/v1/search/web');
+  });
+
+  it('throws non-retryable on 401', async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(jsonResponse({ error: 'Unauthorized' }, 401));
+    const provider = new SearloProvider({ apiKey: 'bad', fetchImpl });
+    await expect(provider.search('milch', { site: 'migros.ch' })).rejects.toMatchObject({
+      retryable: false,
+      httpStatus: 401,
+    });
+  });
+
+  it('throws retryable on 429', async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(jsonResponse({ error: 'Rate limited' }, 429));
+    const provider = new SearloProvider({ apiKey: 'key', fetchImpl });
+    await expect(provider.search('milch', { site: 'migros.ch' })).rejects.toMatchObject({
+      retryable: true,
+      httpStatus: 429,
+    });
+  });
+
+  it('throws retryable on 500', async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(jsonResponse({ error: 'Server error' }, 500));
+    const provider = new SearloProvider({ apiKey: 'key', fetchImpl });
+    await expect(provider.search('milch', { site: 'migros.ch' })).rejects.toMatchObject({
+      retryable: true,
+      httpStatus: 500,
+    });
+  });
+
+  it('throws non-retryable on malformed response body', async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(new Response('not json', { status: 200 }));
+    const provider = new SearloProvider({ apiKey: 'key', fetchImpl });
+    await expect(provider.search('milch', { site: 'migros.ch' })).rejects.toMatchObject({
+      retryable: false,
+    });
+  });
+
+  it('filters results across multiple sites in aggregated mode', async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(
+      jsonResponse({
+        organic: [
+          { position: 1, title: 'Milk', link: 'https://www.migros.ch/de/product/1' },
+          { position: 2, title: 'Bread', link: 'https://www.coop.ch/p/2' },
+          { position: 3, title: 'Foreign', link: 'https://www.example.com/other' },
+        ],
+      })
+    );
+    const provider = new SearloProvider({ apiKey: 'key', fetchImpl });
+    const results = await provider.search('food', { site: 'migros.ch OR site:coop.ch', sites: ['migros.ch', 'coop.ch'] });
+
+    expect(results.map((r) => r.url)).toEqual([
+      'https://www.migros.ch/de/product/1',
+      'https://www.coop.ch/p/2',
+    ]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// FirecrawlSearchProvider tests
+// ---------------------------------------------------------------------------
+
+describe('FirecrawlSearchProvider', () => {
+  it('parses happy-path data.web results (POST, Bearer auth) and filters by site', async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(
+      jsonResponse({
+        success: true,
+        data: {
+          web: [
+            { url: 'https://www.migros.ch/de/product/514160800000', title: 'Milk', description: 'Fresh' },
+            { url: 'https://www.example.com/other', title: 'Other', description: '' },
+            { url: 'https://www.migros.ch/de/product/mo/106497', title: 'Online', description: '' },
+          ],
+        },
+      })
+    );
+    const provider = new FirecrawlSearchProvider({ apiKey: 'key', fetchImpl });
+    const results = await provider.search('milch', { site: 'migros.ch/de/product' });
+
+    expect(results.map((r) => r.url)).toEqual([
+      'https://www.migros.ch/de/product/514160800000',
+      'https://www.migros.ch/de/product/mo/106497',
+    ]);
+    // Verify POST method and Bearer auth
+    const init = fetchImpl.mock.calls[0][1] as RequestInit;
+    expect(init.method).toBe('POST');
+    expect(init.headers).toMatchObject({ Authorization: 'Bearer key' });
+    // Verify body contains query
+    const body = JSON.parse(init.body as string);
+    expect(body.query).toContain('site:migros.ch');
+  });
+
+  it('throws non-retryable on 401', async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(jsonResponse({ error: 'Unauthorized' }, 401));
+    const provider = new FirecrawlSearchProvider({ apiKey: 'bad', fetchImpl });
+    await expect(provider.search('milch', { site: 'migros.ch' })).rejects.toMatchObject({
+      retryable: false,
+      httpStatus: 401,
+    });
+  });
+
+  it('throws retryable on 429', async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(jsonResponse({ error: 'Rate limited' }, 429));
+    const provider = new FirecrawlSearchProvider({ apiKey: 'key', fetchImpl });
+    await expect(provider.search('milch', { site: 'migros.ch' })).rejects.toMatchObject({
+      retryable: true,
+      httpStatus: 429,
+    });
+  });
+
+  it('throws retryable on 500', async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(jsonResponse({ error: 'Server error' }, 500));
+    const provider = new FirecrawlSearchProvider({ apiKey: 'key', fetchImpl });
+    await expect(provider.search('milch', { site: 'migros.ch' })).rejects.toMatchObject({
+      retryable: true,
+      httpStatus: 500,
+    });
+  });
+
+  it('throws non-retryable on malformed response body', async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(new Response('not json', { status: 200 }));
+    const provider = new FirecrawlSearchProvider({ apiKey: 'key', fetchImpl });
+    await expect(provider.search('milch', { site: 'migros.ch' })).rejects.toMatchObject({
+      retryable: false,
+    });
+  });
+
+  it('filters results across multiple sites in aggregated mode', async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(
+      jsonResponse({
+        success: true,
+        data: {
+          web: [
+            { url: 'https://www.migros.ch/de/product/1', title: 'Milk' },
+            { url: 'https://www.coop.ch/p/2', title: 'Bread' },
+            { url: 'https://www.example.com/other', title: 'Foreign' },
+          ],
+        },
+      })
+    );
+    const provider = new FirecrawlSearchProvider({ apiKey: 'key', fetchImpl });
+    const results = await provider.search('food', { site: 'migros.ch OR site:coop.ch', sites: ['migros.ch', 'coop.ch'] });
+
+    expect(results.map((r) => r.url)).toEqual([
+      'https://www.migros.ch/de/product/1',
+      'https://www.coop.ch/p/2',
+    ]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// CompositeWebSearchProvider chain fallback tests
+// ---------------------------------------------------------------------------
+
+describe('CompositeWebSearchProvider chain fallback', () => {
+  it('serpapi 429 falls to hasdata within same request', async () => {
+    const serpapi = mockProviderEntry('serpapi', [], {
+      failWith: new TypedWebSearchError({ message: '429', provider: 'serpapi', retryable: true, httpStatus: 429 }),
+    });
+    const hasdata = mockProviderEntry('hasdata', [{ url: 'https://migros.ch/product/1', rank: 0 }]);
+
+    const provider = new CompositeWebSearchProvider({
+      chain: [serpapi, hasdata],
+    });
+    const results = await provider.search('milch', { site: 'migros.ch' });
+
+    expect(serpapi.provider.search).toHaveBeenCalledOnce();
+    expect(hasdata.provider.search).toHaveBeenCalledOnce();
+    expect(results).toEqual([{ url: 'https://migros.ch/product/1', rank: 0 }]);
+  });
+
+  it('serpapi 401 surfaces error (no fallback)', async () => {
+    const serpapi = mockProviderEntry('serpapi', [], {
+      failWith: new TypedWebSearchError({ message: '401', provider: 'serpapi', retryable: false, httpStatus: 401 }),
+    });
+    const hasdata = mockProviderEntry('hasdata', [{ url: 'https://migros.ch/product/1', rank: 0 }]);
+
+    const provider = new CompositeWebSearchProvider({
+      chain: [serpapi, hasdata],
+    });
+
+    await expect(provider.search('milch', { site: 'migros.ch' })).rejects.toMatchObject({
+      retryable: false,
+      httpStatus: 401,
+    });
+    expect(hasdata.provider.search).not.toHaveBeenCalled();
+  });
+
+  it('budget-exhausted provider is skipped without error', async () => {
+    const serpapi = mockProviderEntry('serpapi', [{ url: 'https://migros.ch/product/1', rank: 0 }]);
+    const hasdata = mockProviderEntry('hasdata', [{ url: 'https://migros.ch/product/2', rank: 0 }]);
+    const budget = {
+      isExhausted: vi.fn((p: string) => p === 'serpapi'),
+      isLow: vi.fn(() => false),
+      recordRequest: vi.fn(),
+      recordFailure: vi.fn(),
+      recordCacheHit: vi.fn(),
+    };
+
+    const provider = new CompositeWebSearchProvider({
+      chain: [
+        { ...serpapi, budget: budget as never },
+        hasdata,
+      ],
+    });
+    const results = await provider.search('milch', { site: 'migros.ch' });
+
+    expect(serpapi.provider.search).not.toHaveBeenCalled();
+    expect(hasdata.provider.search).toHaveBeenCalledOnce();
+    expect(results).toEqual([{ url: 'https://migros.ch/product/2', rank: 0 }]);
+  });
+});
+
+describe('CompositeWebSearchProvider metrics wiring', () => {
+  function mockMetrics(): {
+    recordProviderRequest: ReturnType<typeof vi.fn>;
+    recordProviderFallbackFrom: ReturnType<typeof vi.fn>;
+    recordCircuitBreakerOpen: ReturnType<typeof vi.fn>;
+  } {
+    return {
+      recordProviderRequest: vi.fn(),
+      recordProviderFallbackFrom: vi.fn(),
+      recordCircuitBreakerOpen: vi.fn(),
+    };
+  }
+
+  it('calls recordProviderRequest before each provider attempt', async () => {
+    const metrics = mockMetrics();
+    const serpapi = mockProviderEntry('serpapi', [{ url: 'https://migros.ch/1', rank: 0 }]);
+    const provider = new CompositeWebSearchProvider({
+      chain: [{ ...serpapi }],
+      metrics: metrics as never,
+    });
+
+    await provider.search('milch', { site: 'migros.ch' });
+
+    expect(metrics.recordProviderRequest).toHaveBeenCalledWith('serpapi');
+  });
+
+  it('calls recordProviderFallbackFrom on retryable failure then success', async () => {
+    const metrics = mockMetrics();
+    const serpapi = mockProviderEntry('serpapi', [], {
+      failWith: new TypedWebSearchError({ message: 'rate limited', provider: 'serpapi', retryable: true }),
+    });
+    const hasdata = mockProviderEntry('hasdata', [{ url: 'https://migros.ch/1', rank: 0 }]);
+
+    const provider = new CompositeWebSearchProvider({
+      chain: [{ ...serpapi }, hasdata],
+      metrics: metrics as never,
+    });
+
+    const results = await provider.search('milch', { site: 'migros.ch' });
+
+    expect(metrics.recordProviderRequest).toHaveBeenCalledWith('serpapi');
+    expect(metrics.recordProviderRequest).toHaveBeenCalledWith('hasdata');
+    expect(metrics.recordProviderFallbackFrom).toHaveBeenCalledWith('serpapi');
+    expect(results).toEqual([{ url: 'https://migros.ch/1', rank: 0 }]);
+  });
+
+  it('does not call recordProviderFallbackFrom on non-retryable error', async () => {
+    const metrics = mockMetrics();
+    const serpapi = mockProviderEntry('serpapi', [], {
+      failWith: new TypedWebSearchError({ message: 'invalid key', provider: 'serpapi', retryable: false }),
+    });
+
+    const provider = new CompositeWebSearchProvider({
+      chain: [{ ...serpapi }],
+      metrics: metrics as never,
+    });
+
+    await expect(provider.search('milch', { site: 'migros.ch' })).rejects.toThrow('invalid key');
+
+    expect(metrics.recordProviderRequest).toHaveBeenCalledWith('serpapi');
+    expect(metrics.recordProviderFallbackFrom).not.toHaveBeenCalled();
+  });
+
+  it('calls recordCircuitBreakerOpen when breaker is open', async () => {
+    const metrics = mockMetrics();
+    const breaker = new SourceCircuitBreaker({ failureThreshold: 1, cooldownMs: 60_000 });
+    // Trip the breaker
+    breaker.recordFailure('serpapi');
+
+    const serpapi = mockProviderEntry('serpapi', [{ url: 'https://migros.ch/1', rank: 0 }]);
+
+    const provider = new CompositeWebSearchProvider({
+      chain: [{ ...serpapi, breaker }],
+      metrics: metrics as never,
+    });
+
+    const results = await provider.search('milch', { site: 'migros.ch' });
+
+    expect(metrics.recordCircuitBreakerOpen).toHaveBeenCalled();
+    expect(metrics.recordProviderRequest).not.toHaveBeenCalled();
+    expect(serpapi.provider.search).not.toHaveBeenCalled();
+    expect(results).toEqual([]);
+  });
+
+  it('does not call recordProviderFallbackFrom when first provider succeeds', async () => {
+    const metrics = mockMetrics();
+    const serpapi = mockProviderEntry('serpapi', [{ url: 'https://migros.ch/1', rank: 0 }]);
+
+    const provider = new CompositeWebSearchProvider({
+      chain: [{ ...serpapi }],
+      metrics: metrics as never,
+    });
+
+    await provider.search('milch', { site: 'migros.ch' });
+
+    expect(metrics.recordProviderFallbackFrom).not.toHaveBeenCalled();
   });
 });

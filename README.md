@@ -98,10 +98,15 @@ Environment variables:
 
 | Variable | Default | Description |
 | --- | --- | --- |
-| `SWISS_SHOPPING_WEB_SEARCH` | `auto` | Semantic web-augmented product search: `auto` (Google when keys are set, otherwise DuckDuckGo), `google`, `ddg`, or `off`. |
-| `GOOGLE_CSE_API_KEY` | — | Google Programmable Search API key (recommended: 100 free queries/day; far more reliable than the keyless DuckDuckGo fallback, which rate-limits bursts). |
-| `GOOGLE_CSE_CX` | — | Google Programmable Search engine ID (`cx`). Create one at https://programmablesearchengine.google.com with "Search the entire web" enabled. |
+| `SWISS_SHOPPING_WEB_SEARCH` | `auto` | Semantic web-augmented product search: `auto` (all configured providers in quality order), `google`, `ddg`, `serpapi`, `hasdata`, `searlo`, `firecrawl`, or `off`. |
+| `SERP_API_KEY` | — | SerpAPI key (free tier 250 searches/month; default daily budget 8). |
+| `HASDATA_API_KEY` | — | HasData API key (1,000 credits/month; default daily budget 33). |
+| `SEARLO_API_KEY` | — | Searlo API key (3,000 credits/90 days; default daily budget 33). |
+| `FIRECRAWL_API_KEY` | — | Firecrawl API key (1,000 credits/month; default daily budget 16). |
+| `GOOGLE_CSE_API_KEY` | — | Google Programmable Search API key (**CLOSED to new customers** as of 2026-07-13; legacy accounts only). |
+| `GOOGLE_CSE_CX` | — | Google Programmable Search engine ID (`cx`). |
 | `SWISS_SHOPPING_CACHE_DIR` | OS temp dir | Directory for the file TTL cache. |
+| `SWISS_SHOPPING_*_DAILY_BUDGET` | varies | Per-provider daily budget override (e.g. `SWISS_SHOPPING_SERPAPI_DAILY_BUDGET=10`). |
 
 Web-augmented search issues site-restricted engine queries (e.g. `site:migros.ch/de/product zahncreme empfindliche zaehne`), extracts product IDs from the ranked result URLs, and hydrates full product data through the vendor detail APIs (currently Migros and Coop). It fixes the semantic gap of literal vendor search — English or paraphrased queries like "toothpaste for sensitive teeth" return products instead of zero results. Engine failures degrade gracefully to vendor-only results with a source warning.
 

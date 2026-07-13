@@ -5,8 +5,12 @@
  * Counters are persisted to a JSON state file in the cache directory so
  * restarts do not reset them. Day rollover resets all counters.
  *
- * Google CSE free tier is 100 queries/day; default daily budget is 90
- * (env-overridable via SWISS_SHOPPING_GOOGLE_DAILY_BUDGET).
+ * Default daily budgets (env-overridable):
+ * - google: 90 (SWISS_SHOPPING_GOOGLE_DAILY_BUDGET)
+ * - serpapi: 8 (SWISS_SHOPPING_SERPAPI_DAILY_BUDGET)
+ * - hasdata: 33 (SWISS_SHOPPING_HASDATA_DAILY_BUDGET)
+ * - searlo: 33 (SWISS_SHOPPING_SEARLO_DAILY_BUDGET)
+ * - firecrawl: 16 (SWISS_SHOPPING_FIRECRAWL_DAILY_BUDGET)
  */
 
 import { join } from 'node:path';
@@ -27,17 +31,35 @@ interface PersistedState {
   counters: Record<string, ProviderBudgetCounters>;
 }
 
+const DEFAULT_DAILY_BUDGETS: Record<string, number> = {
+  google: 90,
+  serpapi: 8,
+  hasdata: 33,
+  searlo: 33,
+  firecrawl: 16,
+};
+
+const BUDGET_ENV_VARS: Record<string, string> = {
+  google: 'SWISS_SHOPPING_GOOGLE_DAILY_BUDGET',
+  serpapi: 'SWISS_SHOPPING_SERPAPI_DAILY_BUDGET',
+  hasdata: 'SWISS_SHOPPING_HASDATA_DAILY_BUDGET',
+  searlo: 'SWISS_SHOPPING_SEARLO_DAILY_BUDGET',
+  firecrawl: 'SWISS_SHOPPING_FIRECRAWL_DAILY_BUDGET',
+};
+
 export interface ProviderBudgetOptions {
   cacheDirectory: string;
   /** Default daily budget for Google (env-overridable). Default 90. */
   googleDailyBudget?: number;
+  /** Per-provider daily budgets (env overrides take precedence). */
+  dailyBudgets?: Record<string, number>;
   /** Custom clock for testing. */
   clock?: { now(): Date };
 }
 
 export class ProviderBudget {
   private readonly cacheDirectory: string;
-  private readonly googleDailyBudget: number;
+  private readonly dailyBudgets: Record<string, number>;
   private readonly clock: { now(): Date };
   private counters: Record<string, ProviderBudgetCounters> = {};
   private currentDay: string;
@@ -46,9 +68,17 @@ export class ProviderBudget {
 
   public constructor(options: ProviderBudgetOptions) {
     this.cacheDirectory = options.cacheDirectory;
-    this.googleDailyBudget = options.googleDailyBudget ?? 90;
     this.clock = options.clock ?? { now: (): Date => new Date() };
     this.currentDay = this.zurichDay(this.clock.now());
+
+    // Merge defaults, constructor overrides, and env overrides
+    this.dailyBudgets = { ...DEFAULT_DAILY_BUDGETS };
+    if (typeof options.googleDailyBudget === 'number') {
+      this.dailyBudgets.google = options.googleDailyBudget;
+    }
+    if (options.dailyBudgets) {
+      Object.assign(this.dailyBudgets, options.dailyBudgets);
+    }
   }
 
   /** Get the Europe/Zurich calendar day as YYYY-MM-DD. */
@@ -134,25 +164,30 @@ export class ProviderBudget {
   }
 
   public isExhausted(provider: string): boolean {
-    if (provider !== 'google') return false;
-    return this.effectiveRequests('google') >= this.googleDailyBudget;
+    const budget = this.dailyBudgets[provider];
+    if (typeof budget !== 'number') return false;
+    return this.effectiveRequests(provider) >= budget;
   }
 
   /** Low = within 10% of the budget limit. */
   public isLow(provider: string): boolean {
-    if (provider !== 'google') return false;
-    const remaining = this.googleDailyBudget - this.effectiveRequests('google');
-    return remaining <= Math.ceil(this.googleDailyBudget * 0.1);
+    const budget = this.dailyBudgets[provider];
+    if (typeof budget !== 'number') return false;
+    const remaining = budget - this.effectiveRequests(provider);
+    return remaining <= Math.ceil(budget * 0.1);
+  }
+
+  public getDailyBudget(provider?: string): number {
+    if (provider) {
+      return this.dailyBudgets[provider] ?? 0;
+    }
+    return this.dailyBudgets.google ?? 90;
   }
 
   public getCounters(provider: string): ProviderBudgetCounters {
     this.ensureDay();
     const c = this.counters[provider];
     return c ? { ...c } : { requests: 0, cacheHits: 0, failures: 0 };
-  }
-
-  public getDailyBudget(): number {
-    return this.googleDailyBudget;
   }
 
   private getOrCreate(provider: string): ProviderBudgetCounters {
@@ -176,13 +211,19 @@ export function createProviderBudgetFromEnv(
     env.SWISS_SHOPPING_CACHE_DIR ??
     join('/tmp', 'swiss-shopping-mcp-cache');
 
-  const budgetRaw = env.SWISS_SHOPPING_GOOGLE_DAILY_BUDGET;
-  const budget = typeof budgetRaw === 'string' && budgetRaw.length > 0
-    ? parseInt(budgetRaw, 10)
-    : undefined;
+  const dailyBudgets: Record<string, number> = {};
+  for (const [provider, envVar] of Object.entries(BUDGET_ENV_VARS)) {
+    const raw = env[envVar];
+    if (typeof raw === 'string' && raw.length > 0) {
+      const parsed = parseInt(raw, 10);
+      if (!Number.isNaN(parsed)) {
+        dailyBudgets[provider] = parsed;
+      }
+    }
+  }
 
   return new ProviderBudget({
     cacheDirectory: dir,
-    ...(typeof budget === 'number' && !Number.isNaN(budget) ? { googleDailyBudget: budget } : {}),
+    dailyBudgets: Object.keys(dailyBudgets).length > 0 ? dailyBudgets : undefined,
   });
 }

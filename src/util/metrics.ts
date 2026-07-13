@@ -32,6 +32,10 @@ export interface WebSearchMetrics {
   ddgChallenges: number;
   providerFallbacks: number;
   circuitBreakerOpens: number;
+  /** Per-provider request counts. */
+  requestsByProvider: Record<string, number>;
+  /** Per-provider fallback counts. */
+  fallbacksByProvider: Record<string, number>;
 }
 
 export interface HydrationMetrics {
@@ -93,6 +97,8 @@ export class MetricsCollector {
     ddgChallenges: 0,
     providerFallbacks: 0,
     circuitBreakerOpens: 0,
+    requestsByProvider: {},
+    fallbacksByProvider: {},
   };
 
   private readonly hydration: HydrationMetrics = {
@@ -160,6 +166,16 @@ export class MetricsCollector {
 
   public recordCircuitBreakerOpen(): void {
     this.webSearch.circuitBreakerOpens += 1;
+  }
+
+  public recordProviderRequest(provider: string): void {
+    this.webSearch.requestsByProvider[provider] =
+      (this.webSearch.requestsByProvider[provider] ?? 0) + 1;
+  }
+
+  public recordProviderFallbackFrom(fromProvider: string): void {
+    this.webSearch.fallbacksByProvider[fromProvider] =
+      (this.webSearch.fallbacksByProvider[fromProvider] ?? 0) + 1;
   }
 
   // ─── Hydration tracking ───
@@ -245,6 +261,8 @@ export class MetricsCollector {
         ddgChallenges: this.webSearch.ddgChallenges,
         providerFallbacks: this.webSearch.providerFallbacks,
         circuitBreakerOpens: this.webSearch.circuitBreakerOpens,
+        requestsByProvider: { ...this.webSearch.requestsByProvider },
+        fallbacksByProvider: { ...this.webSearch.fallbacksByProvider },
       },
       hydration: {
         successes: this.hydration.successes,
@@ -313,6 +331,8 @@ export class MetricsCollector {
         this.webSearch.ddgChallenges = snapshot.webSearch.ddgChallenges ?? 0;
         this.webSearch.providerFallbacks = snapshot.webSearch.providerFallbacks ?? 0;
         this.webSearch.circuitBreakerOpens = snapshot.webSearch.circuitBreakerOpens ?? 0;
+        this.webSearch.requestsByProvider = snapshot.webSearch.requestsByProvider ?? {};
+        this.webSearch.fallbacksByProvider = snapshot.webSearch.fallbacksByProvider ?? {};
       }
       if (snapshot.hydration) {
         this.hydration.successes = snapshot.hydration.successes ?? 0;
@@ -356,6 +376,8 @@ export class MetricsCollector {
     this.webSearch.ddgChallenges = 0;
     this.webSearch.providerFallbacks = 0;
     this.webSearch.circuitBreakerOpens = 0;
+    this.webSearch.requestsByProvider = {};
+    this.webSearch.fallbacksByProvider = {};
     this.hydration.successes = 0;
     this.hydration.failures = 0;
     this.hydration.notFoundByChain = {};

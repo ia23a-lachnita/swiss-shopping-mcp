@@ -38,11 +38,12 @@ export async function createServer(options: CreateServerOptions = {}): Promise<S
     logger.warn('Catalog DB init failed — running without local index:', err);
   }
 
+  const metrics = new MetricsCollector(options.adapterOptions?.cacheDirectory);
   const webProductSearch = createDefaultWebProductSearch(adapters, {
     cacheDirectory: options.adapterOptions?.cacheDirectory,
     catalog,
+    metrics,
   });
-  const metrics = new MetricsCollector(options.adapterOptions?.cacheDirectory);
   const searchService = new SearchService(adapters, { webProductSearch, catalog, metrics });
   const priceComparisonService = new PriceComparisonService(adapters);
 

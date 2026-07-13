@@ -642,6 +642,7 @@ export interface CreateDefaultWebProductSearchOptions {
   fetchImpl?: typeof fetch;
   env?: NodeJS.ProcessEnv;
   catalog?: CatalogService;
+  metrics?: import('../util/metrics.js').MetricsCollector;
 }
 
 /**
@@ -672,7 +673,9 @@ export function createDefaultWebProductSearch(
   // Budget tracker (persists across restarts)
   const budget = createProviderBudgetFromEnv(env, cacheDirectory);
 
-  const provider = createWebSearchProviderFromEnv(env, options.fetchImpl, breaker, budget);
+  const provider = createWebSearchProviderFromEnv(
+    env, options.fetchImpl, breaker, budget, undefined, options.metrics,
+  );
   if (!provider) {
     return undefined;
   }

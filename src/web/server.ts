@@ -31,9 +31,9 @@ try {
   logger.warn('Catalog DB init failed — running without local index:', err);
 }
 
-const webProductSearch = createDefaultWebProductSearch(adapters, { catalog });
 const metrics = new MetricsCollector();
 metrics.startPeriodicSnapshot();
+const webProductSearch = createDefaultWebProductSearch(adapters, { catalog, metrics });
 const searchService = new SearchService(adapters, { webProductSearch, catalog, metrics });
 const priceComparisonService = new PriceComparisonService(adapters);
 
