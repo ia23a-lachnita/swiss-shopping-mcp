@@ -140,7 +140,8 @@ Phase: `V1 - core read/search foundation`
 
 ## Next tasks
 
-0. Deploy: Pi/VPS + Cloudflare Tunnel; set `GOOGLE_CSE_API_KEY`/`GOOGLE_CSE_CX` for reliable semantic web search (DuckDuckGo fallback stays default until then)
+0. Deploy: Pi/VPS + Cloudflare Tunnel
+0b. Web-search provider: **Google Custom Search JSON API is CLOSED to new customers (2026)** — verified 2026-07-13: correct key/CX/billing/enablement in project `websearch-api-502211` still returns account-wide 403 `PERMISSION_DENIED` ("This project does not have the access to Custom Search JSON API"); confirmed by Google dev-forum threads (new-customer closure, existing customers must migrate by 2027-01-01). GoogleCustomSearchProvider stays as dormant code for accounts with legacy access. Recommended replacement: Brave Search API provider (free tier 2,000 queries/month, simple REST) plugged into the Phase B composite/failover abstraction; DuckDuckGo remains emergency fallback until then
 1. Run `RUN_CONTRACT_TESTS=1 pnpm test:contract` to validate real API endpoints (first time)
 2. Run `LIVE_SOURCE_TESTS=1 pnpm test:live` to validate live adapter smoke tests
 3. Add richer store geospatial filtering (distance/radius)
