@@ -14,11 +14,14 @@
       "env": {},
       "tools": ["*"]
     },
-    "gemini-cli": {
+    "antigravity-mcp": {
       "type": "local",
-      "command": "npx",
-      "args": ["-y", "gemini-mcp-tool"],
-      "env": {},
+      "command": "node",
+      "args": ["C:\\Users\\xursc\\projects\\antigravity-mcp\\dist\\index.js"],
+      "env": {
+        "GEMINI_BACKEND": "agy",
+        "GEMINI_MCP_APPROVAL_MODE": "yolo"
+      },
       "tools": ["*"]
     }
   }

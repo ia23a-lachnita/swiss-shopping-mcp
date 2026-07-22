@@ -35,11 +35,12 @@ Do not add runtime/business MCPs (e.g., external shopping/account MCPs) to this 
 ## antigravity-mcp model priority
 
 When using `antigravity-mcp` for code review or brainstorming, prefer models in this order (fall back to next if usage exhausted):
-1. `gemini-3.1-pro-preview`
-2. `gemini-3.5-flash-preview`
-3. `gemini-3-pro`
-4. `gemini-3-flash`
-5. (weaker models down the list)
+1. `gemini-3.6-flash`
+2. `gemini-3.1-pro`
+3. `gemini-3.5-flash`
+4. `gemini-3`
+5. `gemini-2.5-pro`
+6. `gemini-2.5-flash`
 
 Do NOT specify a model unless explicitly asked — let the default handle it.
 
