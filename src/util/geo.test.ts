@@ -1,6 +1,6 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 
-import { resolveLocation, resolveLocationAsync, clearAsyncCache, findNearbyLocations, distanceBetween, reverseGeocode } from './geo.js';
+import { resolveLocation, resolveLocationAsync, clearAsyncCache, findNearbyLocations, distanceBetween, reverseGeocode, reverseGeocodeAsync } from './geo.js';
 
 describe('geo utility', () => {
   describe('resolveLocation', () => {
@@ -169,6 +169,59 @@ describe('geo utility', () => {
     it('returns undefined for coordinates far outside Switzerland', () => {
       // Berlin is well beyond the 30 km default radius of any Swiss locality.
       expect(reverseGeocode({ latitude: 52.52, longitude: 13.405 })).toBeUndefined();
+    });
+  });
+
+  describe('reverseGeocodeAsync', () => {
+    let fetchSpy: ReturnType<typeof vi.fn>;
+
+    beforeEach(() => {
+      fetchSpy = vi.fn();
+      vi.stubGlobal('fetch', fetchSpy);
+    });
+
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    it('resolves via the GeoAdmin PLZ registry', async () => {
+      fetchSpy.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          results: [{ properties: { plz: 8055, langtext: 'Zürich' } }],
+        }),
+      });
+
+      const result = await reverseGeocodeAsync({ latitude: 47.3665, longitude: 8.5088 });
+      expect(result).toEqual({ zip: '8055', city: 'Zürich', location: '8055 Zürich', distanceKm: 0 });
+      expect(fetchSpy).toHaveBeenCalledOnce();
+    });
+
+    it('falls back to the static DB on API failure', async () => {
+      fetchSpy.mockRejectedValueOnce(new Error('network error'));
+
+      const result = await reverseGeocodeAsync({ latitude: 47.3769, longitude: 8.5417 });
+      expect(result).toBeDefined();
+      expect(result!.city).toBe('Zürich');
+    });
+
+    it('falls back to the static DB on non-OK response', async () => {
+      fetchSpy.mockResolvedValueOnce({ ok: false, status: 500 });
+
+      const result = await reverseGeocodeAsync({ latitude: 47.3769, longitude: 8.5417 });
+      expect(result).toBeDefined();
+      expect(result!.city).toBe('Zürich');
+    });
+
+    it('falls back to the static DB on empty results', async () => {
+      fetchSpy.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ results: [] }),
+      });
+
+      const result = await reverseGeocodeAsync({ latitude: 47.3769, longitude: 8.5417 });
+      expect(result).toBeDefined();
+      expect(result!.city).toBe('Zürich');
     });
   });
 });

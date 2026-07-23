@@ -4,7 +4,7 @@ import { join, extname, normalize } from 'node:path';
 
 
 import { createDefaultAdapters } from '../adapters/index.js';
-import { reverseGeocode } from '../util/geo.js';
+import { reverseGeocodeAsync } from '../util/geo.js';
 import { getAllCapabilityStatuses } from '../adapters/sourceRegistry.js';
 import { CatalogService, openCatalogDb, runMigrations } from '../catalog/index.js';
 import { PriceComparisonService } from '../services/priceComparisonService.js';
@@ -344,7 +344,7 @@ async function handleRequest(req: IncomingMessage, res: ServerResponse): Promise
       });
       return;
     }
-    const resolved = reverseGeocode({ latitude: lat, longitude: lon });
+    const resolved = await reverseGeocodeAsync({ latitude: lat, longitude: lon });
     if (!resolved) {
       sendJson(res, 404, {
         ok: false,

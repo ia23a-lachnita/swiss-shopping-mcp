@@ -413,6 +413,11 @@ export interface ReverseGeocodeResult {
  * known Swiss locality in the static ZIP database. Returns undefined when the
  * point is farther than `maxDistanceKm` from every known locality (e.g. the
  * user is outside Switzerland).
+ *
+ * This is a coarse fallback only (~25 hand-picked reference points for
+ * Zürich, most other cities collapsed to a single centroid) — prefer
+ * `reverseGeocodeAsync`, which resolves against the authoritative Swiss PLZ
+ * registry and only falls back to this function on network failure.
  */
 export function reverseGeocode(point: GeoPoint, maxDistanceKm = 30): ReverseGeocodeResult | undefined {
   const nearest = findNearbyLocations(point, maxDistanceKm)[0];
@@ -425,4 +430,67 @@ export function reverseGeocode(point: GeoPoint, maxDistanceKm = 30): ReverseGeoc
     location: `${nearest.entry.zip} ${nearest.entry.city}`,
     distanceKm: nearest.distance,
   };
+}
+
+const GEOADMIN_IDENTIFY_URL = 'https://api3.geo.admin.ch/rest/services/api/MapServer/identify';
+const GEOADMIN_IDENTIFY_TIMEOUT_MS = 3000;
+/** Half-width of the identify query's bounding box, in degrees (~5.5km at Swiss latitudes). */
+const IDENTIFY_BBOX_DEGREES = 0.05;
+
+/**
+ * Reverse-geocode against the official Swiss PLZ (postal locality) registry
+ * via GeoAdmin's identify service, falling back to the coarse static
+ * `reverseGeocode` on network failure, timeout, or an empty result — mirrors
+ * the resolve/fallback pattern already used by `resolveLocationAsync`.
+ */
+export async function reverseGeocodeAsync(
+  point: GeoPoint,
+  maxDistanceKm = 30
+): Promise<ReverseGeocodeResult | undefined> {
+  try {
+    const { latitude, longitude } = point;
+    const params = new URLSearchParams({
+      geometryType: 'esriGeometryPoint',
+      geometry: `${longitude},${latitude}`,
+      geometryFormat: 'geojson',
+      sr: '4326',
+      layers: 'all:ch.swisstopo-vd.ortschaftenverzeichnis_plz',
+      tolerance: '5',
+      mapExtent: [
+        longitude - IDENTIFY_BBOX_DEGREES,
+        latitude - IDENTIFY_BBOX_DEGREES,
+        longitude + IDENTIFY_BBOX_DEGREES,
+        latitude + IDENTIFY_BBOX_DEGREES,
+      ].join(','),
+      imageDisplay: '500,500,96',
+      returnGeometry: 'false',
+    });
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), GEOADMIN_IDENTIFY_TIMEOUT_MS);
+    const response = await fetch(`${GEOADMIN_IDENTIFY_URL}?${params.toString()}`, {
+      signal: controller.signal,
+    });
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      return reverseGeocode(point, maxDistanceKm);
+    }
+
+    const data = (await response.json()) as {
+      results?: Array<{ properties: { plz: number; langtext: string } }>;
+    };
+    const first = data.results?.[0]?.properties;
+    if (first) {
+      return {
+        zip: String(first.plz),
+        city: first.langtext,
+        location: `${first.plz} ${first.langtext}`,
+        distanceKm: 0,
+      };
+    }
+
+    return reverseGeocode(point, maxDistanceKm);
+  } catch {
+    return reverseGeocode(point, maxDistanceKm);
+  }
 }
