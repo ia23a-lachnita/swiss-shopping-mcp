@@ -731,8 +731,12 @@ export class SearchService {
       // Geocation is best-effort; adapters will fall back to their own logic
     }
 
-    // Fetch stores per chain SEQUENTIALLY to avoid API rate-limiting conflicts
-    const allStoresWithAvail: StoreWithProductAvailability[] = [];
+    // Fetch stores per chain SEQUENTIALLY to avoid API rate-limiting conflicts,
+    // then check availability per representative product (not once per chain
+    // reused across all its products) so each product's stores reflect that
+    // exact product's own stock, not whichever product a shared, raw-text
+    // vendor search happens to resolve to.
+    const storesByProduct = new Map<NormalizedProduct, StoreWithProductAvailability[]>();
 
     for (const chain of chainsNeeded) {
       const storeResult = await this.findStores({
@@ -756,51 +760,55 @@ export class SearchService {
             })
           : storeResult.data;
 
-      const availabilityChecks = await Promise.all(
-        orderedStores.map(async (store) => {
-          try {
-            const result = await this.lookupStoreProductAvailability(chain as Chain, {
-              query,
-              storeId: store.id,
-              storeLatitude: store.location?.latitude,
-              storeLongitude: store.location?.longitude,
-              userLatitude: userLat,
-              userLongitude: userLon,
-            });
-            if (result.ok && result.data.supported) {
-              const storeMatch = result.data.matches.find((m) => m.storeId === store.id);
+      const chainProducts = representativeProducts.filter((p) => p.chain === chain);
+
+      for (const product of chainProducts) {
+        const availabilityChecks = await Promise.all(
+          orderedStores.map(async (store) => {
+            try {
+              const result = await this.lookupStoreProductAvailability(chain as Chain, {
+                query,
+                product,
+                storeId: store.id,
+                storeLatitude: store.location?.latitude,
+                storeLongitude: store.location?.longitude,
+                userLatitude: userLat,
+                userLongitude: userLon,
+              });
+              if (result.ok && result.data.supported) {
+                const storeMatch = result.data.matches.find((m) => m.storeId === store.id);
+                return {
+                  ...store,
+                  available: storeMatch ? storeMatch.available : result.data.isAvailable,
+                  stockCount: storeMatch && 'stockCount' in storeMatch ? (storeMatch as { stockCount?: number }).stockCount : undefined,
+                  isOpen: this.isStoreOpen(store.openingHours, now),
+                } as StoreWithProductAvailability;
+              }
               return {
                 ...store,
-                available: storeMatch ? storeMatch.available : result.data.isAvailable,
-                stockCount: storeMatch && 'stockCount' in storeMatch ? (storeMatch as { stockCount?: number }).stockCount : undefined,
+                available: false,
+                availabilitySupported: false,
+                availabilityReason: result.ok ? result.data.reason : undefined,
+                isOpen: this.isStoreOpen(store.openingHours, now),
+              } as StoreWithProductAvailability;
+            } catch {
+              return {
+                ...store,
+                available: false,
+                availabilitySupported: false,
                 isOpen: this.isStoreOpen(store.openingHours, now),
               } as StoreWithProductAvailability;
             }
-            return {
-              ...store,
-              available: false,
-              availabilitySupported: false,
-              availabilityReason: result.ok ? result.data.reason : undefined,
-              isOpen: this.isStoreOpen(store.openingHours, now),
-            } as StoreWithProductAvailability;
-          } catch {
-            return {
-              ...store,
-              available: false,
-              availabilitySupported: false,
-              isOpen: this.isStoreOpen(store.openingHours, now),
-            } as StoreWithProductAvailability;
-          }
-        })
-      );
+          })
+        );
 
-      allStoresWithAvail.push(...availabilityChecks);
+        storesByProduct.set(product, availabilityChecks);
+      }
     }
 
-    // Map each product to stores from its own chain
     const results: ProductAvailabilityResult[] = representativeProducts.map((product) => ({
       product,
-      stores: allStoresWithAvail.filter((s) => s.chain === product.chain),
+      stores: storesByProduct.get(product) ?? [],
     }));
 
     return { ok: true, data: results };

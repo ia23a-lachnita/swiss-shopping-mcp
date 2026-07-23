@@ -390,23 +390,30 @@ export class AldiLiveAdapter implements ChainAdapter {
       };
     }
 
-    // Search for product to get SKU
-    const searchResult = await this.searchProducts({ query, limit: 1 });
-    if (!searchResult.ok || searchResult.data.length === 0) {
-      return {
-        ok: true,
-        data: {
-          chain: this.chain,
-          storeId: filters.storeId,
-          query,
-          supported: true,
-          matches: [],
-          isAvailable: false,
-        },
-      };
+    // Resolve the product. Prefer the caller-provided product (the exact one
+    // already shown to the user) over re-searching `query`, which can
+    // resolve to a different top match per call and would otherwise get
+    // shared across every product being checked for a query.
+    let product: NormalizedProduct;
+    if (filters.product) {
+      product = filters.product;
+    } else {
+      const searchResult = await this.searchProducts({ query, limit: 1 });
+      if (!searchResult.ok || searchResult.data.length === 0) {
+        return {
+          ok: true,
+          data: {
+            chain: this.chain,
+            storeId: filters.storeId,
+            query,
+            supported: true,
+            matches: [],
+            isAvailable: false,
+          },
+        };
+      }
+      product = searchResult.data[0];
     }
-
-    const product = searchResult.data[0];
     const productSku = extractProductSku(product.id);
     if (!productSku) {
       return {

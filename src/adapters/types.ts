@@ -242,6 +242,14 @@ export interface StoreProductAvailabilityFilters {
   storeLongitude?: number;
   userLatitude?: number;
   userLongitude?: number;
+  /**
+   * When the caller already knows the exact product (e.g. from a prior
+   * product search), pass it here so the adapter checks stock for this
+   * specific product instead of re-resolving `query` via its own internal
+   * search, which can return a different top match per call and would
+   * otherwise get shared across every product being displayed for a query.
+   */
+  product?: NormalizedProduct;
 }
 
 export interface ProductAvailabilityMatch {

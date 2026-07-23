@@ -624,24 +624,31 @@ export class CoopLiveAdapter implements ChainAdapter {
     }
 
     try {
-      // Step 1: Search for product to get its ID
-      const productResult = await this.searchProducts({ query, limit: 1 });
-      if (!productResult.ok || productResult.data.length === 0) {
-        return {
-          ok: true,
-          data: {
-            chain: this.chain,
-            storeId: filters.storeId,
-            query,
-            supported: false,
-            matches: [],
-            isAvailable: false,
-            reason: 'Product not found.',
-          },
-        };
+      // Step 1: Resolve the product. Prefer the caller-provided product (the
+      // exact one already shown to the user) over re-searching `query`,
+      // which can resolve to a different top match per call and would
+      // otherwise get shared across every product being checked for a query.
+      let product: NormalizedProduct;
+      if (filters.product) {
+        product = filters.product;
+      } else {
+        const productResult = await this.searchProducts({ query, limit: 1 });
+        if (!productResult.ok || productResult.data.length === 0) {
+          return {
+            ok: true,
+            data: {
+              chain: this.chain,
+              storeId: filters.storeId,
+              query,
+              supported: false,
+              matches: [],
+              isAvailable: false,
+              reason: 'Product not found.',
+            },
+          };
+        }
+        product = productResult.data[0];
       }
-
-      const product = productResult.data[0];
       const productId = product.id;
 
       // Step 2: Get coordinates — prefer store coordinates from caller, fall back to geocoding the query

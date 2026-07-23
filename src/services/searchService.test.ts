@@ -532,4 +532,50 @@ describe('SearchService web-augmented search', () => {
       expect(result.data[0].stores.map((s) => s.id)).toEqual(['near', 'far']);
     }
   });
+
+  it('checks availability per product rather than sharing one chain-wide result', async () => {
+    const store: NormalizedStore = testStore('store-1', 'migros');
+    const lookupCalls: StoreProductAvailabilityFilters[] = [];
+    const adapter: ChainAdapter = {
+      ...stubAdapter('migros', {
+        products: [testProduct('p1', 'migros'), testProduct('p2', 'migros')],
+        stores: [store],
+      }),
+      async lookupStoreProductAvailability(
+        filters: StoreProductAvailabilityFilters
+      ): Promise<Result<StoreProductAvailabilityResult>> {
+        lookupCalls.push(filters);
+        // Availability differs per product: only p1 is in stock.
+        const isP1 = filters.product?.id === 'p1';
+        return {
+          ok: true,
+          data: {
+            chain: 'migros',
+            storeId: filters.storeId,
+            query: filters.query,
+            supported: true,
+            matches: [{ product: filters.product ?? testProduct('unknown', 'migros'), available: isP1, storeId: filters.storeId }],
+            isAvailable: isP1,
+          },
+        };
+      },
+    };
+    const service = new SearchService([adapter]);
+
+    const result = await service.lookupAvailabilityByLocationProductsFirst({
+      query: 'milch',
+      location: '8001 Zürich',
+      chains: ['migros'],
+    });
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      const byId = new Map(result.data.map((r) => [r.product.id, r]));
+      expect(byId.get('p1')?.stores[0]?.available).toBe(true);
+      expect(byId.get('p2')?.stores[0]?.available).toBe(false);
+    }
+    // Every adapter call must carry the specific product being checked.
+    expect(lookupCalls.every((c) => c.product !== undefined)).toBe(true);
+    expect(lookupCalls.map((c) => c.product?.id).sort()).toEqual(['p1', 'p2']);
+  });
 });
