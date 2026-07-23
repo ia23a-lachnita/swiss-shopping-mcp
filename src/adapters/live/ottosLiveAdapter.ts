@@ -50,6 +50,7 @@ function toNormalizedProduct(product: OttosParsedProduct, provenance: import('..
     category: product.category,
     image: product.image,
     productUrl: product.url ? `https://www.ottos.ch${product.url}` : undefined,
+    size: product.size,
     provenance: { ...provenance, sourceUrl: product.sourceUrl },
   };
 }

@@ -1,3 +1,5 @@
+import { extractTrailingSize } from '../util/productSize.js';
+
 export interface OttosProduct {
   id: string;
   name: string;
@@ -26,6 +28,7 @@ export interface OttosParsedProduct {
   category?: string;
   image?: string;
   stockLevel?: number;
+  size?: string;
 }
 
 export interface OttosStore {
@@ -101,16 +104,21 @@ export function parseOttosOccProduct(product: OttosOccProduct, sourceUrl: string
   const rawImage = product.images?.[0]?.url;
   const image = rawImage?.startsWith('/') ? `https://api.sherpaoutdoor.com${rawImage}` : rawImage;
 
+  // The OCC API has no dedicated size/weight field (verified live); pack
+  // size only appears embedded in the product name (e.g. "...800 g").
+  const { name, size } = extractTrailingSize(stripHtml(product.name));
+
   return {
     id: product.code,
     sourceUrl,
     url: product.url,
-    name: stripHtml(product.name),
+    name,
     brand: product.brand,
     price,
     category: product.categories?.[0]?.name,
     image,
     stockLevel: product.stockLevel,
+    size,
   };
 }
 

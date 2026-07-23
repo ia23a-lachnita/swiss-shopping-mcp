@@ -1,3 +1,5 @@
+import { extractTrailingSize } from '../util/productSize.js';
+
 export interface VolgProduct {
   id: string;
   name: string;
@@ -25,6 +27,7 @@ export interface VolgParsedProduct {
   category?: string;
   image?: string;
   tags?: string[];
+  size?: string;
 }
 
 export interface VolgStore {
@@ -151,8 +154,8 @@ export function parseVolgWooCommerceResponse(
   return data.flatMap((item) => {
     if (!item || typeof item !== 'object') return [];
     const product = item as Record<string, unknown>;
-    const name = typeof product.name === 'string' ? product.name : '';
-    if (!name) return [];
+    const rawName = typeof product.name === 'string' ? product.name : '';
+    if (!rawName) return [];
     const price = parseWooCommercePrice(product.prices);
     if (!price) return [];
     const images = Array.isArray(product.images) ? product.images : [];
@@ -160,6 +163,10 @@ export function parseVolgWooCommerceResponse(
     const image = images.length > 0 && typeof images[0] === 'object' ? (images[0] as Record<string, unknown>).src : undefined;
     const category = categories.length > 0 && typeof categories[0] === 'object' ? (categories[0] as Record<string, unknown>).name : undefined;
     const id = typeof product.id === 'string' ? product.id : String(product.id ?? `volg-${Date.now()}`);
+    // The store API's own weight/formatted_weight fields are unpopulated
+    // (verified live: always "" / "n. v."); pack size only appears embedded
+    // in the product name (e.g. "Kondensmilch 300g").
+    const { name, size } = extractTrailingSize(rawName);
     return [{
       id,
       sourceUrl,
@@ -169,6 +176,7 @@ export function parseVolgWooCommerceResponse(
       category: typeof category === 'string' ? category : undefined,
       image: typeof image === 'string' ? image : undefined,
       tags: product.on_sale === true ? ['promotion'] : undefined,
+      size,
     }];
   });
 }

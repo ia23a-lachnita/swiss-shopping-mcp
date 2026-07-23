@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { parseVolgSearchResponse, parseVolgStoresResponse, VolgProduct } from './volg.js';
+import { parseVolgSearchResponse, parseVolgStoresResponse, parseVolgWooCommerceResponse, VolgProduct } from './volg.js';
 
 describe('Volg parser', () => {
   it('parses search response', () => {
@@ -70,6 +70,45 @@ describe('Volg parser', () => {
       latitude: 47.38,
       longitude: 8.53,
       openingHours: 'Mo-Fr 07:00-19:00',
+    });
+  });
+
+  describe('parseVolgWooCommerceResponse (live path)', () => {
+    it('extracts a trailing pack size from the product name', () => {
+      // Real Volg WooCommerce Store API response shape - weight/
+      // formatted_weight are always unpopulated ("" / "n. v."), pack size
+      // only appears embedded in the name.
+      const data = [
+        {
+          id: '123',
+          name: 'Kondensmilch 300g',
+          prices: { price: '195', currency_code: 'CHF', currency_minor_unit: 2 },
+          weight: '',
+          formatted_weight: 'n. v.',
+        },
+      ];
+
+      const result = parseVolgWooCommerceResponse(data, 'https://www.volgshop.ch/x');
+
+      expect(result[0]).toMatchObject({
+        name: 'Kondensmilch',
+        size: '300g',
+      });
+    });
+
+    it('leaves size undefined when the name has no trailing size token', () => {
+      const data = [
+        {
+          id: '1',
+          name: 'Volg Bio Milch',
+          prices: { price: '180', currency_code: 'CHF', currency_minor_unit: 2 },
+        },
+      ];
+
+      const result = parseVolgWooCommerceResponse(data, 'https://www.volgshop.ch/x');
+
+      expect(result[0].name).toBe('Volg Bio Milch');
+      expect(result[0].size).toBeUndefined();
     });
   });
 });

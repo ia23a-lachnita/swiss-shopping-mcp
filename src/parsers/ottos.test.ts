@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { OttosProduct, parseOttosSearchResponse, parseOttosStoresResponse } from './ottos.js';
+import { OttosOccProduct, OttosProduct, parseOttosOccProduct, parseOttosSearchResponse, parseOttosStoresResponse } from './ottos.js';
 
 describe('Ottos parser', () => {
   it('parses search response', () => {
@@ -62,6 +62,38 @@ describe('Ottos parser', () => {
       latitude: 47.05,
       longitude: 8.31,
       openingHours: 'Mo-Fr 09:00-18:00',
+    });
+  });
+
+  describe('parseOttosOccProduct (live path)', () => {
+    it('extracts a trailing pack size from the product name', () => {
+      // Real Otto's OCC API response shape - the API has no dedicated
+      // size/weight field, pack size only appears embedded in the name.
+      const product: OttosOccProduct = {
+        code: '388455',
+        name: 'Mulino Bianco Girotondi 800 g',
+        price: { formattedValue: 'CHF 3.95' },
+      };
+
+      const result = parseOttosOccProduct(product, 'https://api.ottos.ch/x');
+
+      expect(result).toMatchObject({
+        name: 'Mulino Bianco Girotondi',
+        size: '800 g',
+      });
+    });
+
+    it('leaves size undefined when the name has no trailing size token', () => {
+      const product: OttosOccProduct = {
+        code: '1',
+        name: "Otto's Kaffee",
+        price: { formattedValue: 'CHF 8.90' },
+      };
+
+      const result = parseOttosOccProduct(product, 'https://api.ottos.ch/x');
+
+      expect(result?.name).toBe("Otto's Kaffee");
+      expect(result?.size).toBeUndefined();
     });
   });
 });
