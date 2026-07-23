@@ -60,7 +60,7 @@ function StoreRow({ store }: { store: StoreWithAvailability }): React.JSX.Elemen
         href={mapsUrl(store.location.latitude, store.location.longitude)}
         target="_blank"
         rel="noreferrer"
-        className="text-zinc-400 transition-colors active:text-emerald-600"
+        className="text-zinc-400 transition-colors active:text-blue-600"
         aria-label={`${store.name} auf Google Maps öffnen`}
       >
         <ExternalLink className="size-4" />
@@ -180,7 +180,7 @@ export function AvailabilityView(): React.JSX.Element {
               className={cn(
                 'rounded-full border px-3 py-1.5 text-xs font-medium transition-colors',
                 chains.includes(chain)
-                  ? 'border-emerald-600 bg-emerald-600 text-white'
+                  ? 'border-blue-600 bg-blue-600 text-white'
                   : 'border-zinc-300 bg-white text-zinc-600 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300'
               )}
               aria-pressed={chains.includes(chain)}
@@ -195,7 +195,7 @@ export function AvailabilityView(): React.JSX.Element {
             className={cn(
               'rounded-full border px-3 py-1.5 text-xs font-medium transition-colors',
               inStockOnly
-                ? 'border-emerald-600 bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300'
+                ? 'border-blue-600 bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300'
                 : 'border-zinc-300 bg-white text-zinc-600 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300'
             )}
             aria-pressed={inStockOnly}
@@ -208,7 +208,7 @@ export function AvailabilityView(): React.JSX.Element {
             className={cn(
               'rounded-full border px-3 py-1.5 text-xs font-medium transition-colors',
               openNow
-                ? 'border-emerald-600 bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300'
+                ? 'border-blue-600 bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300'
                 : 'border-zinc-300 bg-white text-zinc-600 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300'
             )}
             aria-pressed={openNow}

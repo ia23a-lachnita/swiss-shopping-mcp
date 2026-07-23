@@ -12,7 +12,7 @@ const badgeVariants = cva(
         success: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300',
         warning: 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300',
         danger: 'bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300',
-        promo: 'bg-emerald-600 text-white',
+        promo: 'bg-amber-600 text-white',
       },
     },
     defaultVariants: {

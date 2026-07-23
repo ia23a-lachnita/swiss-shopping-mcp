@@ -57,7 +57,7 @@ export function SearchView(): React.JSX.Element {
               className={cn(
                 'rounded-full border px-3 py-1.5 text-xs font-medium transition-colors',
                 chains.includes(chain)
-                  ? 'border-emerald-600 bg-emerald-600 text-white'
+                  ? 'border-blue-600 bg-blue-600 text-white'
                   : 'border-zinc-300 bg-white text-zinc-600 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300'
               )}
               aria-pressed={chains.includes(chain)}
