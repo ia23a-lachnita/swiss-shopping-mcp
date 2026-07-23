@@ -38,6 +38,11 @@ COPY package.json ./
 # The web server serves the manual testing UI from src/web/public at runtime.
 COPY src/web/public ./src/web/public
 
+# Adapters only ever launch chromium (see src/adapters/live/*Browser.ts) — drop the
+# unused firefox/webkit engines bundled by the base image to save significant space
+# on disk-constrained deploy targets.
+RUN rm -rf /ms-playwright/firefox-* /ms-playwright/webkit-*
+
 RUN mkdir -p /data/cache && chown -R pwuser:pwuser /data /app
 USER pwuser
 

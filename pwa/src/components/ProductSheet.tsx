@@ -43,9 +43,9 @@ export function ProductSheet({
                 {product.promotionLabel && <Badge variant="promo">{product.promotionLabel}</Badge>}
                 {product.category && <Badge>{product.category}</Badge>}
               </div>
-              <h2 className="mt-2 text-lg font-semibold">{product.name}</h2>
+              <h2 className="mt-2 text-lg font-semibold text-zinc-900 dark:text-zinc-50">{product.name}</h2>
               {product.brand && <p className="text-sm text-zinc-500">{product.brand}</p>}
-              <p className="mt-2 text-xl font-bold">
+              <p className="mt-2 text-xl font-bold text-zinc-900 dark:text-zinc-50">
                 {formatPrice(product.price.current)}
                 {product.price.original && (
                   <span className="ml-2 text-sm font-normal text-zinc-400 line-through">

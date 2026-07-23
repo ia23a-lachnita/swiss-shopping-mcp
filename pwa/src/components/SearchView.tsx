@@ -131,9 +131,9 @@ export function SearchView(): React.JSX.Element {
                         <Badge variant="promo">{product.promotionLabel}</Badge>
                       )}
                     </div>
-                    <p className="mt-1 line-clamp-2 text-sm font-medium">{product.name}</p>
+                    <p className="mt-1 line-clamp-2 text-sm font-medium text-zinc-900 dark:text-zinc-50">{product.name}</p>
                     <div className="mt-auto pt-1 text-sm">
-                      <span className="font-semibold">{formatPrice(product.price.current)}</span>
+                      <span className="font-semibold text-zinc-900 dark:text-zinc-50">{formatPrice(product.price.current)}</span>
                       {product.price.original && (
                         <span className="ml-1.5 text-xs text-zinc-400 line-through">
                           {formatPrice(product.price.original)}
