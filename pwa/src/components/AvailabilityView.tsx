@@ -38,6 +38,8 @@ interface SearchParams {
   query: string;
   location: string;
   chains: Chain[];
+  latitude?: number;
+  longitude?: number;
 }
 
 function stockBadge(store: StoreWithAvailability): React.JSX.Element {
@@ -107,7 +109,13 @@ export function AvailabilityView(): React.JSX.Element {
   function submit(event?: FormEvent): void {
     event?.preventDefault();
     if (query.trim() && location.trim() && chains.length > 0) {
-      setParams({ query: query.trim(), location: location.trim(), chains });
+      setParams({
+        query: query.trim(),
+        location: location.trim(),
+        chains,
+        latitude: userCoords?.lat,
+        longitude: userCoords?.lng,
+      });
       setEditingLocation(false);
     }
   }
@@ -168,7 +176,11 @@ export function AvailabilityView(): React.JSX.Element {
               <Input
                 id="avail-location"
                 value={location}
-                onChange={(e) => setLocation(e.target.value)}
+                onChange={(e) => {
+                  setLocation(e.target.value);
+                  // Manual edits invalidate the GPS fix tied to the previous text.
+                  setUserCoords(undefined);
+                }}
                 placeholder="PLZ oder Ort, z.B. 8001 Zürich"
                 autoComplete="postal-code"
                 enterKeyHint="search"

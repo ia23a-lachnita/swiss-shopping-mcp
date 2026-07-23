@@ -113,6 +113,9 @@ export async function productAvailability(params: {
   location: string;
   chains?: Chain[];
   limit?: number;
+  /** Raw device GPS position, when available, for more precise nearest-store ranking than the location text's postal-code centroid. */
+  latitude?: number;
+  longitude?: number;
 }): Promise<ProductAvailability[]> {
   const result = await post<ProductAvailability[]>('/api/product-availability', params);
   if (!result.ok) {

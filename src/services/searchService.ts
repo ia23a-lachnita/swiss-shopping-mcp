@@ -718,17 +718,22 @@ export class SearchService {
     const storeLimit = typeof filters.limit === 'number' ? filters.limit : 10;
     const now = new Date();
 
-    // Geocode user location once for all adapters (Migros needs user coords for store finding)
-    let userLat: number | undefined;
-    let userLon: number | undefined;
-    try {
-      const userLoc = await resolveLocationAsync(location);
-      if (userLoc) {
-        userLat = userLoc.latitude;
-        userLon = userLoc.longitude;
+    // Prefer the caller's raw device GPS position (e.g. browser geolocation)
+    // over geocoding `location`, which only resolves to a postal-code
+    // centroid — a coarser approximation of the user's actual position that
+    // distance-based nearest-store ranking would otherwise be stuck with.
+    let userLat: number | undefined = filters.latitude;
+    let userLon: number | undefined = filters.longitude;
+    if (userLat === undefined || userLon === undefined) {
+      try {
+        const userLoc = await resolveLocationAsync(location);
+        if (userLoc) {
+          userLat = userLoc.latitude;
+          userLon = userLoc.longitude;
+        }
+      } catch {
+        // Geocation is best-effort; adapters will fall back to their own logic
       }
-    } catch {
-      // Geocation is best-effort; adapters will fall back to their own logic
     }
 
     // Fetch stores per chain SEQUENTIALLY to avoid API rate-limiting conflicts,

@@ -533,6 +533,45 @@ describe('SearchService web-augmented search', () => {
     }
   });
 
+  it('uses explicit latitude/longitude instead of geocoding location, when provided', async () => {
+    const zurichStore: NormalizedStore = {
+      id: 'zurich',
+      chain: 'migros',
+      name: 'Migros Zürich',
+      address: 'Zürich HB',
+      location: { latitude: 47.378, longitude: 8.54 },
+    };
+    const genevaStore: NormalizedStore = {
+      id: 'geneva',
+      chain: 'migros',
+      name: 'Migros Genève',
+      address: 'Gare de Genève',
+      location: { latitude: 46.21, longitude: 6.14 },
+    };
+    const service = new SearchService([
+      stubAdapter('migros', {
+        products: [testProduct('p1', 'migros')],
+        stores: [zurichStore, genevaStore],
+      }),
+    ]);
+
+    // location text says Zürich (which geocodes near zurichStore), but the
+    // explicit GPS coords point near Geneva instead - they must win, proving
+    // raw device position isn't discarded once a display string exists.
+    const result = await service.lookupAvailabilityByLocationProductsFirst({
+      query: 'p1',
+      location: '8001 Zürich',
+      chains: ['migros'],
+      latitude: 46.21,
+      longitude: 6.14,
+    });
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data[0].stores.map((s) => s.id)).toEqual(['geneva', 'zurich']);
+    }
+  });
+
   it('checks availability per product rather than sharing one chain-wide result', async () => {
     const store: NormalizedStore = testStore('store-1', 'migros');
     const lookupCalls: StoreProductAvailabilityFilters[] = [];

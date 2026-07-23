@@ -278,6 +278,15 @@ export interface StoreAvailabilityByLocationFilters {
   inStockOnly?: boolean;
   openNow?: boolean;
   limit?: number;
+  /**
+   * Raw device GPS position, when the caller obtained one (e.g. browser
+   * geolocation) rather than typing a postal code/place name. When present,
+   * used directly for nearest-store distance ranking instead of
+   * re-geocoding `location` to its postal-code centroid, which is a coarser
+   * approximation of the user's actual position.
+   */
+  latitude?: number;
+  longitude?: number;
 }
 
 export interface StoreWithProductAvailability extends NormalizedStore {
