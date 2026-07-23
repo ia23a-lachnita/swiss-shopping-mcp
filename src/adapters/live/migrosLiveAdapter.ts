@@ -273,6 +273,7 @@ export class MigrosLiveAdapter implements ChainAdapter {
             productInformation?: {
               nutrientsInformation?: {
                 nutrientsTable?: {
+                  headers?: string[];
                   rows?: Array<{ label: string; values: string[] }>;
                 };
               };
@@ -285,20 +286,31 @@ export class MigrosLiveAdapter implements ChainAdapter {
           const pi = detail?.productInformation;
           if (!pi) return;
 
-          // Parse nutrition from nutrientsTable
-          const rows = pi.nutrientsInformation?.nutrientsTable?.rows;
-          if (rows && Array.isArray(rows)) {
+          // Parse nutrition from nutrientsTable. The table's first column is
+          // usually (but not guaranteed to be) the per-100g/100ml basis — it
+          // can also lead with a per-portion column (e.g. "1 Portion (25 g)")
+          // depending on the product. Locate the per-100 column explicitly by
+          // its header instead of assuming a fixed index, so values are
+          // never silently mislabeled as "per 100g" when they aren't.
+          const table = pi.nutrientsInformation?.nutrientsTable;
+          const rows = table?.rows;
+          const per100Index = Array.isArray(table?.headers)
+            ? table.headers.findIndex((h) => /^100\s*(g|ml)$/i.test(String(h).trim()))
+            : -1;
+          if (rows && Array.isArray(rows) && per100Index !== -1) {
             const parseFirst = (label: string): number | undefined => {
               const row = rows.find(r => r.label === label);
-              if (!row?.values?.[0]) return undefined;
-              const match = String(row.values[0]).match(/([\d.,]+)/);
+              const raw = row?.values?.[per100Index];
+              if (!raw) return undefined;
+              const match = String(raw).match(/([\d.,]+)/);
               return match ? parseFloat(match[1].replace(',', '.')) : undefined;
             };
             product.nutrition_facts = {
               energy_kcal: (() => {
                 const energyRow = rows.find(r => r.label === 'Energie');
-                if (!energyRow?.values?.[0]) return undefined;
-                const match = String(energyRow.values[0]).match(/\((\d+)\s*kcal\)/);
+                const raw = energyRow?.values?.[per100Index];
+                if (!raw) return undefined;
+                const match = String(raw).match(/\((\d+)\s*kcal\)/);
                 return match ? parseInt(match[1], 10) : undefined;
               })(),
               protein: parseFirst('Eiweiss'),
@@ -307,8 +319,9 @@ export class MigrosLiveAdapter implements ChainAdapter {
               fiber: parseFirst('Ballaststoffe'),
               sugar: (() => {
                 const sugarRow = rows.find(r => r.label === 'davon Zucker');
-                if (!sugarRow?.values?.[0]) return undefined;
-                const match = String(sugarRow.values[0]).match(/([\d.,]+)/);
+                const raw = sugarRow?.values?.[per100Index];
+                if (!raw) return undefined;
+                const match = String(raw).match(/([\d.,]+)/);
                 return match ? parseFloat(match[1].replace(',', '.')) : undefined;
               })(),
             };

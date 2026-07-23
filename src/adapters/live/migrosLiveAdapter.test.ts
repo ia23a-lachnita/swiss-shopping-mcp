@@ -12,6 +12,7 @@ vi.mock('./migrosBrowser.js', () => ({
   searchProducts: vi.fn(),
   fetchProductCards: vi.fn(),
   fetchProductCardsByMigrosIds: vi.fn(),
+  fetchProductDetail: vi.fn(),
   searchStores: vi.fn(),
   checkAvailability: vi.fn(),
 }));
@@ -100,6 +101,7 @@ describe('MigrosLiveAdapter', () => {
     browserMocks.getGuestToken.mockReset();
     browserMocks.searchProducts.mockReset();
     browserMocks.fetchProductCards.mockReset();
+    browserMocks.fetchProductDetail.mockReset();
     browserMocks.searchStores.mockReset();
     browserMocks.checkAvailability.mockReset();
   });
@@ -161,6 +163,93 @@ describe('MigrosLiveAdapter', () => {
         expect(result.data.length).toBeGreaterThan(0);
         expect(result.data[0].provenance?.freshness).toBe('stale');
       }
+    });
+
+    describe('nutrition enrichment', () => {
+      function nutrientsDetail(headers: string[]): unknown {
+        return {
+          productInformation: {
+            nutrientsInformation: {
+              nutrientsTable: {
+                headers,
+                rows: [
+                  { label: 'Energie', values: headers.map((_, i) => (i === headers.indexOf('100 ml') || i === headers.indexOf('100 g') ? '287 kJ (69 kcal)' : '710 kJ (170 kcal)')) },
+                  { label: 'Eiweiss', values: headers.map((_, i) => (i === headers.indexOf('100 ml') || i === headers.indexOf('100 g') ? '3.2 g' : '8 g')) },
+                  { label: 'Kohlenhydrate', values: headers.map((_, i) => (i === headers.indexOf('100 ml') || i === headers.indexOf('100 g') ? '5 g' : '12 g')) },
+                  { label: 'Fett', values: headers.map((_, i) => (i === headers.indexOf('100 ml') || i === headers.indexOf('100 g') ? '4 g' : '10 g')) },
+                  { label: 'Ballaststoffe', values: headers.map(() => '0 g') },
+                  { label: 'davon Zucker', values: headers.map((_, i) => (i === headers.indexOf('100 ml') || i === headers.indexOf('100 g') ? '5 g' : '12 g')) },
+                ],
+              },
+            },
+          },
+        };
+      }
+
+      it('extracts the per-100ml column when it is first', async () => {
+        cache.get.mockResolvedValue(undefined);
+        browserMocks.getGuestToken.mockResolvedValue('mock-token');
+        browserMocks.searchProducts.mockResolvedValue(mockSearchApiResponse);
+        browserMocks.fetchProductCards.mockResolvedValue(mockProductDetailsResponse);
+        browserMocks.fetchProductDetail.mockResolvedValue(nutrientsDetail(['100 ml', '1 Glas (250 ml)']));
+        cache.set.mockResolvedValue(mockCacheRecord);
+
+        const result = await adapter.searchProducts({ query: 'Milch' });
+
+        expect(result.ok).toBe(true);
+        if (result.ok) {
+          expect(result.data[0].nutrition).toMatchObject({
+            energyKcal: 69,
+            protein: 3.2,
+            carbs: 5,
+            fat: 4,
+            sugar: 5,
+          });
+        }
+      });
+
+      it('locates the per-100g column even when a per-portion column comes first', async () => {
+        // Real Migros responses have consistently led with the per-100 column
+        // in samples checked, but the table has no documented ordering
+        // guarantee - this proves the column is found by header, not by
+        // assuming index 0, so a reordered table can't silently mislabel
+        // per-portion values as per-100g/100ml.
+        cache.get.mockResolvedValue(undefined);
+        browserMocks.getGuestToken.mockResolvedValue('mock-token');
+        browserMocks.searchProducts.mockResolvedValue(mockSearchApiResponse);
+        browserMocks.fetchProductCards.mockResolvedValue(mockProductDetailsResponse);
+        browserMocks.fetchProductDetail.mockResolvedValue(nutrientsDetail(['1 Glas (250 ml)', '100 ml']));
+        cache.set.mockResolvedValue(mockCacheRecord);
+
+        const result = await adapter.searchProducts({ query: 'Milch' });
+
+        expect(result.ok).toBe(true);
+        if (result.ok) {
+          expect(result.data[0].nutrition).toMatchObject({
+            energyKcal: 69,
+            protein: 3.2,
+            carbs: 5,
+            fat: 4,
+            sugar: 5,
+          });
+        }
+      });
+
+      it('omits nutrition rather than mislabeling per-portion data when no per-100 column exists', async () => {
+        cache.get.mockResolvedValue(undefined);
+        browserMocks.getGuestToken.mockResolvedValue('mock-token');
+        browserMocks.searchProducts.mockResolvedValue(mockSearchApiResponse);
+        browserMocks.fetchProductCards.mockResolvedValue(mockProductDetailsResponse);
+        browserMocks.fetchProductDetail.mockResolvedValue(nutrientsDetail(['1 Portion (30 g)']));
+        cache.set.mockResolvedValue(mockCacheRecord);
+
+        const result = await adapter.searchProducts({ query: 'Milch' });
+
+        expect(result.ok).toBe(true);
+        if (result.ok) {
+          expect(result.data[0].nutrition).toBeUndefined();
+        }
+      });
     });
   });
 
