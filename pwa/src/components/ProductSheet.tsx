@@ -71,7 +71,7 @@ export function ProductSheet({
                         className="rounded-lg bg-zinc-100 p-2 text-center dark:bg-zinc-800"
                       >
                         <dt className="text-xs text-zinc-500">{label}</dt>
-                        <dd className="font-medium">
+                        <dd className="font-medium text-zinc-900 dark:text-zinc-50">
                           {product.nutrition![key]} {unit}
                         </dd>
                       </div>
