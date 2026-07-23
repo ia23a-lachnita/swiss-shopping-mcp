@@ -19,7 +19,7 @@ import {
 } from '../adapters/types.js';
 import { sourceWarningFromError } from '../sources/warnings.js';
 import { buildTaxonomy } from '../util/taxonomyBuilder.js';
-import { resolveLocationAsync } from '../util/geo.js';
+import { resolveLocationAsync, distanceBetween } from '../util/geo.js';
 import { calculateMatchStrength, sortProducts } from '../util/matcher.js';
 import { logger } from '../util/log.js';
 import { CatalogService } from '../catalog/catalogService.js';
@@ -743,8 +743,21 @@ export class SearchService {
 
       if (!storeResult.ok || storeResult.data.length === 0) continue;
 
+      // Nearest-first: vendor APIs return stores in their own (often alphabetical)
+      // order, not sorted by actual distance from the user.
+      const orderedStores =
+        userLat !== undefined && userLon !== undefined
+          ? [...storeResult.data].sort((a, b) => {
+              if (!a.location || !b.location) return 0;
+              return (
+                distanceBetween({ latitude: userLat!, longitude: userLon! }, a.location) -
+                distanceBetween({ latitude: userLat!, longitude: userLon! }, b.location)
+              );
+            })
+          : storeResult.data;
+
       const availabilityChecks = await Promise.all(
-        storeResult.data.map(async (store) => {
+        orderedStores.map(async (store) => {
           try {
             const result = await this.lookupStoreProductAvailability(chain as Chain, {
               query,

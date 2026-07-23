@@ -9,6 +9,7 @@ import {
   productAvailability,
   reverseGeocode,
   type Chain,
+  type Product,
   type StoreWithAvailability,
 } from '../api';
 import { cn, formatPrice, mapsUrl } from '../lib/utils';
@@ -17,6 +18,7 @@ import { Button } from './ui/button';
 import { Card, CardContent } from './ui/card';
 import { Input } from './ui/input';
 import { Skeleton } from './ui/skeleton';
+import { ProductSheet } from './ProductSheet';
 
 interface SearchParams {
   query: string;
@@ -76,6 +78,7 @@ export function AvailabilityView(): React.JSX.Element {
   const [params, setParams] = useState<SearchParams | undefined>();
   const [locating, setLocating] = useState(false);
   const [locateError, setLocateError] = useState<string>();
+  const [selected, setSelected] = useState<Product | undefined>();
 
   const { data, isFetching, error } = useQuery({
     queryKey: ['availability', params],
@@ -268,7 +271,11 @@ export function AvailabilityView(): React.JSX.Element {
               >
                 <Card>
                   <CardContent>
-                    <div className="flex items-start gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setSelected(product)}
+                      className="flex w-full items-start gap-3 text-left active:opacity-80"
+                    >
                       {product.image && (
                         <img
                           src={product.image}
@@ -290,7 +297,7 @@ export function AvailabilityView(): React.JSX.Element {
                           {product.size && <span> · {product.size}</span>}
                         </p>
                       </div>
-                    </div>
+                    </button>
                     {stores.length > 0 ? (
                       <ul className="mt-2 divide-y divide-zinc-100 dark:divide-zinc-800">
                         {stores.map((store) => (
@@ -306,6 +313,8 @@ export function AvailabilityView(): React.JSX.Element {
             ))}
         </AnimatePresence>
       </motion.ul>
+
+      <ProductSheet product={selected} onClose={() => setSelected(undefined)} />
     </div>
   );
 }

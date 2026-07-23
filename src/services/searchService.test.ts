@@ -497,4 +497,39 @@ describe('SearchService web-augmented search', () => {
       ]);
     }
   });
+
+  it('orders stores nearest-first for lookupAvailabilityByLocationProductsFirst', async () => {
+    const farStore: NormalizedStore = {
+      id: 'far',
+      chain: 'migros',
+      name: 'Migros Far',
+      address: 'Weit weg',
+      location: { latitude: 47.55, longitude: 8.9 },
+    };
+    const nearStore: NormalizedStore = {
+      id: 'near',
+      chain: 'migros',
+      name: 'Migros Near',
+      address: 'Ganz nah',
+      location: { latitude: 47.377, longitude: 8.542 },
+    };
+    const service = new SearchService([
+      stubAdapter('migros', {
+        products: [testProduct('p1', 'migros')],
+        // Intentionally returned far-then-near to prove sorting, not pass-through.
+        stores: [farStore, nearStore],
+      }),
+    ]);
+
+    const result = await service.lookupAvailabilityByLocationProductsFirst({
+      query: 'p1',
+      location: '8001 Zürich',
+      chains: ['migros'],
+    });
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data[0].stores.map((s) => s.id)).toEqual(['near', 'far']);
+    }
+  });
 });

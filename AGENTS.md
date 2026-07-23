@@ -42,7 +42,7 @@ When using `antigravity-mcp` for code review or brainstorming, prefer models in 
 5. `gemini-2.5-pro`
 6. `gemini-2.5-flash`
 
-Do NOT specify a model unless explicitly asked — let the default handle it.
+Always pass `model` explicitly starting from the top of this list — antigravity-mcp's own default (currently `gemini-3.5-flash` via its `sdk` backend) does not follow this order on its own. Only drop to the next model on an actual failure/exhaustion signal, not preemptively.
 
 ## Execution workflow (MANDATORY MANUAL TESTING CONTRACT)
 
