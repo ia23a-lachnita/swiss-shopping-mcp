@@ -1,7 +1,17 @@
-import { useState, type FormEvent } from 'react';
+import { lazy, Suspense, useState, type FormEvent } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { AnimatePresence, motion } from 'framer-motion';
-import { AlertTriangle, ExternalLink, LocateFixed, Search } from 'lucide-react';
+import {
+  AlertTriangle,
+  Check,
+  ChevronDown,
+  ExternalLink,
+  List,
+  LocateFixed,
+  Map as MapIcon,
+  MapPin,
+  Search,
+} from 'lucide-react';
 
 import {
   AVAILABILITY_CHAINS,
@@ -19,6 +29,10 @@ import { Card, CardContent } from './ui/card';
 import { Input } from './ui/input';
 import { Skeleton } from './ui/skeleton';
 import { ProductSheet } from './ProductSheet';
+
+const AvailabilityMap = lazy(() =>
+  import('./AvailabilityMap').then((m) => ({ default: m.AvailabilityMap }))
+);
 
 interface SearchParams {
   query: string;
@@ -79,6 +93,10 @@ export function AvailabilityView(): React.JSX.Element {
   const [locating, setLocating] = useState(false);
   const [locateError, setLocateError] = useState<string>();
   const [selected, setSelected] = useState<Product | undefined>();
+  const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
+  const [mapEverShown, setMapEverShown] = useState(false);
+  const [editingLocation, setEditingLocation] = useState(true);
+  const [userCoords, setUserCoords] = useState<{ lat: number; lng: number }>();
 
   const { data, isFetching, error } = useQuery({
     queryKey: ['availability', params],
@@ -90,6 +108,7 @@ export function AvailabilityView(): React.JSX.Element {
     event?.preventDefault();
     if (query.trim() && location.trim() && chains.length > 0) {
       setParams({ query: query.trim(), location: location.trim(), chains });
+      setEditingLocation(false);
     }
   }
 
@@ -108,6 +127,8 @@ export function AvailabilityView(): React.JSX.Element {
             position.coords.longitude
           );
           setLocation(resolved);
+          setUserCoords({ lat: position.coords.latitude, lng: position.coords.longitude });
+          setEditingLocation(false);
         } catch (err) {
           setLocateError(err instanceof Error ? err.message : 'Standort nicht gefunden.');
         } finally {
@@ -141,6 +162,87 @@ export function AvailabilityView(): React.JSX.Element {
   return (
     <div className="space-y-4">
       <form onSubmit={submit} className="space-y-3">
+        <div className="sticky top-[calc(env(safe-area-inset-top)+3.25rem)] z-20 -mx-4 flex items-center gap-2 border-b border-zinc-200/70 bg-zinc-50/95 px-4 py-2 backdrop-blur-md dark:border-zinc-800/70 dark:bg-zinc-950/95">
+          {editingLocation ? (
+            <>
+              <Input
+                id="avail-location"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                placeholder="PLZ oder Ort, z.B. 8001 Zürich"
+                autoComplete="postal-code"
+                enterKeyHint="search"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                onClick={useMyLocation}
+                disabled={locating}
+                aria-label="Meinen Standort verwenden"
+                data-testid="use-location"
+              >
+                <LocateFixed className={cn(locating && 'animate-spin')} />
+              </Button>
+              {location.trim() && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setEditingLocation(false)}
+                  aria-label="Fertig"
+                >
+                  <Check />
+                </Button>
+              )}
+            </>
+          ) : (
+            <>
+              <button
+                type="button"
+                onClick={() => setEditingLocation(true)}
+                className="flex min-w-0 flex-1 items-center gap-1.5 rounded-full border border-zinc-300 bg-white px-3 py-1.5 text-left text-sm font-medium text-zinc-700 active:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200 dark:active:bg-zinc-800"
+                data-testid="location-pill"
+              >
+                <MapPin className="size-4 shrink-0 text-blue-600" />
+                <span className="truncate">{location}</span>
+                <ChevronDown className="size-3.5 shrink-0 text-zinc-400" />
+              </button>
+              {results.length > 0 && (
+                <div className="flex shrink-0 gap-0.5 rounded-full border border-zinc-300 p-0.5 dark:border-zinc-700">
+                  <button
+                    type="button"
+                    onClick={() => setViewMode('list')}
+                    aria-pressed={viewMode === 'list'}
+                    aria-label="Listenansicht"
+                    className={cn(
+                      'rounded-full p-1.5 transition-colors',
+                      viewMode === 'list' ? 'bg-blue-600 text-white' : 'text-zinc-500 dark:text-zinc-400'
+                    )}
+                  >
+                    <List className="size-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setViewMode('map');
+                      setMapEverShown(true);
+                    }}
+                    aria-pressed={viewMode === 'map'}
+                    aria-label="Kartenansicht"
+                    className={cn(
+                      'rounded-full p-1.5 transition-colors',
+                      viewMode === 'map' ? 'bg-blue-600 text-white' : 'text-zinc-500 dark:text-zinc-400'
+                    )}
+                  >
+                    <MapIcon className="size-4" />
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+
         <Input
           id="avail-query"
           value={query}
@@ -149,27 +251,6 @@ export function AvailabilityView(): React.JSX.Element {
           autoComplete="off"
           enterKeyHint="search"
         />
-        <div className="flex gap-2">
-          <Input
-            id="avail-location"
-            value={location}
-            onChange={(e) => setLocation(e.target.value)}
-            placeholder="PLZ oder Ort, z.B. 8001 Zürich"
-            autoComplete="postal-code"
-            enterKeyHint="search"
-          />
-          <Button
-            type="button"
-            variant="outline"
-            size="icon"
-            onClick={useMyLocation}
-            disabled={locating}
-            aria-label="Meinen Standort verwenden"
-            data-testid="use-location"
-          >
-            <LocateFixed className={cn(locating && 'animate-spin')} />
-          </Button>
-        </div>
 
         <div className="flex flex-wrap items-center gap-2">
           {AVAILABILITY_CHAINS.map((chain) => (
@@ -250,8 +331,16 @@ export function AvailabilityView(): React.JSX.Element {
         </p>
       )}
 
+      {mapEverShown && (
+        <div className={viewMode === 'map' && !isFetching ? '' : 'hidden'}>
+          <Suspense fallback={<Skeleton className="h-[65vh] w-full rounded-2xl" />}>
+            <AvailabilityMap results={results} userCoords={userCoords} active={viewMode === 'map'} />
+          </Suspense>
+        </div>
+      )}
+
       <motion.ul
-        className="space-y-3"
+        className={cn('space-y-3', viewMode === 'map' && 'hidden')}
         initial="hidden"
         animate="visible"
         variants={{ visible: { transition: { staggerChildren: 0.06 } } }}

@@ -33,7 +33,7 @@ export default function App(): React.JSX.Element {
     <QueryClientProvider client={queryClient}>
       <MotionConfig reducedMotion="user">
         <div className="mx-auto flex min-h-dvh max-w-2xl flex-col bg-zinc-50 pb-20 font-sans text-zinc-900 dark:bg-zinc-950 dark:text-zinc-50">
-          <header className="sticky top-0 z-30 border-b border-zinc-200/70 bg-zinc-50/80 px-4 pb-2 pt-[calc(env(safe-area-inset-top)+1rem)] backdrop-blur-md dark:border-zinc-800/70 dark:bg-zinc-950/80">
+          <header className="sticky top-0 z-30 flex h-[calc(env(safe-area-inset-top)+3.25rem)] items-center border-b border-zinc-200/70 bg-zinc-50/80 px-4 backdrop-blur-md dark:border-zinc-800/70 dark:bg-zinc-950/80">
             <h1 className="text-xl font-bold tracking-tight">
               Swiss <span className="text-blue-600">Shopping</span>
             </h1>
