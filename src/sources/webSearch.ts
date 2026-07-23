@@ -249,9 +249,16 @@ interface SerpApiOrganicResult {
   snippet?: string;
 }
 
+interface SerpApiSearchInformation {
+  organic_results_state?: string;
+  /** Present when Google auto-corrected the query (mirrors the "Showing results for X" behavior of the Google web UI, which the raw site-restricted API query does not get for free). */
+  spelling_fix?: string;
+  showing_results_for?: string;
+}
+
 interface SerpApiResponse {
   organic_results?: SerpApiOrganicResult[];
-  search_information?: Record<string, unknown>;
+  search_information?: SerpApiSearchInformation;
   error?: string;
 }
 
@@ -267,6 +274,38 @@ export class SerpApiProvider implements WebSearchProvider {
 
   public async search(query: string, options: WebSearchOptions): Promise<WebSearchResult[]> {
     const limit = Math.min(options.limit ?? DEFAULT_RESULT_LIMIT, 10);
+    const first = await this.fetchOnce(query, options, limit);
+    if (first.results.length > 0) return first.results;
+
+    // Google's own search box silently autocorrects typos (e.g. "heisleim"
+    // -> "heissleim"), but a raw site-restricted API query does not get that
+    // for free. SerpAPI surfaces the same correction Google's UI would have
+    // applied via search_information.spelling_fix when it fired — retry once
+    // with it instead of reinventing spell-checking locally.
+    // spelling_fix echoes back the FULL "site:<site> <query>" string we sent
+    // (not just the corrected term), so strip the known site prefix we built
+    // in fetchOnce before reusing it as the next query — otherwise the site
+    // restriction would be duplicated.
+    const correction = first.data.search_information?.spelling_fix;
+    if (typeof correction === 'string' && correction.trim().length > 0) {
+      const sitePrefix = `site:${options.site} `;
+      const correctedQuery = correction.trim().startsWith(sitePrefix)
+        ? correction.trim().slice(sitePrefix.length).trim()
+        : correction.trim();
+      if (correctedQuery.length > 0 && correctedQuery.toLowerCase() !== query.trim().toLowerCase()) {
+        const retried = await this.fetchOnce(correctedQuery, options, limit);
+        return retried.results;
+      }
+    }
+
+    return first.results;
+  }
+
+  private async fetchOnce(
+    query: string,
+    options: WebSearchOptions,
+    limit: number
+  ): Promise<{ results: WebSearchResult[]; data: SerpApiResponse }> {
     const q = `site:${options.site} ${query}`;
     const url =
       'https://serpapi.com/search' +
@@ -298,7 +337,7 @@ export class SerpApiProvider implements WebSearchProvider {
       const errLower = data.error.toLowerCase();
       // SerpAPI returns HTTP 200 + error for legitimately empty searches
       if (errLower.includes("hasn't returned any results") || errLower.includes('no results')) {
-        return [];
+        return { results: [], data };
       }
       const isRetryable = errLower.includes('rate limit') || errLower.includes('run out of searches');
       throw new TypedWebSearchError({
@@ -330,7 +369,7 @@ export class SerpApiProvider implements WebSearchProvider {
       results.push({ url: parsed.href, title: item.title, rank: results.length });
       if (results.length >= limit) break;
     }
-    return results;
+    return { results, data };
   }
 }
 

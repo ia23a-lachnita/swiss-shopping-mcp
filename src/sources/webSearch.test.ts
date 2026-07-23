@@ -410,6 +410,47 @@ describe('SerpApiProvider', () => {
       'https://www.migros.ch/de/product/3',
     ]);
   });
+
+  it('retries once with the spelling-fix query when the original query returns nothing', async () => {
+    // Real SerpAPI shape (verified live): spelling_fix echoes back the FULL
+    // "site:<site> <query>" string we sent, not just the corrected term.
+    const fetchImpl = vi
+      .fn()
+      .mockResolvedValueOnce(
+        jsonResponse({
+          organic_results: [],
+          search_information: {
+            organic_results_state: 'Empty showing fixed spelling results',
+            spelling_fix: 'site:migros.ch/de/product heissleim',
+          },
+        })
+      )
+      .mockResolvedValueOnce(
+        jsonResponse({
+          organic_results: [{ link: 'https://www.migros.ch/de/product/heissleim-1', title: 'Heissleim' }],
+        })
+      );
+    const provider = new SerpApiProvider({ apiKey: 'key', fetchImpl });
+    const results = await provider.search('heisleim', { site: 'migros.ch/de/product' });
+
+    expect(results.map((r) => r.url)).toEqual(['https://www.migros.ch/de/product/heissleim-1']);
+    expect(fetchImpl).toHaveBeenCalledTimes(2);
+    const secondUrl = fetchImpl.mock.calls[1][0] as string;
+    // The site prefix must not be duplicated in the retried query.
+    expect(decodeURIComponent(secondUrl)).toContain('q=site:migros.ch/de/product heissleim');
+    expect(decodeURIComponent(secondUrl)).not.toContain('site:migros.ch/de/product site:migros.ch/de/product');
+  });
+
+  it('does not retry when no spelling fix is offered and results are genuinely empty', async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(
+      jsonResponse({ organic_results: [], search_information: { organic_results_state: 'Fully empty' } })
+    );
+    const provider = new SerpApiProvider({ apiKey: 'key', fetchImpl });
+    const results = await provider.search('zzzznonexistent12345', { site: 'migros.ch' });
+
+    expect(results).toEqual([]);
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+  });
 });
 
 // ---------------------------------------------------------------------------
