@@ -9,6 +9,7 @@ vi.mock('../../util/geo.js', () => ({
 
 vi.mock('./migrosBrowser.js', () => ({
   getGuestToken: vi.fn(),
+  migrosFetch: vi.fn(),
   searchProducts: vi.fn(),
   fetchProductCards: vi.fn(),
   fetchProductCardsByMigrosIds: vi.fn(),
@@ -99,6 +100,7 @@ describe('MigrosLiveAdapter', () => {
     const browserModule = await import('./migrosBrowser.js');
     browserMocks = browserModule;
     browserMocks.getGuestToken.mockReset();
+    browserMocks.migrosFetch.mockReset();
     browserMocks.searchProducts.mockReset();
     browserMocks.fetchProductCards.mockReset();
     browserMocks.fetchProductDetail.mockReset();
@@ -281,16 +283,6 @@ describe('MigrosLiveAdapter', () => {
     });
   });
 
-  describe('searchPromotions', () => {
-    it('returns not-implemented error', async () => {
-      const result = await adapter.searchPromotions({ query: 'test' });
-      expect(result.ok).toBe(false);
-      if (!result.ok) {
-        expect(result.error.code).toBe(SourceWarningCode.RealSourceNotImplemented);
-      }
-    });
-  });
-
   describe('getStoreAvailabilitySupport', () => {
     it('returns supported', () => {
       const support = adapter.getStoreAvailabilitySupport();
@@ -342,6 +334,121 @@ describe('MigrosLiveAdapter', () => {
         expect(result.data.supported).toBe(false);
         expect(result.data.matches).toEqual([]);
         expect(result.data.isAvailable).toBe(false);
+      }
+    });
+  });
+
+  describe('searchPromotions', () => {
+    const mockPromotionSearchResponse = {
+      status: 200,
+      data: {
+        items: [{ id: 123, type: 'PRODUCT' }, { id: 456, type: 'PRODUCT' }],
+        startDate: '2026-07-23',
+        endDate: '2026-07-29',
+      },
+    };
+
+    const mockPromotionCards = {
+      '0': {
+        uid: 123,
+        name: 'Königssalat',
+        brand: 'Migros',
+        primaryCategory: { name: 'Salat' },
+        offer: {
+          price: { effectiveValue: 3.7 },
+          promotionPrice: { effectiveValue: 3.2 },
+          quantity: '150g',
+          badges: [{ description: '14%' }],
+        },
+        images: [],
+        productUrls: [],
+      },
+      '1': {
+        uid: 456,
+        name: 'Butter (regular price)',
+        brand: 'Migros',
+        offer: { price: { effectiveValue: 2.5 } },
+        images: [],
+        productUrls: [],
+      },
+    };
+
+    it('returns error on empty query', async () => {
+      const result = await adapter.searchPromotions({ query: '' });
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error.code).toBe('INVALID_QUERY');
+      }
+    });
+
+    it('returns only discounted items matching the query', async () => {
+      cache.get.mockResolvedValue(undefined);
+      browserMocks.getGuestToken.mockResolvedValue('mock-token');
+      browserMocks.migrosFetch.mockResolvedValue(mockPromotionSearchResponse);
+      browserMocks.fetchProductCards.mockResolvedValue(mockPromotionCards);
+      cache.set.mockResolvedValue(mockCacheRecord);
+
+      const result = await adapter.searchPromotions({ query: 'salat' });
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.data).toHaveLength(1);
+        expect(result.data[0]).toMatchObject({
+          chain: 'migros',
+          title: 'Königssalat',
+          originalPrice: 3.7,
+          price: { current: 3.2 },
+        });
+        expect(result.data[0].validFrom).toBeInstanceOf(Date);
+        expect(result.data[0].validUntil).toBeInstanceOf(Date);
+      }
+    });
+
+    it('excludes non-discounted products even when they match the query text', async () => {
+      cache.get.mockResolvedValue(undefined);
+      browserMocks.getGuestToken.mockResolvedValue('mock-token');
+      browserMocks.migrosFetch.mockResolvedValue(mockPromotionSearchResponse);
+      browserMocks.fetchProductCards.mockResolvedValue(mockPromotionCards);
+      cache.set.mockResolvedValue(mockCacheRecord);
+
+      const result = await adapter.searchPromotions({ query: 'butter' });
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.data).toHaveLength(0);
+      }
+    });
+
+    it('falls back to stale cache when the live fetch fails', async () => {
+      const staleProvenance = { provider: 'Migros', chain: 'migros' as const, sourceType: 'retailer-web' as const, sourceUrl: 'test', observedAt: '2026-07-20T00:00:00.000Z', freshness: 'stale' as const, confidence: 'medium' as const, cacheExpiresAt: '2026-07-20T06:00:00.000Z' };
+      cache.get.mockResolvedValue({
+        data: [{
+          id: '123',
+          sourceUrl: 'https://www.migros.ch/x',
+          title: 'Königssalat',
+          brand: 'Migros',
+          category: 'Salat',
+          price: { current: 3.2 },
+          originalPrice: 3.7,
+          discount: { type: 'percentage', value: 14 },
+          description: '150g',
+          validFrom: '2026-07-23',
+          validUntil: '2026-07-29',
+        }],
+        provenance: staleProvenance,
+        observedAt: '2026-07-20T00:00:00.000Z',
+        expiresAt: '2026-07-20T06:00:00.000Z',
+        isStale: true,
+      });
+      browserMocks.getGuestToken.mockResolvedValue('mock-token');
+      browserMocks.migrosFetch.mockRejectedValue(new Error('HTTP 503: Service Unavailable'));
+
+      const result = await adapter.searchPromotions({ query: 'salat' });
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.data).toHaveLength(1);
+        expect(result.data[0].provenance?.freshness).toBe('stale');
       }
     });
   });

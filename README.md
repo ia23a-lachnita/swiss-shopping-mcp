@@ -10,7 +10,7 @@ A Model Context Protocol (MCP) server for Swiss grocery and retail shopping — 
 
 | Chain  | Product Search | Promotions  | Store Search | Availability |
 |--------|----------------|-------------|--------------|--------------|
-| Migros | live-beta      | unsupported | live-beta    | live-beta    |
+| Migros | live-beta      | live-beta   | live-beta    | live-beta    |
 | Coop   | live-beta      | unsupported | live-beta    | live-beta    |
 | Aldi   | live-beta      | unsupported | unsupported  | live-beta    |
 | Denner | live-beta      | live-beta   | unsupported  | unsupported  |

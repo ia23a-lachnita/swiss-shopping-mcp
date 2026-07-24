@@ -3,11 +3,13 @@ import {
   MigrosApiProduct,
   MigrosApiStore,
   MigrosParsedProduct,
+  MigrosParsedPromotion,
   MigrosParsedStore,
   parseMigrosSearchResponse,
   parseMigrosStoresResponse,
+  toParsedMigrosPromotion,
 } from '../../parsers/migros.js';
-import { sortProducts } from '../../util/matcher.js';
+import { calculateMatchStrength, sortProducts } from '../../util/matcher.js';
 import {
   cacheableProvenance,
   liveProvenanceWithCacheExpiry,
@@ -18,6 +20,7 @@ import {
 } from './baseLiveAdapter.js';
 import {
   getGuestToken,
+  migrosFetch,
   searchProducts as browserSearchProducts,
   fetchProductCards,
   fetchProductCardsByMigrosIds,
@@ -35,7 +38,6 @@ import {
   Result,
   SourceProvenance,
   SourceWarning,
-  SourceWarningCode,
   StoreAvailabilitySupport,
   StoreProductAvailabilityFilters,
   StoreProductAvailabilityResult,
@@ -46,6 +48,8 @@ const MIGROS_PROVIDER = 'Migros';
 const DEFAULT_CACHE_TTL_MS = 6 * 60 * 60 * 1000;
 const DEFAULT_SEARCH_LIMIT = 20;
 const SEARCH_URL = 'https://www.migros.ch/product-display/public/v2/products/search';
+const PROMOTION_SEARCH_URL = 'https://www.migros.ch/product-display/public/web/v2/products/promotion/search';
+const DEFAULT_PROMOTION_LIMIT = 60;
 const PRODUCT_CARDS_URL = 'https://www.migros.ch/product-display/public/v4/product-cards';
 const STORES_URL = 'https://www.migros.ch/store/public/v1/stores/search';
 const AVAILABILITY_URL = 'https://www.migros.ch/store-availability/public/v2/availabilities/products';
@@ -81,6 +85,49 @@ function toNormalizedProduct(
     allergens: product.allergens,
     ingredients: product.ingredients ? [product.ingredients] : undefined,
     provenance: { ...provenance, sourceUrl: product.sourceUrl },
+  };
+}
+
+function toNormalizedMigrosPromotion(
+  promotion: MigrosParsedPromotion,
+  provenance: SourceProvenance
+): NormalizedPromotion {
+  return {
+    id: promotion.id,
+    chain: 'migros',
+    title: promotion.title,
+    productName: promotion.title,
+    brand: promotion.brand,
+    category: promotion.category,
+    description: promotion.description,
+    image: promotion.image,
+    price: promotion.price,
+    originalPrice: promotion.originalPrice,
+    discount: promotion.discount,
+    validFrom: new Date(promotion.validFrom),
+    validUntil: new Date(promotion.validUntil),
+    provenance: { ...provenance, sourceUrl: promotion.sourceUrl },
+  };
+}
+
+function promotionAsProduct(promotion: NormalizedPromotion): NormalizedProduct {
+  const discount = promotion.discount;
+  const label = discount
+    ? discount.type === 'percentage' ? `${discount.value}%` : `-CHF ${discount.value.toFixed(2)}`
+    : promotion.title;
+  return {
+    id: promotion.id,
+    chain: promotion.chain,
+    name: promotion.productName ?? promotion.title,
+    brand: promotion.brand,
+    category: promotion.category,
+    size: promotion.description,
+    price: {
+      current: promotion.price?.current ?? Number.POSITIVE_INFINITY,
+      original: promotion.originalPrice,
+    },
+    promotionLabel: label,
+    tags: ['promotion'],
   };
 }
 
@@ -559,15 +606,202 @@ export class MigrosLiveAdapter implements ChainAdapter {
   }
 
   public async searchPromotions(
-    _filters: PromotionSearchFilters
+    filters: PromotionSearchFilters
   ): Promise<Result<NormalizedPromotion[]>> {
+    const query = filters.query.trim();
+    if (!query) {
+      return {
+        ok: false,
+        error: { code: 'INVALID_QUERY', message: 'Query must be a non-empty string.' },
+      };
+    }
+
+    const loaded = await this.loadPromotions();
+    if (!loaded.ok) {
+      return {
+        ok: true,
+        data: [],
+        metadata: {
+          sourceWarnings: loaded.warnings,
+          sources: [
+            {
+              chain: 'migros',
+              status: 'degraded',
+              provider: MIGROS_PROVIDER,
+              sourceType: 'retailer-web',
+              lastObservedAt: new Date().toISOString(),
+              warning: loaded.warnings.at(0),
+            },
+          ],
+          summary: 'Migros promotions are temporarily unavailable. Use product search instead.',
+        },
+      };
+    }
+
+    const matchMode = filters.matchMode ?? 'balanced';
+    const promotions = loaded.data
+      .filter((promotion) => {
+        if (
+          filters.category &&
+          promotion.category?.toLowerCase() !== filters.category.toLowerCase()
+        ) {
+          return false;
+        }
+        if (
+          typeof filters.maxPrice === 'number' &&
+          (promotion.price?.current ?? Number.POSITIVE_INFINITY) > filters.maxPrice
+        ) {
+          return false;
+        }
+        return calculateMatchStrength(promotionAsProduct(promotion), query, matchMode) > 0;
+      })
+      .sort((a, b) => {
+        const strengthDiff =
+          calculateMatchStrength(promotionAsProduct(b), query, matchMode) -
+          calculateMatchStrength(promotionAsProduct(a), query, matchMode);
+        if (strengthDiff !== 0) {
+          return strengthDiff;
+        }
+        return (
+          (a.price?.current ?? Number.POSITIVE_INFINITY) -
+          (b.price?.current ?? Number.POSITIVE_INFINITY)
+        );
+      });
+
+    const limited =
+      typeof filters.limit === 'number' ? promotions.slice(0, filters.limit) : promotions;
     return {
-      ok: false,
-      error: {
-        code: SourceWarningCode.RealSourceNotImplemented,
-        message: 'Migros promotions search is not yet implemented.',
-      },
+      ok: true,
+      data: limited,
+      metadata: metadataFrom(
+        [loaded.provenance],
+        loaded.warnings,
+        'migros',
+        MIGROS_PROVIDER,
+        'Migros promotions are sourced from the live retailer campaign feed.',
+        'Migros promotions are sourced from cached retailer observations.'
+      ),
     };
+  }
+
+  private async loadPromotions(): Promise<
+    | { ok: true; data: NormalizedPromotion[]; provenance: SourceProvenance; warnings: SourceWarning[] }
+    | { ok: false; error: { code: string; message?: string }; warnings: SourceWarning[] }
+  > {
+    const cacheKey = 'migros:promotions:current';
+    const cached = await this.cache.get<MigrosParsedPromotion[]>(cacheKey, { allowStale: true });
+    if (cached && !cached.isStale) {
+      return {
+        ok: true,
+        data: cached.data.map((p) => toNormalizedMigrosPromotion(p, cached.provenance)),
+        provenance: cached.provenance,
+        warnings: [],
+      };
+    }
+
+    try {
+      const token = await this.ensureAuth();
+      const promotions = await this.fetchPromotionProducts(token);
+      const provenance = this.buildProvenance(PROMOTION_SEARCH_URL);
+
+      const record = await this.cache.set(
+        cacheKey,
+        promotions,
+        cacheableProvenance(provenance),
+        this.cacheTtlMs
+      );
+      const liveProvenance = liveProvenanceWithCacheExpiry(provenance, record.expiresAt);
+      return {
+        ok: true,
+        data: promotions.map((p) => toNormalizedMigrosPromotion(p, liveProvenance)),
+        provenance: liveProvenance,
+        warnings: [],
+      };
+    } catch (error) {
+      const warning = warningFromError(error, PROMOTION_SEARCH_URL, `${MIGROS_PROVIDER} promotions fetch failed`, 'migros', MIGROS_PROVIDER);
+
+      if (this.isAuthError(error) && !this.authFailed) {
+        this.invalidateAuth();
+        try {
+          const token = await this.ensureAuth();
+          const promotions = await this.fetchPromotionProducts(token);
+          const provenance = this.buildProvenance(PROMOTION_SEARCH_URL);
+          const record = await this.cache.set(cacheKey, promotions, cacheableProvenance(provenance), this.cacheTtlMs);
+          const liveProvenance = liveProvenanceWithCacheExpiry(provenance, record.expiresAt);
+          return {
+            ok: true,
+            data: promotions.map((p) => toNormalizedMigrosPromotion(p, liveProvenance)),
+            provenance: liveProvenance,
+            warnings: [],
+          };
+        } catch {
+          // Fall through to stale cache / error below
+        }
+      }
+
+      if (cached) {
+        return {
+          ok: true,
+          data: cached.data.map((p) => toNormalizedMigrosPromotion(p, cached.provenance)),
+          provenance: cached.provenance,
+          warnings: [warning, staleCacheWarning(cached.provenance, 'migros', MIGROS_PROVIDER)],
+        };
+      }
+
+      return { ok: false, error: { code: warning.code, message: warning.message }, warnings: [warning] };
+    }
+  }
+
+  private async fetchPromotionProducts(token: string): Promise<MigrosParsedPromotion[]> {
+    const response = await migrosFetch(PROMOTION_SEARCH_URL, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json, text/plain, */*',
+        'Content-Type': 'application/json',
+        leshopch: token,
+      },
+      body: {
+        storeType: 'OFFLINE',
+        period: 'CURRENT',
+        language: this.language,
+        filters: {},
+        sortFields: ['CATEGORYLEVEL'],
+        sortOrder: 'asc',
+        from: 0,
+        until: DEFAULT_PROMOTION_LIMIT,
+        region: 'national',
+        warehouse: '1',
+      },
+    });
+
+    if (response.status !== 200) {
+      throw new Error(`Promotion search request failed with status ${response.status}`);
+    }
+
+    const data = response.data as {
+      items?: Array<{ id: number; type?: string }>;
+      startDate?: string;
+      endDate?: string;
+    };
+    const items = Array.isArray(data.items) ? data.items : [];
+    const uids = items.map((i) => i.id).filter((id): id is number => typeof id === 'number');
+    if (uids.length === 0) {
+      return [];
+    }
+
+    // Campaign feed only gives one shared start/end for the whole batch, not
+    // per-product ranges - fall back to a plain 7-day window from today if
+    // either is missing, so a partial response still yields usable data.
+    const now = new Date();
+    const startDate = data.startDate ?? now.toISOString().slice(0, 10);
+    const endDate =
+      data.endDate ?? new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+
+    const cards = await this.fetchCards(uids, token);
+    return cards.flatMap((product) => {
+      const parsed = toParsedMigrosPromotion(product, { startDate, endDate }, PROMOTION_SEARCH_URL);
+      return parsed ? [parsed] : [];
+    });
   }
 
   public async findStores(filters: StoreSearchFilters): Promise<Result<NormalizedStore[]>> {

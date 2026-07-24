@@ -153,8 +153,10 @@ export const SOURCE_REGISTRY: Record<Chain, CapabilitySourceStatus[]> = {
     {
       chain: 'migros',
       capability: 'promotions',
-      status: 'unsupported',
-      reason: 'Migros promotions search is not yet implemented.',
+      status: 'live-beta',
+      provider: 'Migros',
+      sourceType: 'retailer-web',
+      reason: 'Uses the live campaign feed (product-display/public/web/v2/products/promotion/search) via Playwright to bypass Cloudflare bot protection; results filtered to a text query client-side.',
     },
     {
       chain: 'migros',

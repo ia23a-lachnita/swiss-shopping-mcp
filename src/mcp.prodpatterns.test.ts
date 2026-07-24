@@ -436,7 +436,7 @@ describe('4. search_promotions', () => {
   it('unsupported chains return source warnings', async () => {
     const result = await callTool(client, 'search_promotions', {
       query: 'wine',
-      chains: ['denner', 'migros'],
+      chains: ['denner', 'aldi'],
     });
     expect(result.isError).not.toBe(true);
     const data = structured<{
@@ -444,14 +444,14 @@ describe('4. search_promotions', () => {
       sourceWarnings?: Array<{ code: string; chain: string }>;
     }>(result);
     expect(data.sourceWarnings).toBeDefined();
-    const migrosWarnings = data.sourceWarnings!.filter((w) => w.chain === 'migros');
-    expect(migrosWarnings.length).toBeGreaterThan(0);
+    const aldiWarnings = data.sourceWarnings!.filter((w) => w.chain === 'aldi');
+    expect(aldiWarnings.length).toBeGreaterThan(0);
   });
 
   it('ALL_SOURCES_FAILED when all chains unsupported', async () => {
     const result = await callTool(client, 'search_promotions', {
       query: 'wine',
-      chains: ['coop', 'migros'],
+      chains: ['coop', 'aldi'],
     });
     expect(result.isError).not.toBe(true);
     const data = structured<{ promotions: NormalizedPromotion[]; sourceWarnings?: Array<{ chain: string }> }>(result);
@@ -1270,7 +1270,7 @@ describe('15. Source Warning Codes & Error Patterns', () => {
   it('unsupported chain promotions returns REAL_SOURCE_NOT_IMPLEMENTED', async () => {
     const result = await callTool(client, 'search_promotions', {
       query: 'wine',
-      chains: ['migros'],
+      chains: ['aldi'],
     });
     expect(result.isError).not.toBe(true);
     const data = structured<{ promotions: NormalizedPromotion[]; sourceWarnings?: Array<{ chain: string }> }>(result);

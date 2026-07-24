@@ -62,20 +62,71 @@ export interface MigrosStoresResponse {
   total?: number;
 }
 
-export interface MigrosPromotion {
-  id: string;
-  title: string;
-  description?: string;
-  price?: NormalizedPrice;
-  original_price?: number;
-  image?: string;
-  valid_from?: string;
-  valid_until?: string;
-  category?: string;
+/**
+ * Migros campaign feed (`product-display/public/web/v2/products/promotion/search`)
+ * returns bare {id, type} items plus a shared start/end date for the whole
+ * batch - not per-product date ranges. Items are hydrated via the same
+ * product-cards endpoint/pipeline as regular search.
+ */
+export interface MigrosPromotionSearchResponse {
+  items?: Array<{ id: number; type?: string }>;
+  startDate?: string;
+  endDate?: string;
+  numberOfItems?: number;
 }
 
-export interface MigrosPromotionsResponse {
-  promotions: MigrosPromotion[];
+export interface MigrosParsedPromotion {
+  id: string;
+  migrosId?: string;
+  sourceUrl: string;
+  productUrl?: string;
+  title: string;
+  brand?: string;
+  category?: string;
+  image?: string;
+  price: NormalizedPrice;
+  originalPrice: number;
+  discount?: { type: 'percentage' | 'absolute'; value: number };
+  description?: string;
+  validFrom: string;
+  validUntil: string;
+}
+
+/**
+ * Builds a parsed promotion from a product already hydrated via the regular
+ * product-cards pipeline (`MigrosApiProduct`, which already carries
+ * `price.original`/`promotionLabel` from `offer.promotionPrice`/`badges`).
+ * Returns undefined when the product isn't actually discounted right now.
+ */
+export function toParsedMigrosPromotion(
+  product: MigrosApiProduct,
+  campaignWindow: { startDate: string; endDate: string },
+  sourceUrl: string
+): MigrosParsedPromotion | undefined {
+  const current = product.price?.amount;
+  const original = product.price?.original;
+  if (typeof current !== 'number' || typeof original !== 'number' || original <= current) {
+    return undefined;
+  }
+
+  const discountPercent = Math.round((1 - current / original) * 100);
+
+  return {
+    id: String(product.id),
+    migrosId: product.migrosId,
+    sourceUrl,
+    productUrl: product.url,
+    title: product.name,
+    brand: product.brand_name,
+    category: product.category_name,
+    image: product.image_url,
+    price: { current },
+    originalPrice: original,
+    discount: discountPercent > 0 ? { type: 'percentage', value: discountPercent } : undefined,
+    description: product.quantity,
+    validFrom: campaignWindow.startDate,
+    validUntil: campaignWindow.endDate,
+  };
 }
 
 export interface MigrosParsedProduct {
