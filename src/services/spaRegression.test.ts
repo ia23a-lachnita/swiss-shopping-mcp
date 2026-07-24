@@ -142,8 +142,14 @@ afterAll(() => {
 // =====================================================
 // Tests covering browser-found issues
 // =====================================================
+//
+// Most describe blocks below hit real vendor APIs via createDefaultAdapters()
+// (no mocking) and are gated the same way *.live.test.ts files are: Migros's
+// anti-bot layer blocks requests from a non-VPN-routed egress IP (confirmed
+// live: the VPN-routed production deployment gets real data for the same
+// query that returns empty here), so these can't run unattended in CI.
 
-describe('Store Finder — opening hours (browser finding #1)', () => {
+describe.skipIf(process.env.LIVE_SOURCE_TESTS !== '1')('Store Finder — opening hours (browser finding #1)', () => {
   it('Migros stores in Bern have openingHours field', async () => {
     const r = await post('/api/find-stores', { location: 'Bern', chains: ['migros'], limit: 3 });
     expect(r.ok).toBe(true);
@@ -171,7 +177,7 @@ describe('Store Finder — opening hours (browser finding #1)', () => {
   });
 });
 
-describe('Product search — chain filtering', () => {
+describe.skipIf(process.env.LIVE_SOURCE_TESTS !== '1')('Product search — chain filtering', () => {
   it('Migros-only search returns only Migros products', async () => {
     const r = await post('/api/search-products', { query: 'butter', chains: ['migros'], limit: 5 });
     expect(r.ok).toBe(true);
@@ -198,7 +204,7 @@ describe('Product search — chain filtering', () => {
   });
 });
 
-describe('Product cards — structure validation', () => {
+describe.skipIf(process.env.LIVE_SOURCE_TESTS !== '1')('Product cards — structure validation', () => {
   it('Product has all required fields for SPA rendering', async () => {
     const r = await post('/api/search-products', { query: 'butter', chains: ['migros'], limit: 3 });
     expect(r.ok).toBe(true);
@@ -225,7 +231,7 @@ describe('Product cards — structure validation', () => {
   });
 });
 
-describe('Store cards — structure validation', () => {
+describe.skipIf(process.env.LIVE_SOURCE_TESTS !== '1')('Store cards — structure validation', () => {
   it('Store has all required fields for SPA rendering', async () => {
     const r = await post('/api/find-stores', { location: 'Bern', chains: ['migros'], limit: 3 });
     expect(r.ok).toBe(true);
@@ -318,7 +324,7 @@ describe('Error handling — empty/missing params', () => {
   });
 });
 
-describe('Price comparison — offers structure', () => {
+describe.skipIf(process.env.LIVE_SOURCE_TESTS !== '1')('Price comparison — offers structure', () => {
   it('Returns offers with chain and price', async () => {
     const r = await post('/api/compare-prices', { query: 'butter', chains: ['migros', 'coop'] });
     expect(r.ok).toBe(true);
@@ -331,7 +337,7 @@ describe('Price comparison — offers structure', () => {
   });
 });
 
-describe('Availability — products-first endpoint', () => {
+describe.skipIf(process.env.LIVE_SOURCE_TESTS !== '1')('Availability — products-first endpoint', () => {
   it('Returns product availability data', { timeout: 15000 }, async () => {
     const r = await post('/api/store-availability', { query: 'Milch', location: 'Bern' });
     expect(r.ok).toBe(true);
@@ -339,7 +345,7 @@ describe('Availability — products-first endpoint', () => {
   });
 });
 
-describe('Max price filter', () => {
+describe.skipIf(process.env.LIVE_SOURCE_TESTS !== '1')('Max price filter', () => {
   it('Limits products to max price', async () => {
     const r = await post('/api/search-products', { query: 'cheese', chains: ['migros'], maxPrice: 5, limit: 10 });
     expect(r.ok).toBe(true);
@@ -349,7 +355,7 @@ describe('Max price filter', () => {
   });
 });
 
-describe('Limit parameter', () => {
+describe.skipIf(process.env.LIVE_SOURCE_TESTS !== '1')('Limit parameter', () => {
   it('Limit 5 returns at most 5 products', async () => {
     const r = await post('/api/search-products', { query: 'milk', chains: ['migros'], limit: 5 });
     expect(r.ok).toBe(true);
