@@ -1,28 +1,52 @@
-import { useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { AnimatePresence, motion } from 'framer-motion';
+import NumberFlow from '@number-flow/react';
 import { AlertTriangle, Search } from 'lucide-react';
 
 import { ALL_CHAINS, CHAIN_LABELS, searchProducts, type Chain, type Product } from '../api';
-import { cn, formatPrice } from '../lib/utils';
+import { cn } from '../lib/utils';
 import { ProductSheet } from './ProductSheet';
+import { VendorBadge } from './VendorBadge';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
 import { Card, CardContent } from './ui/card';
 import { Input } from './ui/input';
+import { Price } from './ui/price';
 import { Skeleton } from './ui/skeleton';
+
+function ProductCardSkeleton(): React.JSX.Element {
+  return (
+    <div className="rounded-card bg-surface p-3 shadow-card">
+      <Skeleton className="h-24 w-full rounded" />
+      <Skeleton className="mt-2 h-3 w-4/5" />
+      <Skeleton className="mt-1.5 h-3 w-2/5" />
+    </div>
+  );
+}
 
 export function SearchView(): React.JSX.Element {
   const [query, setQuery] = useState('');
   const [chains, setChains] = useState<Chain[]>([...ALL_CHAINS]);
   const [submitted, setSubmitted] = useState<{ query: string; chains: Chain[] } | undefined>();
   const [selected, setSelected] = useState<Product | undefined>();
+  const [openVendor, setOpenVendor] = useState<string>();
+  const queryInputRef = useRef<HTMLInputElement>(null);
 
-  const { data, isFetching, error } = useQuery({
+  useEffect(() => {
+    queryInputRef.current?.focus();
+  }, []);
+
+  const { data: queryResult, isFetching, error } = useQuery({
     queryKey: ['search', submitted],
-    queryFn: () => searchProducts({ ...submitted!, limit: 12 }),
+    queryFn: async () => {
+      const start = performance.now();
+      const data = await searchProducts({ ...submitted!, limit: 12 });
+      return { data, elapsedMs: performance.now() - start };
+    },
     enabled: submitted !== undefined,
   });
+  const data = queryResult?.data;
 
   function submit(event?: FormEvent): void {
     event?.preventDefault();
@@ -38,16 +62,21 @@ export function SearchView(): React.JSX.Element {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 pt-3">
       <form onSubmit={submit} className="space-y-3">
-        <Input
-          id="search-query"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Produkt suchen, z.B. Zahnpasta"
-          autoComplete="off"
-          enterKeyHint="search"
-        />
+        <div className="relative">
+          <Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-brand" />
+          <Input
+            ref={queryInputRef}
+            id="search-query"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Produkt suchen, z.B. Zahnpasta"
+            autoComplete="off"
+            enterKeyHint="search"
+            className="h-12 pl-10 text-base font-medium"
+          />
+        </div>
         <div className="flex flex-wrap gap-2">
           {ALL_CHAINS.map((chain) => (
             <button
@@ -55,10 +84,10 @@ export function SearchView(): React.JSX.Element {
               type="button"
               onClick={() => toggleChain(chain)}
               className={cn(
-                'rounded-full border px-3 py-1.5 text-xs font-medium transition-colors',
+                'rounded-full px-3 py-1.5 text-xs font-medium transition-colors',
                 chains.includes(chain)
-                  ? 'border-blue-600 bg-blue-600 text-white'
-                  : 'border-zinc-300 bg-white text-zinc-600 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300'
+                  ? 'bg-brand text-brand-ink'
+                  : 'bg-surface-sunken text-muted shadow-inset'
               )}
               aria-pressed={chains.includes(chain)}
             >
@@ -74,21 +103,31 @@ export function SearchView(): React.JSX.Element {
       {isFetching && (
         <div className="grid grid-cols-2 gap-3" data-testid="search-loading">
           {[0, 1, 2, 3].map((i) => (
-            <Skeleton key={i} className="h-44 w-full" />
+            <ProductCardSkeleton key={i} />
           ))}
         </div>
       )}
 
       {error instanceof Error && !isFetching && (
         <Card>
-          <CardContent className="flex items-center gap-3 text-sm text-red-600">
+          <CardContent className="flex items-center gap-3 text-sm text-danger">
             <AlertTriangle className="size-5 shrink-0" /> {error.message}
           </CardContent>
         </Card>
       )}
 
       {!isFetching && data && data.products.length === 0 && (
-        <p className="py-8 text-center text-sm text-zinc-500">Keine Produkte gefunden.</p>
+        <div className="rounded-card bg-surface p-6 text-center shadow-card">
+          <p className="font-semibold">Keine Produkte gefunden</p>
+        </div>
+      )}
+
+      {!isFetching && queryResult && data && data.products.length > 0 && (
+        <p className="flex items-center gap-1.5 text-xs text-faint">
+          <Search className="size-3" />
+          <NumberFlow value={data.products.length} className="font-mono font-semibold text-ink" /> Ergebnisse in{' '}
+          <b className="font-mono font-semibold text-ink">{(queryResult.elapsedMs / 1000).toFixed(1)}s</b>
+        </p>
       )}
 
       <motion.ul
@@ -104,46 +143,38 @@ export function SearchView(): React.JSX.Element {
               <motion.li
                 key={`${product.chain}:${product.id}`}
                 layout
-                variants={{
-                  hidden: { opacity: 0, y: 12 },
-                  visible: { opacity: 1, y: 0 },
-                }}
+                variants={{ hidden: { opacity: 0, y: 12 }, visible: { opacity: 1, y: 0 } }}
                 exit={{ opacity: 0, scale: 0.97 }}
               >
-                <Card
-                  className="h-full cursor-pointer transition-transform active:scale-[0.98]"
-                  onClick={() => setSelected(product)}
-                >
-                  <CardContent className="flex h-full flex-col p-3">
-                    {product.image ? (
-                      <img
-                        src={product.image}
-                        alt=""
-                        className="mx-auto h-24 w-full rounded-lg bg-white object-contain"
-                        loading="lazy"
-                      />
-                    ) : (
-                      <div className="h-24 w-full rounded-lg bg-zinc-100 dark:bg-zinc-800" />
+                <Card className="h-full cursor-pointer p-3" onClick={() => setSelected(product)}>
+                  {product.image ? (
+                    <img
+                      src={product.image}
+                      alt=""
+                      className="mx-auto h-24 w-full rounded bg-white object-contain"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div className="h-24 w-full rounded bg-surface-sunken" />
+                  )}
+                  <div className="mt-2 flex items-center gap-1.5">
+                    <VendorBadge
+                      chain={product.chain}
+                      open={openVendor === `${product.chain}:${product.id}`}
+                      onOpenChange={(o) => setOpenVendor(o ? `${product.chain}:${product.id}` : undefined)}
+                    />
+                    {product.promotionLabel && <Badge variant="promo">{product.promotionLabel}</Badge>}
+                  </div>
+                  <p className="mt-1 line-clamp-2 text-sm font-medium">{product.name}</p>
+                  <div className="mt-auto pt-1 text-sm">
+                    <Price value={product.price.current} className="font-semibold" />
+                    {product.price.original && (
+                      <span className="ml-1.5 font-mono text-xs text-faint line-through">
+                        CHF {product.price.original.toFixed(2)}
+                      </span>
                     )}
-                    <div className="mt-2 flex items-center gap-1.5">
-                      <Badge>{CHAIN_LABELS[product.chain]}</Badge>
-                      {product.promotionLabel && (
-                        <Badge variant="promo">{product.promotionLabel}</Badge>
-                      )}
-                    </div>
-                    <p className="mt-1 line-clamp-2 text-sm font-medium text-zinc-900 dark:text-zinc-50">{product.name}</p>
-                    <div className="mt-auto pt-1 text-sm">
-                      <span className="font-semibold text-zinc-900 dark:text-zinc-50">{formatPrice(product.price.current)}</span>
-                      {product.price.original && (
-                        <span className="ml-1.5 text-xs text-zinc-400 line-through">
-                          {formatPrice(product.price.original)}
-                        </span>
-                      )}
-                      {product.size && (
-                        <span className="ml-1.5 text-xs text-zinc-500">{product.size}</span>
-                      )}
-                    </div>
-                  </CardContent>
+                    {product.size && <span className="ml-1.5 text-xs text-faint">{product.size}</span>}
+                  </div>
                 </Card>
               </motion.li>
             ))}

@@ -2,6 +2,92 @@
 
 @theme {
   --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", Menlo, monospace;
+
+  /* Warm-stone neutrals — deliberately not pure black/white, no green or blue bias
+     (an earlier pass leaned green by accident; these values were checked to be neutral). */
+  --color-bg: #edeceb;
+  --color-surface: #f8f7f4;
+  --color-surface-sunken: #e6e3dd;
+  --color-ink: #201f1c;
+  --color-muted: #5c5952;
+  --color-faint: #8a867d;
+  --color-line: #e3e0d7;
+
+  /* One accent family: bronze/brass. brand = darker (interactive actions),
+     accent2 = lighter (deal stamps only). No blue/purple anywhere — every
+     attempt at a blue-ish accent kept reading as the default AI-tool hue. */
+  --color-brand: #8a5a1f;
+  --color-brand-ink: #f8f7f4;
+  --color-accent2: #a9781f;
+  --color-accent2-bg: #f0e4c8;
+
+  --color-success: #3f7a4e;
+  --color-success-bg: #e1eedd;
+  --color-danger: #a8442f;
+  --color-danger-bg: #f3e1da;
+
+  --radius-card: 6px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #17181a;
+    /* surface (raised/card) is lighter than surface-sunken (recessed) here on purpose —
+       getting this backwards was exactly what made cards read as flat outlined boxes
+       instead of raised surfaces in the design-review mockup. */
+    --color-surface: #212226;
+    --color-surface-sunken: #121315;
+    --color-ink: #edece9;
+    --color-muted: #a8a59d;
+    --color-faint: #726f67;
+    --color-line: #2a2b28;
+
+    --color-brand: #c98f3e;
+    --color-brand-ink: #1b1206;
+    --color-accent2: #d9a94a;
+    --color-accent2-bg: #3a2e12;
+
+    --color-success: #6fbd7f;
+    --color-success-bg: #16311d;
+    --color-danger: #e08267;
+    --color-danger-bg: #3a1e15;
+  }
+}
+
+/* Multi-layer tinted shadows + a warm rim-light, so raised surfaces read as one
+   consistent light source instead of a flat drop-shadow. Plain CSS custom
+   properties (not @theme) since Tailwind v4 doesn't generate box-shadow utilities
+   from multi-value tokens the way it does for color/radius. */
+:root {
+  --shadow-card-sm: 0 1px 2px color-mix(in srgb, var(--color-ink) 8%, transparent);
+  --shadow-card: 0 0 1px color-mix(in srgb, var(--color-ink) 5%, transparent),
+    0 1px 2px color-mix(in srgb, var(--color-ink) 6%, transparent),
+    0 4px 10px -4px color-mix(in srgb, var(--color-ink) 18%, transparent);
+  --shadow-card-lg: 0 0 1px color-mix(in srgb, var(--color-ink) 6%, transparent),
+    0 4px 8px -2px color-mix(in srgb, var(--color-ink) 10%, transparent),
+    0 16px 30px -10px color-mix(in srgb, var(--color-ink) 24%, transparent);
+  --rim-light: inset 0 1px 0 rgba(255, 248, 234, 0.75);
+  --shadow-inset: inset 0 1px 2px color-mix(in srgb, var(--color-ink) 12%, transparent),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.4);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --shadow-card-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+    --shadow-card: 0 0 1px rgba(0, 0, 0, 0.35), 0 1px 2px rgba(0, 0, 0, 0.3),
+      0 4px 12px -4px rgba(0, 0, 0, 0.5);
+    --shadow-card-lg: 0 0 1px rgba(0, 0, 0, 0.4), 0 4px 10px -2px rgba(0, 0, 0, 0.45),
+      0 20px 36px -10px rgba(0, 0, 0, 0.6);
+    --rim-light: inset 0 1px 0 rgba(255, 244, 220, 0.07);
+    --shadow-inset: inset 0 1px 3px rgba(0, 0, 0, 0.45), inset 0 -1px 0 rgba(255, 255, 255, 0.03);
+  }
+}
+
+/* App-wide bottom-nav clearance: the nav's real rendered height must match this
+   exactly, or content sits under it on devices with a larger safe-area-bottom
+   (the root cause of the reported nav-overlap bug). */
+:root {
+  --nav-h: calc(env(safe-area-inset-bottom) + 4rem);
 }
 
 html {
@@ -10,13 +96,8 @@ html {
 
 body {
   overscroll-behavior-y: none;
-  color: #18181b; /* zinc-900 fallback so text stays readable if a component omits an explicit text color */
-}
-
-@media (prefers-color-scheme: dark) {
-  body {
-    color: #fafafa; /* zinc-50 fallback for the same reason, dark mode */
-  }
+  background: var(--color-bg);
+  color: var(--color-ink);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -27,4 +108,72 @@ body {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* Swiss shelf-tag convention: francs large, rappen/cents smaller and top-aligned
+   (not baseline-shifted — vertical-align: super looked "out of place" in review). */
+.frac {
+  font-size: 0.82em;
+  vertical-align: text-top;
+  margin-left: 0.04em;
+}
+
+/* Multi-value box-shadow tokens as real utility classes (Tailwind's shadow-[...]
+   arbitrary-value syntax doesn't handle comma-separated shadow layers cleanly). */
+@utility shadow-card-sm {
+  box-shadow: var(--shadow-card-sm);
+}
+@utility shadow-card {
+  box-shadow: var(--shadow-card), var(--rim-light);
+}
+@utility shadow-card-lg {
+  box-shadow: var(--shadow-card-lg), var(--rim-light);
+}
+@utility shadow-inset {
+  box-shadow: var(--shadow-inset);
+}
+
+/* Perforated "receipt tear" divider between a product's info and its store list. */
+.tear {
+  height: 1px;
+  margin: 0.75rem -1rem 0;
+  background-image: radial-gradient(circle, var(--color-bg) 1.4px, transparent 1.6px);
+  background-size: 9px 100%;
+  background-repeat: repeat-x;
+  position: relative;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.15));
+}
+.tear::before,
+.tear::after {
+  content: '';
+  position: absolute;
+  top: -6px;
+  width: 12px;
+  height: 12px;
+  border-radius: 99px;
+  background: var(--color-surface-sunken);
+}
+.tear::before {
+  left: -7px;
+}
+.tear::after {
+  right: -7px;
+}
+
+/* Subtle grounding accent — a receipt always ends with a barcode. */
+.barcode {
+  height: 12px;
+  margin: 0.6rem -1rem -1rem;
+  opacity: 0.14;
+  background-image: repeating-linear-gradient(
+    to right,
+    var(--color-ink) 0 1px,
+    transparent 1px 2px,
+    var(--color-ink) 3px 4px,
+    transparent 4px 5px,
+    var(--color-ink) 5px 6px,
+    transparent 6px 9px,
+    var(--color-ink) 9px 10px,
+    transparent 10px 12px
+  );
 }

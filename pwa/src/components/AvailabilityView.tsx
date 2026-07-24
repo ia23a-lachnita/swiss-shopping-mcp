@@ -1,14 +1,14 @@
-import { lazy, Suspense, useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { AnimatePresence, motion } from 'framer-motion';
+import NumberFlow from '@number-flow/react';
+import { toast } from 'sonner';
 import {
   AlertTriangle,
   Check,
   ChevronDown,
   ExternalLink,
-  List,
   LocateFixed,
-  Map as MapIcon,
   MapPin,
   Search,
 } from 'lucide-react';
@@ -22,17 +22,15 @@ import {
   type Product,
   type StoreWithAvailability,
 } from '../api';
-import { cn, formatPrice, mapsUrl } from '../lib/utils';
+import { cn, mapsUrl } from '../lib/utils';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
 import { Card, CardContent } from './ui/card';
 import { Input } from './ui/input';
+import { Price } from './ui/price';
 import { Skeleton } from './ui/skeleton';
 import { ProductSheet } from './ProductSheet';
-
-const AvailabilityMap = lazy(() =>
-  import('./AvailabilityMap').then((m) => ({ default: m.AvailabilityMap }))
-);
+import { VendorBadge } from './VendorBadge';
 
 interface SearchParams {
   query: string;
@@ -57,31 +55,55 @@ function stockBadge(store: StoreWithAvailability): React.JSX.Element {
 
 function StoreRow({ store }: { store: StoreWithAvailability }): React.JSX.Element {
   return (
-    <li className="flex items-center gap-3 py-2">
+    <div className="grid grid-cols-[auto_1fr_auto] items-center gap-2.5 border-t border-line py-2 first:border-t-0">
       <span
         className={cn(
-          'size-2 shrink-0 rounded-full',
-          store.isOpen === true && 'bg-emerald-500',
-          store.isOpen === false && 'bg-red-500',
-          store.isOpen === undefined && 'bg-zinc-300 dark:bg-zinc-600'
+          'flex size-7 shrink-0 items-center justify-center rounded text-xs',
+          store.available ? 'bg-success-bg text-success' : 'bg-danger-bg text-danger'
         )}
-        title={store.isOpen === true ? 'Offen' : store.isOpen === false ? 'Geschlossen' : 'Öffnungszeiten unbekannt'}
-      />
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-medium">{store.name}</p>
-        <p className="truncate text-xs text-zinc-500 dark:text-zinc-400">{store.address}</p>
-      </div>
-      {stockBadge(store)}
-      <a
-        href={mapsUrl(store.location.latitude, store.location.longitude)}
-        target="_blank"
-        rel="noreferrer"
-        className="text-zinc-400 transition-colors active:text-blue-600"
-        aria-label={`${store.name} auf Google Maps öffnen`}
       >
-        <ExternalLink className="size-4" />
-      </a>
-    </li>
+        {store.available ? '✓' : '✕'}
+      </span>
+      <div className="min-w-0">
+        <p className="truncate text-sm font-medium">{store.name}</p>
+        <p className="truncate text-xs text-faint">
+          {store.address}
+          {store.isOpen === true && ' · offen'}
+          {store.isOpen === false && ' · geschlossen'}
+        </p>
+      </div>
+      <div className="flex items-center gap-2">
+        {stockBadge(store)}
+        <a
+          href={mapsUrl(store.location.latitude, store.location.longitude)}
+          target="_blank"
+          rel="noreferrer"
+          className="text-faint transition-colors active:text-brand"
+          aria-label={`${store.name} auf Google Maps öffnen`}
+        >
+          <ExternalLink className="size-4" />
+        </a>
+      </div>
+    </div>
+  );
+}
+
+function AvailabilityCardSkeleton(): React.JSX.Element {
+  return (
+    <div className="rounded-card bg-surface p-4 shadow-card">
+      <div className="flex gap-3">
+        <Skeleton className="size-14 shrink-0 rounded" />
+        <div className="flex flex-1 flex-col justify-center gap-2">
+          <Skeleton className="h-3 w-2/3" />
+          <Skeleton className="h-3 w-1/3" />
+        </div>
+      </div>
+      <div className="tear" />
+      <div className="space-y-2 py-2">
+        <Skeleton className="h-8 w-full" />
+        <Skeleton className="h-8 w-full" />
+      </div>
+    </div>
   );
 }
 
@@ -93,18 +115,26 @@ export function AvailabilityView(): React.JSX.Element {
   const [openNow, setOpenNow] = useState(false);
   const [params, setParams] = useState<SearchParams | undefined>();
   const [locating, setLocating] = useState(false);
-  const [locateError, setLocateError] = useState<string>();
-  const [selected, setSelected] = useState<Product | undefined>();
-  const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
-  const [mapEverShown, setMapEverShown] = useState(false);
+  const [selected, setSelected] = useState<{ product: Product; stores: StoreWithAvailability[] } | undefined>();
   const [editingLocation, setEditingLocation] = useState(true);
   const [userCoords, setUserCoords] = useState<{ lat: number; lng: number }>();
+  const [openVendor, setOpenVendor] = useState<string>();
+  const queryInputRef = useRef<HTMLInputElement>(null);
 
-  const { data, isFetching, error } = useQuery({
+  useEffect(() => {
+    queryInputRef.current?.focus();
+  }, []);
+
+  const { data: queryResult, isFetching, error } = useQuery({
     queryKey: ['availability', params],
-    queryFn: () => productAvailability({ ...params!, limit: 5 }),
+    queryFn: async () => {
+      const start = performance.now();
+      const data = await productAvailability({ ...params!, limit: 5 });
+      return { data, elapsedMs: performance.now() - start };
+    },
     enabled: params !== undefined,
   });
+  const data = queryResult?.data;
 
   function submit(event?: FormEvent): void {
     event?.preventDefault();
@@ -116,36 +146,32 @@ export function AvailabilityView(): React.JSX.Element {
         latitude: userCoords?.lat,
         longitude: userCoords?.lng,
       });
-      setEditingLocation(false);
     }
   }
 
   function useMyLocation(): void {
-    setLocateError(undefined);
     if (!navigator.geolocation) {
-      setLocateError('Standortdienste werden nicht unterstützt.');
+      toast.error('Standortdienste werden nicht unterstützt.');
       return;
     }
     setLocating(true);
     navigator.geolocation.getCurrentPosition(
       async (position) => {
         try {
-          const resolved = await reverseGeocode(
-            position.coords.latitude,
-            position.coords.longitude
-          );
+          const resolved = await reverseGeocode(position.coords.latitude, position.coords.longitude);
           setLocation(resolved);
           setUserCoords({ lat: position.coords.latitude, lng: position.coords.longitude });
           setEditingLocation(false);
+          toast.success(`Standort aktualisiert — ${resolved}`);
         } catch (err) {
-          setLocateError(err instanceof Error ? err.message : 'Standort nicht gefunden.');
+          toast.error(err instanceof Error ? err.message : 'Standort nicht gefunden.');
         } finally {
           setLocating(false);
         }
       },
       () => {
         setLocating(false);
-        setLocateError('Standortzugriff verweigert.');
+        toast.error('Standortzugriff verweigert.');
       },
       { enableHighAccuracy: false, timeout: 10_000, maximumAge: 300_000 }
     );
@@ -161,108 +187,81 @@ export function AvailabilityView(): React.JSX.Element {
     .map((entry) => ({
       ...entry,
       stores: entry.stores.filter(
-        (store) =>
-          (!inStockOnly || store.available) && (!openNow || store.isOpen === true)
+        (store) => (!inStockOnly || store.available) && (!openNow || store.isOpen === true)
       ),
     }))
     .filter((entry) => entry.stores.length > 0 || (!inStockOnly && !openNow));
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 pt-3">
       <form onSubmit={submit} className="space-y-3">
-        <div className="sticky top-[calc(env(safe-area-inset-top)+3.25rem)] z-20 -mx-4 flex items-center gap-2 border-b border-zinc-200/70 bg-zinc-50/95 px-4 py-2 backdrop-blur-md dark:border-zinc-800/70 dark:bg-zinc-950/95">
-          {editingLocation ? (
-            <>
-              <Input
-                id="avail-location"
-                value={location}
-                onChange={(e) => {
-                  setLocation(e.target.value);
-                  // Manual edits invalidate the GPS fix tied to the previous text.
-                  setUserCoords(undefined);
-                }}
-                placeholder="PLZ oder Ort, z.B. 8001 Zürich"
-                autoComplete="postal-code"
-                enterKeyHint="search"
-              />
+        {/* Query is the primary, dominant control — what you're looking for matters
+            more than where, so it comes first and reads larger than the location chip. */}
+        <div className="relative">
+          <Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-brand" />
+          <Input
+            ref={queryInputRef}
+            id="avail-query"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Produkt, z.B. Milch"
+            autoComplete="off"
+            enterKeyHint="search"
+            className="h-12 pl-10 text-base font-medium"
+          />
+        </div>
+
+        {editingLocation ? (
+          <div className="flex items-center gap-2">
+            <Input
+              id="avail-location"
+              value={location}
+              onChange={(e) => {
+                setLocation(e.target.value);
+                setUserCoords(undefined);
+              }}
+              placeholder="PLZ oder Ort, z.B. 8001 Zürich"
+              autoComplete="postal-code"
+              enterKeyHint="search"
+              className="h-9 text-sm"
+            />
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              onClick={useMyLocation}
+              disabled={locating}
+              aria-label="Meinen Standort verwenden"
+              data-testid="use-location"
+              className="h-9 w-9"
+            >
+              <LocateFixed className={cn('size-4', locating && 'animate-spin')} />
+            </Button>
+            {location.trim() && (
               <Button
                 type="button"
                 variant="outline"
                 size="icon"
-                onClick={useMyLocation}
-                disabled={locating}
-                aria-label="Meinen Standort verwenden"
-                data-testid="use-location"
+                onClick={() => setEditingLocation(false)}
+                aria-label="Fertig"
+                className="h-9 w-9"
               >
-                <LocateFixed className={cn(locating && 'animate-spin')} />
+                <Check className="size-4" />
               </Button>
-              {location.trim() && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  onClick={() => setEditingLocation(false)}
-                  aria-label="Fertig"
-                >
-                  <Check />
-                </Button>
-              )}
-            </>
-          ) : (
-            <>
-              <button
-                type="button"
-                onClick={() => setEditingLocation(true)}
-                className="flex min-w-0 flex-1 items-center gap-1.5 rounded-full border border-zinc-300 bg-white px-3 py-1.5 text-left text-sm font-medium text-zinc-700 active:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200 dark:active:bg-zinc-800"
-                data-testid="location-pill"
-              >
-                <MapPin className="size-4 shrink-0 text-blue-600" />
-                <span className="truncate">{location}</span>
-                <ChevronDown className="size-3.5 shrink-0 text-zinc-400" />
-              </button>
-              {results.length > 0 && (
-                <div className="flex shrink-0 gap-0.5 rounded-full border border-zinc-300 p-0.5 dark:border-zinc-700">
-                  <button
-                    type="button"
-                    onClick={() => setViewMode('list')}
-                    aria-pressed={viewMode === 'list'}
-                    aria-label="Listenansicht"
-                    className={cn(
-                      'rounded-full p-1.5 transition-colors',
-                      viewMode === 'list' ? 'bg-blue-600 text-white' : 'text-zinc-500 dark:text-zinc-400'
-                    )}
-                  >
-                    <List className="size-4" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setViewMode('map');
-                      setMapEverShown(true);
-                    }}
-                    aria-pressed={viewMode === 'map'}
-                    aria-label="Kartenansicht"
-                    className={cn(
-                      'rounded-full p-1.5 transition-colors',
-                      viewMode === 'map' ? 'bg-blue-600 text-white' : 'text-zinc-500 dark:text-zinc-400'
-                    )}
-                  >
-                    <MapIcon className="size-4" />
-                  </button>
-                </div>
-              )}
-            </>
-          )}
-        </div>
-
-        <Input
-          id="avail-query"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Produkt, z.B. Milch"
-          autoComplete="off"
-          enterKeyHint="search"
-        />
+            )}
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setEditingLocation(true)}
+            className="flex items-center gap-1.5 rounded-full bg-surface-sunken px-3 py-1.5 text-xs font-medium text-muted shadow-inset active:opacity-80"
+            data-testid="location-pill"
+          >
+            <MapPin className="size-3.5 shrink-0 text-brand" />
+            <span className="max-w-40 truncate">{location}</span>
+            <ChevronDown className="size-3 shrink-0 text-faint" />
+          </button>
+        )}
 
         <div className="flex flex-wrap items-center gap-2">
           {AVAILABILITY_CHAINS.map((chain) => (
@@ -271,25 +270,23 @@ export function AvailabilityView(): React.JSX.Element {
               type="button"
               onClick={() => toggleChain(chain)}
               className={cn(
-                'rounded-full border px-3 py-1.5 text-xs font-medium transition-colors',
+                'rounded-full px-3 py-1.5 text-xs font-medium transition-colors',
                 chains.includes(chain)
-                  ? 'border-blue-600 bg-blue-600 text-white'
-                  : 'border-zinc-300 bg-white text-zinc-600 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300'
+                  ? 'bg-brand text-brand-ink'
+                  : 'bg-surface-sunken text-muted shadow-inset'
               )}
               aria-pressed={chains.includes(chain)}
             >
               {CHAIN_LABELS[chain]}
             </button>
           ))}
-          <span className="mx-1 h-4 w-px bg-zinc-300 dark:bg-zinc-700" />
+          <span className="mx-1 h-4 w-px bg-line" />
           <button
             type="button"
             onClick={() => setInStockOnly((v) => !v)}
             className={cn(
-              'rounded-full border px-3 py-1.5 text-xs font-medium transition-colors',
-              inStockOnly
-                ? 'border-blue-600 bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300'
-                : 'border-zinc-300 bg-white text-zinc-600 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300'
+              'rounded-full px-3 py-1.5 text-xs font-medium transition-colors',
+              inStockOnly ? 'bg-accent2-bg text-accent2' : 'bg-surface-sunken text-muted shadow-inset'
             )}
             aria-pressed={inStockOnly}
           >
@@ -299,10 +296,8 @@ export function AvailabilityView(): React.JSX.Element {
             type="button"
             onClick={() => setOpenNow((v) => !v)}
             className={cn(
-              'rounded-full border px-3 py-1.5 text-xs font-medium transition-colors',
-              openNow
-                ? 'border-blue-600 bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300'
-                : 'border-zinc-300 bg-white text-zinc-600 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300'
+              'rounded-full px-3 py-1.5 text-xs font-medium transition-colors',
+              openNow ? 'bg-accent2-bg text-accent2' : 'bg-surface-sunken text-muted shadow-inset'
             )}
             aria-pressed={openNow}
           >
@@ -315,44 +310,39 @@ export function AvailabilityView(): React.JSX.Element {
         </Button>
       </form>
 
-      {locateError && (
-        <p className="flex items-center gap-2 text-sm text-amber-600" role="alert">
-          <AlertTriangle className="size-4" /> {locateError}
-        </p>
-      )}
-
       {isFetching && (
         <div className="space-y-3" data-testid="avail-loading">
           {[0, 1, 2].map((i) => (
-            <Skeleton key={i} className="h-32 w-full" />
+            <AvailabilityCardSkeleton key={i} />
           ))}
         </div>
       )}
 
       {error instanceof Error && !isFetching && (
         <Card>
-          <CardContent className="flex items-center gap-3 text-sm text-red-600">
+          <CardContent className="flex items-center gap-3 text-sm text-danger">
             <AlertTriangle className="size-5 shrink-0" /> {error.message}
           </CardContent>
         </Card>
       )}
 
       {!isFetching && data && results.length === 0 && (
-        <p className="py-8 text-center text-sm text-zinc-500">
-          Keine Treffer für diese Filter.
-        </p>
-      )}
-
-      {mapEverShown && (
-        <div className={viewMode === 'map' && !isFetching ? '' : 'hidden'}>
-          <Suspense fallback={<Skeleton className="h-[65vh] w-full rounded-2xl" />}>
-            <AvailabilityMap results={results} userCoords={userCoords} active={viewMode === 'map'} />
-          </Suspense>
+        <div className="rounded-card bg-surface p-6 text-center shadow-card">
+          <p className="font-semibold">Keine Treffer</p>
+          <p className="mt-1 text-sm text-faint">Versuch es mit weniger Filtern oder einem anderen Suchbegriff.</p>
         </div>
       )}
 
+      {!isFetching && queryResult && results.length > 0 && (
+        <p className="flex items-center gap-1.5 text-xs text-faint">
+          <Search className="size-3" />
+          <NumberFlow value={results.length} className="font-mono font-semibold text-ink" /> Ergebnisse in{' '}
+          <b className="font-mono font-semibold text-ink">{(queryResult.elapsedMs / 1000).toFixed(1)}s</b>
+        </p>
+      )}
+
       <motion.ul
-        className={cn('space-y-3', viewMode === 'map' && 'hidden')}
+        className="space-y-3"
         initial="hidden"
         animate="visible"
         variants={{ visible: { transition: { staggerChildren: 0.06 } } }}
@@ -364,58 +354,61 @@ export function AvailabilityView(): React.JSX.Element {
               <motion.li
                 key={`${product.chain}:${product.id}`}
                 layout
-                variants={{
-                  hidden: { opacity: 0, y: 12 },
-                  visible: { opacity: 1, y: 0 },
-                }}
+                variants={{ hidden: { opacity: 0, y: 12 }, visible: { opacity: 1, y: 0 } }}
                 exit={{ opacity: 0, scale: 0.97 }}
               >
-                <Card>
-                  <CardContent>
-                    <button
-                      type="button"
-                      onClick={() => setSelected(product)}
-                      className="flex w-full items-start gap-3 text-left active:opacity-80"
-                    >
-                      {product.image && (
-                        <img
-                          src={product.image}
-                          alt=""
-                          className="size-14 shrink-0 rounded-lg bg-white object-contain"
-                          loading="lazy"
-                        />
-                      )}
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2">
-                          <Badge>{CHAIN_LABELS[product.chain]}</Badge>
-                          {product.promotionLabel && (
-                            <Badge variant="promo">{product.promotionLabel}</Badge>
-                          )}
-                        </div>
-                        <p className="mt-1 truncate font-medium">{product.name}</p>
-                        <p className="text-sm text-zinc-500">
-                          {formatPrice(product.price.current)}
-                          {product.size && <span> · {product.size}</span>}
-                        </p>
-                      </div>
-                    </button>
-                    {stores.length > 0 ? (
-                      <ul className="mt-2 divide-y divide-zinc-100 dark:divide-zinc-800">
-                        {stores.map((store) => (
-                          <StoreRow key={store.id} store={store} />
-                        ))}
-                      </ul>
-                    ) : (
-                      <p className="mt-2 text-sm text-zinc-500">Keine Filialen gefunden.</p>
+                <Card className="p-4">
+                  <button
+                    type="button"
+                    onClick={() => setSelected({ product, stores })}
+                    className="flex w-full items-start gap-3 text-left"
+                  >
+                    {product.image && (
+                      <img
+                        src={product.image}
+                        alt=""
+                        className="size-14 shrink-0 rounded bg-white object-contain"
+                        loading="lazy"
+                      />
                     )}
-                  </CardContent>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <VendorBadge
+                          chain={product.chain}
+                          open={openVendor === `${product.chain}:${product.id}`}
+                          onOpenChange={(o) => setOpenVendor(o ? `${product.chain}:${product.id}` : undefined)}
+                        />
+                        {product.promotionLabel && <Badge variant="promo">{product.promotionLabel}</Badge>}
+                      </div>
+                      <p className="mt-1 truncate font-semibold">{product.name}</p>
+                      <p className="text-sm text-muted">
+                        <Price value={product.price.current} className="font-semibold text-ink" />
+                        {product.size && <span> · {product.size}</span>}
+                      </p>
+                    </div>
+                  </button>
+                  <div className="tear" />
+                  {stores.length > 0 ? (
+                    <div className="py-1">
+                      {stores.map((store) => (
+                        <StoreRow key={store.id} store={store} />
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="py-2 text-sm text-faint">Keine Filialen gefunden.</p>
+                  )}
+                  <div className="barcode" />
                 </Card>
               </motion.li>
             ))}
         </AnimatePresence>
       </motion.ul>
 
-      <ProductSheet product={selected} onClose={() => setSelected(undefined)} />
+      <ProductSheet
+        product={selected?.product}
+        stores={selected?.stores}
+        onClose={() => setSelected(undefined)}
+      />
     </div>
   );
 }

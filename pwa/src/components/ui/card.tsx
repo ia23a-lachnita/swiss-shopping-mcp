@@ -6,7 +6,9 @@ export function Card({ className, ...props }: HTMLAttributes<HTMLDivElement>): R
   return (
     <div
       className={cn(
-        'rounded-2xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900',
+        'rounded-card bg-surface shadow-card transition-[transform,box-shadow] duration-150 ease-out',
+        'hover:-translate-y-0.5 hover:shadow-card-lg active:translate-y-0 active:scale-[0.995] active:shadow-card-sm',
+        'motion-reduce:transition-none motion-reduce:hover:translate-y-0 motion-reduce:active:scale-100',
         className
       )}
       {...props}

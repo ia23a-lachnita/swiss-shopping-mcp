@@ -133,3 +133,81 @@ export async function reverseGeocode(latitude: number, longitude: number): Promi
   }
   return result.data.location;
 }
+
+export type SourceCapability = 'productSearch' | 'promotions' | 'storeSearch' | 'availability' | 'nutrition';
+export type CapabilityStatusValue =
+  | 'unsupported'
+  | 'blocked'
+  | 'source-auditing'
+  | 'live-beta'
+  | 'live-stable'
+  | 'degraded';
+
+export interface CapabilitySourceStatus {
+  chain: Chain;
+  capability: SourceCapability;
+  status: CapabilityStatusValue;
+  provider?: string;
+  reason?: string;
+}
+
+/** Declared support level per chain/capability — hand-maintained, not a live health check. */
+export async function sourceStatus(): Promise<CapabilitySourceStatus[]> {
+  const result = await request<CapabilitySourceStatus[]>('/api/source-status');
+  if (!result.ok || !result.data) {
+    throw new Error(result.error?.message ?? 'Could not load source status.');
+  }
+  return result.data;
+}
+
+export interface MetricsSnapshot {
+  timestamp: string;
+  cacheHits: { fresh: number; needsRefresh: number; staleFallback: number; miss: number };
+  latency: { byChain: Record<string, { avg: number; max: number }> };
+  hydration: { successes: number; failures: number; notFoundByChain: Record<string, number> };
+  catalog: {
+    productsByChain: Record<string, number>;
+    totalProducts: number;
+    totalObservations: number;
+  };
+}
+
+/** A real live snapshot (per-chain latency, cache/hydration health) — unlike source-status, this changes every request. */
+export async function metrics(): Promise<MetricsSnapshot> {
+  const result = await request<MetricsSnapshot>('/api/metrics');
+  if (!result.ok || !result.data) {
+    throw new Error(result.error?.message ?? 'Could not load metrics.');
+  }
+  return result.data;
+}
+
+export interface ChainPriceOffer {
+  chain: Chain;
+  product: Product;
+  effectivePrice: number;
+  unitPrice?: number;
+  totalPrice: number;
+  comparisonUnit?: string;
+  comparisonEligible: boolean;
+  ineligibleReason?: string;
+}
+
+export interface PriceComparisonResult {
+  query: string;
+  quantity: number;
+  offers: ChainPriceOffer[];
+  cheapestOffer?: ChainPriceOffer;
+  savingsVsMostExpensive?: number;
+}
+
+export async function comparePrices(params: {
+  query: string;
+  chains?: Chain[];
+  quantity?: number;
+}): Promise<PriceComparisonResult> {
+  const result = await post<PriceComparisonResult>('/api/compare-prices', params);
+  if (!result.ok || !result.data) {
+    throw new Error(result.error?.message ?? 'Price comparison failed.');
+  }
+  return result.data;
+}
