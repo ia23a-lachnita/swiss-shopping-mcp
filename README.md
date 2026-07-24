@@ -79,6 +79,22 @@ docker compose up --build          # http://localhost:3000
 The file TTL cache persists in the `cache` volume (`/data/cache`). For
 multi-arch builds: `docker buildx build --platform linux/amd64,linux/arm64 .`
 
+### Deploying (Raspberry Pi)
+
+Deployment to the production Pi is a manually-triggered GitHub Actions
+workflow (`.github/workflows/deploy.yml`, `workflow_dispatch`) running on a
+self-hosted runner registered directly on the Pi — native arm64 build, no
+QEMU cross-compile. It re-verifies lint/test/build for the dispatched ref,
+builds and flattens the image (`scripts/docker-flatten.sh`), deploys via the
+tracked `deploy/docker-compose.pi.yml` (the source of truth for
+`/srv/swiss-shopping-mcp/docker-compose.yml` — edit it here, not on the Pi),
+and health-checks with automatic rollback to the previous image tag on
+failure. Trigger it from the Actions tab, or:
+
+```bash
+gh workflow run deploy.yml -f ref=main
+```
+
 Or configure in your MCP client's settings:
 
 ```json
