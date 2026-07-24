@@ -1,0 +1,73 @@
+name: Deploy to Pi
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Branch, tag, or SHA to deploy"
+        required: false
+        default: main
+
+concurrency:
+  group: deploy-pi
+  cancel-in-progress: false
+
+env:
+  IMAGE_REF: swiss-shopping-mcp:pi-slim
+  DEPLOY_DIR: /srv/swiss-shopping-mcp
+
+jobs:
+  deploy:
+    runs-on: [self-hosted, linux, arm64, pi]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      # Re-runs the same gate as CI, scoped to whatever ref was actually
+      # dispatched -- workflow_dispatch can target any branch/tag/SHA, so this
+      # must not assume the ref already passed the push-triggered CI workflow.
+      - name: Verify (lint + test + build)
+        run: |
+          npm ci
+          npm run lint
+          npm test -- --run
+          npm run build
+
+      - name: Build image (native arm64, no QEMU needed on this runner)
+        run: docker buildx build --load -t swiss-shopping-mcp:build-${{ github.sha }} .
+
+      - name: Flatten image
+        run: |
+          chmod +x scripts/docker-flatten.sh
+          ./scripts/docker-flatten.sh swiss-shopping-mcp:build-${{ github.sha }} swiss-shopping-mcp:pi-slim-candidate
+
+      - name: Promote candidate image (keep prior tag for rollback)
+        run: |
+          if docker image inspect "$IMAGE_REF" >/dev/null 2>&1; then
+            docker tag "$IMAGE_REF" "${IMAGE_REF}-previous"
+          fi
+          docker tag swiss-shopping-mcp:pi-slim-candidate "$IMAGE_REF"
+
+      - name: Sync compose file + deploy
+        run: |
+          sudo cp deploy/docker-compose.pi.yml "$DEPLOY_DIR/docker-compose.yml"
+          sudo docker compose -f "$DEPLOY_DIR/docker-compose.yml" --project-directory "$DEPLOY_DIR" up -d --no-deps swiss-shopping
+
+      - name: Health check (auto-rollback on failure)
+        run: |
+          chmod +x scripts/deploy-healthcheck.sh
+          ./scripts/deploy-healthcheck.sh "$DEPLOY_DIR/docker-compose.yml" "$DEPLOY_DIR" swiss-shopping "$IMAGE_REF"
+
+      - name: Tidy up build-only image tags
+        if: always()
+        run: |
+          docker rmi swiss-shopping-mcp:build-${{ github.sha }} >/dev/null 2>&1 || true
+          docker rmi swiss-shopping-mcp:pi-slim-candidate >/dev/null 2>&1 || true
