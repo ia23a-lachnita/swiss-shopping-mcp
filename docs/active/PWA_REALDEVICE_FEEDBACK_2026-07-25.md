@@ -166,12 +166,31 @@ the bottom once antigravity's second opinion and user prioritization are in.
 25. **Aldi has a second storefront (`aldi-now.ch`) with products not present on `aldi-suisse.ch`** — user found
     "GRANDESSA Schwarze Johannisbeere Konfitüre" in a real Aldi store and on `aldi-now.ch`, but searching
     "johannisbeermarmelade" in the app (Aldi only) returned "Keine Produkte gefunden". The current Aldi adapter
-    (`src/adapters/live/aldiLiveAdapter.ts`) only scrapes `aldi-suisse.ch` — `aldi-now.ch` appears to be a
-    separate site (different domain, different branding chrome, possibly a distinct quick-commerce/delivery
-    catalog) with at least partially non-overlapping inventory. **Not yet investigated**: whether `aldi-now.ch`
-    is a fully separate product catalog, a subset/superset of `aldi-suisse.ch`, what technology it's built on,
-    and whether it's realistically scrapable the same way. This is new scope (a second Aldi source), not a bug
-    fix — needs its own investigation pass before deciding whether/how to integrate it.
+    (`src/adapters/live/aldiLiveAdapter.ts`) only scrapes `aldi-suisse.ch`.
+
+    **Investigated 2026-07-25 (browser, live site).** Findings:
+    - `aldi-now.ch` runs on **Spryker Commerce OS** (`yves_default.*.js` bundle naming — "Yves" is Spryker's
+      public storefront app), a completely different platform from `aldi-suisse.ch`'s Vue/Nuxt-style SSR site.
+      No shared backend/data source between the two — genuinely a second, independent catalog.
+    - It's a **quick-commerce, delivery-zone-gated** site: the homepage has a mandatory PLZ (postal code)
+      check (`zipCodeCheckWidgetForm`, `deliveryWindowsZipCodeInput`) before real browsing/ordering. This
+      strongly suggests inventory and/or prices vary by delivery zone/fulfillment center, unlike
+      `aldi-suisse.ch`'s flat nationwide catalog — a materially different data model to support.
+    - No public REST/Glue API surfaced in the client bundle or page source (Spryker's storefront typically
+      calls its Glue API server-side, not from the browser) — no shortcut found, would need HTML scraping like
+      the existing adapter, likely harder given the zip-gating.
+    - A raw `GET /de/search?q=...` (matching the visible `<form action="/de/search">`) returned **zero**
+      product results even for a term known to exist on the site — most likely because no delivery
+      zip/session context was established first. A working scraper would need to: submit the zip-code check,
+      persist whatever session/cookie state that sets, then search — three sequential dependent steps versus
+      the current adapter's single stateless request.
+    - Scope estimate: this is comparable in size to the original "Aldi live-beta adapter" work (parser +
+      adapter + fixtures + tests + source registry + docs), not a quick addition — it needs its own dedicated
+      investigation/implementation pass, most likely as a **second Aldi source** (e.g. `aldi-now` as a
+      distinct chain-variant or a merged-with-warning secondary source for the existing `aldi` chain) rather
+      than folding into the existing adapter.
+    - **Not yet done, deliberately deferred pending user prioritization**: confirming the zip-check flow in
+      full, checking catalog overlap/delta size between the two sites, and any implementation.
 
 ## Triage (pending)
 
