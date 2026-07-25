@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { useRef, useState, type FormEvent } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { AnimatePresence, motion } from 'framer-motion';
 import NumberFlow from '@number-flow/react';
@@ -17,10 +17,14 @@ import { Skeleton } from './ui/skeleton';
 
 function ProductCardSkeleton(): React.JSX.Element {
   return (
-    <div className="rounded-card bg-surface p-3 shadow-card">
-      <Skeleton className="h-24 w-full rounded" />
-      <Skeleton className="mt-2 h-3 w-4/5" />
-      <Skeleton className="mt-1.5 h-3 w-2/5" />
+    <div className="rounded-card bg-surface p-4 shadow-card">
+      <div className="flex gap-3">
+        <Skeleton className="size-14 shrink-0 rounded" />
+        <div className="flex flex-1 flex-col justify-center gap-2">
+          <Skeleton className="h-3 w-2/3" />
+          <Skeleton className="h-3 w-1/3" />
+        </div>
+      </div>
     </div>
   );
 }
@@ -32,10 +36,6 @@ export function SearchView(): React.JSX.Element {
   const [selected, setSelected] = useState<Product | undefined>();
   const [openVendor, setOpenVendor] = useState<string>();
   const queryInputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    queryInputRef.current?.focus();
-  }, []);
 
   const { data: queryResult, isFetching, error } = useQuery({
     queryKey: ['search', submitted],
@@ -101,8 +101,8 @@ export function SearchView(): React.JSX.Element {
       </form>
 
       {isFetching && (
-        <div className="grid grid-cols-2 gap-3" data-testid="search-loading">
-          {[0, 1, 2, 3].map((i) => (
+        <div className="space-y-3" data-testid="search-loading">
+          {[0, 1, 2].map((i) => (
             <ProductCardSkeleton key={i} />
           ))}
         </div>
@@ -131,7 +131,7 @@ export function SearchView(): React.JSX.Element {
       )}
 
       <motion.ul
-        className="grid grid-cols-2 gap-3"
+        className="space-y-3"
         initial="hidden"
         animate="visible"
         variants={{ visible: { transition: { staggerChildren: 0.05 } } }}
@@ -146,35 +146,42 @@ export function SearchView(): React.JSX.Element {
                 variants={{ hidden: { opacity: 0, y: 12 }, visible: { opacity: 1, y: 0 } }}
                 exit={{ opacity: 0, scale: 0.97 }}
               >
-                <Card className="h-full cursor-pointer p-3" onClick={() => setSelected(product)}>
-                  {product.image ? (
-                    <img
-                      src={product.image}
-                      alt=""
-                      className="mx-auto h-24 w-full rounded bg-white object-contain"
-                      loading="lazy"
-                    />
-                  ) : (
-                    <div className="h-24 w-full rounded bg-surface-sunken" />
-                  )}
-                  <div className="mt-2 flex items-center gap-1.5">
-                    <VendorBadge
-                      chain={product.chain}
-                      open={openVendor === `${product.chain}:${product.id}`}
-                      onOpenChange={(o) => setOpenVendor(o ? `${product.chain}:${product.id}` : undefined)}
-                    />
-                    {product.promotionLabel && <Badge variant="promo">{product.promotionLabel}</Badge>}
-                  </div>
-                  <p className="mt-1 line-clamp-2 text-sm font-medium">{product.name}</p>
-                  <div className="mt-auto pt-1 text-sm">
-                    <Price value={product.price.current} className="font-semibold" />
-                    {product.price.original && (
-                      <span className="ml-1.5 font-mono text-xs text-faint line-through">
-                        CHF {product.price.original.toFixed(2)}
-                      </span>
+                <Card className="p-4">
+                  <button
+                    type="button"
+                    onClick={() => setSelected(product)}
+                    className="flex w-full items-start gap-3 text-left"
+                  >
+                    {product.image && (
+                      <img
+                        src={product.image}
+                        alt=""
+                        className="size-14 shrink-0 rounded bg-white object-contain"
+                        loading="lazy"
+                      />
                     )}
-                    {product.size && <span className="ml-1.5 text-xs text-faint">{product.size}</span>}
-                  </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <VendorBadge
+                          chain={product.chain}
+                          open={openVendor === `${product.chain}:${product.id}`}
+                          onOpenChange={(o) => setOpenVendor(o ? `${product.chain}:${product.id}` : undefined)}
+                        />
+                        {product.promotionLabel && <Badge variant="promo">{product.promotionLabel}</Badge>}
+                      </div>
+                      <p className="mt-1 truncate font-semibold">{product.name}</p>
+                      <p className="text-sm text-muted">
+                        <Price value={product.price.current} className="font-semibold text-ink" />
+                        {product.price.original && (
+                          <span className="ml-1.5 font-mono text-xs text-faint line-through">
+                            CHF {product.price.original.toFixed(2)}
+                          </span>
+                        )}
+                        {product.size && <span> · {product.size}</span>}
+                      </p>
+                    </div>
+                  </button>
+                  <div className="barcode" />
                 </Card>
               </motion.li>
             ))}

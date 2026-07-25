@@ -22,8 +22,8 @@ export default defineConfig({
         short_name: 'SwissShop',
         description:
           'Live grocery availability and price comparison across Swiss retail chains.',
-        theme_color: '#059669',
-        background_color: '#fafafa',
+        theme_color: '#17181a',
+        background_color: '#17181a',
         display: 'standalone',
         start_url: '/app/',
         scope: '/app/',

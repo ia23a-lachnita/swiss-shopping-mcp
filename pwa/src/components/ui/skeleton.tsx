@@ -8,7 +8,7 @@ export function Skeleton({
 }: HTMLAttributes<HTMLDivElement>): React.JSX.Element {
   return (
     <div
-      className={cn('animate-pulse rounded-xl bg-zinc-200 dark:bg-zinc-800', className)}
+      className={cn('skeleton rounded-xl', className)}
       {...props}
     />
   );

@@ -1,6 +1,6 @@
 // Generate the PWA icon PNGs (pwa/public/pwa-192.png, pwa-512.png) without
 // image dependencies: a minimal PNG encoder over a raw RGBA buffer drawing a
-// rounded emerald square with a simple white shopping-basket glyph.
+// rounded brass-colored square with a simple white shopping-basket glyph.
 import { deflateSync } from 'node:zlib';
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -53,7 +53,7 @@ function encodePng(width, height, rgba) {
 function drawIcon(size) {
   const rgba = Buffer.alloc(size * size * 4);
   const radius = size * 0.22;
-  const bg = [5, 150, 105]; // emerald-600
+  const bg = [143, 115, 32]; // brand brass (#8f7320)
   const fg = [255, 255, 255];
 
   const insideRoundedRect = (x, y) => {

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { useRef, useState, type FormEvent } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { AnimatePresence, motion } from 'framer-motion';
 import NumberFlow from '@number-flow/react';
@@ -21,10 +21,6 @@ export function CompareView(): React.JSX.Element {
   const [submitted, setSubmitted] = useState<{ query: string; chains: Chain[]; quantity: number } | undefined>();
   const [openVendor, setOpenVendor] = useState<string>();
   const queryInputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    queryInputRef.current?.focus();
-  }, []);
 
   const { data: queryResult, isFetching, error } = useQuery({
     queryKey: ['compare', submitted],
@@ -52,7 +48,7 @@ export function CompareView(): React.JSX.Element {
   }
 
   return (
-    <div className="space-y-4 pt-3">
+    <div className="space-y-4 pb-4 pt-3">
       <form onSubmit={submit} className="space-y-3">
         <div className="relative">
           <Scale className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-brand" />

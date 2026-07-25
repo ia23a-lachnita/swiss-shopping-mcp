@@ -35,7 +35,7 @@ export function StatusView(): React.JSX.Element {
   const loading = statusLoading || metricsLoading;
 
   return (
-    <div className="space-y-4 pt-3">
+    <div className="space-y-4 pb-4 pt-3">
       <div>
         <h2 className="text-base font-bold">Quellen &amp; Leistung</h2>
         <p className="mt-1 text-xs text-faint">

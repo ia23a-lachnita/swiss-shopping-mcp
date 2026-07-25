@@ -124,6 +124,11 @@ export async function productAvailability(params: {
   return result.data ?? [];
 }
 
+export async function checkLocation(query: string): Promise<boolean> {
+  const result = await request<{ valid: boolean }>(`/api/geocode-check?q=${encodeURIComponent(query)}`);
+  return result.ok ? (result.data?.valid ?? false) : false;
+}
+
 export async function reverseGeocode(latitude: number, longitude: number): Promise<string> {
   const result = await request<{ location: string; city: string; zip: string }>(
     `/api/reverse-geocode?lat=${latitude}&lon=${longitude}`

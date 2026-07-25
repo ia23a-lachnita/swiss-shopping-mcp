@@ -76,6 +76,8 @@ export interface MetricsSnapshot {
   webSearch: WebSearchMetrics;
   hydration: HydrationMetrics;
   latency: LatencySnapshot;
+  /** Raw per-chain latency samples, persisted so restarts don't lose latency history. */
+  latencyRaw: Record<string, number[]>;
   catalog: CatalogCoverageMetrics;
   googleQuota: GoogleQuotaMetrics;
 }
@@ -270,6 +272,9 @@ export class MetricsCollector {
         notFoundByChain: { ...this.hydration.notFoundByChain },
       },
       latency: latencySnapshot,
+      latencyRaw: Object.fromEntries(
+        Object.entries(this.latency.samplesByChain).map(([chain, samples]) => [chain, [...samples]])
+      ),
       catalog: { ...this.catalog },
       googleQuota: { ...this.googleQuota },
     };
@@ -338,6 +343,11 @@ export class MetricsCollector {
         this.hydration.successes = snapshot.hydration.successes ?? 0;
         this.hydration.failures = snapshot.hydration.failures ?? 0;
         this.hydration.notFoundByChain = snapshot.hydration.notFoundByChain ?? {};
+      }
+      if (snapshot.latencyRaw) {
+        for (const [chain, samples] of Object.entries(snapshot.latencyRaw)) {
+          this.latency.samplesByChain[chain] = Array.isArray(samples) ? [...samples] : [];
+        }
       }
       if (snapshot.catalog) {
         this.catalog.totalProducts = snapshot.catalog.totalProducts ?? 0;

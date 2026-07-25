@@ -212,6 +212,24 @@ describe('MetricsCollector persistence', () => {
     expect(snapshot.hydration.successes).toBe(1);
   });
 
+  it('should persist and restore raw latency samples across restarts', async () => {
+    await mkdir(testDir, { recursive: true });
+
+    const collector = new MetricsCollector(testDir);
+    collector.recordLatency('migros', 100);
+    collector.recordLatency('migros', 200);
+    collector.recordLatency('coop', 50);
+
+    await collector.persistSnapshot();
+
+    const collector2 = new MetricsCollector(testDir);
+    await collector2.loadSnapshot();
+
+    const snapshot = collector2.snapshot();
+    expect(snapshot.latency.byChain.migros).toEqual({ avg: 150, max: 200 });
+    expect(snapshot.latency.byChain.coop).toEqual({ avg: 50, max: 50 });
+  });
+
   it('should handle missing snapshot file gracefully', async () => {
     await mkdir(testDir, { recursive: true });
     const collector = new MetricsCollector(testDir);

@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { useRef, useState, type FormEvent } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { AnimatePresence, motion } from 'framer-motion';
 import NumberFlow from '@number-flow/react';
-import { toast } from 'sonner';
+import { notifyError, notifySuccess } from '../lib/toast';
 import {
   AlertTriangle,
   Check,
@@ -16,6 +16,7 @@ import {
 import {
   AVAILABILITY_CHAINS,
   CHAIN_LABELS,
+  checkLocation,
   productAvailability,
   reverseGeocode,
   type Chain,
@@ -119,11 +120,8 @@ export function AvailabilityView(): React.JSX.Element {
   const [editingLocation, setEditingLocation] = useState(true);
   const [userCoords, setUserCoords] = useState<{ lat: number; lng: number }>();
   const [openVendor, setOpenVendor] = useState<string>();
+  const [validatingLocation, setValidatingLocation] = useState(false);
   const queryInputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    queryInputRef.current?.focus();
-  }, []);
 
   const { data: queryResult, isFetching, error } = useQuery({
     queryKey: ['availability', params],
@@ -136,22 +134,42 @@ export function AvailabilityView(): React.JSX.Element {
   });
   const data = queryResult?.data;
 
-  function submit(event?: FormEvent): void {
+  async function submit(event?: FormEvent): Promise<void> {
     event?.preventDefault();
-    if (query.trim() && location.trim() && chains.length > 0) {
-      setParams({
-        query: query.trim(),
-        location: location.trim(),
-        chains,
-        latitude: userCoords?.lat,
-        longitude: userCoords?.lng,
-      });
+    const trimmedLocation = location.trim();
+    if (!query.trim() || !trimmedLocation || chains.length === 0) return;
+
+    // A GPS-resolved location is already known-good; only validate typed text,
+    // and only when it's implausibly short to be a real PLZ/place name — avoids
+    // burning a slow multi-chain search round-trip on obvious nonsense input.
+    if (!userCoords && trimmedLocation.length >= 2) {
+      setValidatingLocation(true);
+      let valid = true;
+      try {
+        valid = await checkLocation(trimmedLocation);
+      } catch {
+        valid = true; // Validation service unreachable — don't block the user, let the real search surface the error.
+      } finally {
+        setValidatingLocation(false);
+      }
+      if (!valid) {
+        notifyError(`Standort "${trimmedLocation}" nicht gefunden.`);
+        return;
+      }
     }
+
+    setParams({
+      query: query.trim(),
+      location: trimmedLocation,
+      chains,
+      latitude: userCoords?.lat,
+      longitude: userCoords?.lng,
+    });
   }
 
   function useMyLocation(): void {
     if (!navigator.geolocation) {
-      toast.error('Standortdienste werden nicht unterstützt.');
+      notifyError('Standortdienste werden nicht unterstützt.');
       return;
     }
     setLocating(true);
@@ -162,16 +180,16 @@ export function AvailabilityView(): React.JSX.Element {
           setLocation(resolved);
           setUserCoords({ lat: position.coords.latitude, lng: position.coords.longitude });
           setEditingLocation(false);
-          toast.success(`Standort aktualisiert — ${resolved}`);
+          notifySuccess(`Standort aktualisiert — ${resolved}`);
         } catch (err) {
-          toast.error(err instanceof Error ? err.message : 'Standort nicht gefunden.');
+          notifyError(err instanceof Error ? err.message : 'Standort nicht gefunden.');
         } finally {
           setLocating(false);
         }
       },
       () => {
         setLocating(false);
-        toast.error('Standortzugriff verweigert.');
+        notifyError('Standortzugriff verweigert.');
       },
       { enableHighAccuracy: false, timeout: 10_000, maximumAge: 300_000 }
     );
@@ -211,57 +229,76 @@ export function AvailabilityView(): React.JSX.Element {
           />
         </div>
 
-        {editingLocation ? (
-          <div className="flex items-center gap-2">
-            <Input
-              id="avail-location"
-              value={location}
-              onChange={(e) => {
-                setLocation(e.target.value);
-                setUserCoords(undefined);
-              }}
-              placeholder="PLZ oder Ort, z.B. 8001 Zürich"
-              autoComplete="postal-code"
-              enterKeyHint="search"
-              className="h-9 text-sm"
-            />
-            <Button
-              type="button"
-              variant="outline"
-              size="icon"
-              onClick={useMyLocation}
-              disabled={locating}
-              aria-label="Meinen Standort verwenden"
-              data-testid="use-location"
-              className="h-9 w-9"
-            >
-              <LocateFixed className={cn('size-4', locating && 'animate-spin')} />
-            </Button>
-            {location.trim() && (
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                onClick={() => setEditingLocation(false)}
-                aria-label="Fertig"
-                className="h-9 w-9"
+        <motion.div layout transition={{ duration: 0.2, ease: 'easeOut' }}>
+          <AnimatePresence mode="wait" initial={false}>
+            {editingLocation ? (
+              <motion.div
+                key="edit"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.15 }}
+                className="flex items-center gap-2"
               >
-                <Check className="size-4" />
-              </Button>
+                <Input
+                  id="avail-location"
+                  value={location}
+                  onChange={(e) => {
+                    setLocation(e.target.value);
+                    setUserCoords(undefined);
+                  }}
+                  placeholder="PLZ oder Ort, z.B. 8001 Zürich"
+                  autoComplete="postal-code"
+                  enterKeyHint="search"
+                  className="h-9 text-sm"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  onClick={useMyLocation}
+                  disabled={locating}
+                  aria-label="Meinen Standort verwenden"
+                  data-testid="use-location"
+                  className="h-9 w-9 shrink-0"
+                >
+                  <LocateFixed className={cn('size-4', locating && 'animate-spin')} />
+                </Button>
+                {location.trim() && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setEditingLocation(false)}
+                    aria-label="Fertig"
+                    className="h-9 w-9 shrink-0"
+                  >
+                    <Check className="size-4" />
+                  </Button>
+                )}
+              </motion.div>
+            ) : (
+              <motion.div
+                key="pill"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.15 }}
+              >
+                <button
+                  type="button"
+                  onClick={() => setEditingLocation(true)}
+                  className="flex items-center gap-1.5 rounded-full bg-surface-sunken px-3 py-1.5 text-xs font-medium text-muted shadow-inset active:opacity-80"
+                  data-testid="location-pill"
+                >
+                  <MapPin className="size-3.5 shrink-0 text-brand" />
+                  <span className="max-w-40 truncate">{location}</span>
+                  <ChevronDown className="size-3 shrink-0 text-faint" />
+                </button>
+              </motion.div>
             )}
-          </div>
-        ) : (
-          <button
-            type="button"
-            onClick={() => setEditingLocation(true)}
-            className="flex items-center gap-1.5 rounded-full bg-surface-sunken px-3 py-1.5 text-xs font-medium text-muted shadow-inset active:opacity-80"
-            data-testid="location-pill"
-          >
-            <MapPin className="size-3.5 shrink-0 text-brand" />
-            <span className="max-w-40 truncate">{location}</span>
-            <ChevronDown className="size-3 shrink-0 text-faint" />
-          </button>
-        )}
+          </AnimatePresence>
+        </motion.div>
 
         <div className="flex flex-wrap items-center gap-2">
           {AVAILABILITY_CHAINS.map((chain) => (
@@ -305,8 +342,12 @@ export function AvailabilityView(): React.JSX.Element {
           </button>
         </div>
 
-        <Button type="submit" className="w-full" disabled={!query.trim() || !location.trim()}>
-          <Search /> Verfügbarkeit prüfen
+        <Button
+          type="submit"
+          className="w-full"
+          disabled={!query.trim() || !location.trim() || validatingLocation}
+        >
+          <Search /> {validatingLocation ? 'Standort wird geprüft…' : 'Verfügbarkeit prüfen'}
         </Button>
       </form>
 

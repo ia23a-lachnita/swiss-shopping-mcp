@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import * as maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
+import { Locate } from 'lucide-react';
 
 import type { StoreWithAvailability } from '../api';
 import { mapsUrl } from '../lib/utils';
@@ -56,6 +57,7 @@ export function ProductMap({
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | undefined>(undefined);
   const markersRef = useRef<maplibregl.Marker[]>([]);
+  const boundsRef = useRef<maplibregl.LngLatBounds | undefined>(undefined);
   const [mode, setMode] = useState<MapMode>('street');
 
   useEffect(() => {
@@ -67,6 +69,7 @@ export function ProductMap({
       (b, p) => b.extend(p),
       new maplibregl.LngLatBounds(points[0], points[0])
     );
+    boundsRef.current = bounds;
 
     const map = new maplibregl.Map({
       container: containerRef.current,
@@ -84,6 +87,12 @@ export function ProductMap({
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stores]);
+
+  function recenter(): void {
+    if (mapRef.current && boundsRef.current) {
+      mapRef.current.fitBounds(boundsRef.current, { padding: 48, maxZoom: 16 });
+    }
+  }
 
   useEffect(() => {
     mapRef.current?.setStyle(styleFor(mode));
@@ -105,7 +114,7 @@ export function ProductMap({
         `<div style="min-width:160px;font:13px system-ui;color:#201f1c">
           <p style="margin:0;font-weight:600">${store.name}</p>
           <p style="margin:2px 0 6px;font-size:11px;color:#8a867d">${store.address}</p>
-          <a href="${mapsUrl(store.location.latitude, store.location.longitude)}" target="_blank" rel="noreferrer" style="font-size:11px;font-weight:600;color:#8a5a1f">Route öffnen ↗</a>
+          <a href="${mapsUrl(store.location.latitude, store.location.longitude)}" target="_blank" rel="noreferrer" style="font-size:11px;font-weight:600;color:#8f7320">Route öffnen ↗</a>
         </div>`
       );
       const marker = new maplibregl.Marker({ element: el })
@@ -118,7 +127,7 @@ export function ProductMap({
     if (userCoords) {
       const el = document.createElement('div');
       el.style.cssText =
-        'width:16px;height:16px;border-radius:9999px;background:#8a5a1f;border:2px solid white;box-shadow:0 0 0 6px rgba(138,90,31,0.25)';
+        'width:16px;height:16px;border-radius:9999px;background:#8f7320;border:2px solid white;box-shadow:0 0 0 6px rgba(143,115,32,0.25)';
       const marker = new maplibregl.Marker({ element: el })
         .setLngLat([userCoords.lng, userCoords.lat])
         .addTo(map);
@@ -130,8 +139,12 @@ export function ProductMap({
     <div className="relative h-56 w-full overflow-hidden rounded-card shadow-card">
       <div
         ref={containerRef}
+        // touch-none: without this, a touch-drag starting on the map canvas can be
+        // interpreted by the browser as a page/drawer scroll gesture before MapLibre's
+        // own pan handler claims it — the map would then fight the sheet for the
+        // gesture instead of owning it outright.
         className={cn(
-          'h-full w-full',
+          'h-full w-full touch-none',
           mode === 'street' && '[&_.maplibregl-canvas]:dark:invert [&_.maplibregl-canvas]:dark:hue-rotate-180 [&_.maplibregl-canvas]:dark:brightness-75 [&_.maplibregl-canvas]:dark:contrast-90'
         )}
       />
@@ -151,6 +164,14 @@ export function ProductMap({
           Satellit
         </button>
       </div>
+      <button
+        type="button"
+        onClick={recenter}
+        aria-label="Auf Filialen zentrieren"
+        className="absolute bottom-2 right-2 z-10 flex size-8 items-center justify-center rounded-full bg-surface text-ink shadow-inset"
+      >
+        <Locate className="size-4" />
+      </button>
     </div>
   );
 }

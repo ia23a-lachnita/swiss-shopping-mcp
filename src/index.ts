@@ -39,6 +39,8 @@ export async function createServer(options: CreateServerOptions = {}): Promise<S
   }
 
   const metrics = new MetricsCollector(options.adapterOptions?.cacheDirectory);
+  await metrics.loadSnapshot();
+  metrics.startPeriodicSnapshot();
   const webProductSearch = createDefaultWebProductSearch(adapters, {
     cacheDirectory: options.adapterOptions?.cacheDirectory,
     catalog,

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { AnimatePresence, MotionConfig, motion } from 'framer-motion';
+import { MotionConfig, motion } from 'framer-motion';
 import { MapPin, Scale, Search, Activity } from 'lucide-react';
 import { Toaster } from 'sonner';
 
@@ -40,7 +40,15 @@ export default function App(): React.JSX.Element {
   // Availability answers the core "can I grab it right now?" question, so it
   // is the landing view (see docs/active/DELIVERY_MODEL_DECISION.md).
   const [tab, setTab] = useState<Tab>('availability');
+  // Views stay mounted once visited so switching tabs never discards a view's
+  // local state (search/compare results, scroll position, in-progress input).
+  // Each view is only mounted on its first visit, not eagerly at app start.
+  const [visitedTabs, setVisitedTabs] = useState<Set<Tab>>(() => new Set(['availability']));
   const navRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    setVisitedTabs((prev) => (prev.has(tab) ? prev : new Set(prev).add(tab)));
+  }, [tab]);
 
   // Measure the nav's real rendered height (content + safe-area-inset-bottom)
   // instead of guessing a fixed padding value that can silently drift out of
@@ -56,8 +64,6 @@ export default function App(): React.JSX.Element {
     return () => observer.disconnect();
   }, []);
 
-  const ActiveView = VIEWS[tab];
-
   return (
     <QueryClientProvider client={queryClient}>
       <MotionConfig reducedMotion="user">
@@ -69,17 +75,15 @@ export default function App(): React.JSX.Element {
           </header>
 
           <main className="flex-1 px-4">
-            <AnimatePresence mode="wait" initial={false}>
-              <motion.div
-                key={tab}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                transition={{ duration: 0.18, ease: 'easeOut' }}
-              >
-                <ActiveView />
-              </motion.div>
-            </AnimatePresence>
+            {TABS.map(({ id }) => {
+              if (!visitedTabs.has(id)) return null;
+              const ViewComponent = VIEWS[id];
+              return (
+                <div key={id} className={tab === id ? undefined : 'hidden'}>
+                  <ViewComponent />
+                </div>
+              );
+            })}
           </main>
 
           <nav
@@ -111,14 +115,11 @@ export default function App(): React.JSX.Element {
           </nav>
         </div>
         <Toaster
-          position="top-center"
+          position="bottom-center"
+          offset={{ bottom: 'calc(var(--nav-h) + 0.75rem)' }}
           toastOptions={{
-            style: {
-              background: 'var(--color-surface)',
-              color: 'var(--color-ink)',
-              border: 'none',
-              boxShadow: 'var(--shadow-card), var(--rim-light)',
-            },
+            unstyled: true,
+            style: { width: '100%' },
           }}
         />
       </MotionConfig>

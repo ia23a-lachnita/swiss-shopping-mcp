@@ -16,10 +16,13 @@
 
   /* One accent family: bronze/brass. brand = darker (interactive actions),
      accent2 = lighter (deal stamps only). No blue/purple anywhere — every
-     attempt at a blue-ish accent kept reading as the default AI-tool hue. */
-  --color-brand: #8a5a1f;
+     attempt at a blue-ish accent kept reading as the default AI-tool hue.
+     Hue deliberately sits at ~45° (antique brass/gold) rather than the
+     ~33° amber-orange the first pass shipped with — that hue read as too
+     close to Claude's own coral-orange branding in real-device testing. */
+  --color-brand: #8f7320;
   --color-brand-ink: #f8f7f4;
-  --color-accent2: #a9781f;
+  --color-accent2: #ad8f1f;
   --color-accent2-bg: #f0e4c8;
 
   --color-success: #3f7a4e;
@@ -43,9 +46,9 @@
     --color-faint: #726f67;
     --color-line: #2a2b28;
 
-    --color-brand: #c98f3e;
+    --color-brand: #cca23e;
     --color-brand-ink: #1b1206;
-    --color-accent2: #d9a94a;
+    --color-accent2: #ddbb4a;
     --color-accent2-bg: #3a2e12;
 
     --color-success: #6fbd7f;
@@ -176,4 +179,35 @@ body {
     var(--color-ink) 9px 10px,
     transparent 10px 12px
   );
+}
+
+/* Receding progress bar on toast notifications, showing time until auto-dismiss. */
+@keyframes toast-progress {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+
+/* Skeleton loading shimmer — a moving gradient sweep reads as "content is on
+   its way" more than a flat opacity blink (animate-pulse) does. */
+@keyframes skeleton-shimmer {
+  from {
+    background-position: 150% 0;
+  }
+  to {
+    background-position: -50% 0;
+  }
+}
+.skeleton {
+  background-image: linear-gradient(
+    100deg,
+    var(--color-surface-sunken) 35%,
+    var(--color-line) 50%,
+    var(--color-surface-sunken) 65%
+  );
+  background-size: 250% 100%;
+  animation: skeleton-shimmer 1.6s ease-in-out infinite;
 }

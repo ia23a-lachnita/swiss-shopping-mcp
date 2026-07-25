@@ -1,10 +1,11 @@
 import { createServer, IncomingMessage, ServerResponse } from 'node:http';
 import { readFile, stat } from 'node:fs/promises';
 import { join, extname, normalize } from 'node:path';
+import { tmpdir } from 'node:os';
 
 
 import { createDefaultAdapters } from '../adapters/index.js';
-import { reverseGeocodeAsync } from '../util/geo.js';
+import { reverseGeocodeAsync, resolveLocationAsync } from '../util/geo.js';
 import { getAllCapabilityStatuses } from '../adapters/sourceRegistry.js';
 import { CatalogService, openCatalogDb, runMigrations } from '../catalog/index.js';
 import { PriceComparisonService } from '../services/priceComparisonService.js';
@@ -31,8 +32,9 @@ try {
   logger.warn('Catalog DB init failed — running without local index:', err);
 }
 
-const metrics = new MetricsCollector();
-metrics.startPeriodicSnapshot();
+const METRICS_CACHE_DIR =
+  process.env.SWISS_SHOPPING_CACHE_DIR ?? join(tmpdir(), 'swiss-shopping-mcp-cache');
+const metrics = new MetricsCollector(METRICS_CACHE_DIR);
 const webProductSearch = createDefaultWebProductSearch(adapters, { catalog, metrics });
 const searchService = new SearchService(adapters, { webProductSearch, catalog, metrics });
 const priceComparisonService = new PriceComparisonService(adapters);
@@ -356,6 +358,17 @@ async function handleRequest(req: IncomingMessage, res: ServerResponse): Promise
     return;
   }
 
+  if (req.method === 'GET' && url.pathname === '/api/geocode-check') {
+    const q = url.searchParams.get('q')?.trim() ?? '';
+    if (q.length < 2) {
+      sendJson(res, 200, { ok: true, data: { valid: false } });
+      return;
+    }
+    const resolved = await resolveLocationAsync(q);
+    sendJson(res, 200, { ok: true, data: { valid: resolved !== undefined } });
+    return;
+  }
+
   // Built PWA (mobile-first app) under /app with SPA fallback for client routes.
   if (req.method === 'GET' && (url.pathname === '/app' || url.pathname.startsWith('/app/'))) {
     const relative = normalize(url.pathname.replace(/^\/app\/?/, '')).replace(/^([.][.][\\/])+/, '');
@@ -408,14 +421,16 @@ const server = createServer(async (req, res) => {
   }
 });
 
-function start(): void {
+async function start(): Promise<void> {
+  await metrics.loadSnapshot();
+  metrics.startPeriodicSnapshot();
   server.listen(PORT, () => {
     console.log(`Swiss Shopping Web UI running at http://localhost:${PORT}`);
   });
 }
 
 if (process.argv[1]) {
-  start();
+  void start();
 }
 
 export { server, start };
