@@ -175,7 +175,9 @@ the bottom once antigravity's second opinion and user prioritization are in.
 
 ## Triage (pending)
 
-Item 23 implemented 2026-07-25 (see tracker). Remaining open items from this backlog: 15 (live progress/ETA
-during search), 16 and 18 (still need antigravity's second opinion + user prioritization before
-implementation), 17 (small, no discussion needed), 19 and 20 (query/location autocomplete — also flagged for
-antigravity + prioritization).
+Items 17, 23, 24 implemented 2026-07-25. Item 16 implemented 2026-07-25 (stepper + label, scoped via
+antigravity-mcp second opinion; unit-price toggle deferred). Item 18 investigated 2026-07-25 — already
+correctly implemented for `AvailabilityView`, verified live, no code change needed; documented in the tracker.
+Item 25 (aldi-now.ch second storefront) under investigation. Remaining open, not yet started: 15 (live
+progress/ETA during search — needs a streaming/SSE backend change), 19 and 20 (query/location autocomplete —
+need a new suggestion endpoint + UI).

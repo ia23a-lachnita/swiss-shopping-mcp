@@ -2,7 +2,7 @@ import { useRef, useState, type FormEvent } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { AnimatePresence, motion } from 'framer-motion';
 import NumberFlow from '@number-flow/react';
-import { AlertTriangle, Scale } from 'lucide-react';
+import { AlertTriangle, Minus, Plus, Scale } from 'lucide-react';
 
 import { ALL_CHAINS, comparePrices, type Chain, type Product } from '../api';
 import { cn } from '../lib/utils';
@@ -49,6 +49,10 @@ export function CompareView(): React.JSX.Element {
     );
   }
 
+  function setClampedQuantity(next: number): void {
+    setQuantity(Math.min(99, Math.max(1, Math.round(next) || 1)));
+  }
+
   return (
     <div className="space-y-4 pb-4 pt-3">
       <form onSubmit={submit} className="space-y-3">
@@ -64,16 +68,42 @@ export function CompareView(): React.JSX.Element {
             className="h-12 pl-10 text-base font-medium"
           />
         </div>
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-medium text-faint">Menge</span>
-          <Input
-            type="number"
-            min={1}
-            max={100}
-            value={quantity}
-            onChange={(e) => setQuantity(Math.max(1, Number(e.target.value) || 1))}
-            className="h-9 w-20 text-sm"
-          />
+        <div className="flex items-center justify-between">
+          <span className="text-xs font-medium text-faint">Anzahl Packungen (gilt für alle Produkte)</span>
+          <div className="flex items-center gap-1.5">
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              className="h-9 w-9"
+              onClick={() => setClampedQuantity(quantity - 1)}
+              disabled={quantity <= 1}
+              aria-label="Weniger Packungen"
+            >
+              <Minus />
+            </Button>
+            <Input
+              type="number"
+              inputMode="numeric"
+              min={1}
+              max={99}
+              value={quantity}
+              onChange={(e) => setClampedQuantity(Number(e.target.value))}
+              className="h-9 w-14 text-center text-sm"
+              aria-label="Anzahl Packungen"
+            />
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              className="h-9 w-9"
+              onClick={() => setClampedQuantity(quantity + 1)}
+              disabled={quantity >= 99}
+              aria-label="Mehr Packungen"
+            >
+              <Plus />
+            </Button>
+          </div>
         </div>
         <div className="flex flex-wrap gap-2">
           {ALL_CHAINS.map((chain) => (
