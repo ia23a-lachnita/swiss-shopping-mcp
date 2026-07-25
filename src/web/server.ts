@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 
 
 import { createDefaultAdapters } from '../adapters/index.js';
-import { reverseGeocodeAsync, resolveLocationAsync } from '../util/geo.js';
+import { reverseGeocodeAsync, resolveLocationAsync, suggestLocationsAsync } from '../util/geo.js';
 import { getAllCapabilityStatuses } from '../adapters/sourceRegistry.js';
 import { CatalogService, openCatalogDb, runMigrations } from '../catalog/index.js';
 import { PriceComparisonService } from '../services/priceComparisonService.js';
@@ -135,6 +135,89 @@ async function handleSearchProducts(res: ServerResponse, raw: string): Promise<v
   } else {
     sendJson(res, 500, { ok: false, error: result.error });
   }
+}
+
+function writeSseEvent(res: ServerResponse, event: string, data: unknown): void {
+  if (res.writableEnded) return;
+  res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
+}
+
+/**
+ * SSE variant of /api/search-products: emits an `init` event (chain count +
+ * per-chain ETA derived from real measured latency history), a `progress`
+ * event as each chain's vendor search resolves, then a `done` event carrying
+ * the same envelope shape as the POST endpoint's response.
+ */
+async function handleSearchProductsStream(res: ServerResponse, url: URL): Promise<void> {
+  const query = url.searchParams.get('query')?.trim() ?? '';
+  if (!query) {
+    sendJson(res, 400, { ok: false, error: { code: 'INVALID_QUERY', message: 'Query is required.' } });
+    return;
+  }
+
+  const chainsParam = url.searchParams.get('chains');
+  const chains = chainsParam
+    ? (chainsParam.split(',').filter(Boolean) as Chain[])
+    : undefined;
+  const maxPriceParam = url.searchParams.get('maxPrice');
+  const maxPrice = maxPriceParam ? Number(maxPriceParam) : undefined;
+  const category = url.searchParams.get('category') ?? undefined;
+  const limitParam = url.searchParams.get('limit');
+  const limit = limitParam ? Number(limitParam) : undefined;
+
+  res.writeHead(200, {
+    'Content-Type': 'text/event-stream; charset=utf-8',
+    'Cache-Control': 'no-cache',
+    Connection: 'keep-alive',
+  });
+
+  const relevantChains = chains ?? adapters.map((adapter) => adapter.chain);
+  const latencyByChain = metrics.snapshot().latency.byChain;
+  writeSseEvent(res, 'init', {
+    totalChains: relevantChains.length,
+    chains: relevantChains,
+    etaMsByChain: Object.fromEntries(
+      relevantChains.map((chain) => [chain, latencyByChain[chain]?.avg])
+    ),
+  });
+
+  const result = await searchService.searchProducts(
+    { query, chains, maxPrice, category, limit },
+    { onChainProgress: (event) => writeSseEvent(res, 'progress', event) }
+  );
+
+  if (result.ok) {
+    writeSseEvent(res, 'done', { ok: true, data: result.data, metadata: result.metadata });
+  } else {
+    writeSseEvent(res, 'done', { ok: false, error: result.error });
+  }
+  res.end();
+}
+
+function handleQuerySuggest(res: ServerResponse, url: URL): void {
+  const q = url.searchParams.get('q')?.trim() ?? '';
+  const limit = Math.min(Number(url.searchParams.get('limit')) || 8, 15);
+
+  if (q.length < 2 || !catalog) {
+    sendJson(res, 200, { ok: true, data: { suggestions: [] } });
+    return;
+  }
+
+  const suggestions = catalog.suggestProductNames(q, limit);
+  sendJson(res, 200, { ok: true, data: { suggestions } });
+}
+
+async function handleLocationSuggest(res: ServerResponse, url: URL): Promise<void> {
+  const q = url.searchParams.get('q')?.trim() ?? '';
+  const limit = Math.min(Number(url.searchParams.get('limit')) || 6, 10);
+
+  if (q.length < 2) {
+    sendJson(res, 200, { ok: true, data: { suggestions: [] } });
+    return;
+  }
+
+  const suggestions = await suggestLocationsAsync(q, limit);
+  sendJson(res, 200, { ok: true, data: { suggestions } });
 }
 
 async function handleFindStores(res: ServerResponse, raw: string): Promise<void> {
@@ -293,6 +376,21 @@ async function handleRequest(req: IncomingMessage, res: ServerResponse): Promise
   if (req.method === 'POST' && url.pathname === '/api/search-products') {
     const body = await readBody(req);
     await handleSearchProducts(res, body);
+    return;
+  }
+
+  if (req.method === 'GET' && url.pathname === '/api/search-products/stream') {
+    await handleSearchProductsStream(res, url);
+    return;
+  }
+
+  if (req.method === 'GET' && url.pathname === '/api/query-suggest') {
+    handleQuerySuggest(res, url);
+    return;
+  }
+
+  if (req.method === 'GET' && url.pathname === '/api/location-suggest') {
+    await handleLocationSuggest(res, url);
     return;
   }
 

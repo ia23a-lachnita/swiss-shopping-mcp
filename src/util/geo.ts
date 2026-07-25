@@ -432,6 +432,70 @@ export function reverseGeocode(point: GeoPoint, maxDistanceKm = 30): ReverseGeoc
   };
 }
 
+export interface LocationSuggestion {
+  /** Plain-text label directly usable as a `location` filter value, e.g. "8001 Zürich" or "Winterthur". */
+  label: string;
+  latitude: number;
+  longitude: number;
+}
+
+function stripHtmlTags(input: string): string {
+  return input.replace(/<[^>]*>/g, '');
+}
+
+/**
+ * Location-autocomplete suggestions backed by the same GeoAdmin SearchServer
+ * API `resolveLocationAsync` already uses for geocoding, requested with
+ * `limit > 1` instead of `limit=1`. Covers both postal codes (`origin:
+ * "zipcode"`, label like "8001 - Zürich") and place names (`origin: "gg25"`,
+ * label like "Winterthur (ZH)") — verified live against the real API.
+ */
+export async function suggestLocationsAsync(prefix: string, limit = 6): Promise<LocationSuggestion[]> {
+  const trimmed = prefix.trim();
+  if (trimmed.length < 2) return [];
+
+  try {
+    const params = new URLSearchParams({
+      searchText: trimmed,
+      type: 'locations',
+      origins: 'zipcode,gg25',
+      sr: '4326',
+      limit: String(limit),
+    });
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), GEOADMIN_TIMEOUT_MS);
+    const response = await fetch(`${GEOADMIN_SEARCH_URL}?${params.toString()}`, {
+      signal: controller.signal,
+    });
+    clearTimeout(timeoutId);
+
+    if (!response.ok) return [];
+
+    const data = (await response.json()) as {
+      results?: Array<{ attrs: { label: string; lat: number; lon: number; origin: string } }>;
+    };
+
+    const seen = new Set<string>();
+    const suggestions: LocationSuggestion[] = [];
+    for (const result of data.results ?? []) {
+      const attrs = result.attrs;
+      if (!attrs?.label || typeof attrs.lat !== 'number' || typeof attrs.lon !== 'number') continue;
+
+      let label = stripHtmlTags(attrs.label);
+      label = attrs.origin === 'zipcode'
+        ? label.replace(' - ', ' ')
+        : label.replace(/\s*\([A-ZÄÖÜ]{2}\)\s*$/, '');
+
+      if (seen.has(label)) continue;
+      seen.add(label);
+      suggestions.push({ label, latitude: attrs.lat, longitude: attrs.lon });
+    }
+    return suggestions;
+  } catch {
+    return [];
+  }
+}
+
 const GEOADMIN_IDENTIFY_URL = 'https://api3.geo.admin.ch/rest/services/api/MapServer/identify';
 const GEOADMIN_IDENTIFY_TIMEOUT_MS = 3000;
 /** Half-width of the identify query's bounding box, in degrees (~5.5km at Swiss latitudes). */

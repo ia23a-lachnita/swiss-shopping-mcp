@@ -1,4 +1,4 @@
-import { useRef, useState, type FormEvent } from 'react';
+import { useCallback, useState, type FormEvent } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { AnimatePresence, motion } from 'framer-motion';
 import NumberFlow from '@number-flow/react';
@@ -19,7 +19,10 @@ import {
   checkLocation,
   productAvailability,
   reverseGeocode,
+  suggestLocations,
+  suggestQueries,
   type Chain,
+  type LocationSuggestion,
   type Product,
   type StoreWithAvailability,
 } from '../api';
@@ -27,9 +30,9 @@ import { cn, mapsUrl } from '../lib/utils';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
 import { Card, CardContent } from './ui/card';
-import { Input } from './ui/input';
 import { Price } from './ui/price';
 import { Skeleton } from './ui/skeleton';
+import { SuggestInput } from './ui/suggest-input';
 import { ProductSheet } from './ProductSheet';
 import { VendorBadge } from './VendorBadge';
 
@@ -121,7 +124,13 @@ export function AvailabilityView(): React.JSX.Element {
   const [userCoords, setUserCoords] = useState<{ lat: number; lng: number }>();
   const [openVendor, setOpenVendor] = useState<string>();
   const [validatingLocation, setValidatingLocation] = useState(false);
-  const queryInputRef = useRef<HTMLInputElement>(null);
+  const [locationSuggestions, setLocationSuggestions] = useState<LocationSuggestion[]>([]);
+
+  const fetchLocationSuggestions = useCallback(async (q: string) => {
+    const results = await suggestLocations(q);
+    setLocationSuggestions(results);
+    return results.map((s) => s.label);
+  }, []);
 
   const { data: queryResult, isFetching, error } = useQuery({
     queryKey: ['availability', params],
@@ -195,6 +204,13 @@ export function AvailabilityView(): React.JSX.Element {
     );
   }
 
+  function selectLocationSuggestion(label: string): void {
+    const match = locationSuggestions.find((s) => s.label === label);
+    if (match) {
+      setUserCoords({ lat: match.latitude, lng: match.longitude });
+    }
+  }
+
   function toggleChain(chain: Chain): void {
     setChains((current) =>
       current.includes(chain) ? current.filter((c) => c !== chain) : [...current, chain]
@@ -216,14 +232,13 @@ export function AvailabilityView(): React.JSX.Element {
         {/* Query is the primary, dominant control — what you're looking for matters
             more than where, so it comes first and reads larger than the location chip. */}
         <div className="relative">
-          <Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-brand" />
-          <Input
-            ref={queryInputRef}
+          <Search className="pointer-events-none absolute left-3.5 top-1/2 z-10 size-4 -translate-y-1/2 text-brand" />
+          <SuggestInput
             id="avail-query"
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={setQuery}
+            fetchSuggestions={suggestQueries}
             placeholder="Produkt, z.B. Milch"
-            autoComplete="off"
             enterKeyHint="search"
             className="h-12 pl-10 text-base font-medium"
           />
@@ -240,18 +255,21 @@ export function AvailabilityView(): React.JSX.Element {
                 transition={{ duration: 0.15 }}
                 className="flex items-center gap-2"
               >
-                <Input
-                  id="avail-location"
-                  value={location}
-                  onChange={(e) => {
-                    setLocation(e.target.value);
-                    setUserCoords(undefined);
-                  }}
-                  placeholder="PLZ oder Ort, z.B. 8001 Zürich"
-                  autoComplete="postal-code"
-                  enterKeyHint="search"
-                  className="h-9 text-sm"
-                />
+                <div className="flex-1">
+                  <SuggestInput
+                    id="avail-location"
+                    value={location}
+                    onChange={(value) => {
+                      setLocation(value);
+                      setUserCoords(undefined);
+                    }}
+                    fetchSuggestions={fetchLocationSuggestions}
+                    onSuggestionSelect={selectLocationSuggestion}
+                    placeholder="PLZ oder Ort, z.B. 8001 Zürich"
+                    enterKeyHint="search"
+                    className="h-9 text-sm"
+                  />
+                </div>
                 <Button
                   type="button"
                   variant="outline"

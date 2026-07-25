@@ -1,6 +1,9 @@
 import { createServer as createHttpServer, IncomingMessage, ServerResponse } from 'node:http';
 import { describe, expect, it, beforeAll, afterAll } from 'vitest';
+import Database from 'better-sqlite3';
 
+import { CatalogService } from '../catalog/catalogService.js';
+import { runMigrations } from '../catalog/migrations.js';
 import {
   Chain,
   ChainAdapter,
@@ -138,7 +141,11 @@ function parseBody<T>(raw: string): { ok: true; data: T } | { ok: false; error: 
   }
 }
 
-function createTestServer(adapters: ChainAdapter[]) {
+function writeSseEvent(res: ServerResponse, event: string, data: unknown): void {
+  res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
+}
+
+function createTestServer(adapters: ChainAdapter[], catalog?: CatalogService) {
   const searchService = new SearchService(adapters);
   const priceComparisonService = new PriceComparisonService(adapters);
 
@@ -268,6 +275,55 @@ function createTestServer(adapters: ChainAdapter[]) {
         return;
       }
 
+      // GET /api/search-products/stream
+      if (req.method === 'GET' && url.pathname === '/api/search-products/stream') {
+        const query = url.searchParams.get('query')?.trim() ?? '';
+        if (!query) {
+          sendJson(res, 400, { ok: false, error: { code: 'INVALID_QUERY', message: 'Query is required.' } });
+          return;
+        }
+        const chainsParam = url.searchParams.get('chains');
+        const chains = chainsParam ? (chainsParam.split(',').filter(Boolean) as Chain[]) : undefined;
+
+        res.writeHead(200, {
+          'Content-Type': 'text/event-stream; charset=utf-8',
+          'Cache-Control': 'no-cache',
+          Connection: 'keep-alive',
+        });
+
+        const relevantChains = chains ?? adapters.map((a) => a.chain);
+        writeSseEvent(res, 'init', {
+          totalChains: relevantChains.length,
+          chains: relevantChains,
+          etaMsByChain: {},
+        });
+
+        const result = await searchService.searchProducts(
+          { query, chains },
+          { onChainProgress: (event) => writeSseEvent(res, 'progress', event) }
+        );
+
+        if (result.ok) {
+          writeSseEvent(res, 'done', { ok: true, data: result.data, metadata: result.metadata });
+        } else {
+          writeSseEvent(res, 'done', { ok: false, error: result.error });
+        }
+        res.end();
+        return;
+      }
+
+      // GET /api/query-suggest
+      if (req.method === 'GET' && url.pathname === '/api/query-suggest') {
+        const q = url.searchParams.get('q')?.trim() ?? '';
+        const limit = Math.min(Number(url.searchParams.get('limit')) || 8, 15);
+        if (q.length < 2 || !catalog) {
+          sendJson(res, 200, { ok: true, data: { suggestions: [] } });
+          return;
+        }
+        sendJson(res, 200, { ok: true, data: { suggestions: catalog.suggestProductNames(q, limit) } });
+        return;
+      }
+
       res.writeHead(404);
       res.end('Not Found');
     } catch (err) {
@@ -301,6 +357,25 @@ function get(url: string): Promise<{ status: number; data: unknown }> {
   });
 }
 
+async function getSse(url: string): Promise<Array<{ event: string; data: unknown }>> {
+  const res = await fetch(url);
+  const text = await res.text();
+  const events: Array<{ event: string; data: unknown }> = [];
+  for (const block of text.split('\n\n')) {
+    if (!block.trim()) continue;
+    const lines = block.split('\n');
+    const eventLine = lines.find((l) => l.startsWith('event: '));
+    const dataLine = lines.find((l) => l.startsWith('data: '));
+    if (eventLine && dataLine) {
+      events.push({
+        event: eventLine.slice('event: '.length),
+        data: JSON.parse(dataLine.slice('data: '.length)),
+      });
+    }
+  }
+  return events;
+}
+
 // ---------------------------------------------------------------------------
 // Tests
 // ---------------------------------------------------------------------------
@@ -312,7 +387,15 @@ describe('Web server integration (SPA endpoints)', () => {
   beforeAll(async () => {
     const migrosAdapter = createMockAdapter('migros', ALL_MIGROS_PRODUCTS, ALL_MIGROS_STORES);
     const coopAdapter = createMockAdapter('coop', ALL_COOP_PRODUCTS, ALL_COOP_STORES);
-    server = createTestServer([migrosAdapter, coopAdapter]);
+
+    const db = new Database(':memory:');
+    db.pragma('busy_timeout = 5000');
+    runMigrations(db);
+    const catalog = new CatalogService(db);
+    catalog.upsertFromNormalizedProduct(MIGROS_MILK, 'test');
+    catalog.upsertFromNormalizedProduct(COOP_MILK, 'test');
+
+    server = createTestServer([migrosAdapter, coopAdapter], catalog);
     await new Promise<void>((resolve) => {
       server.listen(0, () => {
         const addr = server.address();
@@ -525,6 +608,63 @@ describe('Web server integration (SPA endpoints)', () => {
       for (const s of body.data) {
         expect(s.chain).toBe('migros');
       }
+    });
+  });
+
+  // ---- 13. Search-products SSE stream ----
+  describe('Search-products SSE stream', () => {
+    it('emits init, per-chain progress, and a final done event', async () => {
+      const events = await getSse(`${baseUrl}/api/search-products/stream?query=milk`);
+
+      expect(events[0].event).toBe('init');
+      const init = events[0].data as { totalChains: number; chains: string[] };
+      expect(init.totalChains).toBe(2);
+      expect(new Set(init.chains)).toEqual(new Set(['migros', 'coop']));
+
+      const progressEvents = events.filter((e) => e.event === 'progress');
+      expect(progressEvents).toHaveLength(2);
+      expect(new Set(progressEvents.map((e) => (e.data as { chain: string }).chain))).toEqual(
+        new Set(['migros', 'coop'])
+      );
+
+      const done = events[events.length - 1];
+      expect(done.event).toBe('done');
+      const doneData = done.data as { ok: boolean; data: unknown[] };
+      expect(doneData.ok).toBe(true);
+      expect(doneData.data.length).toBeGreaterThan(0);
+    });
+
+    it('scopes init.totalChains to the requested chains param', async () => {
+      const events = await getSse(`${baseUrl}/api/search-products/stream?query=milk&chains=coop`);
+      const init = events[0].data as { totalChains: number; chains: string[] };
+      expect(init.totalChains).toBe(1);
+      expect(init.chains).toEqual(['coop']);
+    });
+
+    it('returns 400 JSON for an empty query', async () => {
+      const res = await get(`${baseUrl}/api/search-products/stream?query=`);
+      expect(res.status).toBe(400);
+      const body = res.data as { ok: boolean; error: { code: string } };
+      expect(body.ok).toBe(false);
+      expect(body.error.code).toBe('INVALID_QUERY');
+    });
+  });
+
+  // ---- 14. Query autocomplete suggestions ----
+  describe('Query autocomplete suggestions', () => {
+    it('returns a real product-name suggestion for a matching prefix', async () => {
+      const res = await get(`${baseUrl}/api/query-suggest?q=vollmi`);
+      expect(res.status).toBe(200);
+      const body = res.data as { ok: boolean; data: { suggestions: string[] } };
+      expect(body.ok).toBe(true);
+      expect(body.data.suggestions.some((s) => s.toLowerCase().includes('vollmilch'))).toBe(true);
+    });
+
+    it('returns an empty array below the minimum query length', async () => {
+      const res = await get(`${baseUrl}/api/query-suggest?q=v`);
+      expect(res.status).toBe(200);
+      const body = res.data as { ok: boolean; data: { suggestions: string[] } };
+      expect(body.data.suggestions).toEqual([]);
     });
   });
 });

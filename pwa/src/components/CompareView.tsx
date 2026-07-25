@@ -1,10 +1,10 @@
-import { useRef, useState, type FormEvent } from 'react';
+import { useState, type FormEvent } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { AnimatePresence, motion } from 'framer-motion';
 import NumberFlow from '@number-flow/react';
 import { AlertTriangle, Minus, Plus, Scale } from 'lucide-react';
 
-import { ALL_CHAINS, comparePrices, type Chain, type Product } from '../api';
+import { ALL_CHAINS, comparePrices, suggestQueries, type Chain, type Product } from '../api';
 import { cn } from '../lib/utils';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
@@ -12,6 +12,7 @@ import { Card, CardContent } from './ui/card';
 import { Input } from './ui/input';
 import { Price } from './ui/price';
 import { Skeleton } from './ui/skeleton';
+import { SuggestInput } from './ui/suggest-input';
 import { ProductSheet } from './ProductSheet';
 import { VendorBadge } from './VendorBadge';
 
@@ -22,7 +23,6 @@ export function CompareView(): React.JSX.Element {
   const [submitted, setSubmitted] = useState<{ query: string; chains: Chain[]; quantity: number } | undefined>();
   const [openVendor, setOpenVendor] = useState<string>();
   const [selected, setSelected] = useState<Product | undefined>();
-  const queryInputRef = useRef<HTMLInputElement>(null);
 
   const { data: queryResult, isFetching, error } = useQuery({
     queryKey: ['compare', submitted],
@@ -57,13 +57,12 @@ export function CompareView(): React.JSX.Element {
     <div className="space-y-4 pb-4 pt-3">
       <form onSubmit={submit} className="space-y-3">
         <div className="relative">
-          <Scale className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-brand" />
-          <Input
-            ref={queryInputRef}
+          <Scale className="pointer-events-none absolute left-3.5 top-1/2 z-10 size-4 -translate-y-1/2 text-brand" />
+          <SuggestInput
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={setQuery}
+            fetchSuggestions={suggestQueries}
             placeholder="Produkt vergleichen, z.B. Butter"
-            autoComplete="off"
             enterKeyHint="search"
             className="h-12 pl-10 text-base font-medium"
           />

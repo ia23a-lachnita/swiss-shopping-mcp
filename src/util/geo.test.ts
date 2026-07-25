@@ -1,6 +1,6 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 
-import { resolveLocation, resolveLocationAsync, clearAsyncCache, findNearbyLocations, distanceBetween, reverseGeocode, reverseGeocodeAsync } from './geo.js';
+import { resolveLocation, resolveLocationAsync, clearAsyncCache, findNearbyLocations, distanceBetween, reverseGeocode, reverseGeocodeAsync, suggestLocationsAsync } from './geo.js';
 
 describe('geo utility', () => {
   describe('resolveLocation', () => {
@@ -118,6 +118,80 @@ describe('geo utility', () => {
 
       expect(first).toEqual(second);
       expect(fetchSpy).toHaveBeenCalledOnce();
+    });
+  });
+
+  describe('suggestLocationsAsync', () => {
+    let fetchSpy: ReturnType<typeof vi.fn>;
+
+    beforeEach(() => {
+      fetchSpy = vi.fn();
+      vi.stubGlobal('fetch', fetchSpy);
+    });
+
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    it('normalizes zipcode-origin labels to "<zip> <city>"', async () => {
+      fetchSpy.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          results: [
+            { attrs: { label: '<b>8001 - Zürich</b>', lat: 47.37, lon: 8.54, origin: 'zipcode' } },
+          ],
+        }),
+      });
+
+      const results = await suggestLocationsAsync('800');
+      expect(results).toEqual([{ label: '8001 Zürich', latitude: 47.37, longitude: 8.54 }]);
+    });
+
+    it('strips the trailing canton suffix from gg25-origin place-name labels', async () => {
+      fetchSpy.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          results: [
+            { attrs: { label: '<b>Winterthur (ZH)</b>', lat: 47.5, lon: 8.72, origin: 'gg25' } },
+          ],
+        }),
+      });
+
+      const results = await suggestLocationsAsync('wint');
+      expect(results).toEqual([{ label: 'Winterthur', latitude: 47.5, longitude: 8.72 }]);
+    });
+
+    it('deduplicates identical labels across results', async () => {
+      fetchSpy.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          results: [
+            { attrs: { label: '<b>Winterthur (ZH)</b>', lat: 47.5, lon: 8.72, origin: 'gg25' } },
+            { attrs: { label: '<b>Winterthur (ZH)</b>', lat: 47.5, lon: 8.72, origin: 'gg25' } },
+          ],
+        }),
+      });
+
+      const results = await suggestLocationsAsync('wint');
+      expect(results).toHaveLength(1);
+    });
+
+    it('returns empty array below the minimum length without calling fetch', async () => {
+      const results = await suggestLocationsAsync('w');
+      expect(results).toEqual([]);
+      expect(fetchSpy).not.toHaveBeenCalled();
+    });
+
+    it('returns empty array when the API call fails', async () => {
+      fetchSpy.mockRejectedValueOnce(new Error('network down'));
+      const results = await suggestLocationsAsync('wint');
+      expect(results).toEqual([]);
+    });
+
+    it('returns empty array on a non-ok response', async () => {
+      fetchSpy.mockResolvedValueOnce({ ok: false });
+      const results = await suggestLocationsAsync('wint');
+      expect(results).toEqual([]);
     });
   });
 

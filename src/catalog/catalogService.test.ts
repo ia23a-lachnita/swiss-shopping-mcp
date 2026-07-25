@@ -298,6 +298,56 @@ describe('CatalogService', () => {
     });
   });
 
+  describe('suggestProductNames (query autocomplete)', () => {
+    it('should prefix-match a partial single-word query', () => {
+      service.upsertFromNormalizedProduct(makeProduct({ name: 'Vollmilch' }), 'test');
+
+      const results = service.suggestProductNames('vollmi');
+      expect(results).toContain('Vollmilch');
+    });
+
+    it('should require the earlier words exactly and prefix-match only the last', () => {
+      service.upsertFromNormalizedProduct(makeProduct({ name: 'Bio Vollmilch', id: 'prod-002' }), 'test');
+      service.upsertFromNormalizedProduct(makeProduct({ name: 'Vollmilch', id: 'prod-003' }), 'test');
+
+      const results = service.suggestProductNames('bio vollmi');
+      expect(results).toEqual(['Bio Vollmilch']);
+    });
+
+    it('should return distinct names even with multiple matching rows', () => {
+      service.upsertFromNormalizedProduct(makeProduct({ name: 'Vollmilch', id: 'prod-a' }), 'test');
+      service.upsertFromNormalizedProduct(
+        makeProduct({ name: 'Vollmilch', id: 'prod-b', chain: 'coop' }),
+        'test'
+      );
+
+      const results = service.suggestProductNames('vollmi');
+      expect(results.filter((r) => r === 'Vollmilch')).toHaveLength(1);
+    });
+
+    it('should return empty array below the minimum length', () => {
+      service.upsertFromNormalizedProduct(makeProduct({ name: 'Vollmilch' }), 'test');
+      expect(service.suggestProductNames('v')).toEqual([]);
+      expect(service.suggestProductNames('')).toEqual([]);
+    });
+
+    it('should return empty array when nothing matches', () => {
+      service.upsertFromNormalizedProduct(makeProduct({ name: 'Vollmilch' }), 'test');
+      expect(service.suggestProductNames('xyz')).toEqual([]);
+    });
+
+    it('should respect the limit parameter', () => {
+      for (let i = 0; i < 5; i++) {
+        service.upsertFromNormalizedProduct(
+          makeProduct({ name: `Joghurt Sorte ${i}`, id: `prod-yog-${i}` }),
+          'test'
+        );
+      }
+      const results = service.suggestProductNames('joghurt', 2);
+      expect(results).toHaveLength(2);
+    });
+  });
+
   describe('Observations are append-only', () => {
     it('should retain multiple observations in order', () => {
       const product1 = makeProduct({ price: { current: 1.95 } });

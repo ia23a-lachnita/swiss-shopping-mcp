@@ -1,19 +1,26 @@
-import { useRef, useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { AnimatePresence, motion } from 'framer-motion';
 import NumberFlow from '@number-flow/react';
 import { AlertTriangle, Search } from 'lucide-react';
 
-import { ALL_CHAINS, CHAIN_LABELS, searchProducts, type Chain, type Product } from '../api';
+import {
+  ALL_CHAINS,
+  CHAIN_LABELS,
+  streamSearchProducts,
+  suggestQueries,
+  type Chain,
+  type Product,
+} from '../api';
 import { cn } from '../lib/utils';
 import { ProductSheet } from './ProductSheet';
 import { VendorBadge } from './VendorBadge';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
 import { Card, CardContent } from './ui/card';
-import { Input } from './ui/input';
 import { Price } from './ui/price';
 import { Skeleton } from './ui/skeleton';
+import { SuggestInput } from './ui/suggest-input';
 
 function ProductCardSkeleton(): React.JSX.Element {
   return (
@@ -29,24 +36,67 @@ function ProductCardSkeleton(): React.JSX.Element {
   );
 }
 
+interface SearchProgress {
+  responded: number;
+  total: number;
+  etaMs?: number;
+}
+
 export function SearchView(): React.JSX.Element {
   const [query, setQuery] = useState('');
   const [chains, setChains] = useState<Chain[]>([...ALL_CHAINS]);
   const [submitted, setSubmitted] = useState<{ query: string; chains: Chain[] } | undefined>();
   const [selected, setSelected] = useState<Product | undefined>();
   const [openVendor, setOpenVendor] = useState<string>();
-  const queryInputRef = useRef<HTMLInputElement>(null);
+  const [progress, setProgress] = useState<SearchProgress | undefined>();
+  const [tick, setTick] = useState(0);
+  const searchStartRef = useRef(0);
 
   const { data: queryResult, isFetching, error } = useQuery({
     queryKey: ['search', submitted],
     queryFn: async () => {
       const start = performance.now();
-      const data = await searchProducts({ ...submitted!, limit: 12 });
+      searchStartRef.current = start;
+      setProgress(undefined);
+      const data = await streamSearchProducts(
+        { ...submitted!, limit: 12 },
+        {
+          onInit: (init) => {
+            const known = init.chains
+              .map((chain) => init.etaMsByChain[chain])
+              .filter((ms): ms is number => typeof ms === 'number');
+            setProgress({
+              responded: 0,
+              total: init.totalChains,
+              etaMs: known.length > 0 ? Math.max(...known) : undefined,
+            });
+          },
+          onProgress: (event) => {
+            setProgress((prev) => ({
+              responded: event.respondedCount,
+              total: event.totalCount,
+              etaMs: prev?.etaMs,
+            }));
+          },
+        }
+      );
       return { data, elapsedMs: performance.now() - start };
     },
     enabled: submitted !== undefined,
   });
   const data = queryResult?.data;
+
+  // Ticks the ETA countdown live while a search is in flight.
+  useEffect(() => {
+    if (!isFetching) return;
+    const interval = setInterval(() => setTick((t) => t + 1), 250);
+    return () => clearInterval(interval);
+  }, [isFetching]);
+  const etaRemainingMs =
+    progress?.etaMs !== undefined
+      ? Math.max(0, progress.etaMs - (performance.now() - searchStartRef.current))
+      : undefined;
+  void tick; // triggers the re-render that recomputes etaRemainingMs above
 
   function submit(event?: FormEvent): void {
     event?.preventDefault();
@@ -65,14 +115,13 @@ export function SearchView(): React.JSX.Element {
     <div className="space-y-4 pt-3">
       <form onSubmit={submit} className="space-y-3">
         <div className="relative">
-          <Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-brand" />
-          <Input
-            ref={queryInputRef}
+          <Search className="pointer-events-none absolute left-3.5 top-1/2 z-10 size-4 -translate-y-1/2 text-brand" />
+          <SuggestInput
             id="search-query"
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={setQuery}
+            fetchSuggestions={suggestQueries}
             placeholder="Produkt suchen, z.B. Zahnpasta"
-            autoComplete="off"
             enterKeyHint="search"
             className="h-12 pl-10 text-base font-medium"
           />
@@ -102,6 +151,20 @@ export function SearchView(): React.JSX.Element {
 
       {isFetching && (
         <div className="space-y-3" data-testid="search-loading">
+          {progress && (
+            <p className="flex items-center gap-1.5 text-xs text-faint" data-testid="search-progress">
+              <Search className="size-3 animate-pulse" />
+              <NumberFlow value={progress.responded} className="font-mono font-semibold text-ink" />
+              <span>/{progress.total} Händler geantwortet</span>
+              {etaRemainingMs !== undefined && progress.responded < progress.total && (
+                <span>
+                  {' '}
+                  · noch ~
+                  <b className="font-mono font-semibold text-ink">{Math.ceil(etaRemainingMs / 1000)}s</b>
+                </span>
+              )}
+            </p>
+          )}
           {[0, 1, 2].map((i) => (
             <ProductCardSkeleton key={i} />
           ))}

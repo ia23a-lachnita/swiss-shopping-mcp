@@ -197,6 +197,7 @@ the bottom once antigravity's second opinion and user prioritization are in.
 Items 17, 23, 24 implemented 2026-07-25. Item 16 implemented 2026-07-25 (stepper + label, scoped via
 antigravity-mcp second opinion; unit-price toggle deferred). Item 18 investigated 2026-07-25 — already
 correctly implemented for `AvailabilityView`, verified live, no code change needed; documented in the tracker.
-Item 25 (aldi-now.ch second storefront) under investigation. Remaining open, not yet started: 15 (live
-progress/ETA during search — needs a streaming/SSE backend change), 19 and 20 (query/location autocomplete —
-need a new suggestion endpoint + UI).
+Item 25 (aldi-now.ch second storefront) under investigation, explicitly deprioritized by user 2026-07-25
+(comparable effort to a full new adapter build — deferred to a future session, not part of this backlog pass).
+Items 15, 19, 20 implemented 2026-07-25 — see "Live search progress/ETA + query/location autocomplete"
+tracker row below. All backlog items from this feedback pass are now resolved except the deprioritized item 25.

@@ -121,6 +121,20 @@ export interface SearchServiceOptions {
   metrics?: MetricsCollector;
 }
 
+/** Fired as each vendor adapter's search resolves, before web-search augmentation runs. */
+export interface ChainProgressEvent {
+  chain: Chain;
+  ok: boolean;
+  elapsedMs: number;
+  respondedCount: number;
+  totalCount: number;
+}
+
+export interface SearchProductsOptions {
+  /** Called synchronously as each requested chain's vendor search resolves (parallel fan-out, so order is by real completion time, not request order). */
+  onChainProgress?: (event: ChainProgressEvent) => void;
+}
+
 export class SearchService {
   private readonly adapters: ChainAdapter[];
   private readonly webProductSearch?: WebProductSearchService;
@@ -136,7 +150,10 @@ export class SearchService {
     this.metrics = options.metrics;
   }
 
-  public async searchProducts(filters: ProductSearchFilters): Promise<Result<NormalizedProduct[]>> {
+  public async searchProducts(
+    filters: ProductSearchFilters,
+    options: SearchProductsOptions = {}
+  ): Promise<Result<NormalizedProduct[]>> {
     const query = filters.query.trim();
     if (!query) {
       return {
@@ -158,6 +175,8 @@ export class SearchService {
     const now = new Date().toISOString();
 
     // Step 1: Run vendor searches first to evaluate strength
+    let respondedCount = 0;
+    const totalCount = relevantAdapters.length;
     const adapterResults = await Promise.all(
       relevantAdapters.map(async (adapter) => {
         const startMs = Date.now();
@@ -171,6 +190,14 @@ export class SearchService {
             this.metrics.recordHydrationFailure();
           }
         }
+        respondedCount += 1;
+        options.onChainProgress?.({
+          chain: adapter.chain,
+          ok: result.ok,
+          elapsedMs,
+          respondedCount,
+          totalCount,
+        });
         return { chain: adapter.chain, result };
       })
     );

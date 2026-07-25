@@ -358,6 +358,43 @@ export class CatalogService {
     }));
   }
 
+  /**
+   * Query-autocomplete suggestions: prefix-matches the last typed token against
+   * the FTS5 index (name/brand/category/description) and returns distinct
+   * product names, ranked by match quality. Purely derived from real observed
+   * products (upserted by past searches) — no hardcoded suggestion list.
+   */
+  public suggestProductNames(prefixText: string, limit = 8): string[] {
+    const normalized = normalizeQuery(prefixText);
+    if (normalized.length < 2) return [];
+
+    const terms = normalized.split(' ').filter(Boolean);
+    const lastTerm = terms[terms.length - 1];
+    const exactTerms = terms.slice(0, -1);
+
+    const escape = (term: string): string => term.replace(/"/g, '""');
+    const parts = [
+      ...exactTerms.map((term) => `"${escape(term)}"`),
+      `${escape(lastTerm)}*`,
+    ];
+    const ftsQuery = parts.join(' AND ');
+
+    const rows = this.db
+      .prepare(
+        `SELECT p.name, MIN(fts.rank) as best_rank
+         FROM products_fts fts
+         JOIN products p ON p.rowid = fts.rowid
+         WHERE products_fts MATCH ?
+           AND p.status IN ('active', 'suspected_removed')
+         GROUP BY p.name
+         ORDER BY best_rank
+         LIMIT ?`
+      )
+      .all(ftsQuery, limit) as Array<{ name: string; best_rank: number }>;
+
+    return rows.map((row) => row.name);
+  }
+
   public latestObservation(
     chain: Chain,
     productId: string

@@ -141,6 +141,43 @@ describe('SearchService', () => {
     }
   });
 
+  it('reports onChainProgress once per adapter, with a monotonically increasing respondedCount', async () => {
+    const service = new SearchService([
+      stubAdapter('aldi', { products: [testProduct('aldi-bread', 'aldi')] }),
+      stubAdapter('coop', { products: [testProduct('coop-bread', 'coop')] }),
+    ]);
+
+    const events: Array<{ chain: Chain; ok: boolean; respondedCount: number; totalCount: number }> = [];
+    const result = await service.searchProducts(
+      { query: 'bread', chains: ['aldi', 'coop'] },
+      { onChainProgress: (event) => events.push(event) }
+    );
+
+    expect(result.ok).toBe(true);
+    expect(events).toHaveLength(2);
+    expect(new Set(events.map((e) => e.chain))).toEqual(new Set(['aldi', 'coop']));
+    expect(events.every((e) => e.totalCount === 2)).toBe(true);
+    expect(events.every((e) => e.ok === true)).toBe(true);
+    expect(events.map((e) => e.respondedCount).sort()).toEqual([1, 2]);
+  });
+
+  it('reports onChainProgress with ok:false for a failing chain, without failing the overall search', async () => {
+    const service = new SearchService([
+      stubAdapter('aldi', { products: [testProduct('aldi-bread', 'aldi')] }),
+      stubAdapter('coop', { errorCode: 'SOURCE_UNAVAILABLE' }),
+    ]);
+
+    const events: Array<{ chain: Chain; ok: boolean }> = [];
+    const result = await service.searchProducts(
+      { query: 'bread', chains: ['aldi', 'coop'] },
+      { onChainProgress: (event) => events.push(event) }
+    );
+
+    expect(result.ok).toBe(true);
+    const coopEvent = events.find((e) => e.chain === 'coop');
+    expect(coopEvent?.ok).toBe(false);
+  });
+
   it('returns successful products with source warnings when one chain fails', async () => {
     const partialService = new SearchService([
       stubAdapter('migros', { products: [testProduct('milk', 'migros')] }),

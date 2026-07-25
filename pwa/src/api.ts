@@ -108,6 +108,86 @@ export async function searchProducts(params: {
   return { products: result.data ?? [], warnings: result.metadata?.sourceWarnings ?? [] };
 }
 
+export interface SearchStreamInit {
+  totalChains: number;
+  chains: Chain[];
+  /** Per-chain expected latency (ms), from real measured history; undefined chains have no history yet. */
+  etaMsByChain: Record<string, number | undefined>;
+}
+
+export interface SearchProgressEvent {
+  chain: Chain;
+  ok: boolean;
+  elapsedMs: number;
+  respondedCount: number;
+  totalCount: number;
+}
+
+/**
+ * SSE variant of `searchProducts`: same final result, but reports per-chain
+ * progress as vendor searches resolve so the UI can show "X/Y Händler
+ * geantwortet" live instead of only after the whole request completes.
+ */
+export function streamSearchProducts(
+  params: { query: string; chains?: Chain[]; maxPrice?: number; limit?: number },
+  handlers: {
+    onInit?: (init: SearchStreamInit) => void;
+    onProgress?: (event: SearchProgressEvent) => void;
+  } = {}
+): Promise<{ products: Product[]; warnings: SourceWarning[] }> {
+  return new Promise((resolve, reject) => {
+    const qs = new URLSearchParams();
+    qs.set('query', params.query);
+    if (params.chains) qs.set('chains', params.chains.join(','));
+    if (params.maxPrice !== undefined) qs.set('maxPrice', String(params.maxPrice));
+    if (params.limit !== undefined) qs.set('limit', String(params.limit));
+
+    const source = new EventSource(`/api/search-products/stream?${qs.toString()}`);
+
+    source.addEventListener('init', (e) => {
+      handlers.onInit?.(JSON.parse((e as MessageEvent).data) as SearchStreamInit);
+    });
+    source.addEventListener('progress', (e) => {
+      handlers.onProgress?.(JSON.parse((e as MessageEvent).data) as SearchProgressEvent);
+    });
+    source.addEventListener('done', (e) => {
+      const body = JSON.parse((e as MessageEvent).data) as ApiEnvelope<Product[]>;
+      source.close();
+      if (!body.ok) {
+        reject(new Error(body.error?.message ?? 'Product search failed.'));
+        return;
+      }
+      resolve({ products: body.data ?? [], warnings: body.metadata?.sourceWarnings ?? [] });
+    });
+    source.onerror = () => {
+      source.close();
+      reject(new Error('Search stream connection failed.'));
+    };
+  });
+}
+
+export async function suggestQueries(query: string, limit = 8): Promise<string[]> {
+  if (query.trim().length < 2) return [];
+  const result = await request<{ suggestions: string[] }>(
+    `/api/query-suggest?q=${encodeURIComponent(query)}&limit=${limit}`
+  );
+  return result.ok ? (result.data?.suggestions ?? []) : [];
+}
+
+export interface LocationSuggestion {
+  label: string;
+  latitude: number;
+  longitude: number;
+}
+
+export async function suggestLocations(query: string, limit = 6): Promise<LocationSuggestion[]> {
+  if (query.trim().length < 2) return [];
+  const result = await request<{ suggestions: LocationSuggestion[] }>(
+    `/api/location-suggest?q=${encodeURIComponent(query)}&limit=${limit}`
+  );
+  return result.ok ? (result.data?.suggestions ?? []) : [];
+}
+
 export async function productAvailability(params: {
   query: string;
   location: string;
