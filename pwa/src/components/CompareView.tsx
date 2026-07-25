@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import NumberFlow from '@number-flow/react';
 import { AlertTriangle, Scale } from 'lucide-react';
 
-import { ALL_CHAINS, comparePrices, type Chain } from '../api';
+import { ALL_CHAINS, comparePrices, type Chain, type Product } from '../api';
 import { cn } from '../lib/utils';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
@@ -12,6 +12,7 @@ import { Card, CardContent } from './ui/card';
 import { Input } from './ui/input';
 import { Price } from './ui/price';
 import { Skeleton } from './ui/skeleton';
+import { ProductSheet } from './ProductSheet';
 import { VendorBadge } from './VendorBadge';
 
 export function CompareView(): React.JSX.Element {
@@ -20,6 +21,7 @@ export function CompareView(): React.JSX.Element {
   const [quantity, setQuantity] = useState(1);
   const [submitted, setSubmitted] = useState<{ query: string; chains: Chain[]; quantity: number } | undefined>();
   const [openVendor, setOpenVendor] = useState<string>();
+  const [selected, setSelected] = useState<Product | undefined>();
   const queryInputRef = useRef<HTMLInputElement>(null);
 
   const { data: queryResult, isFetching, error } = useQuery({
@@ -143,31 +145,39 @@ export function CompareView(): React.JSX.Element {
               >
                 <div className="flex items-center gap-3 rounded-card bg-surface p-3 shadow-card">
                   <span className="font-mono text-sm font-bold text-faint">#{i + 1}</span>
-                  {offer.product.image && (
-                    <img src={offer.product.image} alt="" className="size-11 shrink-0 rounded bg-white object-contain" />
-                  )}
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-1.5">
-                      <VendorBadge
-                        chain={offer.chain}
-                        open={openVendor === `${offer.chain}:${offer.product.id}`}
-                        onOpenChange={(o) => setOpenVendor(o ? `${offer.chain}:${offer.product.id}` : undefined)}
-                      />
-                      {i === 0 && <Badge variant="promo">Bestpreis</Badge>}
-                    </div>
-                    <p className="truncate text-sm font-medium">{offer.product.name}</p>
-                    {offer.comparisonEligible && offer.unitPrice && offer.comparisonUnit && (
-                      <p className="text-xs text-faint">
-                        <Price value={offer.unitPrice} className="text-xs" /> / {offer.comparisonUnit}
-                      </p>
+                  <button
+                    type="button"
+                    onClick={() => setSelected(offer.product)}
+                    className="flex min-w-0 flex-1 items-center gap-3 text-left"
+                  >
+                    {offer.product.image && (
+                      <img src={offer.product.image} alt="" className="size-11 shrink-0 rounded bg-white object-contain" />
                     )}
-                  </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-1.5">
+                        <VendorBadge
+                          chain={offer.chain}
+                          open={openVendor === `${offer.chain}:${offer.product.id}`}
+                          onOpenChange={(o) => setOpenVendor(o ? `${offer.chain}:${offer.product.id}` : undefined)}
+                        />
+                        {i === 0 && <Badge variant="promo">Bestpreis</Badge>}
+                      </div>
+                      <p className="truncate text-sm font-medium">{offer.product.name}</p>
+                      {offer.comparisonEligible && offer.unitPrice && offer.comparisonUnit && (
+                        <p className="text-xs text-faint">
+                          <Price value={offer.unitPrice} className="text-xs" /> / {offer.comparisonUnit}
+                        </p>
+                      )}
+                    </div>
+                  </button>
                   <Price value={offer.effectivePrice} className="shrink-0 text-base font-bold" />
                 </div>
               </motion.li>
             ))}
         </AnimatePresence>
       </motion.ul>
+
+      <ProductSheet product={selected} onClose={() => setSelected(undefined)} />
     </div>
   );
 }
