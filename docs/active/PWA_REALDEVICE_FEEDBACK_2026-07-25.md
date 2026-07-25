@@ -103,17 +103,49 @@ the bottom once antigravity's second opinion and user prioritization are in.
 
 ## F. Open architecture questions (need discussion, not blind implementation)
 
-23. **Web search sourcing**: user's ask is to stop "weirdly using DuckDuckGo" and instead use "what agent
-    CLIs use" for web search, to avoid the per-provider query quotas the current multi-provider chain
-    (SerpAPI → HasData → Searlo → Firecrawl → Google CSE → DDG) works around. **Needs a feasibility gate**:
-    agent-CLI web search (e.g. Claude Code's own `WebSearch` tool) is an *agent-side* capability available to
-    an LLM session, not an API this Node/Express backend service can call at runtime — there is no public
-    "Anthropic web search API" endpoint this server could hit the way it hits SerpAPI today. Get antigravity's
-    take on whether there's a real alternative being conflated here (e.g. a specific provider's API agent CLIs
-    happen to use under the hood) before deciding this is/isn't actionable.
+23. **Web search sourcing** — RESOLVED and IMPLEMENTED 2026-07-25 (see "Web search provider chain rework"
+    tracker row). User's ask: stop
+    using the paid quota-limited chain, use "what agent CLIs use" instead. Feasibility gate closed via
+    antigravity (gemini-3.6-flash) second opinion + live empirical testing (patchright and nodriver/
+    stealth-browser-mcp both hard-blocked on a cold `site:` query against Google and Bing; the existing
+    keyless DDG html-lite provider did not) + a real production test through the Pi's actual Gluetun/
+    ProtonVPN egress (`docker exec` via `tailscale ssh`: 200 OK, 1996ms, 12 results, no bot-challenge).
+    Findings:
+    - "What agent CLIs use" (Claude Code's `WebSearch`, Gemini grounding) is a paid, hosted, first-party
+      server-side tool run by Anthropic/Google on their own infra — not browser automation, not free, and
+      not callable by this backend without adding an LLM API key + per-search+per-token billing. Confirmed
+      via the `claude-api` skill: `web_search_20260209` server tool, billed, agent-side only.
+    - No free/open-weight model (DeepSeek, MiniMax-family, Qwen, Kimi, Llama, GLM — i.e. what opencode's
+      free-tier models are built on) bundles search either; only the four paid frontier labs do.
+    - Browser automation (patchright / nodriver) does **not** outperform the existing plain-fetch DDG
+      provider for generic search — it's slower, heavier, and got blocked on Google/Bing on the very first
+      try (IP-reputation + `site:`-operator signature, not a fingerprint problem stealth tooling fixes).
+    - Real prod metrics (`GET /api/metrics` → `webSearch`) show DDG has been invoked **0 times** in the 12
+      real searches served so far — the paid chain has absorbed all of them — so this was previously
+      untested in production; now it is, and it works.
+    - Gluetun/ProtonVPN is confirmed load-bearing for at least Migros (abuse-detection blocks the Pi's bare
+      egress IP, per the "Self-hosted CI/CD deploy pipeline" tracker row) — it is not there for search and
+      is not being removed.
+
+    **Decided plan (not yet implemented):** promote the existing keyless `DuckDuckGoHtmlProvider` to primary
+    in `src/sources/webSearch.ts`'s `auto` chain; add `lite.duckduckgo.com` as a same-shape keyless secondary
+    fallback; drop SerpAPI/HasData/Searlo/Firecrawl from the default chain (keep the provider classes and
+    explicit non-default modes for an opt-in burst if ever needed); add a short in-memory TTL cache on search
+    queries to reduce duplicate upstream hits. No SearXNG, no browser-automation search — both evaluated and
+    rejected for this use case (see findings above).
+
+    **Optional follow-up, not required, not scoped further:** once DDG is primary its latency starts to
+    matter more than it does today (0 hits so far) — the VPN hop adds ~1.3s per search request (736ms direct
+    vs 1996ms through Gluetun in side-by-side testing). If that ever becomes worth optimizing, the correct
+    mechanism is: move the `swiss-shopping` container off `network_mode: service:gluetun` onto a normal
+    bridge network alongside gluetun, enable gluetun's built-in HTTP/SOCKS5 proxy, and route only
+    vendor-adapter HTTP/Playwright traffic through it (`http://gluetun:<proxy-port>`) while `webSearch.ts`'s
+    `fetch()` calls go out direct/unproxied. Not a correctness fix (DDG already works fine through the VPN)
+    — pure speed optimization, skip unless it's actually felt.
 
 ## Triage (pending)
 
-Not yet prioritized. Plan: get antigravity (gemini) second opinion on architecture items (16, 18, 23) and
-overall phasing, then propose a phased plan to the user before starting implementation — this is too large
-to execute as one uninterrupted session under the mandatory browser-verification-per-fix contract.
+Item 23 implemented 2026-07-25 (see tracker). Remaining open items from this backlog: 15 (live progress/ETA
+during search), 16 and 18 (still need antigravity's second opinion + user prioritization before
+implementation), 17 (small, no discussion needed), 19 and 20 (query/location autocomplete — also flagged for
+antigravity + prioritization).

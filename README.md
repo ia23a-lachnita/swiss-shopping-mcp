@@ -114,12 +114,12 @@ Environment variables:
 
 | Variable | Default | Description |
 | --- | --- | --- |
-| `SWISS_SHOPPING_WEB_SEARCH` | `auto` | Semantic web-augmented product search: `auto` (all configured providers in quality order), `google`, `ddg`, `serpapi`, `hasdata`, `searlo`, `firecrawl`, or `off`. |
-| `SERP_API_KEY` | — | SerpAPI key (free tier 250 searches/month; default daily budget 8). |
-| `HASDATA_API_KEY` | — | HasData API key (1,000 credits/month; default daily budget 33). |
-| `SEARLO_API_KEY` | — | Searlo API key (3,000 credits/90 days; default daily budget 33). |
-| `FIRECRAWL_API_KEY` | — | Firecrawl API key (1,000 credits/month; default daily budget 16). |
-| `GOOGLE_CSE_API_KEY` | — | Google Programmable Search API key (**CLOSED to new customers** as of 2026-07-13; legacy accounts only). |
+| `SWISS_SHOPPING_WEB_SEARCH` | `auto` | Semantic web-augmented product search: `auto` (keyless DuckDuckGo html → DuckDuckGo lite → Google if legacy keys are configured; no paid provider by default), `google`, `ddg`, `ddg-lite`, `serpapi`, `hasdata`, `searlo`, `firecrawl` (the four paid modes are opt-in only, never part of `auto`), or `off`. |
+| `SERP_API_KEY` | — | SerpAPI key (free tier 250 searches/month; default daily budget 8). Opt-in only (`SWISS_SHOPPING_WEB_SEARCH=serpapi`) — not used by `auto`. |
+| `HASDATA_API_KEY` | — | HasData API key (1,000 credits/month; default daily budget 33). Opt-in only — not used by `auto`. |
+| `SEARLO_API_KEY` | — | Searlo API key (3,000 credits/90 days; default daily budget 33). Opt-in only — not used by `auto`. |
+| `FIRECRAWL_API_KEY` | — | Firecrawl API key (1,000 credits/month; default daily budget 16). Opt-in only — not used by `auto`. |
+| `GOOGLE_CSE_API_KEY` | — | Google Programmable Search API key (**CLOSED to new customers** as of 2026-07-13; legacy accounts only). Dormant tail of the `auto` chain when set — DDG is primary. |
 | `GOOGLE_CSE_CX` | — | Google Programmable Search engine ID (`cx`). |
 | `SWISS_SHOPPING_CACHE_DIR` | OS temp dir | Directory for the file TTL cache. |
 | `SWISS_SHOPPING_*_DAILY_BUDGET` | varies | Per-provider daily budget override (e.g. `SWISS_SHOPPING_SERPAPI_DAILY_BUDGET=10`). |

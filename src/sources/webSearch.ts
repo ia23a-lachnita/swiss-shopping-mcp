@@ -8,18 +8,33 @@
  * WebProductSearchService maps back to vendor product IDs for hydration.
  *
  * Providers:
+ * - DuckDuckGoHtmlProvider: keyless, scrapes the JS-free html.duckduckgo.com
+ *   endpoint (Bing-backed index). Primary provider in the default 'auto' chain
+ *   (decided 2026-07-25 — see docs/active/PWA_REALDEVICE_FEEDBACK_2026-07-25.md
+ *   item 23: paid SERP APIs sit unused in production while DDG works fine
+ *   through the deployed egress).
+ * - DuckDuckGoLiteProvider: keyless, scrapes lite.duckduckgo.com — same
+ *   backing index as the html endpoint but a different (table-based) markup
+ *   and its own independent bot-challenge/rate-limit state, so it's a
+ *   meaningfully different fallback, not a duplicate of the html provider.
+ *   Secondary in the default 'auto' chain.
  * - GoogleCustomSearchProvider: official Google Programmable Search JSON API.
  *   Requires GOOGLE_CSE_API_KEY and GOOGLE_CSE_CX (100 free queries/day).
- *   NOTE: Google CSE is CLOSED to new customers (verified 2026-07-13).
+ *   NOTE: Google CSE is CLOSED to new customers (verified 2026-07-13). Kept as
+ *   a dormant tertiary in 'auto' for legacy accounts that still have keys.
  * - SerpApiProvider: SerpAPI Google search (free tier 250/month).
  * - HasDataProvider: HasData Google SERP API (1000 credits/month).
  * - SearloProvider: Searlo web search API (3000 credits/90 days).
  * - FirecrawlSearchProvider: Firecrawl search API (1000 credits/month).
- * - DuckDuckGoHtmlProvider: keyless fallback scraping the JS-free
- *   html.duckduckgo.com endpoint (Bing-backed index).
+ *   These four paid providers are NOT part of the default 'auto' chain —
+ *   the classes and their explicit single-provider modes
+ *   (SWISS_SHOPPING_WEB_SEARCH=serpapi|hasdata|searlo|firecrawl) are kept for
+ *   an opt-in burst if ever needed, but 'auto' no longer reaches for them.
  * - CompositeWebSearchProvider: failover provider that tries providers in
- *   quality/scarcity order, integrates circuit breakers, and enforces
- *   per-provider daily budgets.
+ *   quality/scarcity order, integrates circuit breakers, enforces per-provider
+ *   daily budgets, and short-TTL-caches identical queries to cut down on
+ *   duplicate upstream hits against the now-primary rate-limit-sensitive DDG
+ *   providers.
  */
 
 import { SourceCircuitBreaker } from '../services/sourceCircuitBreaker.js';
@@ -34,6 +49,7 @@ export interface WebSearchResult {
 export type WebSearchProviderName =
   | 'google'
   | 'ddg'
+  | 'ddg-lite'
   | 'serpapi'
   | 'hasdata'
   | 'searlo'
@@ -688,7 +704,10 @@ export interface DuckDuckGoHtmlProviderOptions {
 const DDG_ENDPOINT = 'https://html.duckduckgo.com/html/';
 const ANCHOR_PATTERN = /<a\s+[^>]*>/gi;
 const HREF_PATTERN = /href="([^"]+)"/i;
-const CLASS_PATTERN = /class="([^"]*)"/i;
+// html.duckduckgo.com double-quotes class attrs; lite.duckduckgo.com
+// single-quotes them (class='result-link') — support both.
+const CLASS_PATTERN = /class=['"]([^'"]*)['"]/i;
+const DEFAULT_RESULT_LINK_CLASS = 'result__a';
 
 function decodeHtmlEntities(value: string): string {
   return value
@@ -731,14 +750,19 @@ export function resolveDuckDuckGoHref(rawHref: string): URL | undefined {
   return parsed;
 }
 
-export function parseDuckDuckGoHtml(html: string, site: string, limit: number): WebSearchResult[] {
+export function parseDuckDuckGoHtml(
+  html: string,
+  site: string,
+  limit: number,
+  resultLinkClass: string = DEFAULT_RESULT_LINK_CLASS,
+): WebSearchResult[] {
   const results: WebSearchResult[] = [];
   const seen = new Set<string>();
 
   for (const match of html.matchAll(ANCHOR_PATTERN)) {
     const anchor = match[0];
     const classMatch = anchor.match(CLASS_PATTERN);
-    if (!classMatch || !classMatch[1].split(/\s+/).includes('result__a')) continue;
+    if (!classMatch || !classMatch[1].split(/\s+/).includes(resultLinkClass)) continue;
     const hrefMatch = anchor.match(HREF_PATTERN);
     if (!hrefMatch) continue;
 
@@ -825,6 +849,96 @@ export class DuckDuckGoHtmlProvider implements WebSearchProvider {
 }
 
 // ---------------------------------------------------------------------------
+// DuckDuckGo Lite Provider
+// ---------------------------------------------------------------------------
+
+export interface DuckDuckGoLiteProviderOptions {
+  fetchImpl?: typeof fetch;
+  /** Minimum spacing between requests; independent throttle from the html provider. */
+  minIntervalMs?: number;
+}
+
+const DDG_LITE_ENDPOINT = 'https://lite.duckduckgo.com/lite/';
+const DDG_LITE_RESULT_LINK_CLASS = 'result-link';
+
+/**
+ * lite.duckduckgo.com — same backing index as html.duckduckgo.com but served
+ * from a plain HTML-4 table layout (verified live 2026-07-25: GET with a `q`
+ * query param returns 200 with real organic results using
+ * `<a ... class='result-link'>` anchors and the same `//duckduckgo.com/l/?uddg=`
+ * redirect scheme as the html endpoint). Kept as an independent provider
+ * (own name, own throttle) rather than an option on DuckDuckGoHtmlProvider so
+ * a challenge/rate-limit on one endpoint doesn't imply one on the other.
+ */
+export class DuckDuckGoLiteProvider implements WebSearchProvider {
+  public readonly name = 'ddg-lite' as const;
+  private readonly fetchImpl: typeof fetch;
+  private readonly minIntervalMs: number;
+  private queue: Promise<void> = Promise.resolve();
+  private lastRequestAt = 0;
+
+  public constructor(options: DuckDuckGoLiteProviderOptions = {}) {
+    this.fetchImpl = options.fetchImpl ?? fetch;
+    this.minIntervalMs = options.minIntervalMs ?? 1_500;
+  }
+
+  private throttle(): Promise<void> {
+    const run = this.queue.then(async () => {
+      const wait = this.lastRequestAt + this.minIntervalMs - Date.now();
+      if (wait > 0) {
+        await new Promise((resolve) => setTimeout(resolve, wait));
+      }
+      this.lastRequestAt = Date.now();
+    });
+    this.queue = run.catch(() => {});
+    return run;
+  }
+
+  public async search(query: string, options: WebSearchOptions): Promise<WebSearchResult[]> {
+    await this.throttle();
+    const limit = options.limit ?? DEFAULT_RESULT_LIMIT;
+    const q = `site:${options.site} ${query}`;
+    const url = `${DDG_LITE_ENDPOINT}?q=${encodeURIComponent(q)}`;
+
+    const response = await fetchWithTimeout(this.fetchImpl, url, {
+      headers: {
+        'User-Agent': BROWSER_UA,
+        Accept: 'text/html,application/xhtml+xml',
+        'Accept-Language': 'de-CH,de;q=0.9,en;q=0.8',
+      },
+    });
+    if (response.status === 202) {
+      throw new TypedWebSearchError({
+        message:
+          'DuckDuckGo Lite bot challenge (HTTP 202) — keyless web search is temporarily rate-limited.',
+        provider: 'ddg-lite',
+        retryable: true,
+        httpStatus: 202,
+      });
+    }
+    if (!response.ok) {
+      throw new TypedWebSearchError({
+        message: `DuckDuckGo Lite search failed with status ${response.status}.`,
+        provider: 'ddg-lite',
+        retryable: response.status >= 500,
+        httpStatus: response.status,
+      });
+    }
+
+    const html = await response.text();
+    if (html.includes('anomaly-modal') || html.includes('challenge-form')) {
+      throw new TypedWebSearchError({
+        message:
+          'DuckDuckGo Lite bot challenge page returned — keyless web search is temporarily rate-limited.',
+        provider: 'ddg-lite',
+        retryable: true,
+      });
+    }
+    return parseDuckDuckGoHtml(html, options.site, limit, DDG_LITE_RESULT_LINK_CLASS);
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Mode resolution
 // ---------------------------------------------------------------------------
 
@@ -832,6 +946,7 @@ export type WebSearchMode =
   | 'auto'
   | 'google'
   | 'ddg'
+  | 'ddg-lite'
   | 'serpapi'
   | 'hasdata'
   | 'searlo'
@@ -839,7 +954,7 @@ export type WebSearchMode =
   | 'off';
 
 const PROVIDER_MODE_NAMES: readonly WebSearchMode[] = [
-  'google', 'ddg', 'serpapi', 'hasdata', 'searlo', 'firecrawl',
+  'google', 'ddg', 'ddg-lite', 'serpapi', 'hasdata', 'searlo', 'firecrawl',
 ];
 
 export function resolveWebSearchMode(env: NodeJS.ProcessEnv = process.env): WebSearchMode {
@@ -875,7 +990,25 @@ export interface CompositeWebSearchProviderOptions {
   /** Shared collector for per-provider request/fallback/circuit-breaker metrics. */
   metrics?: MetricsCollector;
   clock?: { now(): Date };
+  /**
+   * Short in-memory TTL cache on (query, site(s)) to absorb duplicate bursts
+   * (debounced UI re-fires, retries, concurrent tool calls for the same
+   * search) without an extra upstream hit against the now-primary
+   * rate-limit-sensitive DDG providers. Disabled (0) by default — callers
+   * that want it (buildAutoComposite's default 'auto' chain) opt in
+   * explicitly, so tests/consumers constructing a composite directly for
+   * failover/breaker/budget behavior keep their existing per-call semantics.
+   */
+  cacheTtlMs?: number;
 }
+
+interface CachedSearchEntry {
+  results: WebSearchResult[];
+  expiresAt: number;
+}
+
+export const DEFAULT_QUERY_CACHE_TTL_MS = 60_000;
+const MAX_QUERY_CACHE_ENTRIES = 500;
 
 export interface WebSearchMetric {
   type: 'attempt' | 'success' | 'fallback_attempt' | 'fallback_success' | 'budget_skip' | 'breaker_skip';
@@ -901,6 +1034,8 @@ export class CompositeWebSearchProvider implements WebSearchProvider {
   private readonly onMetric?: (metric: WebSearchMetric) => void;
   private readonly metrics?: MetricsCollector;
   private readonly clock: { now(): Date };
+  private readonly cacheTtlMs: number;
+  private readonly queryCache = new Map<string, CachedSearchEntry>();
 
   public constructor(options: CompositeWebSearchProviderOptions) {
     // Support legacy primary/fallback pattern by converting to chain
@@ -923,10 +1058,40 @@ export class CompositeWebSearchProvider implements WebSearchProvider {
     this.onMetric = options.onMetric;
     this.metrics = options.metrics;
     this.clock = options.clock ?? { now: (): Date => new Date() };
+    this.cacheTtlMs = options.cacheTtlMs ?? 0;
+  }
+
+  private cacheKey(query: string, sites: string[]): string {
+    return `${sites.slice().sort().join(',')}::${query.trim().toLowerCase()}`;
+  }
+
+  private getCached(key: string): WebSearchResult[] | undefined {
+    if (this.cacheTtlMs <= 0) return undefined;
+    const entry = this.queryCache.get(key);
+    if (!entry) return undefined;
+    if (entry.expiresAt <= this.clock.now().getTime()) {
+      this.queryCache.delete(key);
+      return undefined;
+    }
+    return entry.results;
+  }
+
+  private setCached(key: string, results: WebSearchResult[]): void {
+    if (this.cacheTtlMs <= 0) return;
+    if (this.queryCache.size >= MAX_QUERY_CACHE_ENTRIES) {
+      const oldestKey = this.queryCache.keys().next().value;
+      if (oldestKey !== undefined) this.queryCache.delete(oldestKey);
+    }
+    this.queryCache.set(key, { results, expiresAt: this.clock.now().getTime() + this.cacheTtlMs });
   }
 
   public async search(query: string, options: WebSearchOptions): Promise<WebSearchResult[]> {
-    return this.searchWithFailover(query, options, [options.site]);
+    const key = this.cacheKey(query, [options.site]);
+    const cached = this.getCached(key);
+    if (cached !== undefined) return cached;
+    const results = await this.searchWithFailover(query, options, [options.site]);
+    this.setCached(key, results);
+    return results;
   }
 
   /**
@@ -943,9 +1108,22 @@ export class CompositeWebSearchProvider implements WebSearchProvider {
   ): Promise<WebSearchResult[]> {
     if (sites.length === 0) return [];
     if (sites.length === 1) {
-      return this.searchWithFailover(query, { site: sites[0], limit }, sites);
+      return this.search(query, { site: sites[0], limit });
     }
 
+    const key = this.cacheKey(query, sites);
+    const cached = this.getCached(key);
+    if (cached !== undefined) return cached;
+    const results = await this.searchAggregatedUncached(query, sites, limit);
+    this.setCached(key, results);
+    return results;
+  }
+
+  private async searchAggregatedUncached(
+    query: string,
+    sites: string[],
+    limit?: number,
+  ): Promise<WebSearchResult[]> {
     let lastFailedProvider: WebSearchProviderName | undefined;
 
     // Try each provider in the chain with aggregated multi-site query
@@ -956,8 +1134,8 @@ export class CompositeWebSearchProvider implements WebSearchProvider {
 
       this.metrics?.recordProviderRequest(providerName);
 
-      // DDG doesn't support site: OR — serialize individual queries
-      if (providerName === 'ddg') {
+      // Neither DDG endpoint supports site: OR — serialize individual queries
+      if (providerName === 'ddg' || providerName === 'ddg-lite') {
         const allResults: WebSearchResult[] = [];
         let anyFailed = false;
         for (const site of sites) {
@@ -1124,11 +1302,13 @@ function asTypedError(error: unknown, provider: WebSearchProviderName): TypedWeb
 /**
  * Create the web-search provider from environment configuration.
  *
- * SWISS_SHOPPING_WEB_SEARCH=auto|google|ddg|serpapi|hasdata|searlo|firecrawl|off (default auto)
- * - auto: CompositeWebSearchProvider with all configured providers in quality/scarcity order.
+ * SWISS_SHOPPING_WEB_SEARCH=auto|google|ddg|ddg-lite|serpapi|hasdata|searlo|firecrawl|off (default auto)
+ * - auto: CompositeWebSearchProvider — ddg (html) → ddg-lite → google (dormant, only if
+ *   CSE keys configured). Paid providers are NOT included by default; see buildAutoComposite.
  * - google: requires the keys; returns undefined (disabled) when missing.
- * - ddg: always available (single DDG provider).
+ * - ddg / ddg-lite: always available (single keyless DDG provider, either endpoint).
  * - serpapi/hasdata/searlo/firecrawl: requires the corresponding key; returns undefined when missing.
+ *   Opt-in only — explicit mode selection, never part of 'auto'.
  * - off: disabled.
  */
 export function createWebSearchProviderFromEnv(
@@ -1154,6 +1334,10 @@ export function createWebSearchProviderFromEnv(
 
   if (mode === 'ddg') {
     return new DuckDuckGoHtmlProvider({ fetchImpl });
+  }
+
+  if (mode === 'ddg-lite') {
+    return new DuckDuckGoLiteProvider({ fetchImpl });
   }
 
   if (mode === 'serpapi') {
@@ -1186,7 +1370,15 @@ export function createWebSearchProviderFromEnv(
 
 /**
  * Build the auto-mode composite provider chain.
- * Order: serpapi → hasdata → searlo → firecrawl → google (legacy) → ddg (emergency).
+ *
+ * Order (decided 2026-07-25, see docs/active/PWA_REALDEVICE_FEEDBACK_2026-07-25.md
+ * item 23): ddg (html, primary) → ddg-lite (secondary) → google (dormant
+ * legacy tail, only if CSE keys are still configured). SerpAPI/HasData/Searlo/
+ * Firecrawl are deliberately NOT part of the default chain — they sat unused
+ * in production while the keyless DDG providers work fine through the
+ * deployed egress. Their classes and explicit single-provider modes
+ * (SWISS_SHOPPING_WEB_SEARCH=serpapi|hasdata|searlo|firecrawl) remain
+ * available for an opt-in burst if ever needed.
  */
 function buildAutoComposite(
   env: NodeJS.ProcessEnv,
@@ -1202,47 +1394,19 @@ function buildAutoComposite(
   const defaultBreaker = (): SourceCircuitBreaker =>
     sharedBreaker ?? new SourceCircuitBreaker({ failureThreshold: 3, cooldownMs: 5 * 60_000 });
 
-  // SerpAPI
-  const serpapiKey = env.SERP_API_KEY;
-  if (typeof serpapiKey === 'string' && serpapiKey.length > 0) {
-    entries.push({
-      provider: new SerpApiProvider({ apiKey: serpapiKey, fetchImpl }),
-      breaker: defaultBreaker(),
-      budget: sharedBudget,
-    });
-  }
+  // DDG html — primary (keyless, verified working through the deployed egress)
+  entries.push({
+    provider: new DuckDuckGoHtmlProvider({ fetchImpl }),
+    breaker: defaultBreaker(),
+  });
 
-  // HasData
-  const hasdataKey = env.HASDATA_API_KEY;
-  if (typeof hasdataKey === 'string' && hasdataKey.length > 0) {
-    entries.push({
-      provider: new HasDataProvider({ apiKey: hasdataKey, fetchImpl }),
-      breaker: defaultBreaker(),
-      budget: sharedBudget,
-    });
-  }
+  // DDG lite — secondary (same index, different markup/challenge state)
+  entries.push({
+    provider: new DuckDuckGoLiteProvider({ fetchImpl }),
+    breaker: defaultBreaker(),
+  });
 
-  // Searlo
-  const searloKey = env.SEARLO_API_KEY;
-  if (typeof searloKey === 'string' && searloKey.length > 0) {
-    entries.push({
-      provider: new SearloProvider({ apiKey: searloKey, fetchImpl }),
-      breaker: defaultBreaker(),
-      budget: sharedBudget,
-    });
-  }
-
-  // Firecrawl
-  const firecrawlKey = env.FIRECRAWL_API_KEY;
-  if (typeof firecrawlKey === 'string' && firecrawlKey.length > 0) {
-    entries.push({
-      provider: new FirecrawlSearchProvider({ apiKey: firecrawlKey, fetchImpl }),
-      breaker: defaultBreaker(),
-      budget: sharedBudget,
-    });
-  }
-
-  // Google (legacy — only if CSE keys present)
+  // Google (dormant legacy tail — only if CSE keys are still configured)
   const googleKey = env.GOOGLE_CSE_API_KEY;
   const googleCx = env.GOOGLE_CSE_CX ?? env.GOOGLE_CSE_ID;
   if (
@@ -1256,13 +1420,11 @@ function buildAutoComposite(
     });
   }
 
-  // DDG always last (emergency fallback)
-  entries.push({
-    provider: new DuckDuckGoHtmlProvider({ fetchImpl }),
-    breaker: defaultBreaker(),
+  return new CompositeWebSearchProvider({
+    chain: entries,
+    onMetric,
+    metrics,
+    clock,
+    cacheTtlMs: DEFAULT_QUERY_CACHE_TTL_MS,
   });
-
-  if (entries.length === 0) return undefined;
-
-  return new CompositeWebSearchProvider({ chain: entries, onMetric, metrics, clock });
 }

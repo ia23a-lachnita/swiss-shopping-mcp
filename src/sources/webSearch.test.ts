@@ -4,6 +4,7 @@ import {
   CompositeWebSearchProvider,
   createWebSearchProviderFromEnv,
   DuckDuckGoHtmlProvider,
+  DuckDuckGoLiteProvider,
   GoogleCustomSearchProvider,
   SerpApiProvider,
   HasDataProvider,
@@ -45,6 +46,25 @@ const DDG_FIXTURE = `
   <a class="result__a" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Fwww.migros.ch%2Fde%2Fproduct%2F514160800000%3Fcontext%3Decommerce&amp;rut=dup">Duplicate</a>
   <a class="result__snippet" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Fwww.migros.ch%2Fde%2Fproduct%2F999999999999&amp;rut=mno">Snippet link ignored</a>
 </div>`;
+
+// Modeled on a real lite.duckduckgo.com capture (verified live 2026-07-25):
+// table-based HTML4 layout, single-quoted class attrs, same //duckduckgo.com/l/
+// redirect scheme as the html endpoint but a distinct result-link class.
+const DDG_LITE_FIXTURE = `
+<table border="0">
+  <tr>
+    <td valign="top">1.&nbsp;</td>
+    <td><a rel="nofollow" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Fwww.migros.ch%2Fde%2Fproduct%2F514160800000&amp;rut=def" class='result-link'>Candida Sensitive</a></td>
+  </tr>
+  <tr>
+    <td valign="top">2.&nbsp;</td>
+    <td><a rel="nofollow" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Fwww.migros.ch%2Fde%2Fproduct%2Fmo%2F106497&amp;rut=ghi" class='result-link'>Online Only</a></td>
+  </tr>
+  <tr>
+    <td valign="top">3.&nbsp;</td>
+    <td><a rel="nofollow" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Fwww.coop.ch%2Fde%2Fx%2Fp%2F123&amp;rut=jkl" class='result-link'>Wrong site</a></td>
+  </tr>
+</table>`;
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 function mockProviderEntry(
@@ -101,6 +121,14 @@ describe('parseDuckDuckGoHtml', () => {
     const results = parseDuckDuckGoHtml(DDG_FIXTURE, 'migros.ch', 1);
     expect(results).toHaveLength(1);
   });
+
+  it('extracts results using an alternate link class (lite.duckduckgo.com shape)', () => {
+    const results = parseDuckDuckGoHtml(DDG_LITE_FIXTURE, 'migros.ch/de/product', 10, 'result-link');
+    expect(results.map((r) => r.url)).toEqual([
+      'https://www.migros.ch/de/product/514160800000',
+      'https://www.migros.ch/de/product/mo/106497',
+    ]);
+  });
 });
 
 describe('DuckDuckGoHtmlProvider', () => {
@@ -147,6 +175,45 @@ describe('DuckDuckGoHtmlProvider', () => {
       return htmlResponse(DDG_FIXTURE);
     });
     const provider = new DuckDuckGoHtmlProvider({ fetchImpl, minIntervalMs: 60 });
+
+    await Promise.all([
+      provider.search('milch', { site: 'migros.ch' }),
+      provider.search('milch', { site: 'coop.ch' }),
+    ]);
+
+    expect(timestamps).toHaveLength(2);
+    expect(timestamps[1] - timestamps[0]).toBeGreaterThanOrEqual(50);
+  });
+});
+
+describe('DuckDuckGoLiteProvider', () => {
+  it('fetches and parses site-restricted results from lite.duckduckgo.com', async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(htmlResponse(DDG_LITE_FIXTURE));
+    const provider = new DuckDuckGoLiteProvider({ fetchImpl });
+
+    const results = await provider.search('toothpaste sensitive', { site: 'migros.ch/de/product' });
+
+    expect(fetchImpl).toHaveBeenCalledOnce();
+    const requestedUrl = fetchImpl.mock.calls[0][0] as string;
+    expect(requestedUrl).toContain('lite.duckduckgo.com');
+    expect(requestedUrl).toContain(encodeURIComponent('site:migros.ch/de/product toothpaste sensitive'));
+    expect(results).toHaveLength(2);
+  });
+
+  it('throws on the HTTP 202 bot challenge instead of returning zero results', async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(htmlResponse('challenge', 202));
+    const provider = new DuckDuckGoLiteProvider({ fetchImpl });
+
+    await expect(provider.search('milch', { site: 'migros.ch' })).rejects.toThrow(/bot challenge/);
+  });
+
+  it('has its own throttle independent from DuckDuckGoHtmlProvider', async () => {
+    const timestamps: number[] = [];
+    const fetchImpl = vi.fn().mockImplementation(async () => {
+      timestamps.push(Date.now());
+      return htmlResponse(DDG_LITE_FIXTURE);
+    });
+    const provider = new DuckDuckGoLiteProvider({ fetchImpl, minIntervalMs: 60 });
 
     await Promise.all([
       provider.search('milch', { site: 'migros.ch' }),
@@ -215,16 +282,50 @@ describe('createWebSearchProviderFromEnv', () => {
     expect(provider).toBeInstanceOf(GoogleCustomSearchProvider);
   });
 
-  it('auto mode prefers Google when keys are present, otherwise DuckDuckGo', () => {
+  it('auto mode always builds a DDG-based composite, with or without legacy Google keys', () => {
     const withKeys = createWebSearchProviderFromEnv({
       GOOGLE_CSE_API_KEY: 'k',
       GOOGLE_CSE_CX: 'c',
     } as NodeJS.ProcessEnv);
     expect(withKeys).toBeInstanceOf(CompositeWebSearchProvider);
 
-    // Without any keys, auto mode returns composite with DDG only
+    // Without any keys, auto mode still returns a composite (DDG html + DDG lite)
     const withoutKeys = createWebSearchProviderFromEnv({} as NodeJS.ProcessEnv);
     expect(withoutKeys).toBeInstanceOf(CompositeWebSearchProvider);
+  });
+
+  it('auto mode puts DDG (html then lite) first and never includes paid providers, even when keys are present', async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(htmlResponse(DDG_FIXTURE));
+    const provider = createWebSearchProviderFromEnv({
+      SERP_API_KEY: 'sk',
+      HASDATA_API_KEY: 'hk',
+      SEARLO_API_KEY: 'sek',
+      FIRECRAWL_API_KEY: 'fk',
+    } as NodeJS.ProcessEnv, fetchImpl) as CompositeWebSearchProvider;
+
+    await provider.search('milch', { site: 'migros.ch/de/product' });
+
+    // Only DDG endpoints should ever be hit — html.duckduckgo.com first.
+    const requestedUrl = fetchImpl.mock.calls[0][0] as string;
+    expect(requestedUrl).toContain('html.duckduckgo.com');
+    expect(fetchImpl.mock.calls.some((call) => String(call[0]).includes('serpapi.com'))).toBe(false);
+    expect(fetchImpl.mock.calls.some((call) => String(call[0]).includes('hasdata.com'))).toBe(false);
+    expect(fetchImpl.mock.calls.some((call) => String(call[0]).includes('searlo.tech'))).toBe(false);
+    expect(fetchImpl.mock.calls.some((call) => String(call[0]).includes('firecrawl.dev'))).toBe(false);
+  });
+
+  it('auto mode falls back from DDG html to DDG lite on a retryable failure', async () => {
+    const fetchImpl = vi.fn()
+      .mockResolvedValueOnce(htmlResponse('challenge', 202))
+      .mockResolvedValueOnce(htmlResponse(DDG_LITE_FIXTURE));
+    const provider = createWebSearchProviderFromEnv({} as NodeJS.ProcessEnv, fetchImpl) as CompositeWebSearchProvider;
+
+    const results = await provider.search('milch', { site: 'migros.ch/de/product' });
+
+    expect(fetchImpl).toHaveBeenCalledTimes(2);
+    expect(String(fetchImpl.mock.calls[0][0])).toContain('html.duckduckgo.com');
+    expect(String(fetchImpl.mock.calls[1][0])).toContain('lite.duckduckgo.com');
+    expect(results.length).toBeGreaterThan(0);
   });
 
   it('resolves unknown mode values to auto', () => {
@@ -280,22 +381,9 @@ describe('createWebSearchProviderFromEnv', () => {
     expect(createWebSearchProviderFromEnv({ SWISS_SHOPPING_WEB_SEARCH: 'firecrawl' } as NodeJS.ProcessEnv)).toBeUndefined();
   });
 
-  it('auto mode with all four keys creates composite with correct chain order', () => {
-    const provider = createWebSearchProviderFromEnv({
-      SERP_API_KEY: 'sk',
-      HASDATA_API_KEY: 'hk',
-      SEARLO_API_KEY: 'sek',
-      FIRECRAWL_API_KEY: 'fk',
-    } as NodeJS.ProcessEnv);
-    expect(provider).toBeInstanceOf(CompositeWebSearchProvider);
-    // Chain should have 4 new providers + DDG (always last) = 5 entries
-  });
-
-  it('auto mode with only serpapi key creates composite with serpapi + ddg', () => {
-    const provider = createWebSearchProviderFromEnv({
-      SERP_API_KEY: 'sk',
-    } as NodeJS.ProcessEnv);
-    expect(provider).toBeInstanceOf(CompositeWebSearchProvider);
+  it('returns DuckDuckGoLiteProvider for mode=ddg-lite (always available, no key needed)', () => {
+    const provider = createWebSearchProviderFromEnv({ SWISS_SHOPPING_WEB_SEARCH: 'ddg-lite' } as NodeJS.ProcessEnv);
+    expect(provider).toBeInstanceOf(DuckDuckGoLiteProvider);
   });
 });
 
@@ -768,6 +856,74 @@ describe('CompositeWebSearchProvider chain fallback', () => {
     expect(serpapi.provider.search).not.toHaveBeenCalled();
     expect(hasdata.provider.search).toHaveBeenCalledOnce();
     expect(results).toEqual([{ url: 'https://migros.ch/product/2', rank: 0 }]);
+  });
+});
+
+describe('CompositeWebSearchProvider short-TTL query cache', () => {
+  it('is disabled by default — repeat identical queries still re-hit the chain', async () => {
+    const serpapi = mockProviderEntry('serpapi', [{ url: 'https://migros.ch/product/1', rank: 0 }]);
+    const provider = new CompositeWebSearchProvider({ chain: [serpapi] });
+
+    await provider.search('milch', { site: 'migros.ch' });
+    await provider.search('milch', { site: 'migros.ch' });
+
+    expect(serpapi.provider.search).toHaveBeenCalledTimes(2);
+  });
+
+  it('when enabled, serves an identical repeat query from cache without re-hitting the chain', async () => {
+    const serpapi = mockProviderEntry('serpapi', [{ url: 'https://migros.ch/product/1', rank: 0 }]);
+    const provider = new CompositeWebSearchProvider({ chain: [serpapi], cacheTtlMs: 60_000 });
+
+    const first = await provider.search('milch', { site: 'migros.ch' });
+    const second = await provider.search('milch', { site: 'migros.ch' });
+
+    expect(serpapi.provider.search).toHaveBeenCalledOnce();
+    expect(second).toEqual(first);
+  });
+
+  it('is case/whitespace-insensitive on the query but distinguishes different sites', async () => {
+    const serpapi = mockProviderEntry('serpapi', [{ url: 'https://migros.ch/product/1', rank: 0 }]);
+    const provider = new CompositeWebSearchProvider({ chain: [serpapi], cacheTtlMs: 60_000 });
+
+    await provider.search('  Milch ', { site: 'migros.ch' });
+    await provider.search('milch', { site: 'migros.ch' });
+    expect(serpapi.provider.search).toHaveBeenCalledOnce();
+
+    await provider.search('milch', { site: 'coop.ch' });
+    expect(serpapi.provider.search).toHaveBeenCalledTimes(2);
+  });
+
+  it('re-queries once the cache TTL expires', async () => {
+    let now = 0;
+    const clock = { now: (): Date => new Date(now) };
+    const serpapi = mockProviderEntry('serpapi', [{ url: 'https://migros.ch/product/1', rank: 0 }]);
+    const provider = new CompositeWebSearchProvider({ chain: [serpapi], clock, cacheTtlMs: 1_000 });
+
+    await provider.search('milch', { site: 'migros.ch' });
+    now += 1_001;
+    await provider.search('milch', { site: 'migros.ch' });
+
+    expect(serpapi.provider.search).toHaveBeenCalledTimes(2);
+  });
+
+  it('caches aggregated multi-site searches too, when enabled', async () => {
+    const serpapi = mockProviderEntry('serpapi', [{ url: 'https://migros.ch/product/1', rank: 0 }]);
+    const provider = new CompositeWebSearchProvider({ chain: [serpapi], cacheTtlMs: 60_000 });
+
+    await provider.searchAggregated('milch', ['migros.ch', 'coop.ch']);
+    await provider.searchAggregated('milch', ['coop.ch', 'migros.ch']);
+
+    expect(serpapi.provider.search).toHaveBeenCalledOnce();
+  });
+
+  it('buildAutoComposite (the real "auto" default chain) enables the cache by default', async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(htmlResponse(DDG_FIXTURE));
+    const provider = createWebSearchProviderFromEnv({} as NodeJS.ProcessEnv, fetchImpl) as CompositeWebSearchProvider;
+
+    await provider.search('milch', { site: 'migros.ch/de/product' });
+    await provider.search('milch', { site: 'migros.ch/de/product' });
+
+    expect(fetchImpl).toHaveBeenCalledOnce();
   });
 });
 
