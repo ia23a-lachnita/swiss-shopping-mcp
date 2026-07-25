@@ -143,6 +143,36 @@ the bottom once antigravity's second opinion and user prioritization are in.
     `fetch()` calls go out direct/unproxied. Not a correctness fix (DDG already works fine through the VPN)
     — pure speed optimization, skip unless it's actually felt.
 
+## G. Follow-up real-device findings (2026-07-25, second test pass)
+
+24. **Toast overlaps the bottom nav and isn't easily swipe-dismissible** — real Android screenshot showed the
+    "Standort aktualisiert" toast rendered flush against/over the nav instead of floating above it with a gap.
+    Root cause: `App.tsx`'s `Toaster offset={{ bottom: 'calc(var(--nav-h) + 0.75rem)' }}` has no CSS fallback —
+    if `--nav-h` is unset at the moment the browser evaluates the `calc()`, the whole custom-property value is
+    invalid and sonner silently falls back to its own built-in default offset (which has no awareness of the
+    fixed nav), reproducing exactly this overlap. Separately, sonner's default `swipeDirections` for
+    `position="bottom-center"` resolve to `['bottom', 'center']` — `'center'` isn't a real direction, so only a
+    downward swipe (awkward this close to the screen edge/nav) was ever recognized. **Fixed**: added a static
+    fallback (`calc(var(--nav-h, 4.5rem) + 0.75rem)`) and explicit `swipeDirections={['bottom', 'left', 'right']}`
+    so a natural horizontal swipe also dismisses. Browser-verified the gap fix directly (headless, 390×844):
+    toast now renders with a clear dark gap above the nav bar, nav fully visible below it — confirmed via
+    screenshot, matching the fix. **Not fully verifiable in this environment**: synthetic `PointerEvent`
+    dispatch via CDP (`pointerdown`/`pointermove`/`pointerup`) did not register as a swipe with sonner's
+    internal gesture handler (`data-swiped` stayed `false`) — consistent with the already-documented gotcha in
+    this codebase that CDP-synthetic events don't always match native touch/pointer semantics (see the
+    VendorBadge popover gotcha in the "PWA design refresh v2: vendor capability popover" tracker row). The fix
+    itself (explicit swipe directions, standard sonner API) is sound and low-risk, but real-device confirmation
+    of the swipe gesture specifically is still pending.
+25. **Aldi has a second storefront (`aldi-now.ch`) with products not present on `aldi-suisse.ch`** — user found
+    "GRANDESSA Schwarze Johannisbeere Konfitüre" in a real Aldi store and on `aldi-now.ch`, but searching
+    "johannisbeermarmelade" in the app (Aldi only) returned "Keine Produkte gefunden". The current Aldi adapter
+    (`src/adapters/live/aldiLiveAdapter.ts`) only scrapes `aldi-suisse.ch` — `aldi-now.ch` appears to be a
+    separate site (different domain, different branding chrome, possibly a distinct quick-commerce/delivery
+    catalog) with at least partially non-overlapping inventory. **Not yet investigated**: whether `aldi-now.ch`
+    is a fully separate product catalog, a subset/superset of `aldi-suisse.ch`, what technology it's built on,
+    and whether it's realistically scrapable the same way. This is new scope (a second Aldi source), not a bug
+    fix — needs its own investigation pass before deciding whether/how to integrate it.
+
 ## Triage (pending)
 
 Item 23 implemented 2026-07-25 (see tracker). Remaining open items from this backlog: 15 (live progress/ETA

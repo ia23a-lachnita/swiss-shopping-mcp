@@ -116,7 +116,8 @@ export default function App(): React.JSX.Element {
         </div>
         <Toaster
           position="bottom-center"
-          offset={{ bottom: 'calc(var(--nav-h) + 0.75rem)' }}
+          offset={{ bottom: 'calc(var(--nav-h, 4.5rem) + 0.75rem)' }}
+          swipeDirections={['bottom', 'left', 'right']}
           toastOptions={{
             unstyled: true,
             style: { width: '100%' },
