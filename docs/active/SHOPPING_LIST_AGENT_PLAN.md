@@ -2,6 +2,14 @@
 
 Date: 2026-07-28
 Status: planned; reviewed with antigravity-mcp (gemini-3.6-flash), not yet implemented
+Superseding note (2026-07-28, same day): the owner clarified this is not a
+standalone form-based PWA feature — it's one capability inside a general chat
+agent. See `docs/active/CHAT_AGENT_ARCHITECTURE_PLAN.md` for the agent loop,
+tool-reuse mechanism (`listTools()`/`executeToolCall()`), and chat-specific
+concerns (streaming, session state, general grounding discipline). Everything
+below about the resolution pipeline, status contract, store-optimizer, and
+quantity parsing is unchanged and still applies — it's just invoked by the
+chat agent as a capability rather than surfaced as its own tab/form.
 
 ## Goal
 
@@ -170,22 +178,26 @@ verifiable" — never blended into the "confirmed in stock" count.
 
 ## MCP / API surface
 
-- New MCP tool `enrich_shopping_list` (agent-composable) sharing one backing
-  `ListEnricherService` with a new PWA HTTP endpoint — a calling agent
-  looping `search_products` manually per line itself would burn far more
-  tokens/latency than one batched call, and risks the calling agent dropping
-  or miscounting items across many round trips.
-- The LLM calls live *inside* this tool's handler (a genuine "agentic tool
-  wrapper" pattern) — this needs its **own** outbound API key/account,
-  separate from `antigravity-mcp`'s credential. `CLAUDE.md` already scopes
-  `antigravity-mcp` as dev-only tooling explicitly barred from the deployed
-  app's runtime ("no runtime/business MCPs in this repo config"); reusing it
-  here would violate that, not just be untidy.
-- Runtime risk specific to calling an LLM from inside an MCP tool handler:
-  MCP clients enforce their own RPC timeouts (often 30-60s). Wrap each
-  outbound model call in a ~10s `AbortController` timeout; a timeout or
-  rate-limit response must resolve to `status: 'DEGRADED'` with a top raw
-  FTS/taxonomy match attached, never a thrown error or a hung tool call.
+- Primary path (revised): this capability is invoked by the PWA chat agent
+  (see `CHAT_AGENT_ARCHITECTURE_PLAN.md`) as part of its normal tool-calling
+  loop over the existing 8 MCP tools, not as a dedicated new endpoint the
+  PWA calls directly. Still worth exposing as one more MCP tool
+  (`enrich_shopping_list`) in `listTools()`/`executeToolCall()` for external
+  MCP callers (Claude Desktop etc.) that want the batched/deterministic
+  version directly rather than driving the chat loop themselves.
+- Whichever LLM calls this pipeline needs (parser + batch matcher, or the
+  chat agent itself) require their **own** outbound API key/account
+  (`OPENROUTER_API_KEY`, already confirmed present and funded — see
+  [[search-provider-keys-user-scope]]), separate from `antigravity-mcp`'s
+  credential. `CLAUDE.md` scopes `antigravity-mcp` as dev-only tooling
+  explicitly barred from the deployed app's runtime ("no runtime/business
+  MCPs in this repo config"); reusing it here would violate that, not just
+  be untidy.
+- Runtime risk specific to calling an LLM from inside a tool/agent handler:
+  MCP clients (and this app's own chat loop) enforce their own timeouts.
+  Wrap each outbound model call in a bounded `AbortController` timeout; a
+  timeout or rate-limit response must resolve to `status: 'DEGRADED'` with a
+  top raw FTS/taxonomy match attached, never a thrown error or a hung call.
 
 ## Quantity parsing traps (flagged for the parser-agent's prompt/tests)
 
@@ -215,8 +227,9 @@ verifiable" — never blended into the "confirmed in stock" count.
 2. Re-verify the live free-model list immediately before implementation
    (rotates over time) — the specific model IDs in this doc are a
    2026-07-28 snapshot, not a guarantee.
-3. Decide the PWA surface: a 5th tab, or folded into an existing tab (the
-   app is already at 4 tabs — Availability/Search/Compare/Status).
+3. ~~Decide the PWA surface~~ — resolved 2026-07-28: this is invoked through
+   the new chat agent tab (`CHAT_AGENT_ARCHITECTURE_PLAN.md`), not a
+   dedicated shopping-list form/tab.
 4. Confirm minimum test coverage expectations for the LLM-touching path
    given it's inherently non-deterministic — likely: mock the LLM calls in
    the default test suite (deterministic contract tests on the
