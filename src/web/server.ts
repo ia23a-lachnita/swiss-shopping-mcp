@@ -176,8 +176,11 @@ async function handleSearchProductsStream(res: ServerResponse, url: URL): Promis
   writeSseEvent(res, 'init', {
     totalChains: relevantChains.length,
     chains: relevantChains,
+    // Uses each chain's real measured max (not avg) latency — a deliberately
+    // pessimistic estimate so the countdown is more likely to run slightly
+    // long than to hit zero and look "stuck" before the chain actually answers.
     etaMsByChain: Object.fromEntries(
-      relevantChains.map((chain) => [chain, latencyByChain[chain]?.avg])
+      relevantChains.map((chain) => [chain, latencyByChain[chain]?.max])
     ),
   });
 

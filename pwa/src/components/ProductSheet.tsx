@@ -25,11 +25,14 @@ const NUTRITION_LABELS: Array<{ key: keyof NonNullable<Product['nutrition']>; la
 export function ProductSheet({
   product,
   stores,
+  userCoords,
   onClose,
 }: {
   product: Product | undefined;
   /** Only present when opened from the Availability view — scopes the embedded map to this one product. */
   stores?: StoreWithAvailability[];
+  /** The searching user's own position (GPS fix or a picked location suggestion), threaded down to the map. */
+  userCoords?: { lat: number; lng: number };
   onClose: () => void;
 }): React.JSX.Element {
   const [vendorOpen, setVendorOpen] = useState(false);
@@ -38,10 +41,10 @@ export function ProductSheet({
     <Drawer.Root open={product !== undefined} onOpenChange={(open) => !open && onClose()}>
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-0 z-40 bg-black/40" />
-        <Drawer.Content className="fixed inset-x-0 bottom-0 z-50 mx-auto max-h-[85dvh] max-w-2xl rounded-t-3xl bg-surface outline-none">
-          <div className="mx-auto mt-3 h-1.5 w-10 rounded-full bg-line" />
+        <Drawer.Content className="fixed inset-x-0 bottom-0 z-50 mx-auto flex max-h-[85dvh] max-w-2xl flex-col rounded-t-3xl bg-surface outline-none">
+          <div className="mx-auto mt-3 h-1.5 w-10 shrink-0 rounded-full bg-line" />
           {product && (
-            <div className="overflow-y-auto p-5 pb-[calc(env(safe-area-inset-bottom)+1.5rem)]">
+            <div className="min-h-0 flex-1 overflow-y-auto p-5 pb-[calc(env(safe-area-inset-bottom)+1.5rem)]">
               <Drawer.Title className="sr-only">{product.name}</Drawer.Title>
               {product.image && (
                 <img src={product.image} alt="" className="mx-auto h-40 rounded bg-white object-contain" />
@@ -67,7 +70,7 @@ export function ProductSheet({
                 <section className="mt-4">
                   <h3 className="mb-2 text-sm font-semibold text-muted">Filialen in der Nähe</h3>
                   <Suspense fallback={<Skeleton className="h-56 w-full rounded-card" />}>
-                    <ProductMap stores={stores} />
+                    <ProductMap stores={stores} userCoords={userCoords} />
                   </Suspense>
                 </section>
               )}

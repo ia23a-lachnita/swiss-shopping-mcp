@@ -105,6 +105,7 @@ export function SuggestInput({
         onFocus={() => {
           if (suggestions.length > 0) setOpen(true);
         }}
+        onBlur={() => setOpen(false)}
         role="combobox"
         aria-expanded={open}
         aria-autocomplete="list"

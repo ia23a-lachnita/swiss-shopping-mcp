@@ -121,6 +121,7 @@ export interface SearchProgressEvent {
   elapsedMs: number;
   respondedCount: number;
   totalCount: number;
+  productsSoFar: number;
 }
 
 /**

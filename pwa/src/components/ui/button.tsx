@@ -1,5 +1,6 @@
 import { forwardRef, type ButtonHTMLAttributes } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
+import { Loader2 } from 'lucide-react';
 
 import { cn } from '../../lib/utils';
 
@@ -27,11 +28,34 @@ const buttonVariants = cva(
 
 export interface ButtonProps
   extends ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {}
+    VariantProps<typeof buttonVariants> {
+  /** Shows a pulsing outline ring + spinner and forces disabled, without the dimmed "inert" look native `disabled` gives. */
+  loading?: boolean;
+  /** Replaces children while loading (e.g. "Wird gesucht…"). Falls back to children if omitted. */
+  loadingText?: React.ReactNode;
+}
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, ...props }, ref) => (
-    <button ref={ref} className={cn(buttonVariants({ variant, size }), className)} {...props} />
+  ({ className, variant, size, loading, loadingText, disabled, children, ...props }, ref) => (
+    <button
+      ref={ref}
+      disabled={disabled || loading}
+      className={cn(
+        buttonVariants({ variant, size }),
+        loading && 'button-loading-outline !opacity-100',
+        className
+      )}
+      {...props}
+    >
+      {loading ? (
+        <>
+          <Loader2 className="animate-spin" />
+          {loadingText ?? children}
+        </>
+      ) : (
+        children
+      )}
+    </button>
   )
 );
 Button.displayName = 'Button';

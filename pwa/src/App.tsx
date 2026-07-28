@@ -45,10 +45,29 @@ export default function App(): React.JSX.Element {
   // Each view is only mounted on its first visit, not eagerly at app start.
   const [visitedTabs, setVisitedTabs] = useState<Set<Tab>>(() => new Set(['availability']));
   const navRef = useRef<HTMLElement>(null);
+  const headerRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     setVisitedTabs((prev) => (prev.has(tab) ? prev : new Set(prev).add(tab)));
   }, [tab]);
+
+  // Installed/standalone PWAs (unlike a regular browser tab) restore the
+  // exact DOM focus state a WebView had when the OS backgrounded it — if a
+  // text input was focused when the user last left the app, resuming it
+  // silently re-focuses that input and pops the keyboard again. No app code
+  // ever calls .focus() (that was already removed), so this can only be
+  // countered by explicitly blurring on resume.
+  useEffect(() => {
+    function handleVisibilityChange(): void {
+      if (document.visibilityState !== 'visible') return;
+      const active = document.activeElement;
+      if (active instanceof HTMLInputElement || active instanceof HTMLTextAreaElement) {
+        active.blur();
+      }
+    }
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, []);
 
   // Measure the nav's real rendered height (content + safe-area-inset-bottom)
   // instead of guessing a fixed padding value that can silently drift out of
@@ -64,11 +83,28 @@ export default function App(): React.JSX.Element {
     return () => observer.disconnect();
   }, []);
 
+  // Same real-measurement approach for the sticky header — VendorBadge's
+  // popover reads both --header-h and --nav-h to keep clear of the fixed
+  // chrome instead of guessing pixel constants that drift from safe-area insets.
+  useEffect(() => {
+    const el = headerRef.current;
+    if (!el) return;
+    const set = (): void =>
+      document.documentElement.style.setProperty('--header-h', `${el.getBoundingClientRect().height}px`);
+    set();
+    const observer = new ResizeObserver(set);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <MotionConfig reducedMotion="user">
         <div className="mx-auto flex min-h-dvh max-w-2xl flex-col bg-bg font-sans text-ink" style={{ paddingBottom: 'var(--nav-h)' }}>
-          <header className="sticky top-0 z-30 flex h-[calc(env(safe-area-inset-top)+3.25rem)] items-center border-b border-line bg-bg/80 px-4 backdrop-blur-md">
+          <header
+            ref={headerRef}
+            className="sticky top-0 z-30 flex h-[calc(env(safe-area-inset-top)+3.25rem)] items-center border-b border-line bg-bg/80 px-4 backdrop-blur-md"
+          >
             <h1 className="text-xl font-bold tracking-tight">
               Swiss <span className="text-brand">Shopping</span>
             </h1>

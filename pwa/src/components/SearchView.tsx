@@ -13,6 +13,8 @@ import {
   type Product,
 } from '../api';
 import { cn } from '../lib/utils';
+import { notifyIfBackgrounded, requestNotificationPermissionIfNeeded } from '../lib/notify';
+import { getTotalHiddenMs } from '../lib/visibilityTracker';
 import { ProductSheet } from './ProductSheet';
 import { VendorBadge } from './VendorBadge';
 import { Badge } from './ui/badge';
@@ -39,6 +41,7 @@ function ProductCardSkeleton(): React.JSX.Element {
 interface SearchProgress {
   responded: number;
   total: number;
+  productsSoFar: number;
   etaMs?: number;
 }
 
@@ -56,6 +59,7 @@ export function SearchView(): React.JSX.Element {
     queryKey: ['search', submitted],
     queryFn: async () => {
       const start = performance.now();
+      const hiddenMsAtStart = getTotalHiddenMs();
       searchStartRef.current = start;
       setProgress(undefined);
       const data = await streamSearchProducts(
@@ -68,6 +72,7 @@ export function SearchView(): React.JSX.Element {
             setProgress({
               responded: 0,
               total: init.totalChains,
+              productsSoFar: 0,
               etaMs: known.length > 0 ? Math.max(...known) : undefined,
             });
           },
@@ -75,16 +80,25 @@ export function SearchView(): React.JSX.Element {
             setProgress((prev) => ({
               responded: event.respondedCount,
               total: event.totalCount,
+              productsSoFar: event.productsSoFar,
               etaMs: prev?.etaMs,
             }));
           },
         }
       );
-      return { data, elapsedMs: performance.now() - start };
+      const hiddenMs = getTotalHiddenMs() - hiddenMsAtStart;
+      const elapsedMs = Math.max(0, performance.now() - start - hiddenMs);
+      void notifyIfBackgrounded('Suche abgeschlossen', `${data.products.length} Ergebnisse für "${submitted!.query}"`);
+      return { data, elapsedMs, hiddenMs };
     },
     enabled: submitted !== undefined,
   });
   const data = queryResult?.data;
+  // Narrowing the chain filter after a search re-filters the already-fetched
+  // results instantly (no network round trip); checking a chain that wasn't
+  // part of the last submitted search naturally shows nothing for it until
+  // "Suchen" is pressed again, since that data was never fetched.
+  const visibleProducts = data ? data.products.filter((p) => chains.includes(p.chain)) : [];
 
   // Ticks the ETA countdown live while a search is in flight.
   useEffect(() => {
@@ -101,6 +115,11 @@ export function SearchView(): React.JSX.Element {
   function submit(event?: FormEvent): void {
     event?.preventDefault();
     if (query.trim() && chains.length > 0) {
+      // Enter-key submission (common with enterKeyHint="search" on mobile) never
+      // blurs the input on its own — without this, the keyboard and the
+      // suggestions dropdown both stay open under the now-loading results.
+      (document.activeElement as HTMLElement | null)?.blur();
+      void requestNotificationPermissionIfNeeded();
       setSubmitted({ query: query.trim(), chains });
     }
   }
@@ -144,7 +163,13 @@ export function SearchView(): React.JSX.Element {
             </button>
           ))}
         </div>
-        <Button type="submit" className="w-full" disabled={!query.trim()}>
+        <Button
+          type="submit"
+          className="w-full"
+          disabled={!query.trim()}
+          loading={isFetching}
+          loadingText="Wird gesucht…"
+        >
           <Search /> Suchen
         </Button>
       </form>
@@ -154,14 +179,22 @@ export function SearchView(): React.JSX.Element {
           {progress && (
             <p className="flex items-center gap-1.5 text-xs text-faint" data-testid="search-progress">
               <Search className="size-3 animate-pulse" />
-              <NumberFlow value={progress.responded} className="font-mono font-semibold text-ink" />
-              <span>/{progress.total} Händler geantwortet</span>
-              {etaRemainingMs !== undefined && progress.responded < progress.total && (
+              <NumberFlow value={progress.productsSoFar} className="font-mono font-semibold text-ink" />
+              <span>
+                {' '}
+                Ergebnisse bisher ({progress.responded}/{progress.total} Händler)
+              </span>
+              {progress.responded < progress.total && etaRemainingMs !== undefined && etaRemainingMs > 1000 ? (
                 <span>
                   {' '}
                   · noch ~
                   <b className="font-mono font-semibold text-ink">{Math.ceil(etaRemainingMs / 1000)}s</b>
                 </span>
+              ) : (
+                (progress.responded >= progress.total ||
+                  (etaRemainingMs !== undefined && etaRemainingMs <= 1000)) && (
+                  <span> · gleich fertig…</span>
+                )
               )}
             </p>
           )}
@@ -179,17 +212,20 @@ export function SearchView(): React.JSX.Element {
         </Card>
       )}
 
-      {!isFetching && data && data.products.length === 0 && (
+      {!isFetching && data && visibleProducts.length === 0 && (
         <div className="rounded-card bg-surface p-6 text-center shadow-card">
           <p className="font-semibold">Keine Produkte gefunden</p>
         </div>
       )}
 
-      {!isFetching && queryResult && data && data.products.length > 0 && (
+      {!isFetching && queryResult && data && visibleProducts.length > 0 && (
         <p className="flex items-center gap-1.5 text-xs text-faint">
           <Search className="size-3" />
-          <NumberFlow value={data.products.length} className="font-mono font-semibold text-ink" /> Ergebnisse in{' '}
+          <NumberFlow value={visibleProducts.length} className="font-mono font-semibold text-ink" /> Ergebnisse in{' '}
           <b className="font-mono font-semibold text-ink">{(queryResult.elapsedMs / 1000).toFixed(1)}s</b>
+          {queryResult.hiddenMs > 1000 && (
+            <span> (davon {(queryResult.hiddenMs / 1000).toFixed(0)}s im Hintergrund pausiert)</span>
+          )}
         </p>
       )}
 
@@ -202,7 +238,7 @@ export function SearchView(): React.JSX.Element {
       >
         <AnimatePresence>
           {!isFetching &&
-            data?.products.map((product) => (
+            visibleProducts.map((product) => (
               <motion.li
                 key={`${product.chain}:${product.id}`}
                 layout

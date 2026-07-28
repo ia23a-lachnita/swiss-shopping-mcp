@@ -128,6 +128,8 @@ export interface ChainProgressEvent {
   elapsedMs: number;
   respondedCount: number;
   totalCount: number;
+  /** Cumulative product count across all chains that have responded ok so far. */
+  productsSoFar: number;
 }
 
 export interface SearchProductsOptions {
@@ -176,6 +178,7 @@ export class SearchService {
 
     // Step 1: Run vendor searches first to evaluate strength
     let respondedCount = 0;
+    let productsSoFar = 0;
     const totalCount = relevantAdapters.length;
     const adapterResults = await Promise.all(
       relevantAdapters.map(async (adapter) => {
@@ -191,12 +194,14 @@ export class SearchService {
           }
         }
         respondedCount += 1;
+        if (result.ok) productsSoFar += result.data.length;
         options.onChainProgress?.({
           chain: adapter.chain,
           ok: result.ok,
           elapsedMs,
           respondedCount,
           totalCount,
+          productsSoFar,
         });
         return { chain: adapter.chain, result };
       })

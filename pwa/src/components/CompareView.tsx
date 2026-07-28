@@ -6,6 +6,8 @@ import { AlertTriangle, Minus, Plus, Scale } from 'lucide-react';
 
 import { ALL_CHAINS, comparePrices, suggestQueries, type Chain, type Product } from '../api';
 import { cn } from '../lib/utils';
+import { notifyIfBackgrounded, requestNotificationPermissionIfNeeded } from '../lib/notify';
+import { getTotalHiddenMs } from '../lib/visibilityTracker';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
 import { Card, CardContent } from './ui/card';
@@ -15,6 +17,20 @@ import { Skeleton } from './ui/skeleton';
 import { SuggestInput } from './ui/suggest-input';
 import { ProductSheet } from './ProductSheet';
 import { VendorBadge } from './VendorBadge';
+
+function CompareRowSkeleton(): React.JSX.Element {
+  return (
+    <div className="flex items-center gap-3 rounded-card bg-surface p-3 shadow-card">
+      <Skeleton className="size-4 shrink-0 rounded" />
+      <Skeleton className="size-11 shrink-0 rounded" />
+      <div className="flex-1 space-y-1.5">
+        <Skeleton className="h-3 w-2/3" />
+        <Skeleton className="h-2.5 w-1/3" />
+      </div>
+      <Skeleton className="h-5 w-14 shrink-0 rounded" />
+    </div>
+  );
+}
 
 export function CompareView(): React.JSX.Element {
   const [query, setQuery] = useState('');
@@ -28,17 +44,28 @@ export function CompareView(): React.JSX.Element {
     queryKey: ['compare', submitted],
     queryFn: async () => {
       const start = performance.now();
+      const hiddenMsAtStart = getTotalHiddenMs();
       const data = await comparePrices(submitted!);
-      return { data, elapsedMs: performance.now() - start };
+      const hiddenMs = getTotalHiddenMs() - hiddenMsAtStart;
+      const elapsedMs = Math.max(0, performance.now() - start - hiddenMs);
+      void notifyIfBackgrounded('Vergleich abgeschlossen', `${data.offers.length} Angebote für "${submitted!.query}"`);
+      return { data, elapsedMs, hiddenMs };
     },
     enabled: submitted !== undefined,
   });
   const result = queryResult?.data;
-  const offers = result ? [...result.offers].sort((a, b) => a.effectivePrice - b.effectivePrice) : [];
+  // Narrowing the chain filter after a search re-filters the already-fetched
+  // offers instantly; checking a chain not part of the last submitted search
+  // shows nothing for it until "Preise vergleichen" is pressed again.
+  const offers = result
+    ? [...result.offers].filter((o) => chains.includes(o.chain)).sort((a, b) => a.totalPrice - b.totalPrice)
+    : [];
 
   function submit(event?: FormEvent): void {
     event?.preventDefault();
     if (query.trim() && chains.length > 0) {
+      (document.activeElement as HTMLElement | null)?.blur();
+      void requestNotificationPermissionIfNeeded();
       setSubmitted({ query: query.trim(), chains, quantity });
     }
   }
@@ -122,15 +149,21 @@ export function CompareView(): React.JSX.Element {
             </button>
           ))}
         </div>
-        <Button type="submit" className="w-full" disabled={!query.trim()}>
+        <Button
+          type="submit"
+          className="w-full"
+          disabled={!query.trim()}
+          loading={isFetching}
+          loadingText="Wird verglichen…"
+        >
           <Scale /> Preise vergleichen
         </Button>
       </form>
 
       {isFetching && (
-        <div className="space-y-2">
+        <div className="space-y-2.5" data-testid="compare-loading">
           {[0, 1, 2].map((i) => (
-            <Skeleton key={i} className="h-16 w-full rounded-card" />
+            <CompareRowSkeleton key={i} />
           ))}
         </div>
       )}
@@ -154,6 +187,9 @@ export function CompareView(): React.JSX.Element {
           <Scale className="size-3" />
           <NumberFlow value={offers.length} className="font-mono font-semibold text-ink" /> Angebote in{' '}
           <b className="font-mono font-semibold text-ink">{(queryResult.elapsedMs / 1000).toFixed(1)}s</b>
+          {queryResult.hiddenMs > 1000 && (
+            <span> (davon {(queryResult.hiddenMs / 1000).toFixed(0)}s im Hintergrund pausiert)</span>
+          )}
         </p>
       )}
 
@@ -199,7 +235,14 @@ export function CompareView(): React.JSX.Element {
                       )}
                     </div>
                   </button>
-                  <Price value={offer.effectivePrice} className="shrink-0 text-base font-bold" />
+                  <div className="shrink-0 text-right">
+                    <Price value={offer.totalPrice} className="text-base font-bold" />
+                    {(result?.quantity ?? 1) > 1 && (
+                      <p className="text-[0.65rem] text-faint">
+                        à <Price value={offer.effectivePrice} className="text-[0.65rem]" />
+                      </p>
+                    )}
+                  </div>
                 </div>
               </motion.li>
             ))}

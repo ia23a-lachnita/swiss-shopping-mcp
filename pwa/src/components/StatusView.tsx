@@ -103,7 +103,7 @@ export function StatusView(): React.JSX.Element {
       {!loading && snapshot && (
         <div className="rounded-card bg-surface p-3.5 shadow-card">
           <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-faint">System</p>
-          <dl className="grid grid-cols-3 gap-2 text-center text-xs">
+          <dl className="grid grid-cols-2 gap-2 text-center text-xs sm:grid-cols-4">
             <div className="rounded bg-surface-sunken p-2 shadow-inset">
               <dt className="text-faint">Cache (frisch)</dt>
               <dd className="font-mono font-semibold">{snapshot.cacheHits.fresh}</dd>
@@ -115,6 +115,15 @@ export function StatusView(): React.JSX.Element {
             <div className="rounded bg-surface-sunken p-2 shadow-inset">
               <dt className="text-faint">Katalog</dt>
               <dd className="font-mono font-semibold">{snapshot.catalog.totalProducts}</dd>
+            </div>
+            <div className="rounded bg-surface-sunken p-2 shadow-inset">
+              <dt className="text-faint">Ø Summe alle Händler</dt>
+              <dd className="font-mono font-semibold">
+                {Math.round(
+                  ALL_CHAINS.reduce((sum, chain) => sum + (snapshot.latency.byChain[chain]?.avg ?? 0), 0)
+                )}
+                ms
+              </dd>
             </div>
           </dl>
         </div>

@@ -430,39 +430,45 @@ export class AldiLiveAdapter implements ChainAdapter {
       };
     }
 
-    // Check availability at each store
-    const matches = [];
-    for (const store of stores.slice(0, 10)) {
-      try {
-        const availUrl = `${ALDI_AVAILABILITY_URL}?productSku=${productSku}&servicePointReference=${store.id}&onlyInStock=false&limit=1&radius=0`;
-        const availResult = await this.sourceClient.fetchJson<unknown>(availUrl, {
-          provider: ALDI_PROVIDER,
-          chain: 'aldi',
-          sourceType: 'retailer-web',
-          confidence: 'medium',
-        });
-        const availData = parseAldiAvailabilityResponse(availResult.data);
-        const avail = availData[0];
+    // Check availability at each store. Run in parallel — this used to be a
+    // sequential `for` loop making up to 10 one-at-a-time round trips per
+    // product, and this method itself runs once per representative product
+    // (up to 5), so a slow/bot-protection-throttled Aldi endpoint could stack
+    // up to ~50 sequential requests serially. Confirmed live: a real 91.8s
+    // "Gerät" availability query traced back to exactly this loop.
+    const matches = await Promise.all(
+      stores.slice(0, 10).map(async (store) => {
+        try {
+          const availUrl = `${ALDI_AVAILABILITY_URL}?productSku=${productSku}&servicePointReference=${store.id}&onlyInStock=false&limit=1&radius=0`;
+          const availResult = await this.sourceClient.fetchJson<unknown>(availUrl, {
+            provider: ALDI_PROVIDER,
+            chain: 'aldi',
+            sourceType: 'retailer-web',
+            confidence: 'medium',
+          });
+          const availData = parseAldiAvailabilityResponse(availResult.data);
+          const avail = availData[0];
 
-        matches.push({
-          product,
-          available: avail?.availabilityTrafficLight === 'green' || avail?.availabilityTrafficLight === 'orange',
-          storeId: store.id,
-          storeName: store.name,
-          availabilityReason: avail?.stockInfoDisplay,
-          isOpen: store.isOpenNow,
-        });
-      } catch {
-        matches.push({
-          product,
-          available: false,
-          storeId: store.id,
-          storeName: store.name,
-          availabilityReason: 'Availability check failed',
-          isOpen: store.isOpenNow,
-        });
-      }
-    }
+          return {
+            product,
+            available: avail?.availabilityTrafficLight === 'green' || avail?.availabilityTrafficLight === 'orange',
+            storeId: store.id,
+            storeName: store.name,
+            availabilityReason: avail?.stockInfoDisplay,
+            isOpen: store.isOpenNow,
+          };
+        } catch {
+          return {
+            product,
+            available: false,
+            storeId: store.id,
+            storeName: store.name,
+            availabilityReason: 'Availability check failed',
+            isOpen: store.isOpenNow,
+          };
+        }
+      })
+    );
 
     return {
       ok: true,

@@ -27,6 +27,8 @@ import {
   type StoreWithAvailability,
 } from '../api';
 import { cn, mapsUrl } from '../lib/utils';
+import { notifyIfBackgrounded, requestNotificationPermissionIfNeeded } from '../lib/notify';
+import { getTotalHiddenMs } from '../lib/visibilityTracker';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
 import { Card, CardContent } from './ui/card';
@@ -136,8 +138,12 @@ export function AvailabilityView(): React.JSX.Element {
     queryKey: ['availability', params],
     queryFn: async () => {
       const start = performance.now();
+      const hiddenMsAtStart = getTotalHiddenMs();
       const data = await productAvailability({ ...params!, limit: 5 });
-      return { data, elapsedMs: performance.now() - start };
+      const hiddenMs = getTotalHiddenMs() - hiddenMsAtStart;
+      const elapsedMs = Math.max(0, performance.now() - start - hiddenMs);
+      void notifyIfBackgrounded('Verfügbarkeit geprüft', `${data.length} Treffer für "${params!.query}"`);
+      return { data, elapsedMs, hiddenMs };
     },
     enabled: params !== undefined,
   });
@@ -147,6 +153,8 @@ export function AvailabilityView(): React.JSX.Element {
     event?.preventDefault();
     const trimmedLocation = location.trim();
     if (!query.trim() || !trimmedLocation || chains.length === 0) return;
+    (document.activeElement as HTMLElement | null)?.blur();
+    void requestNotificationPermissionIfNeeded();
 
     // A GPS-resolved location is already known-good; only validate typed text,
     // and only when it's implausibly short to be a real PLZ/place name — avoids
@@ -217,7 +225,11 @@ export function AvailabilityView(): React.JSX.Element {
     );
   }
 
+  // Narrowing the chain filter after a search re-filters already-fetched
+  // results instantly; checking a chain not part of the last submitted
+  // search shows nothing for it until "Verfügbarkeit prüfen" is pressed again.
   const results = (data ?? [])
+    .filter((entry) => chains.includes(entry.product.chain))
     .map((entry) => ({
       ...entry,
       stores: entry.stores.filter(
@@ -364,8 +376,10 @@ export function AvailabilityView(): React.JSX.Element {
           type="submit"
           className="w-full"
           disabled={!query.trim() || !location.trim() || validatingLocation}
+          loading={isFetching || validatingLocation}
+          loadingText={validatingLocation ? 'Standort wird geprüft…' : 'Wird gesucht…'}
         >
-          <Search /> {validatingLocation ? 'Standort wird geprüft…' : 'Verfügbarkeit prüfen'}
+          <Search /> Verfügbarkeit prüfen
         </Button>
       </form>
 
@@ -397,6 +411,9 @@ export function AvailabilityView(): React.JSX.Element {
           <Search className="size-3" />
           <NumberFlow value={results.length} className="font-mono font-semibold text-ink" /> Ergebnisse in{' '}
           <b className="font-mono font-semibold text-ink">{(queryResult.elapsedMs / 1000).toFixed(1)}s</b>
+          {queryResult.hiddenMs > 1000 && (
+            <span> (davon {(queryResult.hiddenMs / 1000).toFixed(0)}s im Hintergrund pausiert)</span>
+          )}
         </p>
       )}
 
@@ -466,6 +483,7 @@ export function AvailabilityView(): React.JSX.Element {
       <ProductSheet
         product={selected?.product}
         stores={selected?.stores}
+        userCoords={userCoords}
         onClose={() => setSelected(undefined)}
       />
     </div>

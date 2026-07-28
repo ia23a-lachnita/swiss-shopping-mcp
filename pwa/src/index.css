@@ -211,3 +211,34 @@ body {
   background-size: 250% 100%;
   animation: skeleton-shimmer 1.6s ease-in-out infinite;
 }
+
+/* Pulsing halo behind the user-location dot on ProductMap, so it reads as
+   distinct from the static green/red store-availability markers. */
+@keyframes user-location-pulse {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.55;
+  }
+  100% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+.user-location-halo {
+  animation: user-location-pulse 2s ease-out infinite;
+}
+
+/* Animated outline ring for a busy/loading button — reads as "actively
+   working" without dimming the button (native `disabled:opacity-50` would
+   otherwise make it look inert rather than busy). */
+@keyframes button-loading-ring {
+  0%, 100% {
+    box-shadow: 0 0 0 0 color-mix(in oklch, var(--color-brand) 55%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 0 4px color-mix(in oklch, var(--color-brand) 25%, transparent);
+  }
+}
+.button-loading-outline {
+  animation: button-loading-ring 1.3s ease-in-out infinite;
+}

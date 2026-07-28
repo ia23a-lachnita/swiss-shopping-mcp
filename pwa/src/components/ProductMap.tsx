@@ -126,8 +126,10 @@ export function ProductMap({
 
     if (userCoords) {
       const el = document.createElement('div');
-      el.style.cssText =
-        'width:16px;height:16px;border-radius:9999px;background:#8f7320;border:2px solid white;box-shadow:0 0 0 6px rgba(143,115,32,0.25)';
+      el.style.cssText = 'position:relative;width:16px;height:16px;';
+      el.innerHTML =
+        '<div class="user-location-halo" style="position:absolute;inset:0;border-radius:9999px;background:#8f7320;"></div>' +
+        '<div style="position:absolute;inset:0;border-radius:9999px;background:#8f7320;border:2px solid white;box-shadow:0 1px 3px rgba(0,0,0,0.4);"></div>';
       const marker = new maplibregl.Marker({ element: el })
         .setLngLat([userCoords.lng, userCoords.lat])
         .addTo(map);
