@@ -86,9 +86,11 @@ parser model + dedicated matcher model), designed before the owner clarified
 this runs inside the general chat agent. Now that it does, the "matcher"
 role collapses into the chat agent's own turn — there's no need for a
 *separate* dedicated ranking model call, since the already-decided chat
-model (`openai/gpt-oss-20b:free` primary, per
+model (`google/gemma-4-31b-it:free` primary, per
 `CHAT_AGENT_ARCHITECTURE_PLAN.md`) is already the reasoning model present in
-that turn, with the retrieved candidates available to it as tool results.
+that turn, with the retrieved candidates available to it as tool results —
+and its native multilingual strength directly helps here too, since list
+lines may be in German, French, or Italian.
 
 ```
 Raw list text (a chat message that looks like a list)
@@ -174,12 +176,15 @@ verifiable" — never blended into the "confirmed in stock" count.
 ## Backend / model choice (resolved — see CHAT_AGENT_ARCHITECTURE_PLAN.md)
 
 No separate model choice needed for this feature: it runs inside the
-already-decided chat agent (primary `openai/gpt-oss-20b:free`, fallback
-`nvidia/nemotron-3-ultra-550b-a55b:free`, via OpenRouter's model array) —
-see that doc's "Model choice" section for the full research trail
-(Tau-Bench/PinchBench/SWEBench numbers, why BFCL's actual leaderboard leader
-is unreachable under the $0 constraint, why the smaller model is primary
-despite the lower benchmark ceiling).
+already-decided chat agent (primary `google/gemma-4-31b-it:free`, fallback
+`nvidia/nemotron-3-super-120b-a12b:free`, emergency fallback
+`openai/gpt-oss-20b:free`, via OpenRouter's model array — corrected twice
+from earlier incomplete comparisons, see that doc's changelog) — see that
+doc's "Model choice" section for the full candidate-comparison table
+(Tau2/TauBench-V2/Tau-Bench/PinchBench/SWEBench numbers across all 17 free
+OpenRouter models, why BFCL's actual leaderboard leader is unreachable under
+the $0 constraint, and why Gemma 4's multilingual strength matters for
+Swiss German/French/Italian queries specifically).
 
 The account-funding question is resolved too: `OPENROUTER_API_KEY` is
 confirmed present and funded (1000 req/day cap applies) — see the "Open
