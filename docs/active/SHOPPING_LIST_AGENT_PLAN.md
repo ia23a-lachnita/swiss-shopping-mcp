@@ -72,30 +72,42 @@ Live-checked (2026-07-28) free-tier numbers, not blog estimates:
   providers add/pull free models — re-check before implementation, don't
   hardcode trust in these exact IDs surviving to build time.
 
-**Conclusion: batch, don't loop.** The pipeline below uses exactly 2 LLM
-calls per list submission, regardless of list length (up to a practical
-context budget — 20 items × ~5 candidates each is roughly 8k tokens, well
-inside every free model's context window above).
+**Conclusion: batch, don't loop.** The pipeline below uses zero *dedicated*
+LLM calls for list parsing (deterministic pre-pass) plus however many steps
+the surrounding chat agent's own turn takes to reason over the retrieved
+candidates — regardless of list length (up to a practical context budget —
+20 items × ~5 candidates each is roughly 8k tokens, well inside the chosen
+model's context window).
 
-## Architecture
+## Architecture (superseded/simplified by the chat-agent decision)
+
+The original design below was a standalone 2-LLM-call pipeline (dedicated
+parser model + dedicated matcher model), designed before the owner clarified
+this runs inside the general chat agent. Now that it does, the "matcher"
+role collapses into the chat agent's own turn — there's no need for a
+*separate* dedicated ranking model call, since the already-decided chat
+model (`openai/gpt-oss-20b:free` primary, per
+`CHAT_AGENT_ARCHITECTURE_PLAN.md`) is already the reasoning model present in
+that turn, with the retrieved candidates available to it as tool results.
 
 ```
-Raw list text
+Raw list text (a chat message that looks like a list)
      │
      ▼
-[LLM Call #1 — Parser/Extractor]     (fast/cheap free model)
+[Deterministic list-detection + parsing — 0 LLM calls]
+     │  regex/heuristic pre-pass (see "Quantity parsing traps" below):
      │  splits into N structured lines: { quantity, unit, searchText }
-     │  tolerates German/French/Italian/English input, "2x", "500g", etc.
      ▼
 [Local batch retrieval — 0 LLM calls]
      │  reuses existing SearchService.searchProducts / CatalogService FTS5
      │  per line, across all requested chains — this IS the RAG retrieval
-     │  step: real vendor data, not model knowledge
+     │  step: real vendor data, not model knowledge; fired as parallel tool
+     │  calls before/within the chat agent's own turn
      ▼
-[LLM Call #2 — Batch Matcher/Ranker]  (larger/more careful free model)
-     │  receives { line, candidates[] } for ALL N lines in one call
-     │  selects/ranks ONLY from the given candidates — must never emit a
-     │  product id it wasn't given
+[Chat agent's own turn ranks/selects — uses the already-decided chat model]
+     │  receives { line, candidates[] } for all N lines already resolved by
+     │  the pre-pass; selects/ranks ONLY from given candidates — must never
+     │  emit a product id it wasn't given; applies the status contract below
      ▼
 [Deterministic store-optimizer — 0 LLM calls]
      │  pure arithmetic over resolved candidates + availability data
@@ -103,13 +115,18 @@ Raw list text
 EnrichedShoppingListResult
 ```
 
-### Why two agents, not one
+### Why the parsing pre-pass has no dedicated LLM call
 
-- **Parser** needs to handle messy, multilingual, shorthand input — a small
-  fast model is enough and keeps latency down on the interactive path.
-- **Matcher** needs more careful judgment (is "Vollmilch UHT 3.5%" really the
-  best match for a bare "Milch"?) across the *whole* list at once, so a
-  larger/more careful free model is worth spending the second call on.
+- **List detection/splitting is regex/heuristic, not LLM-driven** — the
+  quantity-parsing traps below (count-multiplier vs. target size, unit
+  normalization, loose-weight items) are exactly the kind of structured,
+  bounded parsing a deterministic parser handles reliably; spending a model
+  call on it would add latency/budget for a task that doesn't need judgment.
+- **Retrieval is always deterministic** (existing search/catalog code) —
+  this is the RAG grounding step, unchanged.
+- **Ranking/matching now happens for free inside the chat agent's normal
+  turn** — no separate model call needed, since the chat agent already has
+  to reason over tool results as part of driving the conversation.
 - **Store-optimizer stays 100% deterministic** — there's no ambiguity left to
   resolve once products are matched; running an LLM over arithmetic would add
   risk (and API budget) for zero benefit.
@@ -154,27 +171,19 @@ falsely-complete answer. Other chains (Aldi/Denner/Lidl/Volg/Otto's)
 contribute price/catalog matches only, always labeled "sold here, stock not
 verifiable" — never blended into the "confirmed in stock" count.
 
-## Backend / model choice
+## Backend / model choice (resolved — see CHAT_AGENT_ARCHITECTURE_PLAN.md)
 
-- **Default to OpenRouter over direct Gemini** for this feature specifically:
-  OpenRouter supports a fallback model array in one request (try model A,
-  auto-retry model B on 429/error) — direct Gemini has no equivalent
-  automatic routing across models.
-- Suggested pipeline default: parser call → `openai/gpt-oss-20b:free` or
-  `nvidia/nemotron-3-nano-30b-a3b:free`; matcher call →
-  `google/gemma-4-31b-it:free` (multilingual, relevant for Swiss
-  German/French/Italian product names) with
-  `nvidia/nemotron-3-super-120b-a12b:free` as the fallback.
-- **The $10 one-time OpenRouter credit deposit is worth explicitly
-  recommending to the owner**: unfunded, the app-wide cap is 50 req/day = ~25
-  list-enrichments/day total (2 calls/list) for *all* users combined; funded,
-  it's 1000 req/day = ~500 list-enrichments/day, still $0 per-token. This is
-  a real product decision, not an implementation detail — flag it, don't
-  silently assume the $10 is fine to spend.
-- Model IDs above are today's free-tier snapshot (checked 2026-07-28 against
-  `openrouter.ai/api/v1/models`) — OpenRouter's free lineup rotates as
-  providers add/retire promotional models; re-verify against the live API
-  response immediately before implementation rather than trusting this doc.
+No separate model choice needed for this feature: it runs inside the
+already-decided chat agent (primary `openai/gpt-oss-20b:free`, fallback
+`nvidia/nemotron-3-ultra-550b-a55b:free`, via OpenRouter's model array) —
+see that doc's "Model choice" section for the full research trail
+(Tau-Bench/PinchBench/SWEBench numbers, why BFCL's actual leaderboard leader
+is unreachable under the $0 constraint, why the smaller model is primary
+despite the lower benchmark ceiling).
+
+The account-funding question is resolved too: `OPENROUTER_API_KEY` is
+confirmed present and funded (1000 req/day cap applies) — see the "Open
+items" note below.
 
 ## MCP / API surface
 
@@ -225,14 +234,14 @@ verifiable" — never blended into the "confirmed in stock" count.
    `:free`-suffixed models applies, not the unfunded 50/day cap. No further
    billing action needed.
 2. Re-verify the live free-model list immediately before implementation
-   (rotates over time) — the specific model IDs in this doc are a
-   2026-07-28 snapshot, not a guarantee.
+   (rotates over time) — the specific model IDs are a 2026-07-28 snapshot,
+   not a guarantee.
 3. ~~Decide the PWA surface~~ — resolved 2026-07-28: this is invoked through
    the new chat agent tab (`CHAT_AGENT_ARCHITECTURE_PLAN.md`), not a
    dedicated shopping-list form/tab.
-4. Confirm minimum test coverage expectations for the LLM-touching path
-   given it's inherently non-deterministic — likely: mock the LLM calls in
-   the default test suite (deterministic contract tests on the
-   parse→retrieve→match→optimize plumbing), with a `DEGRADED`-path test that
-   doesn't require a real API key, plus an opt-in live smoke test gated the
-   same way `.live.test.ts` files already are.
+4. ~~Confirm minimum test coverage expectations~~ — resolved 2026-07-28: see
+   `CHAT_AGENT_ARCHITECTURE_PLAN.md`'s "Testing" section
+   (`MockLanguageModelV3` default suite + one opt-in live smoke test); the
+   deterministic list-detection/parsing pre-pass and store-optimizer here
+   get ordinary unit tests same as any other service in this repo, no
+   mocking needed since they have no LLM call of their own.
