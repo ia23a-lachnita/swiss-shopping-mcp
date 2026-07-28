@@ -215,6 +215,24 @@ export function SearchView(): React.JSX.Element {
       {!isFetching && data && visibleProducts.length === 0 && (
         <div className="rounded-card bg-surface p-6 text-center shadow-card">
           <p className="font-semibold">Keine Produkte gefunden</p>
+          {chains.length < ALL_CHAINS.length && (
+            <>
+              <p className="mt-1 text-sm text-faint">
+                Nur {chains.length} von {ALL_CHAINS.length} Händlern ausgewählt.
+              </p>
+              <Button
+                type="button"
+                variant="outline"
+                className="mt-3"
+                onClick={() => {
+                  setChains([...ALL_CHAINS]);
+                  setSubmitted({ query: submitted!.query, chains: [...ALL_CHAINS] });
+                }}
+              >
+                Bei allen Händlern suchen
+              </Button>
+            </>
+          )}
         </div>
       )}
 

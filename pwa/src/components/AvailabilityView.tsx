@@ -403,6 +403,26 @@ export function AvailabilityView(): React.JSX.Element {
         <div className="rounded-card bg-surface p-6 text-center shadow-card">
           <p className="font-semibold">Keine Treffer</p>
           <p className="mt-1 text-sm text-faint">Versuch es mit weniger Filtern oder einem anderen Suchbegriff.</p>
+          {chains.length < AVAILABILITY_CHAINS.length && (
+            <>
+              <p className="mt-1 text-xs text-faint">
+                Nur {chains.length} von {AVAILABILITY_CHAINS.length} Händlern ausgewählt. Nur Migros und Coop
+                bestätigen echten Lagerbestand — weitere Händler zeigen ggf. nur Preis/Katalog ohne
+                Verfügbarkeit.
+              </p>
+              <Button
+                type="button"
+                variant="outline"
+                className="mt-3"
+                onClick={() => {
+                  setChains([...AVAILABILITY_CHAINS]);
+                  setParams({ ...params!, chains: [...AVAILABILITY_CHAINS] });
+                }}
+              >
+                Bei allen Händlern suchen
+              </Button>
+            </>
+          )}
         </div>
       )}
 
