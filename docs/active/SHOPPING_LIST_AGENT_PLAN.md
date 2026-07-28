@@ -205,11 +205,16 @@ verifiable" — never blended into the "confirmed in stock" count.
 
 ## Open items before implementation starts
 
-1. Confirm which free-tier account(s) to actually provision (OpenRouter API
-   key; $10 deposit decision above) — this is an account/billing action for
-   the owner, not something to provision unilaterally.
+1. ~~Confirm which free-tier account(s) to actually provision~~ — resolved
+   2026-07-28: `OPENROUTER_API_KEY` is already set at Windows user scope on
+   the dev machine. Verified live against OpenRouter's own
+   `GET /api/v1/auth/key` (not just trusted as claimed): `is_free_tier:
+   false`, confirming this is a funded account — the **1000 req/day** cap on
+   `:free`-suffixed models applies, not the unfunded 50/day cap. No further
+   billing action needed.
 2. Re-verify the live free-model list immediately before implementation
-   (rotates over time).
+   (rotates over time) — the specific model IDs in this doc are a
+   2026-07-28 snapshot, not a guarantee.
 3. Decide the PWA surface: a 5th tab, or folded into an existing tab (the
    app is already at 4 tabs — Availability/Search/Compare/Status).
 4. Confirm minimum test coverage expectations for the LLM-touching path
