@@ -11,7 +11,7 @@ import { PriceComparisonService } from '../services/priceComparisonService.js';
 import { SearchService } from '../services/searchService.js';
 import { getMetricsCollector } from '../util/metrics.js';
 
-const CHAINS = [
+export const CHAINS = [
   'migros',
   'coop',
   'aldi',
@@ -20,7 +20,7 @@ const CHAINS = [
   'volg',
   'ottos',
 ] as const satisfies readonly Chain[];
-const DIETARY_PREFERENCES = [
+export const DIETARY_PREFERENCES = [
   'vegan',
   'vegetarian',
   'gluten-free',
@@ -41,7 +41,7 @@ const dietaryPreferenceEnum = z.enum(DIETARY_PREFERENCES);
 const matchModeEnum = z.enum(['balanced', 'literal']);
 const comparisonBasisEnum = z.enum(['packPrice', 'unitPrice']);
 
-const searchProductsInputSchema = z
+export const searchProductsInputSchema = z
   .object({
     query: z.string().trim().min(1),
     chains: z.array(chainEnum).min(1).optional(),
@@ -55,7 +55,7 @@ const searchProductsInputSchema = z
   })
   .strict();
 
-const findStoresInputSchema = z
+export const findStoresInputSchema = z
   .object({
     location: z.string().trim().min(1),
     chains: z.array(chainEnum).min(1).optional(),
@@ -63,7 +63,7 @@ const findStoresInputSchema = z
   })
   .strict();
 
-const comparePricesInputSchema = z
+export const comparePricesInputSchema = z
   .object({
     query: z.string().trim().min(1),
     chains: z.array(chainEnum).min(1).optional(),
@@ -76,7 +76,7 @@ const comparePricesInputSchema = z
   })
   .strict();
 
-const searchPromotionsInputSchema = z
+export const searchPromotionsInputSchema = z
   .object({
     query: z.string().trim().min(1),
     chains: z.array(chainEnum).min(1).optional(),
@@ -87,13 +87,13 @@ const searchPromotionsInputSchema = z
   })
   .strict();
 
-const availabilitySupportInputSchema = z
+export const availabilitySupportInputSchema = z
   .object({
     chains: z.array(chainEnum).min(1).optional(),
   })
   .strict();
 
-const lookupStoreAvailabilityInputSchema = z
+export const lookupStoreAvailabilityInputSchema = z
   .object({
     chain: chainEnum,
     storeId: z.string().trim().min(1),
@@ -110,14 +110,14 @@ const SOURCE_CAPABILITIES = [
   'nutrition',
 ] as const satisfies readonly SourceCapability[];
 
-const sourceStatusInputSchema = z
+export const sourceStatusInputSchema = z
   .object({
     chains: z.array(chainEnum).min(1).optional(),
     capabilities: z.array(z.enum(SOURCE_CAPABILITIES)).min(1).optional(),
   })
   .strict();
 
-const TOOL_NAMES = [
+export const TOOL_NAMES = [
   'search_products',
   'search_promotions',
   'find_stores',
@@ -128,7 +128,7 @@ const TOOL_NAMES = [
   'get_metrics',
 ] as const;
 
-type ToolName = (typeof TOOL_NAMES)[number];
+export type ToolName = (typeof TOOL_NAMES)[number];
 
 export interface ToolDependencies {
   searchService: SearchService;

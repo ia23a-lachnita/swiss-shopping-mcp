@@ -18,6 +18,7 @@
     "test:live:denner": "vitest run --passWithNoTests dennerPromotionsAdapter.live.test.ts",
     "test:integration": "vitest run --passWithNoTests .integration.test.ts",
     "test:contract": "cross-env RUN_CONTRACT_TESTS=1 vitest run --passWithNoTests contract.test.ts",
+    "test:eval": "cross-env RUN_AGENT_EVAL=1 vitest run --passWithNoTests .eval.test.ts",
     "test:ui": "vitest --ui",
     "test:browser": "npx playwright test",
     "test:coverage": "vitest --coverage",
@@ -49,9 +50,12 @@
     "node": ">=20.0.0"
   },
   "dependencies": {
+    "@ai-sdk/react": "^3.0.239",
     "@modelcontextprotocol/sdk": "^1.0.0",
     "@number-flow/react": "^0.6.2",
+    "@openrouter/ai-sdk-provider": "^2.10.0",
     "@radix-ui/react-popover": "^1.1.21",
+    "ai": "^6.0.237",
     "axios": "^1.18.1",
     "better-sqlite3": "^12.11.1",
     "cheerio": "^1.2.0",

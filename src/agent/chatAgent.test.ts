@@ -1,0 +1,128 @@
+import { simulateReadableStream, type LanguageModelV3StreamPart } from 'ai/test';
+import { MockLanguageModelV3 } from 'ai/test';
+import { describe, expect, it, vi } from 'vitest';
+
+import { Chain, ChainAdapter, NormalizedProduct, ProductSearchFilters, Result } from '../adapters/types.js';
+import { PriceComparisonService } from '../services/priceComparisonService.js';
+import { SearchService } from '../services/searchService.js';
+import { ToolDependencies } from '../tools/handlers.js';
+import { runChatAgent } from './chatAgent.js';
+
+function stubAdapter(chain: Chain, products: NormalizedProduct[]): ChainAdapter {
+  return {
+    chain,
+    async searchProducts(filters: ProductSearchFilters): Promise<Result<NormalizedProduct[]>> {
+      return { ok: true, data: products.slice(0, filters.limit) };
+    },
+    async searchPromotions() {
+      return { ok: true, data: [] };
+    },
+    async findStores() {
+      return { ok: true, data: [] };
+    },
+    getStoreAvailabilitySupport() {
+      return { chain, supported: false };
+    },
+    async lookupStoreProductAvailability(filters) {
+      return {
+        ok: true,
+        data: { chain, storeId: filters.storeId, query: filters.query, supported: false, matches: [], isAvailable: false },
+      };
+    },
+  };
+}
+
+function dependenciesFor(adapters: ChainAdapter[]): ToolDependencies {
+  return {
+    searchService: new SearchService(adapters),
+    priceComparisonService: new PriceComparisonService(adapters),
+  };
+}
+
+const USAGE = {
+  inputTokens: { total: 10, noCache: 10, cacheRead: undefined, cacheWrite: undefined },
+  outputTokens: { total: 5, text: 5, reasoning: undefined },
+};
+
+function toolCallStep(toolName: string, input: Record<string, unknown>): LanguageModelV3StreamPart[] {
+  return [
+    { type: 'stream-start', warnings: [] },
+    { type: 'tool-input-start', id: 'call-1', toolName },
+    { type: 'tool-input-delta', id: 'call-1', delta: JSON.stringify(input) },
+    { type: 'tool-input-end', id: 'call-1' },
+    { type: 'tool-call', toolCallId: 'call-1', toolName, input: JSON.stringify(input) },
+    { type: 'finish', finishReason: 'tool-calls', usage: USAGE },
+  ];
+}
+
+/**
+ * MockLanguageModelV3's array-based `doStream` indexes by `doStreamCalls.length`
+ * AFTER pushing the call, so the first real invocation reads array index 1, not
+ * 0 (confirmed against the installed ai@6.0.237 source). Pad index 0 with a
+ * duplicate of the first real step so `steps` reads naturally as [step1, step2, ...].
+ */
+function mockDoStream(...steps: LanguageModelV3StreamPart[][]): Array<{ stream: ReadableStream<LanguageModelV3StreamPart> }> {
+  const padded = [steps[0], ...steps];
+  return padded.map((chunks) => ({ stream: simulateReadableStream({ chunks }) }));
+}
+
+function textStep(text: string): LanguageModelV3StreamPart[] {
+  return [
+    { type: 'stream-start', warnings: [] },
+    { type: 'text-start', id: 'text-1' },
+    { type: 'text-delta', id: 'text-1', delta: text },
+    { type: 'text-end', id: 'text-1' },
+    { type: 'finish', finishReason: 'stop', usage: USAGE },
+  ];
+}
+
+describe('runChatAgent', () => {
+  it('drives a real tool call end-to-end against a mocked model and reports a grounded text answer', async () => {
+    const product: NormalizedProduct = { id: 'p1', chain: 'migros', name: 'Vollmilch 1L', price: { current: 1.5 } };
+    const adapter = stubAdapter('migros', [product]);
+    const searchProductsSpy = vi.spyOn(adapter, 'searchProducts');
+    const dependencies = dependenciesFor([adapter]);
+
+    const mockModel = new MockLanguageModelV3({
+      doStream: mockDoStream(
+        toolCallStep('search_products', { query: 'milch' }),
+        textStep('Ich habe Vollmilch 1L bei Migros für CHF 1.50 gefunden.')
+      ),
+    });
+
+    const result = await runChatAgent({
+      messages: [{ id: '1', role: 'user', parts: [{ type: 'text', text: 'search for milch' }] }],
+      dependencies,
+      model: mockModel,
+    });
+
+    const text = await result.text;
+    const steps = await result.steps;
+
+    // The adapter behind search_products was actually invoked — proves the
+    // model's tool call was dispatched through the real tool layer, not stubbed out.
+    expect(searchProductsSpy).toHaveBeenCalledWith(expect.objectContaining({ query: 'milch' }));
+    expect(steps).toHaveLength(2);
+    expect(text).toContain('Vollmilch');
+  });
+
+  it('propagates a tool error as a visible grounded result rather than crashing the turn', async () => {
+    const dependencies = dependenciesFor([]); // no adapters -> unsupported/empty results, never a thrown exception
+
+    const mockModel = new MockLanguageModelV3({
+      doStream: mockDoStream(
+        toolCallStep('search_products', { query: 'milch' }),
+        textStep('Ich konnte nichts finden.')
+      ),
+    });
+
+    const result = await runChatAgent({
+      messages: [{ id: '1', role: 'user', parts: [{ type: 'text', text: 'search for milch' }] }],
+      dependencies,
+      model: mockModel,
+    });
+
+    const text = await result.text;
+    expect(text).toContain('nichts finden');
+  });
+});

@@ -3,7 +3,9 @@ import { readFile, stat } from 'node:fs/promises';
 import { join, extname, normalize } from 'node:path';
 import { tmpdir } from 'node:os';
 
+import { pipeUIMessageStreamToResponse, UIMessage } from 'ai';
 
+import { runChatAgent } from '../agent/chatAgent.js';
 import { createDefaultAdapters } from '../adapters/index.js';
 import { reverseGeocodeAsync, resolveLocationAsync, suggestLocationsAsync } from '../util/geo.js';
 import { getAllCapabilityStatuses } from '../adapters/sourceRegistry.js';
@@ -364,6 +366,39 @@ async function handleProductAvailability(res: ServerResponse, raw: string): Prom
   }
 }
 
+/**
+ * PWA chat agent endpoint. Stateless per request: the client (IndexedDB, see
+ * CHAT_AGENT_ARCHITECTURE_PLAN.md "Session / history state") resends the
+ * full visible message history on every call; this handler holds no
+ * conversation state between requests.
+ */
+async function handleChat(res: ServerResponse, raw: string): Promise<void> {
+  const parsed = parseBody<{ messages: UIMessage[] }>(raw);
+  if (!parsed.ok || !Array.isArray(parsed.data.messages)) {
+    sendJson(res, 400, { ok: false, error: { code: 'INVALID_BODY', message: 'messages array is required.' } });
+    return;
+  }
+
+  try {
+    const result = await runChatAgent({
+      messages: parsed.data.messages,
+      dependencies: { searchService, priceComparisonService },
+    });
+    await pipeUIMessageStreamToResponse({ response: res, stream: result.toUIMessageStream() });
+  } catch (err) {
+    logger.error('Chat agent request failed:', err);
+    if (!res.headersSent) {
+      sendJson(res, 500, {
+        ok: false,
+        error: {
+          code: 'CHAT_AGENT_FAILED',
+          message: err instanceof Error ? err.message : 'Chat agent request failed.',
+        },
+      });
+    }
+  }
+}
+
 async function handleRequest(req: IncomingMessage, res: ServerResponse): Promise<void> {
   setCorsHeaders(res);
 
@@ -406,6 +441,12 @@ async function handleRequest(req: IncomingMessage, res: ServerResponse): Promise
   if (req.method === 'POST' && url.pathname === '/api/compare-prices') {
     const body = await readBody(req);
     await handleComparePrices(res, body);
+    return;
+  }
+
+  if (req.method === 'POST' && url.pathname === '/api/chat') {
+    const body = await readBody(req);
+    await handleChat(res, body);
     return;
   }
 

@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MotionConfig, motion } from 'framer-motion';
-import { MapPin, Scale, Search, Activity } from 'lucide-react';
+import { MapPin, MessageCircle, Scale, Search, Activity } from 'lucide-react';
 import { Toaster } from 'sonner';
 
 import { AvailabilityView } from './components/AvailabilityView';
@@ -9,6 +9,11 @@ import { SearchView } from './components/SearchView';
 import { CompareView } from './components/CompareView';
 import { StatusView } from './components/StatusView';
 import { cn } from './lib/utils';
+
+// The AI SDK (ai/@ai-sdk/react) is real weight (~230kB gzipped) that only the
+// Chat tab needs — code-split it the same way ProductSheet already does for
+// the heavy maplibre-based ProductMap.
+const ChatView = lazy(() => import('./components/ChatView').then((m) => ({ default: m.ChatView })));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -20,12 +25,13 @@ const queryClient = new QueryClient({
   },
 });
 
-type Tab = 'availability' | 'search' | 'compare' | 'status';
+type Tab = 'availability' | 'search' | 'compare' | 'chat' | 'status';
 
 const TABS: Array<{ id: Tab; label: string; icon: typeof MapPin }> = [
   { id: 'availability', label: 'In der Nähe', icon: MapPin },
   { id: 'search', label: 'Suche', icon: Search },
   { id: 'compare', label: 'Vergleich', icon: Scale },
+  { id: 'chat', label: 'Chat', icon: MessageCircle },
   { id: 'status', label: 'Status', icon: Activity },
 ];
 
@@ -33,6 +39,7 @@ const VIEWS: Record<Tab, React.ComponentType> = {
   availability: AvailabilityView,
   search: SearchView,
   compare: CompareView,
+  chat: ChatView,
   status: StatusView,
 };
 
@@ -111,15 +118,17 @@ export default function App(): React.JSX.Element {
           </header>
 
           <main className="flex-1 px-4">
-            {TABS.map(({ id }) => {
-              if (!visitedTabs.has(id)) return null;
-              const ViewComponent = VIEWS[id];
-              return (
-                <div key={id} className={tab === id ? undefined : 'hidden'}>
-                  <ViewComponent />
-                </div>
-              );
-            })}
+            <Suspense fallback={null}>
+              {TABS.map(({ id }) => {
+                if (!visitedTabs.has(id)) return null;
+                const ViewComponent = VIEWS[id];
+                return (
+                  <div key={id} className={tab === id ? undefined : 'hidden'}>
+                    <ViewComponent />
+                  </div>
+                );
+              })}
+            </Suspense>
           </main>
 
           <nav
