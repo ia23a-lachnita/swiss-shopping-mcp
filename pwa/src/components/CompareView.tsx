@@ -81,7 +81,7 @@ export function CompareView(): React.JSX.Element {
   }
 
   return (
-    <div className="space-y-4 pb-4 pt-3">
+    <div className="space-y-4 pt-3">
       <form onSubmit={submit} className="space-y-3">
         <div className="relative">
           <Scale className="pointer-events-none absolute left-3.5 top-1/2 z-10 size-4 -translate-y-1/2 text-brand" />

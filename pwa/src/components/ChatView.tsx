@@ -284,7 +284,7 @@ function ChatConversation({
   const [activeLocation, setActiveLocation] = useState<string | undefined>(initialActiveLocation);
   const listEndRef = useRef<HTMLDivElement>(null);
 
-  const { messages, sendMessage, status, error } = useChat({
+  const { messages, sendMessage, status, error, setMessages } = useChat({
     messages: initialMessages,
     transport: new DefaultChatTransport({
       api: '/api/chat',
@@ -330,30 +330,45 @@ function ChatConversation({
     setInput('');
   }
 
-  return (
-    <div className="flex flex-col gap-4 pt-3">
-      {messages.length === 0 && (
-        <div className="space-y-3 rounded-card bg-surface p-4 shadow-card">
-          <p className="text-sm text-muted">
-            Frag mich nach Produkten, Preisen oder Filialen — oder schick mir gleich eine ganze
-            Einkaufsliste.
-          </p>
-          <div className="flex flex-wrap gap-1.5">
-            {SUGGESTIONS.map((s) => (
-              <button
-                key={s}
-                type="button"
-                onClick={() => setInput(s)}
-                className="rounded-full bg-surface-sunken px-3 py-1.5 text-xs text-muted shadow-inset"
-              >
-                {s}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
+  // Clearing the conversation used to `window.location.reload()`, which also
+  // reset the active tab and discarded every other tab's in-memory state
+  // (search/compare results). Clearing React state directly keeps the blast
+  // radius to the chat, where it belongs.
+  async function clearConversation(): Promise<void> {
+    await clearChatHistory();
+    setMessages([]);
+    setActiveLocation(undefined);
+  }
 
-      <div className="space-y-4">
+  return (
+    // Sized to exactly the space between header and nav so the composer can be
+    // a normal flex child pinned at the bottom. It was previously `sticky`
+    // sitting in page flow after the message list, which only pins once the
+    // page scrolls — with a short conversation it just sat under the last
+    // message with a large empty gap beneath it, drifting down as the chat grew.
+    <div className="flex h-[calc(100dvh-var(--header-h,3.25rem)-var(--nav-clearance))] flex-col">
+      <div className="min-h-0 flex-1 space-y-4 overflow-y-auto pt-3">
+        {messages.length === 0 && (
+          <div className="space-y-3 rounded-card bg-surface p-4 shadow-card">
+            <p className="text-sm text-muted">
+              Frag mich nach Produkten, Preisen oder Filialen — oder schick mir gleich eine ganze
+              Einkaufsliste.
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {SUGGESTIONS.map((s) => (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => setInput(s)}
+                  className="rounded-full bg-surface-sunken px-3 py-1.5 text-xs text-muted shadow-inset"
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         {messages.map((message) => (
           <MessageBubble key={message.id} message={message} onSelectProduct={setSelected} />
         ))}
@@ -366,31 +381,33 @@ function ChatConversation({
         <div ref={listEndRef} />
       </div>
 
-      <form
-        onSubmit={submit}
-        className="sticky bottom-[calc(var(--nav-h,4.5rem)+0.75rem)] flex items-center gap-2 rounded-card bg-surface p-2 shadow-card-lg"
-      >
-        <input
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="Frag etwas oder füg eine Einkaufsliste ein…"
-          className="min-w-0 flex-1 bg-transparent px-2 text-sm outline-none placeholder:text-faint"
-          enterKeyHint="send"
-        />
-        <Button type="submit" size="icon" disabled={!input.trim() || busy} aria-label="Senden">
-          <Send className="size-4" />
-        </Button>
-      </form>
-
-      {messages.length > 0 && (
-        <button
-          type="button"
-          onClick={() => void clearChatHistory().then(() => window.location.reload())}
-          className="self-center text-xs text-faint underline"
+      <div className="shrink-0 pt-3">
+        <form
+          onSubmit={submit}
+          className="flex items-center gap-2 rounded-card bg-surface p-2 shadow-card-lg"
         >
-          Unterhaltung löschen
-        </button>
-      )}
+          <input
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="Frag etwas oder füg eine Einkaufsliste ein…"
+            className="min-w-0 flex-1 bg-transparent px-2 text-sm outline-none placeholder:text-faint"
+            enterKeyHint="send"
+          />
+          <Button type="submit" size="icon" disabled={!input.trim() || busy} aria-label="Senden">
+            <Send className="size-4" />
+          </Button>
+        </form>
+
+        {messages.length > 0 && (
+          <button
+            type="button"
+            onClick={() => void clearConversation()}
+            className="mx-auto mt-2 block text-xs text-faint underline"
+          >
+            Unterhaltung löschen
+          </button>
+        )}
+      </div>
 
       <ProductSheet product={selected} onClose={() => setSelected(undefined)} />
     </div>

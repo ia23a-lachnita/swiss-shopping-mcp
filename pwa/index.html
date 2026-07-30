@@ -2,7 +2,14 @@
 <html lang="de-CH">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <!-- interactive-widget=resizes-content makes Android Chrome shrink the layout
+         viewport when the soft keyboard opens, instead of overlaying it. Without
+         it the chat composer (a flex child pinned to the bottom of a dvh-sized
+         pane) would end up hidden behind the keyboard. -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content"
+    />
     <meta name="theme-color" content="#edeceb" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#17181a" media="(prefers-color-scheme: dark)" />
     <link rel="icon" type="image/svg+xml" href="/app/icon.svg" />

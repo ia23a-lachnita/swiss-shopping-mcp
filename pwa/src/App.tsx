@@ -8,6 +8,7 @@ import { AvailabilityView } from './components/AvailabilityView';
 import { SearchView } from './components/SearchView';
 import { CompareView } from './components/CompareView';
 import { StatusView } from './components/StatusView';
+import { useTabState } from './lib/useTabState';
 import { cn } from './lib/utils';
 
 // The AI SDK (ai/@ai-sdk/react) is real weight (~230kB gzipped) that only the
@@ -43,14 +44,18 @@ const VIEWS: Record<Tab, React.ComponentType> = {
   status: StatusView,
 };
 
+const TAB_IDS = TABS.map((t) => t.id);
+
 export default function App(): React.JSX.Element {
   // Availability answers the core "can I grab it right now?" question, so it
   // is the landing view (see docs/active/DELIVERY_MODEL_DECISION.md).
-  const [tab, setTab] = useState<Tab>('availability');
+  // Held in the URL so a reload restores the tab instead of resetting to the
+  // first one, and so Android's back button walks tabs.
+  const [tab, setTab] = useTabState<Tab>(TAB_IDS, 'availability');
   // Views stay mounted once visited so switching tabs never discards a view's
   // local state (search/compare results, scroll position, in-progress input).
   // Each view is only mounted on its first visit, not eagerly at app start.
-  const [visitedTabs, setVisitedTabs] = useState<Set<Tab>>(() => new Set(['availability']));
+  const [visitedTabs, setVisitedTabs] = useState<Set<Tab>>(() => new Set([tab]));
   const navRef = useRef<HTMLElement>(null);
   const headerRef = useRef<HTMLElement>(null);
 
@@ -107,7 +112,7 @@ export default function App(): React.JSX.Element {
   return (
     <QueryClientProvider client={queryClient}>
       <MotionConfig reducedMotion="user">
-        <div className="mx-auto flex min-h-dvh max-w-2xl flex-col bg-bg font-sans text-ink" style={{ paddingBottom: 'var(--nav-h)' }}>
+        <div className="mx-auto flex min-h-dvh max-w-2xl flex-col bg-bg font-sans text-ink">
           <header
             ref={headerRef}
             className="sticky top-0 z-30 flex h-[calc(env(safe-area-inset-top)+3.25rem)] items-center border-b border-line bg-bg/80 px-4 backdrop-blur-md"
@@ -123,7 +128,17 @@ export default function App(): React.JSX.Element {
                 if (!visitedTabs.has(id)) return null;
                 const ViewComponent = VIEWS[id];
                 return (
-                  <div key={id} className={tab === id ? undefined : 'hidden'}>
+                  <div
+                    key={id}
+                    className={cn(
+                      tab === id ? undefined : 'hidden',
+                      // Scrolling views pad themselves clear of the fixed nav.
+                      // Chat is excluded: it sizes itself to the exact space
+                      // between header and nav so its composer can sit at the
+                      // bottom, and would double-count this padding.
+                      id !== 'chat' && 'pb-[var(--nav-clearance)]'
+                    )}
+                  >
                     <ViewComponent />
                   </div>
                 );

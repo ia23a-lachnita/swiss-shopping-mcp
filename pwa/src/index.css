@@ -97,6 +97,14 @@
    (the root cause of the reported nav-overlap bug). */
 :root {
   --nav-h: calc(env(safe-area-inset-bottom) + 4rem);
+  /* What scrolling content must pad itself by: the nav's real height *plus* a
+     breathing gutter. Padding equal to --nav-h alone leaves the last card flush
+     against the nav — the reported "no gap on every tab except Status" bug,
+     where Status only looked right because it carried an ad-hoc `pb-4`.
+     safe-area-inset-bottom is deliberately NOT re-added here: it is already
+     inside the measured --nav-h, so adding it again double-counts the gesture
+     bar on Android. */
+  --nav-clearance: calc(var(--nav-h) + 1rem);
 }
 
 html {
