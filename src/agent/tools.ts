@@ -12,9 +12,11 @@ import {
   executeToolCall,
   findStoresInputSchema,
   listTools,
+  lookupAvailabilityByLocationInputSchema,
   lookupStoreAvailabilityInputSchema,
   searchProductsInputSchema,
   searchPromotionsInputSchema,
+  setChatLocationInputSchema,
   sourceStatusInputSchema,
   ToolDependencies,
   TOOL_NAMES,
@@ -131,6 +133,26 @@ export function createAgentTools(dependencies: ToolDependencies): ToolSet {
       description: TOOL_DESCRIPTIONS.lookup_store_product_availability,
       inputSchema: lookupStoreAvailabilityInputSchema,
       execute: (input) => runTool('lookup_store_product_availability', input, dependencies, budget),
+    }),
+    lookup_availability_by_location: tool({
+      description: TOOL_DESCRIPTIONS.lookup_availability_by_location,
+      inputSchema: lookupAvailabilityByLocationInputSchema,
+      execute: async (input) => {
+        const raw = await runTool('lookup_availability_by_location', input, dependencies, budget);
+        const results = raw.results as Array<{ product: NormalizedProduct; stores: unknown }> | undefined;
+        if (Array.isArray(results)) {
+          raw.results = results.map((entry) => ({
+            ...entry,
+            product: stripProductForModel(entry.product),
+          }));
+        }
+        return raw;
+      },
+    }),
+    set_chat_location: tool({
+      description: TOOL_DESCRIPTIONS.set_chat_location,
+      inputSchema: setChatLocationInputSchema,
+      execute: (input) => runTool('set_chat_location', input, dependencies, budget),
     }),
     get_source_status: tool({
       description: TOOL_DESCRIPTIONS.get_source_status,

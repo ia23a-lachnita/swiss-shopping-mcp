@@ -4,7 +4,13 @@ import { DefaultChatTransport, getToolName, isToolUIPart, type UIMessage } from 
 import { AlertTriangle, MapPin, Scale, Search, Send, Sparkles } from 'lucide-react';
 
 import { CHAIN_LABELS, type Chain, type Product } from '../api';
-import { clearChatHistory, loadChatHistory, saveChatHistory } from '../lib/chatHistory';
+import {
+  clearChatHistory,
+  loadActiveLocation,
+  loadChatHistory,
+  saveActiveLocation,
+  saveChatHistory,
+} from '../lib/chatHistory';
 import { cn } from '../lib/utils';
 import { ProductSheet } from './ProductSheet';
 import { Badge } from './ui/badge';
@@ -238,12 +244,14 @@ const SUGGESTIONS = [
 export function ChatView(): React.JSX.Element {
   const [historyLoaded, setHistoryLoaded] = useState(false);
   const [initialMessages, setInitialMessages] = useState<UIMessage[]>([]);
+  const [initialActiveLocation, setInitialActiveLocation] = useState<string | undefined>();
 
   useEffect(() => {
     let cancelled = false;
-    void loadChatHistory().then((messages) => {
+    void Promise.all([loadChatHistory(), loadActiveLocation()]).then(([messages, location]) => {
       if (!cancelled) {
         setInitialMessages(messages);
+        setInitialActiveLocation(location);
         setHistoryLoaded(true);
       }
     });
@@ -261,22 +269,52 @@ export function ChatView(): React.JSX.Element {
     );
   }
 
-  return <ChatConversation initialMessages={initialMessages} />;
+  return <ChatConversation initialMessages={initialMessages} initialActiveLocation={initialActiveLocation} />;
 }
 
-function ChatConversation({ initialMessages }: { initialMessages: UIMessage[] }): React.JSX.Element {
+function ChatConversation({
+  initialMessages,
+  initialActiveLocation,
+}: {
+  initialMessages: UIMessage[];
+  initialActiveLocation: string | undefined;
+}): React.JSX.Element {
   const [input, setInput] = useState('');
   const [selected, setSelected] = useState<Product | undefined>();
+  const [activeLocation, setActiveLocation] = useState<string | undefined>(initialActiveLocation);
   const listEndRef = useRef<HTMLDivElement>(null);
 
   const { messages, sendMessage, status, error } = useChat({
     messages: initialMessages,
-    transport: new DefaultChatTransport({ api: '/api/chat' }),
+    transport: new DefaultChatTransport({
+      api: '/api/chat',
+      body: activeLocation ? { activeLocation } : {},
+    }),
   });
 
   useEffect(() => {
     void saveChatHistory(messages);
   }, [messages]);
+
+  // Watch the tool-part stream for `set_chat_location` reaching
+  // `output-available` — the newest call across the whole conversation wins.
+  useEffect(() => {
+    let latest: string | undefined;
+    for (const message of messages) {
+      for (const part of message.parts) {
+        if (isToolUIPart(part) && getToolName(part) === 'set_chat_location' && part.state === 'output-available') {
+          const output = 'output' in part ? (part.output as { location?: string } | undefined) : undefined;
+          if (output?.location) {
+            latest = output.location;
+          }
+        }
+      }
+    }
+    if (latest && latest !== activeLocation) {
+      setActiveLocation(latest);
+      void saveActiveLocation(latest);
+    }
+  }, [messages, activeLocation]);
 
   useEffect(() => {
     listEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });

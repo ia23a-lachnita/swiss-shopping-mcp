@@ -17,9 +17,11 @@ import {
   availabilitySupportInputSchema,
   comparePricesInputSchema,
   findStoresInputSchema,
+  lookupAvailabilityByLocationInputSchema,
   lookupStoreAvailabilityInputSchema,
   searchProductsInputSchema,
   searchPromotionsInputSchema,
+  setChatLocationInputSchema,
   sourceStatusInputSchema,
   ToolName,
 } from '../tools/handlers.js';
@@ -31,6 +33,8 @@ const TOOL_SCHEMAS: Record<ToolName, z.AnyZodObject> = {
   compare_prices: comparePricesInputSchema,
   get_store_availability_support: availabilitySupportInputSchema,
   lookup_store_product_availability: lookupStoreAvailabilityInputSchema,
+  lookup_availability_by_location: lookupAvailabilityByLocationInputSchema,
+  set_chat_location: setChatLocationInputSchema,
   get_source_status: sourceStatusInputSchema,
   get_metrics: z.object({}).strict(),
 };

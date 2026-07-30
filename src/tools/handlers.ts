@@ -10,6 +10,7 @@ import { Chain, DietaryPreference, ResultMetadata, SourceCapability } from '../a
 import { PriceComparisonService } from '../services/priceComparisonService.js';
 import { SearchService } from '../services/searchService.js';
 import { getMetricsCollector } from '../util/metrics.js';
+import { resolveLocationAsync } from '../util/geo.js';
 
 export const CHAINS = [
   'migros',
@@ -27,13 +28,19 @@ export const DIETARY_PREFERENCES = [
 ] as const satisfies readonly DietaryPreference[];
 
 export const TOOL_TIMEOUT_MS: Record<string, number> = {
-  search_products: 8_000,
-  search_promotions: 8_000,
+  // Vendor fan-out (6s soft deadline) can be followed by web-search
+  // augmentation (8s soft deadline) when vendor results are weak — 16s
+  // covers both stages sequentially plus overhead, still a real backstop
+  // under REQUEST_TIMEOUT_MS.
+  search_products: 16_000,
+  search_promotions: 10_000,
   find_stores: 8_000,
-  compare_prices: 10_000,
+  compare_prices: 12_000,
   get_source_status: 1_000,
   get_store_availability_support: 1_000,
-  lookup_store_product_availability: 8_000,
+  lookup_store_product_availability: 10_000,
+  lookup_availability_by_location: 25_000,
+  set_chat_location: 5_000,
 };
 
 const chainEnum = z.enum(CHAINS);
@@ -102,6 +109,21 @@ export const lookupStoreAvailabilityInputSchema = z
   })
   .strict();
 
+export const lookupAvailabilityByLocationInputSchema = z
+  .object({
+    query: z.string().trim().min(1),
+    location: z.string().trim().min(1),
+    chains: z.array(chainEnum).min(1).optional(),
+    inStockOnly: z.boolean().optional(),
+  })
+  .strict();
+
+export const setChatLocationInputSchema = z
+  .object({
+    location: z.string().trim().min(1),
+  })
+  .strict();
+
 const SOURCE_CAPABILITIES = [
   'productSearch',
   'promotions',
@@ -124,6 +146,8 @@ export const TOOL_NAMES = [
   'compare_prices',
   'get_store_availability_support',
   'lookup_store_product_availability',
+  'lookup_availability_by_location',
+  'set_chat_location',
   'get_source_status',
   'get_metrics',
 ] as const;
@@ -310,6 +334,43 @@ function getInputSchemaForTool(name: ToolName): ToolInputSchema {
     };
   }
 
+  if (name === 'lookup_availability_by_location') {
+    return {
+      type: 'object',
+      properties: {
+        query: { type: 'string', description: 'Product query to check for availability nearby' },
+        location: { type: 'string', description: 'City, ZIP code, or location term to search near' },
+        chains: {
+          type: 'array',
+          items: { type: 'string', enum: CHAINS },
+          description:
+            'Restrict the lookup to specific chains. Defaults to migros and coop if omitted — this lookup is slow, so only pass more chains when the user explicitly asks about them.',
+        },
+        inStockOnly: {
+          type: 'boolean',
+          description: 'When true, only return stores where the product is currently in stock',
+        },
+      },
+      required: ['query', 'location'],
+      additionalProperties: false,
+    };
+  }
+
+  if (name === 'set_chat_location') {
+    return {
+      type: 'object',
+      properties: {
+        location: {
+          type: 'string',
+          description:
+            'A city, ZIP code, or place name the user stated as their current location for this chat',
+        },
+      },
+      required: ['location'],
+      additionalProperties: false,
+    };
+  }
+
   if (name === 'get_source_status') {
     return {
       type: 'object',
@@ -392,11 +453,15 @@ export function listTools(): ListToolsResult {
                 ? 'List store-level product availability support by chain'
                 : name === 'lookup_store_product_availability'
                   ? 'Check whether products matching a query are available in a specific store'
-                  : name === 'get_source_status'
-                    ? 'Get the source capability status matrix for all supported Swiss chains'
-                    : name === 'get_metrics'
-                      ? 'Get observability metrics: cache hits, web searches, hydration, latency, catalog coverage, and Google quota'
-                      : 'Compare cross-chain prices for matching products',
+                  : name === 'lookup_availability_by_location'
+                    ? "Find nearby stores carrying a product, ranked nearest-first (the PWA's \"what's near me\" flow)"
+                    : name === 'set_chat_location'
+                      ? "Record or update the user's location for this chat conversation, used by location-based tools until changed"
+                      : name === 'get_source_status'
+                        ? 'Get the source capability status matrix for all supported Swiss chains'
+                        : name === 'get_metrics'
+                          ? 'Get observability metrics: cache hits, web searches, hydration, latency, catalog coverage, and Google quota'
+                          : 'Compare cross-chain prices for matching products',
       inputSchema: getInputSchemaForTool(name),
     })),
   };
@@ -487,6 +552,47 @@ export async function executeToolCall(
       );
     }
     return toolSuccess({ availability: result.data });
+  }
+
+  if (params.name === 'lookup_availability_by_location') {
+    const parsedInput = lookupAvailabilityByLocationInputSchema.safeParse(params.arguments ?? {});
+    if (!parsedInput.success) {
+      return toolError('INVALID_ARGUMENTS', getValidationErrorMessage(parsedInput.error));
+    }
+
+    // Default to a small, fast chain set when the model doesn't restrict
+    // chains — the underlying lookup is a sequential per-chain/per-product
+    // fan-out (findStores + per-store availability checks), so querying all
+    // 7 chains by default is far too slow for a chat turn's time budget.
+    // Mirrors AvailabilityView's own default chain pre-selection.
+    const chains = parsedInput.data.chains ?? (['migros', 'coop'] as const);
+    const result = await dependencies.searchService.lookupAvailabilityByLocationProductsFirst({
+      ...parsedInput.data,
+      chains: [...chains],
+    });
+    if (!result.ok) {
+      return toolError(
+        result.error.code,
+        result.error.message ?? 'Location-based availability lookup failed.'
+      );
+    }
+    return toolSuccess({ results: result.data });
+  }
+
+  if (params.name === 'set_chat_location') {
+    const parsedInput = setChatLocationInputSchema.safeParse(params.arguments ?? {});
+    if (!parsedInput.success) {
+      return toolError('INVALID_ARGUMENTS', getValidationErrorMessage(parsedInput.error));
+    }
+
+    const resolved = await resolveLocationAsync(parsedInput.data.location);
+    if (!resolved) {
+      return toolError(
+        'INVALID_LOCATION',
+        `Could not resolve "${parsedInput.data.location}" to a known Swiss location.`
+      );
+    }
+    return toolSuccess({ location: parsedInput.data.location, resolved });
   }
 
   if (params.name === 'get_source_status') {

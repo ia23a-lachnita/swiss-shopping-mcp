@@ -20,6 +20,18 @@ import {
 import { sourceWarningFromError } from '../sources/warnings.js';
 import { buildTaxonomy } from '../util/taxonomyBuilder.js';
 import { resolveLocationAsync, distanceBetween } from '../util/geo.js';
+import { raceWithTimeout, ADAPTER_SOFT_TIMEOUT_MS } from '../util/timeout.js';
+
+/**
+ * Soft deadline for the web-search augmentation step (semantic discovery
+ * across multiple weak chains via SerpAPI/DuckDuckGo/etc). Discovered via
+ * manual browser verification: unlike vendor adapters, this step had no
+ * timeout at all — a slow/rate-limited search provider chain could hang the
+ * entire search_products tool call indefinitely, well past its own
+ * TOOL_TIMEOUT_MS backstop (see raceWithTimeout usage below). Wider than
+ * ADAPTER_SOFT_TIMEOUT_MS since one call here can span several chains.
+ */
+const WEB_SEARCH_SOFT_TIMEOUT_MS = 8_000;
 import { calculateMatchStrength, sortProducts } from '../util/matcher.js';
 import { logger } from '../util/log.js';
 import { CatalogService } from '../catalog/catalogService.js';
@@ -183,7 +195,17 @@ export class SearchService {
     const adapterResults = await Promise.all(
       relevantAdapters.map(async (adapter) => {
         const startMs = Date.now();
-        const result = await adapter.searchProducts({ ...filters, query, matchMode });
+        const result = await raceWithTimeout(
+          () => adapter.searchProducts({ ...filters, query, matchMode }),
+          ADAPTER_SOFT_TIMEOUT_MS,
+          () => ({
+            ok: false,
+            error: {
+              code: 'SOURCE_TIMEOUT',
+              message: `${adapter.chain} did not respond within ${ADAPTER_SOFT_TIMEOUT_MS}ms.`,
+            },
+          } as Result<NormalizedProduct[]>)
+        );
         const elapsedMs = Date.now() - startMs;
         if (this.metrics) {
           this.metrics.recordLatency(adapter.chain, elapsedMs);
@@ -242,10 +264,16 @@ export class SearchService {
         this.metrics.recordWebSearch();
         this.metrics.recordWebSearchPerQuery(webSearchChains.length);
       }
+      const webProductSearch = this.webProductSearch;
       try {
-        webResult = await this.webProductSearch
-          .searchProducts({ ...filters, query, matchMode }, webSearchChains)
-          .catch(() => undefined);
+        webResult = await raceWithTimeout(
+          () =>
+            webProductSearch
+              .searchProducts({ ...filters, query, matchMode }, webSearchChains)
+              .catch(() => undefined),
+          WEB_SEARCH_SOFT_TIMEOUT_MS,
+          () => undefined
+        );
       } catch {
         // Web search errors never fail the overall search
       }
@@ -505,7 +533,17 @@ export class SearchService {
     const adapterResults = await Promise.all(
       relevantAdapters.map(async (adapter) => ({
         chain: adapter.chain,
-        result: await adapter.findStores({ ...filters, location }),
+        result: await raceWithTimeout(
+          () => adapter.findStores({ ...filters, location }),
+          ADAPTER_SOFT_TIMEOUT_MS,
+          () => ({
+            ok: false,
+            error: {
+              code: 'SOURCE_TIMEOUT',
+              message: `${adapter.chain} did not respond within ${ADAPTER_SOFT_TIMEOUT_MS}ms.`,
+            },
+          } as Result<NormalizedStore[]>)
+        ),
       }))
     );
 
@@ -582,7 +620,17 @@ export class SearchService {
     const adapterResults = await Promise.all(
       relevantAdapters.map(async (adapter) => ({
         chain: adapter.chain,
-        result: await adapter.searchPromotions({ ...filters, query, matchMode }),
+        result: await raceWithTimeout(
+          () => adapter.searchPromotions({ ...filters, query, matchMode }),
+          ADAPTER_SOFT_TIMEOUT_MS,
+          () => ({
+            ok: false,
+            error: {
+              code: 'SOURCE_TIMEOUT',
+              message: `${adapter.chain} did not respond within ${ADAPTER_SOFT_TIMEOUT_MS}ms.`,
+            },
+          } as Result<NormalizedPromotion[]>)
+        ),
       }))
     );
 
@@ -677,11 +725,27 @@ export class SearchService {
 
     const availabilityChecks = await Promise.all(
       stores.map(async (store) => {
+        const fallback = (): StoreWithProductAvailability => ({
+          ...store,
+          available: false,
+          isOpen: this.isStoreOpen(store.openingHours, now),
+        });
         try {
-          const result = await this.lookupStoreProductAvailability(store.chain, {
-            query,
-            storeId: store.id,
-          });
+          const result = await raceWithTimeout(
+            () =>
+              this.lookupStoreProductAvailability(store.chain, {
+                query,
+                storeId: store.id,
+              }),
+            ADAPTER_SOFT_TIMEOUT_MS,
+            () => ({
+              ok: false,
+              error: {
+                code: 'SOURCE_TIMEOUT',
+                message: `${store.chain} did not respond within ${ADAPTER_SOFT_TIMEOUT_MS}ms.`,
+              },
+            } as Result<StoreProductAvailabilityResult>)
+          );
           if (result.ok && result.data.supported) {
             const isAvailable = result.data.isAvailable;
             const bestMatch = result.data.matches.find((m) => m.available) ?? result.data.matches[0];
@@ -693,17 +757,9 @@ export class SearchService {
               isOpen: this.isStoreOpen(store.openingHours, now),
             } as StoreWithProductAvailability;
           }
-          return {
-            ...store,
-            available: false,
-            isOpen: this.isStoreOpen(store.openingHours, now),
-          } as StoreWithProductAvailability;
+          return fallback();
         } catch {
-          return {
-            ...store,
-            available: false,
-            isOpen: this.isStoreOpen(store.openingHours, now),
-          } as StoreWithProductAvailability;
+          return fallback();
         }
       })
     );
@@ -802,16 +858,33 @@ export class SearchService {
       for (const product of chainProducts) {
         const availabilityChecks = await Promise.all(
           orderedStores.map(async (store) => {
+            const fallback = (): StoreWithProductAvailability => ({
+              ...store,
+              available: false,
+              availabilitySupported: false,
+              isOpen: this.isStoreOpen(store.openingHours, now),
+            });
             try {
-              const result = await this.lookupStoreProductAvailability(chain as Chain, {
-                query,
-                product,
-                storeId: store.id,
-                storeLatitude: store.location?.latitude,
-                storeLongitude: store.location?.longitude,
-                userLatitude: userLat,
-                userLongitude: userLon,
-              });
+              const result = await raceWithTimeout(
+                () =>
+                  this.lookupStoreProductAvailability(chain as Chain, {
+                    query,
+                    product,
+                    storeId: store.id,
+                    storeLatitude: store.location?.latitude,
+                    storeLongitude: store.location?.longitude,
+                    userLatitude: userLat,
+                    userLongitude: userLon,
+                  }),
+                ADAPTER_SOFT_TIMEOUT_MS,
+                () => ({
+                  ok: false,
+                  error: {
+                    code: 'SOURCE_TIMEOUT',
+                    message: `${chain} did not respond within ${ADAPTER_SOFT_TIMEOUT_MS}ms.`,
+                  },
+                } as Result<StoreProductAvailabilityResult>)
+              );
               if (result.ok && result.data.supported) {
                 const storeMatch = result.data.matches.find((m) => m.storeId === store.id);
                 return {
@@ -829,12 +902,7 @@ export class SearchService {
                 isOpen: this.isStoreOpen(store.openingHours, now),
               } as StoreWithProductAvailability;
             } catch {
-              return {
-                ...store,
-                available: false,
-                availabilitySupported: false,
-                isOpen: this.isStoreOpen(store.openingHours, now),
-              } as StoreWithProductAvailability;
+              return fallback();
             }
           })
         );

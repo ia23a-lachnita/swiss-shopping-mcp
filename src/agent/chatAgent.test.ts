@@ -125,4 +125,39 @@ describe('runChatAgent', () => {
     const text = await result.text;
     expect(text).toContain('nichts finden');
   });
+
+  it('folds activeLocation into the system prompt for that turn when provided', async () => {
+    const dependencies = dependenciesFor([]);
+    const mockModel = new MockLanguageModelV3({
+      doStream: mockDoStream(textStep('Alles klar.')),
+    });
+
+    const result = await runChatAgent({
+      messages: [{ id: '1', role: 'user', parts: [{ type: 'text', text: 'hallo' }] }],
+      dependencies,
+      activeLocation: 'Zürich',
+      model: mockModel,
+    });
+    await result.text;
+
+    const systemMessage = mockModel.doStreamCalls[0].prompt.find((m) => m.role === 'system');
+    expect(systemMessage?.content).toContain('current chat location is "Zürich"');
+  });
+
+  it('omits location context from the system prompt when no activeLocation is set', async () => {
+    const dependencies = dependenciesFor([]);
+    const mockModel = new MockLanguageModelV3({
+      doStream: mockDoStream(textStep('Alles klar.')),
+    });
+
+    const result = await runChatAgent({
+      messages: [{ id: '1', role: 'user', parts: [{ type: 'text', text: 'hallo' }] }],
+      dependencies,
+      model: mockModel,
+    });
+    await result.text;
+
+    const systemMessage = mockModel.doStreamCalls[0].prompt.find((m) => m.role === 'system');
+    expect(systemMessage?.content).not.toContain('current chat location is');
+  });
 });

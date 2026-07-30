@@ -19,7 +19,7 @@ export const FALLBACK_MODEL_IDS = [
 ] as const;
 
 const MAX_STEPS = 12;
-const REQUEST_TIMEOUT_MS = 15_000;
+const REQUEST_TIMEOUT_MS = 30_000;
 
 const SYSTEM_PROMPT = `You are the Swiss Shopping assistant, embedded in a PWA that compares
 groceries across Swiss retail chains (Migros, Coop, Aldi, Denner, Lidl, Volg, Otto's).
@@ -49,12 +49,23 @@ Tool-call efficiency:
   "chains" and is always an array (e.g. ["migros", "coop"]), never "chain",
   "source", "sources", or a single string.
 
+Location:
+- Some tools (lookup_availability_by_location, find_stores) need a location.
+  Never ask for one proactively at the start of the chat — only when such a
+  tool is about to run and no location is known yet for this conversation.
+- When the user gives a location (whether you asked or they volunteered it
+  unprompted), call set_chat_location with it before using it in another
+  tool. If they later state a different location in the same conversation,
+  call set_chat_location again — the newest one always wins.
+
 The user may write in German, French, Italian, or English (all common in
 Switzerland) — reply in the language they used.`;
 
 export interface ChatAgentRequest {
   messages: UIMessage[];
   dependencies: ToolDependencies;
+  /** Chat-scoped location the client has previously resolved via `set_chat_location`, if any. */
+  activeLocation?: string;
   /** Test-only override — production callers always get the real OpenRouter model. */
   model?: LanguageModel;
 }
@@ -78,11 +89,16 @@ function resolveModel(): LanguageModel {
 export async function runChatAgent({
   messages,
   dependencies,
+  activeLocation,
   model,
 }: ChatAgentRequest): Promise<ReturnType<typeof streamText>> {
+  const system = activeLocation
+    ? `${SYSTEM_PROMPT}\n\nThe user's current chat location is "${activeLocation}". Use it for location-based tools unless they just gave a different one in this message.`
+    : SYSTEM_PROMPT;
+
   return streamText({
     model: model ?? resolveModel(),
-    system: SYSTEM_PROMPT,
+    system,
     messages: await convertToModelMessages(messages),
     tools: createAgentTools(dependencies),
     stopWhen: stepCountIs(MAX_STEPS),

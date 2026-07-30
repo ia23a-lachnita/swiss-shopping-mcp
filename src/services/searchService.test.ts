@@ -199,6 +199,36 @@ describe('SearchService', () => {
     }
   });
 
+  it('does not let a hanging adapter block fast adapters past the per-adapter deadline', async () => {
+    vi.useFakeTimers();
+    try {
+      const fastAdapter = stubAdapter('coop', { products: [testProduct('milk', 'coop')] });
+      const hangingAdapter: ChainAdapter = {
+        ...stubAdapter('migros', {}),
+        // Simulates a genuinely hung adapter call (e.g. cold-start Playwright/VPN path) — never resolves.
+        searchProducts: () => new Promise<Result<NormalizedProduct[]>>(() => {}),
+      };
+      const service = new SearchService([fastAdapter, hangingAdapter]);
+
+      const resultPromise = service.searchProducts({ query: 'milk', chains: ['coop', 'migros'] });
+      await vi.advanceTimersByTimeAsync(6_000);
+      const result = await resultPromise;
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.data.map((product) => product.chain)).toEqual(['coop']);
+        expect(result.metadata?.sourceWarnings).toEqual([
+          expect.objectContaining({
+            chain: 'migros',
+            message: expect.stringContaining('did not respond within 6000ms'),
+          }),
+        ]);
+      }
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('surfaces REAL_SOURCE_NOT_IMPLEMENTED warning when UnsupportedChainAdapter is requested alongside a live adapter', async () => {
     const service = new SearchService([
       stubAdapter('aldi', { products: [testProduct('aldi-bread', 'aldi')] }),
@@ -458,6 +488,37 @@ describe('SearchService web-augmented search', () => {
       expect(result.data[0].nutrition?.energyKcal).toBe(250);
       expect(result.data[0].matchExplanation?.matchedBy).toEqual(['provider-rank']);
       expect(result.metadata?.summary).toContain('semantic web search');
+    }
+  });
+
+  it('does not let a hanging web-search provider block the overall search past its soft deadline', async () => {
+    vi.useFakeTimers();
+    try {
+      const vendorProduct = testProduct('2002', 'migros');
+      const adapter = migrosAdapterWithHydration([vendorProduct], {});
+      const hangingProvider = {
+        name: 'ddg' as const,
+        // Simulates a hung/rate-limited search provider (e.g. DDG under load) — never resolves.
+        search: vi.fn(() => new Promise<Array<{ url: string; rank: number }>>(() => {})),
+      };
+      const cache = {
+        get: vi.fn().mockResolvedValue(undefined),
+        set: vi.fn().mockResolvedValue({ expiresAt: '2099-01-01T00:00:00.000Z' }),
+      } as unknown as FileTtlCache;
+      const service = new SearchService([adapter], {
+        webProductSearch: new WebProductSearchService({ provider: hangingProvider, adapters: [adapter], cache }),
+      });
+
+      const resultPromise = service.searchProducts({ query: 'zahnpasta' });
+      await vi.advanceTimersByTimeAsync(8_000);
+      const result = await resultPromise;
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.data.map((p) => p.id)).toEqual(['2002']);
+      }
+    } finally {
+      vi.useRealTimers();
     }
   });
 

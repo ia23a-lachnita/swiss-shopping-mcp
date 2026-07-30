@@ -10,6 +10,7 @@ import {
 } from '../adapters/types.js';
 import { sourceWarningFromError } from '../sources/warnings.js';
 import { getBaseUnitPrice } from '../util/units.js';
+import { raceWithTimeout, ADAPTER_SOFT_TIMEOUT_MS } from '../util/timeout.js';
 
 export interface ChainPriceOffer {
   chain: Chain;
@@ -302,12 +303,23 @@ export class PriceComparisonService {
 
     const perChainResults = await Promise.all(
       relevantAdapters.map(async (adapter) => {
-        const productsResult = await adapter.searchProducts({
-          query,
-          maxPrice: filters.maxPrice,
-          limit: limitPerChain,
-          matchMode,
-        });
+        const productsResult = await raceWithTimeout(
+          () =>
+            adapter.searchProducts({
+              query,
+              maxPrice: filters.maxPrice,
+              limit: limitPerChain,
+              matchMode,
+            }),
+          ADAPTER_SOFT_TIMEOUT_MS,
+          () => ({
+            ok: false,
+            error: {
+              code: 'SOURCE_TIMEOUT',
+              message: `${adapter.chain} did not respond within ${ADAPTER_SOFT_TIMEOUT_MS}ms.`,
+            },
+          } as Result<NormalizedProduct[]>)
+        );
 
         if (!productsResult.ok) {
           return { ok: false, chain: adapter.chain, error: productsResult.error } as const;
@@ -325,12 +337,23 @@ export class PriceComparisonService {
     const perChainPromotionResults = includePromotions
       ? await Promise.all(
           relevantAdapters.map(async (adapter) => {
-            const promotionsResult = await adapter.searchPromotions({
-              query,
-              maxPrice: filters.maxPrice,
-              limit: limitPerChain,
-              matchMode,
-            });
+            const promotionsResult = await raceWithTimeout(
+              () =>
+                adapter.searchPromotions({
+                  query,
+                  maxPrice: filters.maxPrice,
+                  limit: limitPerChain,
+                  matchMode,
+                }),
+              ADAPTER_SOFT_TIMEOUT_MS,
+              () => ({
+                ok: false,
+                error: {
+                  code: 'SOURCE_TIMEOUT',
+                  message: `${adapter.chain} did not respond within ${ADAPTER_SOFT_TIMEOUT_MS}ms.`,
+                },
+              } as Result<NormalizedPromotion[]>)
+            );
 
             if (!promotionsResult.ok) {
               return { ok: false, chain: adapter.chain, error: promotionsResult.error } as const;

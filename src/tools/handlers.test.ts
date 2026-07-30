@@ -103,6 +103,8 @@ describe('tool handlers', () => {
       'compare_prices',
       'get_store_availability_support',
       'lookup_store_product_availability',
+      'lookup_availability_by_location',
+      'set_chat_location',
       'get_source_status',
       'get_metrics',
     ]);
@@ -299,6 +301,48 @@ describe('tool handlers', () => {
     };
     expect(structured.availability.chain).toBe('coop');
     expect(structured.availability.supported).toBe(false);
+  });
+
+  it('executes lookup_availability_by_location successfully', async () => {
+    const result = await executeToolCall(
+      { name: 'lookup_availability_by_location', arguments: { query: 'milk', location: 'zürich', chains: ['aldi'] } },
+      dependencies
+    );
+
+    expect(result.isError).not.toBe(true);
+    const structured = result.structuredContent as { results: unknown[] };
+    expect(Array.isArray(structured.results)).toBe(true);
+  });
+
+  it('returns error for invalid lookup_availability_by_location arguments', async () => {
+    const result = await executeToolCall(
+      { name: 'lookup_availability_by_location', arguments: { query: 'milk' } },
+      dependencies
+    );
+
+    expect(result.isError).toBe(true);
+  });
+
+  it('executes set_chat_location for a resolvable Swiss location', async () => {
+    const result = await executeToolCall(
+      { name: 'set_chat_location', arguments: { location: 'zürich' } },
+      dependencies
+    );
+
+    expect(result.isError).not.toBe(true);
+    const structured = result.structuredContent as { location: string; resolved: { latitude: number; longitude: number } };
+    expect(structured.location).toBe('zürich');
+    expect(structured.resolved).toBeDefined();
+  });
+
+  it('returns error for set_chat_location with an unresolvable location', async () => {
+    const result = await executeToolCall(
+      { name: 'set_chat_location', arguments: { location: '0000' } },
+      dependencies
+    );
+
+    expect(result.isError).toBe(true);
+    expect(result.structuredContent).toMatchObject({ error: { code: 'INVALID_LOCATION' } });
   });
 
   it('executes get_source_status and returns capability matrix', async () => {

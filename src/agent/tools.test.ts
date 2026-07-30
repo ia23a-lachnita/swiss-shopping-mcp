@@ -1,10 +1,23 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { Chain, ChainAdapter, NormalizedProduct, ProductSearchFilters, Result } from '../adapters/types.js';
 import { PriceComparisonService } from '../services/priceComparisonService.js';
 import { SearchService } from '../services/searchService.js';
 import { ToolDependencies } from '../tools/handlers.js';
 import { createAgentTools } from './tools.js';
+
+// Deterministic geocoding for lookup_availability_by_location / set_chat_location
+// tests below — avoids depending on real GeoAdmin network reachability in CI.
+vi.mock('../util/geo.js', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../util/geo.js')>();
+  return {
+    ...actual,
+    resolveLocationAsync: vi.fn(async (location: string) => {
+      if (location.trim().toLowerCase() === 'nowhereistan') return undefined;
+      return { latitude: 47.3769, longitude: 8.5417 };
+    }),
+  };
+});
 
 function productWith(overrides: Partial<NormalizedProduct> = {}): NormalizedProduct {
   return {
@@ -119,5 +132,47 @@ describe('createAgentTools', () => {
 
     expect(results.slice(0, 24).every((r) => r.error === undefined)).toBe(true);
     expect(results[24]?.error?.code).toBe('TOOL_BUDGET_EXCEEDED');
+  });
+
+  it('dispatches lookup_availability_by_location and strips nutrition/ingredients from returned products', async () => {
+    const dependencies = dependenciesFor([stubAdapter('migros', [productWith()])]);
+    const tools = createAgentTools(dependencies);
+
+    const output = (await tools.lookup_availability_by_location.execute!(
+      { query: 'milch', location: 'Zürich' },
+      { toolCallId: 'call-1', messages: [] }
+    )) as { results?: Array<{ product: NormalizedProduct }>; error?: { code?: string } };
+
+    expect(output.error).toBeUndefined();
+    expect(output.results).toBeDefined();
+    expect(output.results![0].product.name).toBe('Vollmilch 1L');
+    expect(output.results![0].product).not.toHaveProperty('nutrition');
+    expect(output.results![0].product).not.toHaveProperty('ingredients');
+  });
+
+  it('resolves set_chat_location to the resolved location on a valid Swiss place', async () => {
+    const dependencies = dependenciesFor([stubAdapter('migros', [productWith()])]);
+    const tools = createAgentTools(dependencies);
+
+    const output = (await tools.set_chat_location.execute!(
+      { location: 'Zürich' },
+      { toolCallId: 'call-1', messages: [] }
+    )) as { location?: string; resolved?: { latitude: number; longitude: number }; error?: unknown };
+
+    expect(output.error).toBeUndefined();
+    expect(output.location).toBe('Zürich');
+    expect(output.resolved).toEqual({ latitude: 47.3769, longitude: 8.5417 });
+  });
+
+  it('rejects set_chat_location for a location that cannot be resolved', async () => {
+    const dependencies = dependenciesFor([stubAdapter('migros', [productWith()])]);
+    const tools = createAgentTools(dependencies);
+
+    const output = (await tools.set_chat_location.execute!(
+      { location: 'Nowhereistan' },
+      { toolCallId: 'call-1', messages: [] }
+    )) as { error?: { code?: string } };
+
+    expect(output.error?.code).toBe('INVALID_LOCATION');
   });
 });

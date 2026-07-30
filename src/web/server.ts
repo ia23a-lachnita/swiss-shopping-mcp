@@ -373,7 +373,7 @@ async function handleProductAvailability(res: ServerResponse, raw: string): Prom
  * conversation state between requests.
  */
 async function handleChat(res: ServerResponse, raw: string): Promise<void> {
-  const parsed = parseBody<{ messages: UIMessage[] }>(raw);
+  const parsed = parseBody<{ messages: UIMessage[]; activeLocation?: string }>(raw);
   if (!parsed.ok || !Array.isArray(parsed.data.messages)) {
     sendJson(res, 400, { ok: false, error: { code: 'INVALID_BODY', message: 'messages array is required.' } });
     return;
@@ -382,6 +382,7 @@ async function handleChat(res: ServerResponse, raw: string): Promise<void> {
   try {
     const result = await runChatAgent({
       messages: parsed.data.messages,
+      activeLocation: parsed.data.activeLocation,
       dependencies: { searchService, priceComparisonService },
     });
     await pipeUIMessageStreamToResponse({ response: res, stream: result.toUIMessageStream() });

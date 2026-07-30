@@ -115,6 +115,8 @@ describe('MCP server integration', () => {
       'compare_prices',
       'get_store_availability_support',
       'lookup_store_product_availability',
+      'lookup_availability_by_location',
+      'set_chat_location',
       'get_source_status',
       'get_metrics',
     ]);
