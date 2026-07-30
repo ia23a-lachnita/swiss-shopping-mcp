@@ -5,12 +5,13 @@ import { Loader2 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
 const buttonVariants = cva(
-  'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand disabled:pointer-events-none disabled:opacity-50 [&_svg]:size-4 [&_svg]:shrink-0',
+  'relative inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand disabled:pointer-events-none disabled:opacity-50 [&_svg]:size-4 [&_svg]:shrink-0',
   {
     variants: {
       variant: {
         default: 'bg-brand text-brand-ink shadow-card-sm active:opacity-90',
-        outline: 'bg-surface text-ink shadow-card-sm active:bg-surface-sunken',
+        outline:
+          'border border-[color:var(--color-outline-border)] bg-surface text-ink shadow-card-sm active:bg-surface-sunken',
         ghost: 'text-muted active:bg-surface-sunken',
       },
       size: {
@@ -40,13 +41,29 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     <button
       ref={ref}
       disabled={disabled || loading}
-      className={cn(
-        buttonVariants({ variant, size }),
-        loading && 'button-loading-outline !opacity-100',
-        className
-      )}
+      className={cn(buttonVariants({ variant, size }), loading && '!opacity-100', className)}
       {...props}
     >
+      {loading && (
+        <svg
+          className="pointer-events-none absolute inset-0 h-full w-full overflow-visible"
+          aria-hidden="true"
+        >
+          <rect
+            x="1"
+            y="1"
+            width="calc(100% - 2px)"
+            height="calc(100% - 2px)"
+            rx="8"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            pathLength={100}
+            className="button-loading-border"
+          />
+        </svg>
+      )}
       {loading ? (
         <>
           <Loader2 className="animate-spin" />

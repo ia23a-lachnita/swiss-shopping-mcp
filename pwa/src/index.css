@@ -63,6 +63,12 @@
    properties (not @theme) since Tailwind v4 doesn't generate box-shadow utilities
    from multi-value tokens the way it does for color/radius. */
 :root {
+  /* The "outline" button variant needs a real, visible border — it previously
+     relied only on bg-surface differing from its parent, which is nearly
+     invisible when the parent is also bg-surface (reported: barely visible
+     "search all vendors" button). color-mix against --color-ink self-adjusts
+     for light/dark since --color-ink already flips per theme. */
+  --color-outline-border: color-mix(in srgb, var(--color-ink) 18%, transparent);
   --shadow-card-sm: 0 1px 2px color-mix(in srgb, var(--color-ink) 8%, transparent);
   --shadow-card: 0 0 1px color-mix(in srgb, var(--color-ink) 5%, transparent),
     0 1px 2px color-mix(in srgb, var(--color-ink) 6%, transparent),
@@ -228,17 +234,40 @@ body {
   animation: user-location-pulse 2s ease-out infinite;
 }
 
-/* Animated outline ring for a busy/loading button — reads as "actively
-   working" without dimming the button (native `disabled:opacity-50` would
-   otherwise make it look inert rather than busy). */
-@keyframes button-loading-ring {
-  0%, 100% {
-    box-shadow: 0 0 0 0 color-mix(in oklch, var(--color-brand) 55%, transparent);
+/* Two-segment traveling border trace for a busy/loading button — reads as
+   "actively working" without dimming the button (native `disabled:opacity-50`
+   would otherwise make it look inert rather than busy). Replaces an earlier
+   whole-border pulsing glow that read as "shining" rather than active work.
+   Uses an SVG <rect> with pathLength="100" (see button.tsx) so the two dash
+   segments stay proportional to the perimeter regardless of button size —
+   a conic-gradient sweep was considered and rejected because it distorts
+   unevenly on a non-square rounded rect (fast across long edges, slow
+   through corners). Per-keyframe cubic-bezier easings (researched via
+   antigravity-mcp/gemini-3.6-flash) give the motion a non-constant, organic
+   speed instead of a robotic constant rpm, while keeping entry/exit velocity
+   matched at the 0%/100% loop boundary so it never visibly hitches.
+   prefers-reduced-motion (rule above) freezes this to a static two-dash
+   highlight instead of removing the loading indicator entirely. */
+@keyframes button-loading-trace {
+  0% {
+    stroke-dashoffset: 0;
+    animation-timing-function: cubic-bezier(0.4, 0, 0.7, 0.2);
   }
-  50% {
-    box-shadow: 0 0 0 4px color-mix(in oklch, var(--color-brand) 25%, transparent);
+  35% {
+    stroke-dashoffset: -30;
+    animation-timing-function: cubic-bezier(0.2, 0.8, 0.3, 1);
+  }
+  70% {
+    stroke-dashoffset: -75;
+    animation-timing-function: cubic-bezier(0.35, 0, 0.25, 0.95);
+  }
+  100% {
+    stroke-dashoffset: -100;
   }
 }
-.button-loading-outline {
-  animation: button-loading-ring 1.3s ease-in-out infinite;
+.button-loading-border {
+  /* 15 units active line + 35 units gap, repeated twice = 100 (full perimeter) */
+  stroke-dasharray: 15 35;
+  animation: button-loading-trace 2.2s infinite;
+  will-change: stroke-dashoffset;
 }
