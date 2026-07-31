@@ -25,6 +25,9 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         ref={ref}
         className={cn(
           'flex h-11 w-full rounded-lg border-none bg-surface-sunken px-4 text-base text-ink shadow-inset placeholder:text-faint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand',
+          // Driven by aria-invalid so the visual state cannot drift from the
+          // one assistive technology announces.
+          'aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-danger',
           // Keeps the text from running under the clear button. Reserved only when
           // the button is actually shown, so the field doesn't shift on first keypress
           // — the padding is applied for the whole lifetime of a clearable input.

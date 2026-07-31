@@ -27,6 +27,8 @@ export function SuggestInput({
   debounceMs = 250,
   clearable = false,
   className,
+  onBlur,
+  onFocus,
   ...inputProps
 }: SuggestInputProps): React.JSX.Element {
   const [suggestions, setSuggestions] = useState<string[]>([]);
@@ -119,10 +121,17 @@ export function SuggestInput({
             : undefined
         }
         onKeyDown={handleKeyDown}
-        onFocus={() => {
+        // Composed rather than spread from inputProps: a caller-supplied
+        // handler would otherwise replace these and leave the dropdown stuck
+        // open, since {...inputProps} is applied last.
+        onFocus={(event) => {
           if (suggestions.length > 0) setOpen(true);
+          onFocus?.(event);
         }}
-        onBlur={() => setOpen(false)}
+        onBlur={(event) => {
+          setOpen(false);
+          onBlur?.(event);
+        }}
         role="combobox"
         aria-expanded={open}
         aria-autocomplete="list"

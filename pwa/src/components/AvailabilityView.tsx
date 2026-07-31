@@ -1,4 +1,4 @@
-import { useCallback, useState, type FormEvent } from 'react';
+import { useCallback, useRef, useState, type FormEvent } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { AnimatePresence, motion } from 'framer-motion';
 import NumberFlow from '@number-flow/react';
@@ -128,12 +128,50 @@ export function AvailabilityView(): React.JSX.Element {
   const [openVendor, setOpenVendor] = useState<string>();
   const [validatingLocation, setValidatingLocation] = useState(false);
   const [locationSuggestions, setLocationSuggestions] = useState<LocationSuggestion[]>([]);
+  /**
+   * `unchecked` also covers "the validation service was unreachable" — the
+   * check fails open, so an unverifiable location must stay usable.
+   */
+  const [locationStatus, setLocationStatus] = useState<'unchecked' | 'valid' | 'invalid'>('unchecked');
+  const checkedLocationRef = useRef('');
 
   const fetchLocationSuggestions = useCallback(async (q: string) => {
     const results = await suggestLocations(q);
     setLocationSuggestions(results);
     return results.map((s) => s.label);
   }, []);
+
+  /**
+   * Resolve the typed location against the geocoder. Runs on blur so a wrong
+   * location is caught while the user is still looking at the field, rather
+   * than after a multi-second search returns results for the wrong town.
+   */
+  const validateLocation = useCallback(async (value: string): Promise<boolean> => {
+    const trimmed = value.trim();
+    if (trimmed.length < 2) {
+      setLocationStatus('unchecked');
+      return true;
+    }
+    if (checkedLocationRef.current === trimmed) {
+      return locationStatus !== 'invalid';
+    }
+
+    setValidatingLocation(true);
+    try {
+      const valid = await checkLocation(trimmed);
+      checkedLocationRef.current = trimmed;
+      setLocationStatus(valid ? 'valid' : 'invalid');
+      return valid;
+    } catch {
+      // Validation service unreachable — don't block the user, let the real
+      // search surface the error.
+      checkedLocationRef.current = '';
+      setLocationStatus('unchecked');
+      return true;
+    } finally {
+      setValidatingLocation(false);
+    }
+  }, [locationStatus]);
 
   const { data: queryResult, isFetching, error } = useQuery({
     queryKey: ['availability', params],
@@ -157,23 +195,12 @@ export function AvailabilityView(): React.JSX.Element {
     (document.activeElement as HTMLElement | null)?.blur();
     void requestNotificationPermissionIfNeeded();
 
-    // A GPS-resolved location is already known-good; only validate typed text,
-    // and only when it's implausibly short to be a real PLZ/place name — avoids
-    // burning a slow multi-chain search round-trip on obvious nonsense input.
-    if (!userCoords && trimmedLocation.length >= 2) {
-      setValidatingLocation(true);
-      let valid = true;
-      try {
-        valid = await checkLocation(trimmedLocation);
-      } catch {
-        valid = true; // Validation service unreachable — don't block the user, let the real search surface the error.
-      } finally {
-        setValidatingLocation(false);
-      }
-      if (!valid) {
-        notifyError(`Standort "${trimmedLocation}" nicht gefunden.`);
-        return;
-      }
+    // A GPS-resolved location is already known-good; only validate typed text.
+    // Normally the blur check has already run and this is a cached no-op — it
+    // still has to happen here for the submit-without-blurring path.
+    if (!userCoords && !(await validateLocation(trimmedLocation))) {
+      notifyError(`Standort "${trimmedLocation}" nicht gefunden.`);
+      return;
     }
 
     setParams({
@@ -197,6 +224,9 @@ export function AvailabilityView(): React.JSX.Element {
           const resolved = await reverseGeocode(position.coords.latitude, position.coords.longitude);
           setLocation(resolved);
           setUserCoords({ lat: position.coords.latitude, lng: position.coords.longitude });
+          // Came back from the geocoder with coordinates — known-good by construction.
+          checkedLocationRef.current = resolved.trim();
+          setLocationStatus('valid');
           setEditingLocation(false);
           notifySuccess(`Standort aktualisiert — ${resolved}`);
         } catch (err) {
@@ -217,6 +247,9 @@ export function AvailabilityView(): React.JSX.Element {
     const match = locationSuggestions.find((s) => s.label === label);
     if (match) {
       setUserCoords({ lat: match.latitude, lng: match.longitude });
+      // A picked suggestion carries its own coordinates — nothing to verify.
+      checkedLocationRef.current = label.trim();
+      setLocationStatus('valid');
     }
   }
 
@@ -267,8 +300,9 @@ export function AvailabilityView(): React.JSX.Element {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.15 }}
-                className="flex items-center gap-2"
+                className="space-y-1.5"
               >
+                <div className="flex items-center gap-2">
                 <div className="flex-1">
                   <SuggestInput
                     id="avail-location"
@@ -276,12 +310,17 @@ export function AvailabilityView(): React.JSX.Element {
                     onChange={(value) => {
                       setLocation(value);
                       setUserCoords(undefined);
+                      // Every keystroke invalidates the previous verdict.
+                      setLocationStatus('unchecked');
                     }}
+                    onBlur={(event) => void validateLocation(event.target.value)}
                     fetchSuggestions={fetchLocationSuggestions}
                     onSuggestionSelect={selectLocationSuggestion}
                     placeholder="PLZ oder Ort, z.B. 8001 Zürich"
                     enterKeyHint="search"
                     clearable
+                    aria-invalid={locationStatus === 'invalid'}
+                    aria-describedby={locationStatus === 'invalid' ? 'avail-location-error' : undefined}
                     className="h-9 text-sm"
                   />
                 </div>
@@ -302,12 +341,29 @@ export function AvailabilityView(): React.JSX.Element {
                     type="button"
                     variant="outline"
                     size="icon"
-                    onClick={() => setEditingLocation(false)}
+                    // A location known not to exist must never be collapsed into
+                    // the pill, which reads as "accepted".
+                    disabled={locationStatus === 'invalid' || validatingLocation}
+                    onClick={async () => {
+                      if (await validateLocation(location)) setEditingLocation(false);
+                    }}
                     aria-label="Fertig"
                     className="h-9 w-9 shrink-0"
                   >
                     <Check className="size-4" />
                   </Button>
+                )}
+                </div>
+                {locationStatus === 'invalid' && (
+                  <p
+                    id="avail-location-error"
+                    role="alert"
+                    data-testid="location-error"
+                    className="flex items-center gap-1.5 px-1 text-xs text-danger"
+                  >
+                    <AlertTriangle className="size-3.5 shrink-0" />
+                    Standort nicht gefunden — bitte PLZ, Ort oder Center eingeben.
+                  </p>
                 )}
               </motion.div>
             ) : (

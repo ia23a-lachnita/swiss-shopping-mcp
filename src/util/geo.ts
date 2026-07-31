@@ -338,49 +338,301 @@ export function resolveLocation(location: string): GeoPoint | undefined {
 
 const GEOADMIN_SEARCH_URL = 'https://api3.geo.admin.ch/rest/services/api/SearchServer';
 const GEOADMIN_TIMEOUT_MS = 3000;
+/**
+ * Origins are queried in separate, ordered requests rather than one combined
+ * call. GeoAdmin allots the result list to whichever origin matches most
+ * eagerly, so a broader origin set *hides* the best answer instead of adding
+ * to it: with `address` present, "8001 Zürich" returns 30 buildings on
+ * Zürichbergstrasse and no postal-code centroid at all; with `gazetteer`
+ * present, the same query returns only municipality and place-name entries.
+ * Both verified live 2026-07-31.
+ */
+const GEOADMIN_ORIGIN_STAGES = ['zipcode,gg25', 'gazetteer', 'address'];
 const asyncCache = new Map<string, GeoPoint>();
 
+/** Test hook: drops both geocoding caches and the POI rate-limiter's memory. */
 export function clearAsyncCache(): void {
   asyncCache.clear();
+  poiCache.clear();
+  nominatimLastRequestAt = 0;
 }
 
+/** Lowercase, strip diacritics and punctuation — "Zürich" and "Zurich" compare equal. */
+function foldForCompare(input: string): string {
+  return stripHtmlTags(input)
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
+}
+
+function levenshtein(a: string, b: string): number {
+  if (a === b) return 0;
+  let previous = Array.from({ length: b.length + 1 }, (_, i) => i);
+  for (let i = 1; i <= a.length; i += 1) {
+    const current = [i];
+    for (let j = 1; j <= b.length; j += 1) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      current[j] = Math.min(current[j - 1] + 1, previous[j] + 1, previous[j - 1] + cost);
+    }
+    previous = current;
+  }
+  return previous[b.length];
+}
+
+function tokenMatches(queryToken: string, labelToken: string, prefix: boolean): boolean {
+  if (/^\d+$/.test(queryToken)) {
+    // A complete postal code is either the right one or it is not — no
+    // fuzziness. While the user is still typing it, "800" may open "8001".
+    return prefix ? labelToken.startsWith(queryToken) : queryToken === labelToken;
+  }
+  if (labelToken.startsWith(queryToken)) return true;
+  // The reverse direction only for a plausible abbreviation of the same word
+  // ("Bahnhofstr." for "Bahnhofstrasse"). Without the length floor, "Glatt"
+  // would satisfy "Glattzentrum" and silently answer with the wrong place.
+  if (!prefix && queryToken.startsWith(labelToken) && labelToken.length >= queryToken.length - 4) {
+    return true;
+  }
+  // Typo tolerance would make short prefixes match almost anything.
+  if (prefix && queryToken.length < 4) return false;
+  const tolerance = queryToken.length > 5 ? 2 : 1;
+  return levenshtein(queryToken, labelToken) <= tolerance;
+}
+
+/**
+ * GeoAdmin's SearchServer fuzzy-matches aggressively and never signals "no good
+ * match": searching "Sihlcity" returns the village *Saules (BE)*, 100 km away,
+ * as a confident first hit. Taking `results[0]` unchecked therefore turns an
+ * unknown location into a silently wrong one. Verified live 2026-07-31.
+ *
+ * Every word of 3+ characters must find a partner token in the label (prefix
+ * match or a small edit distance, so real typos and "Zurich"/"Zürich" still
+ * resolve). Shorter words — "im", "de" — are skipped as noise.
+ *
+ * A postal code is allowed to go unmatched *provided a word matched*, because
+ * GeoAdmin's municipality entries carry no postal code: "8001 Zürich" legitimately
+ * answers with the label "Zürich (ZH)". When the query is nothing but digits,
+ * that escape hatch would accept anything, so the code must then match exactly.
+ *
+ * `prefix` mode relaxes this for autocomplete, where the query is by definition
+ * an incomplete word: "800" should still offer "8001 Zürich".
+ */
+function isRelevantLabel(query: string, label: string, prefix = false): boolean {
+  const queryTokens = foldForCompare(query).split(' ').filter(Boolean);
+  const labelTokens = foldForCompare(label).split(' ').filter(Boolean);
+  if (queryTokens.length === 0 || labelTokens.length === 0) return false;
+
+  const isNumeric = (token: string): boolean => /^\d+$/.test(token);
+  const minWordLength = prefix ? 2 : 3;
+  const matches = (token: string): boolean =>
+    labelTokens.some((labelToken) => tokenMatches(token, labelToken, prefix));
+
+  const words = queryTokens.filter((token) => !isNumeric(token) && token.length >= minWordLength);
+  if (!words.every(matches)) return false;
+  if (words.length > 0) return true;
+
+  const numbers = queryTokens.filter(isNumeric);
+  return numbers.length > 0 && numbers.every(matches);
+}
+
+/** One GeoAdmin lookup, returning only a result whose label actually matches the query. */
+async function geoAdminMatch(query: string, origins: string): Promise<GeoPoint | undefined> {
+  const params = new URLSearchParams({
+    searchText: query,
+    type: 'locations',
+    origins,
+    sr: '4326',
+    // More than one because the genuine match is not always ranked first.
+    limit: '10',
+  });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), GEOADMIN_TIMEOUT_MS);
+  try {
+    const response = await fetch(`${GEOADMIN_SEARCH_URL}?${params.toString()}`, {
+      signal: controller.signal,
+    });
+    if (!response.ok) return undefined;
+
+    const data = (await response.json()) as {
+      results?: Array<{ attrs: { lat: number; lon: number; label?: string } }>;
+    };
+    const match = (data.results ?? []).find(
+      (result) =>
+        typeof result.attrs?.lat === 'number' &&
+        typeof result.attrs?.lon === 'number' &&
+        isRelevantLabel(query, result.attrs.label ?? '')
+    );
+    return match ? { latitude: match.attrs.lat, longitude: match.attrs.lon } : undefined;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+/**
+ * Resolve a user-typed location, narrowing from places to addresses to points
+ * of interest. Each stage only runs when the previous one found no genuine
+ * match, so the common case stays a single request.
+ */
 export async function resolveLocationAsync(location: string): Promise<GeoPoint | undefined> {
-  const normalized = location.trim().toLowerCase();
+  const trimmed = location.trim();
+  const normalized = trimmed.toLowerCase();
   const cached = asyncCache.get(normalized);
   if (cached) {
     return cached;
   }
 
   try {
-    const params = new URLSearchParams({
-      searchText: location.trim(),
-      type: 'locations',
-      origins: 'zipcode,gg25',
-      sr: '4326',
-      limit: '1',
-    });
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), GEOADMIN_TIMEOUT_MS);
-    const response = await fetch(`${GEOADMIN_SEARCH_URL}?${params.toString()}`, {
-      signal: controller.signal,
-    });
-    clearTimeout(timeoutId);
-
-    if (!response.ok) {
-      return resolveLocation(location);
+    for (const origins of GEOADMIN_ORIGIN_STAGES) {
+      const match = await geoAdminMatch(trimmed, origins);
+      if (match) {
+        asyncCache.set(normalized, match);
+        return match;
+      }
     }
 
-    const data = await response.json() as { results?: Array<{ attrs: { lat: number; lon: number } }> };
-    const first = data.results?.[0];
-    if (first?.attrs) {
-      const point: GeoPoint = { latitude: first.attrs.lat, longitude: first.attrs.lon };
-      asyncCache.set(normalized, point);
-      return point;
+    // Shopping centres, stations and landmarks are absent from every GeoAdmin
+    // origin — "Sihlcity" can only be answered by the POI gazetteer.
+    const poi = await resolvePoiAsync(trimmed);
+    if (poi) {
+      asyncCache.set(normalized, poi.point);
+      return poi.point;
     }
 
     return resolveLocation(location);
   } catch {
     return resolveLocation(location);
+  }
+}
+
+const NOMINATIM_SEARCH_URL = 'https://nominatim.openstreetmap.org/search';
+const NOMINATIM_TIMEOUT_MS = 4000;
+/**
+ * OpenStreetMap's public Nominatim instance requires an identifying User-Agent
+ * and at most one request per second. Both are honoured here; results are
+ * cached, and this path is only reached when GeoAdmin has already failed.
+ */
+const NOMINATIM_USER_AGENT = 'swiss-shopping-mcp/1.0 (+https://github.com/IA23a-lachnita/swiss-shopping-mcp)';
+const NOMINATIM_MIN_INTERVAL_MS = 1100;
+
+const poiCache = new Map<string, PoiMatch | undefined>();
+let nominatimLastRequestAt = 0;
+let nominatimQueue: Promise<unknown> = Promise.resolve();
+
+interface PoiMatch {
+  label: string;
+  point: GeoPoint;
+}
+
+interface NominatimResult {
+  name?: string;
+  lat: string;
+  lon: string;
+  addresstype?: string;
+  address?: { postcode?: string; city?: string; town?: string; village?: string };
+}
+
+/**
+ * Deliberately omits the postal code: one landmark is often mapped as several
+ * overlapping features (a retail area, its building, an entrance) that share a
+ * name and town but differ in postcode, and including it would surface them as
+ * four near-identical suggestions.
+ */
+function poiLabel(result: NominatimResult): string {
+  const address = result.address ?? {};
+  const town = address.city ?? address.town ?? address.village;
+  return town ? `${result.name} (${town})` : String(result.name);
+}
+
+async function requestPoi(query: string, limit: number): Promise<PoiMatch[]> {
+  const params = new URLSearchParams({
+    q: query,
+    countrycodes: 'ch',
+    format: 'jsonv2',
+    addressdetails: '1',
+    limit: String(limit),
+  });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), NOMINATIM_TIMEOUT_MS);
+  try {
+    const response = await fetch(`${NOMINATIM_SEARCH_URL}?${params.toString()}`, {
+      signal: controller.signal,
+      headers: { 'User-Agent': NOMINATIM_USER_AGENT, 'Accept-Language': 'de-CH,de' },
+    });
+    if (!response.ok) return [];
+
+    const results = (await response.json()) as NominatimResult[];
+    const matches: PoiMatch[] = [];
+    const seen = new Set<string>();
+    for (const result of results) {
+      const latitude = Number(result.lat);
+      const longitude = Number(result.lon);
+      if (!result.name || !Number.isFinite(latitude) || !Number.isFinite(longitude)) continue;
+      // Nominatim returns nothing for pure nonsense, but it does match on
+      // substrings of unrelated names — apply the same relevance guard.
+      if (!isRelevantLabel(query, result.name)) continue;
+
+      const label = poiLabel(result);
+      if (seen.has(label)) continue;
+      seen.add(label);
+      matches.push({ label, point: { latitude, longitude } });
+    }
+    return matches;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+/** Serialises Nominatim calls and spaces them out, per its usage policy. */
+async function throttledPoiRequest(query: string, limit: number): Promise<PoiMatch[]> {
+  const run = nominatimQueue.then(async () => {
+    const waitMs = NOMINATIM_MIN_INTERVAL_MS - (Date.now() - nominatimLastRequestAt);
+    if (waitMs > 0) {
+      await new Promise((resolve) => setTimeout(resolve, waitMs));
+    }
+    nominatimLastRequestAt = Date.now();
+    return requestPoi(query, limit);
+  });
+  nominatimQueue = run.catch(() => undefined);
+  return run;
+}
+
+/**
+ * Resolve a point of interest (shopping centre, station, landmark) that the
+ * Swiss federal gazetteer does not carry. Returns undefined on any failure —
+ * callers fall back to their existing behaviour.
+ */
+/**
+ * POI suggestions for autocomplete. Unlike `resolvePoiAsync` this never waits
+ * for a rate-limit slot: a keystroke-driven caller must not build a queue of
+ * requests that are stale by the time they run, so a busy gate simply yields
+ * no suggestions for that keystroke.
+ */
+async function suggestPoisAsync(query: string, limit: number): Promise<PoiMatch[]> {
+  if (query.length < 3) return [];
+  if (Date.now() - nominatimLastRequestAt < NOMINATIM_MIN_INTERVAL_MS) return [];
+  nominatimLastRequestAt = Date.now();
+  try {
+    return await requestPoi(query, limit);
+  } catch {
+    return [];
+  }
+}
+
+export async function resolvePoiAsync(query: string): Promise<PoiMatch | undefined> {
+  const trimmed = query.trim();
+  if (trimmed.length < 3) return undefined;
+
+  const key = trimmed.toLowerCase();
+  if (poiCache.has(key)) return poiCache.get(key);
+
+  try {
+    const matches = await throttledPoiRequest(trimmed, 1);
+    const first = matches[0];
+    poiCache.set(key, first);
+    return first;
+  } catch {
+    return undefined;
   }
 }
 
@@ -458,6 +710,10 @@ export async function suggestLocationsAsync(prefix: string, limit = 6): Promise<
     const params = new URLSearchParams({
       searchText: trimmed,
       type: 'locations',
+      // Postal codes and municipalities only. Street addresses are a street's
+      // worth of house numbers, and gazetteer labels carry a trailing list of
+      // every neighbouring municipality — both are noise in an autocomplete for
+      // a "PLZ oder Ort" field. They still resolve on submit.
       origins: 'zipcode,gg25',
       sr: '4326',
       limit: String(limit),
@@ -481,19 +737,36 @@ export async function suggestLocationsAsync(prefix: string, limit = 6): Promise<
       const attrs = result.attrs;
       if (!attrs?.label || typeof attrs.lat !== 'number' || typeof attrs.lon !== 'number') continue;
 
-      let label = stripHtmlTags(attrs.label);
-      label = attrs.origin === 'zipcode'
-        ? label.replace(' - ', ' ')
-        : label.replace(/\s*\([A-ZÄÖÜ]{2}\)\s*$/, '');
+      const label = formatSuggestionLabel(attrs.label, attrs.origin);
+      // Without this, typing "Sihlcity" offers "Saules (BE)" — GeoAdmin's fuzzy
+      // matcher answers every query, however unrelated.
+      if (!isRelevantLabel(trimmed, label, true)) continue;
 
       if (seen.has(label)) continue;
       seen.add(label);
       suggestions.push({ label, latitude: attrs.lat, longitude: attrs.lon });
     }
-    return suggestions;
+
+    if (suggestions.length > 0) return suggestions;
+
+    // Nothing in the federal gazetteer matches — the user may be typing a
+    // shopping centre or landmark, which only the POI source knows.
+    return (await suggestPoisAsync(trimmed, limit)).map((poi) => ({
+      label: poi.label,
+      latitude: poi.point.latitude,
+      longitude: poi.point.longitude,
+    }));
   } catch {
     return [];
   }
+}
+
+/** "8001 - Zürich" → "8001 Zürich"; "Winterthur (ZH)" → "Winterthur". */
+function formatSuggestionLabel(rawLabel: string, origin: string): string {
+  const plain = stripHtmlTags(rawLabel).replace(/\s+/g, ' ').trim();
+  return origin === 'zipcode'
+    ? plain.replace(' - ', ' ')
+    : plain.replace(/\s*\([A-ZÄÖÜ]{2}\)\s*$/, '');
 }
 
 const GEOADMIN_IDENTIFY_URL = 'https://api3.geo.admin.ch/rest/services/api/MapServer/identify';

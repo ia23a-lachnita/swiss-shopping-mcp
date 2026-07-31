@@ -124,6 +124,16 @@ Sihlcity resolves. Validate on blur/selection (not only submit) and mark the
 pill invalid inline. Keep fail-open on network error, but never render a
 confirmed-invalid location as an accepted pill.
 
+> **Corrected when implemented (2026-07-31).** The first sentence is wrong.
+> Sihlcity is in no GeoAdmin origin at all, and widening the origin set makes
+> ZIP resolution *worse*, not better, because GeoAdmin gives the whole result
+> list to whichever origin matches most eagerly. The actual defect was that
+> GeoAdmin never signals "no good match", so "Sihlcity" silently resolved to the
+> village Saules (BE). Shipped instead: a relevance guard on the label, ordered
+> per-origin requests, and an OpenStreetMap POI fallback. The validation half of
+> this section was accurate and shipped as written. See the Phase 5 row in
+> `IMPLEMENTATION_TRACKER.md`.
+
 ### 2.7 Chips — tinted, not filled
 Selected chip: `bg-brand/15` + `border-brand` + bright gold text (~#e5be59),
 ≈6.8:1 contrast. Unselected stays sunken neutral.

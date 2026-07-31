@@ -121,6 +121,139 @@ describe('geo utility', () => {
     });
   });
 
+  describe('resolveLocationAsync relevance guard', () => {
+    let fetchSpy: ReturnType<typeof vi.fn>;
+
+    /**
+     * GeoAdmin is queried once per origin stage and the POI source only after
+     * all of them miss, so mocks are routed by URL rather than by call order.
+     */
+    function routeFetch(routes: {
+      place?: unknown[];
+      gazetteer?: unknown[];
+      address?: unknown[];
+      poi?: unknown[];
+    }): void {
+      fetchSpy.mockImplementation(async (url: string) => {
+        const decoded = decodeURIComponent(String(url));
+        if (decoded.includes('nominatim')) {
+          return { ok: true, json: async () => routes.poi ?? [] };
+        }
+        const stage = decoded.includes('origins=address')
+          ? routes.address
+          : decoded.includes('origins=gazetteer')
+            ? routes.gazetteer
+            : routes.place;
+        return { ok: true, json: async () => ({ results: stage ?? [] }) };
+      });
+    }
+
+    const geoResult = (label: string, lat: number, lon: number): unknown => ({
+      attrs: { label, lat, lon },
+    });
+
+    beforeEach(() => {
+      clearAsyncCache();
+      fetchSpy = vi.fn();
+      vi.stubGlobal('fetch', fetchSpy);
+    });
+
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    it('rejects a fuzzy hit whose label is unrelated to the query', async () => {
+      // The real API answers "Sihlcity" with the village Saules, 100 km away.
+      routeFetch({
+        place: [geoResult('<b>Saules (BE)</b>', 47.2521, 7.2187)],
+        poi: [{ name: 'Sihlcity', lat: '47.3579', lon: '8.5229', address: { city: 'Zürich' } }],
+      });
+
+      const result = await resolveLocationAsync('Sihlcity');
+      expect(result).toEqual({ latitude: 47.3579, longitude: 8.5229 });
+    });
+
+    it('does not let a shorter place name satisfy a longer compound query', async () => {
+      routeFetch({
+        place: [geoResult('<b>Glatt (SG)</b>', 47.3688, 9.2624)],
+        poi: [
+          { name: 'Glattzentrum', lat: '47.4094', lon: '8.5961', address: { city: 'Wallisellen' } },
+        ],
+      });
+
+      const result = await resolveLocationAsync('Glattzentrum');
+      expect(result).toEqual({ latitude: 47.4094, longitude: 8.5961 });
+    });
+
+    it('accepts a municipality label for a postal-code-plus-city query', async () => {
+      // Municipality entries carry no postal code, so requiring "8001" to
+      // appear in the label would reject the correct answer.
+      routeFetch({ place: [geoResult('<b>Zürich (ZH)</b>', 47.3772, 8.5273)] });
+
+      const result = await resolveLocationAsync('8001 Zürich');
+      expect(result).toEqual({ latitude: 47.3772, longitude: 8.5273 });
+      expect(fetchSpy).toHaveBeenCalledOnce();
+    });
+
+    it('requires an exact match when the query is only a postal code', async () => {
+      routeFetch({ place: [geoResult('<b>8002 - Zürich</b>', 47.36, 8.53)] });
+
+      const result = await resolveLocationAsync('8001');
+      // Falls through every stage to the static database rather than accepting
+      // a neighbouring postal code.
+      expect(result).toEqual({ latitude: 47.3769, longitude: 8.5417 });
+    });
+
+    it('tolerates diacritic-free spelling and small typos', async () => {
+      routeFetch({ place: [geoResult('<b>Zürich (ZH)</b>', 47.3772, 8.5273)] });
+
+      const result = await resolveLocationAsync('Zuerich');
+      expect(result).toEqual({ latitude: 47.3772, longitude: 8.5273 });
+    });
+
+    it('queries the address origin only after the place origins miss', async () => {
+      routeFetch({
+        place: [],
+        gazetteer: [],
+        address: [geoResult('Kalanderplatz 1 <b>8045 Zürich</b>', 47.358, 8.5232)],
+      });
+
+      const result = await resolveLocationAsync('Kalanderplatz 1 8045');
+      expect(result).toEqual({ latitude: 47.358, longitude: 8.5232 });
+      expect(fetchSpy).toHaveBeenCalledTimes(3);
+    });
+
+    it('returns undefined when neither GeoAdmin nor the POI source matches', async () => {
+      routeFetch({ place: [], gazetteer: [], address: [], poi: [] });
+
+      expect(await resolveLocationAsync('asdfghjkl')).toBeUndefined();
+    });
+
+    it('identifies itself to the POI service, as its usage policy requires', async () => {
+      routeFetch({
+        place: [],
+        gazetteer: [],
+        address: [],
+        poi: [{ name: 'Sihlcity', lat: '47.3579', lon: '8.5229', address: { city: 'Zürich' } }],
+      });
+
+      await resolveLocationAsync('Sihlcity');
+      const poiCall = fetchSpy.mock.calls.find((call) => String(call[0]).includes('nominatim'));
+      expect(poiCall?.[1]?.headers?.['User-Agent']).toMatch(/swiss-shopping-mcp/);
+    });
+
+    it('drops a POI whose name does not match the query', async () => {
+      routeFetch({
+        place: [],
+        gazetteer: [],
+        address: [],
+        poi: [{ name: 'Irgendwas', lat: '46.0', lon: '7.0', address: { city: 'Sion' } }],
+      });
+
+      expect(await resolveLocationAsync('Blahblubb')).toBeUndefined();
+    });
+  });
+
   describe('suggestLocationsAsync', () => {
     let fetchSpy: ReturnType<typeof vi.fn>;
 
@@ -174,6 +307,38 @@ describe('geo utility', () => {
 
       const results = await suggestLocationsAsync('wint');
       expect(results).toHaveLength(1);
+    });
+
+    it('drops suggestions whose label is unrelated to what was typed', async () => {
+      fetchSpy.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          results: [
+            { attrs: { label: '<b>Saules (BE)</b>', lat: 47.25, lon: 7.21, origin: 'gg25' } },
+            { attrs: { label: '<b>Winterthur (ZH)</b>', lat: 47.5, lon: 8.72, origin: 'gg25' } },
+          ],
+        }),
+      });
+
+      const results = await suggestLocationsAsync('wint');
+      expect(results.map((r) => r.label)).toEqual(['Winterthur']);
+    });
+
+    it('offers points of interest when the gazetteer has nothing', async () => {
+      clearAsyncCache(); // resets the POI rate-limiter so the fallback may run
+      fetchSpy
+        .mockResolvedValueOnce({ ok: true, json: async () => ({ results: [] }) })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => [
+            { name: 'Sihlcity', lat: '47.3579', lon: '8.5229', address: { city: 'Zürich' } },
+          ],
+        });
+
+      const results = await suggestLocationsAsync('Sihlcity');
+      expect(results).toEqual([
+        { label: 'Sihlcity (Zürich)', latitude: 47.3579, longitude: 8.5229 },
+      ]);
     });
 
     it('returns empty array below the minimum length without calling fetch', async () => {
