@@ -42,7 +42,26 @@ interface SearchProgress {
   responded: number;
   total: number;
   productsSoFar: number;
+  /**
+   * Expected finish time for the *slowest chain still outstanding*, as a ms
+   * offset from the search start. Recomputed on every chain that reports in, so
+   * once the slow chains are done the countdown collapses instead of running
+   * out the original worst-case estimate. Undefined once nothing is pending.
+   */
   etaMs?: number;
+}
+
+/** Only used if the server omits `fallbackEtaMs`; mirrors ADAPTER_SOFT_TIMEOUT_MS. */
+const DEFAULT_CHAIN_ETA_MS = 6000;
+
+/** Remaining-time estimate over chains that have not reported yet. */
+function pendingEtaMs(
+  pending: Iterable<string>,
+  etaMsByChain: Record<string, number | undefined>,
+  fallbackMs: number
+): number | undefined {
+  const estimates = [...pending].map((chain) => etaMsByChain[chain] ?? fallbackMs);
+  return estimates.length > 0 ? Math.max(...estimates) : undefined;
 }
 
 export function SearchView(): React.JSX.Element {
@@ -54,6 +73,9 @@ export function SearchView(): React.JSX.Element {
   const [progress, setProgress] = useState<SearchProgress | undefined>();
   const [tick, setTick] = useState(0);
   const searchStartRef = useRef(0);
+  const etaByChainRef = useRef<Record<string, number | undefined>>({});
+  const fallbackEtaRef = useRef(DEFAULT_CHAIN_ETA_MS);
+  const pendingChainsRef = useRef<Set<string>>(new Set());
 
   const { data: queryResult, isFetching, error } = useQuery({
     queryKey: ['search', submitted],
@@ -66,23 +88,37 @@ export function SearchView(): React.JSX.Element {
         { ...submitted!, limit: 12 },
         {
           onInit: (init) => {
-            const known = init.chains
-              .map((chain) => init.etaMsByChain[chain])
-              .filter((ms): ms is number => typeof ms === 'number');
+            etaByChainRef.current = init.etaMsByChain;
+            fallbackEtaRef.current = init.fallbackEtaMs ?? DEFAULT_CHAIN_ETA_MS;
+            pendingChainsRef.current = new Set(init.chains);
             setProgress({
               responded: 0,
               total: init.totalChains,
               productsSoFar: 0,
-              etaMs: known.length > 0 ? Math.max(...known) : undefined,
+              etaMs: pendingEtaMs(
+                pendingChainsRef.current,
+                etaByChainRef.current,
+                fallbackEtaRef.current
+              ),
             });
           },
           onProgress: (event) => {
-            setProgress((prev) => ({
+            // Drop the chain that just answered, then re-estimate from what is
+            // still outstanding. The old code locked the estimate in at `init`
+            // and never revised it, so the countdown kept running against the
+            // slowest chain long after that chain had already replied.
+            pendingChainsRef.current.delete(event.chain);
+            const etaMs = pendingEtaMs(
+              pendingChainsRef.current,
+              etaByChainRef.current,
+              fallbackEtaRef.current
+            );
+            setProgress({
               responded: event.respondedCount,
               total: event.totalCount,
               productsSoFar: event.productsSoFar,
-              etaMs: prev?.etaMs,
-            }));
+              etaMs,
+            });
           },
         }
       );
@@ -111,6 +147,16 @@ export function SearchView(): React.JSX.Element {
       ? Math.max(0, progress.etaMs - (performance.now() - searchStartRef.current))
       : undefined;
   void tick; // triggers the re-render that recomputes etaRemainingMs above
+
+  // Three honest states, in priority order:
+  //  - every chain has answered → the remaining time is the merge/rank step,
+  //    which has no per-chain estimate, so stop counting and say so;
+  //  - chains still out but the estimate is spent → say so rather than sit on
+  //    "0s" or a countdown that has already been proven wrong;
+  //  - otherwise → show the live countdown.
+  const allChainsIn = progress !== undefined && progress.responded >= progress.total;
+  const etaOverrun =
+    !allChainsIn && (etaRemainingMs === undefined || etaRemainingMs <= 1000);
 
   function submit(event?: FormEvent): void {
     event?.preventDefault();
@@ -178,17 +224,18 @@ export function SearchView(): React.JSX.Element {
                 {' '}
                 Ergebnisse bisher ({progress.responded}/{progress.total} Händler)
               </span>
-              {progress.responded < progress.total && etaRemainingMs !== undefined && etaRemainingMs > 1000 ? (
+              {allChainsIn ? (
+                <span> · Ergebnisse werden zusammengeführt…</span>
+              ) : etaOverrun ? (
+                <span> · dauert länger als üblich…</span>
+              ) : (
                 <span>
                   {' '}
                   · noch ~
-                  <b className="font-mono font-semibold text-ink">{Math.ceil(etaRemainingMs / 1000)}s</b>
+                  <b className="font-mono font-semibold text-ink">
+                    {Math.ceil((etaRemainingMs as number) / 1000)}s
+                  </b>
                 </span>
-              ) : (
-                (progress.responded >= progress.total ||
-                  (etaRemainingMs !== undefined && etaRemainingMs <= 1000)) && (
-                  <span> · gleich fertig…</span>
-                )
               )}
             </p>
           )}

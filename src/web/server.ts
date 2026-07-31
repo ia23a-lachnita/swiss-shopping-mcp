@@ -16,6 +16,7 @@ import { createDefaultWebProductSearch } from '../services/webProductSearchServi
 import { Chain, StoreAvailabilityByLocationFilters } from '../adapters/types.js';
 import { logger } from '../util/log.js';
 import { MetricsCollector } from '../util/metrics.js';
+import { ADAPTER_SOFT_TIMEOUT_MS } from '../util/timeout.js';
 
 const PORT = Number(process.env.PORT) || 3000;
 const PUBLIC_DIR = join(process.cwd(), 'src', 'web', 'public');
@@ -178,12 +179,20 @@ async function handleSearchProductsStream(res: ServerResponse, url: URL): Promis
   writeSseEvent(res, 'init', {
     totalChains: relevantChains.length,
     chains: relevantChains,
-    // Uses each chain's real measured max (not avg) latency — a deliberately
-    // pessimistic estimate so the countdown is more likely to run slightly
-    // long than to hit zero and look "stuck" before the chain actually answers.
+    // p75, not max. Using max meant one historic outlier (an 18s cold Migros
+    // start) pinned the countdown at ~18s for every later search, which then
+    // always finished early — the estimate was never wrong-but-close, it was
+    // just the worst case forever. Capped at the per-adapter soft timeout
+    // because no chain can exceed it: raceWithTimeout resolves at that point.
+    // Chains with no samples yet are simply absent, and the client falls back.
     etaMsByChain: Object.fromEntries(
-      relevantChains.map((chain) => [chain, latencyByChain[chain]?.max])
+      relevantChains.flatMap((chain) => {
+        const p75 = latencyByChain[chain]?.p75;
+        return typeof p75 === 'number' ? [[chain, Math.min(p75, ADAPTER_SOFT_TIMEOUT_MS)]] : [];
+      })
     ),
+    /** Ceiling for chains with no measured history, so the client never guesses. */
+    fallbackEtaMs: ADAPTER_SOFT_TIMEOUT_MS,
   });
 
   const result = await searchService.searchProducts(

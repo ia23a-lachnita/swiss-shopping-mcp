@@ -5,7 +5,7 @@ Research: codebase root-causing + antigravity-mcp (`gemini-3.6-flash`) consulted
 UX best practices, backend fan-out architecture, search relevance, and a third
 attempt at the loading indicator.
 
-**Status: Phase 1 done (2026-07-30). Phase 2 done (2026-07-31). Phases 3–7 open.**
+**Status: Phases 1–3 done (1 on 2026-07-30; 2 and 3 on 2026-07-31). Phases 4–7 open.**
 
 > **Correction (2026-07-31, from Phase 2 implementation).** The root cause given
 > below for issue 3 is wrong, and was only caught by measuring the live DOM.
@@ -189,9 +189,11 @@ Issues 3, 9, 10. Loading indicator rebuild, input clear buttons, chip
 recalibration. (The "wired to real chain progress" part of the indicator stays
 with Phase 3, which is where the progress numbers themselves get fixed.)
 
-**Phase 3 — Honest progress**
-Issues 7, 8. p75 ETA over pending chains, monotonic result counter,
-per-chain source status surfaced in the stream.
+**Phase 3 — Honest progress** — ✅ done 2026-07-31
+Issues 7, 8. p75 ETA over pending chains, monotonic result counter.
+(Per-chain source status in the stream was *not* built — the stream already
+carries `chain` + `ok` per event and nothing in the UI consumes a richer status
+yet; folded into Phase 4, which is where chain health actually starts to matter.)
 
 **Phase 4 — Fan-out performance**
 Issue 13. Per-chain budgets + AbortController, circuit breaker on the path,

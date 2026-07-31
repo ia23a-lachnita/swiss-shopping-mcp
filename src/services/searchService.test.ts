@@ -161,6 +161,57 @@ describe('SearchService', () => {
     expect(events.map((e) => e.respondedCount).sort()).toEqual([1, 2]);
   });
 
+  it('never reports a productsSoFar higher than the limit the response will apply', async () => {
+    // Reported: the live counter climbed to 27 while the final list held 12,
+    // because productsSoFar summed each chain's pre-limit result count.
+    const service = new SearchService([
+      stubAdapter('aldi', {
+        products: [
+          testProduct('aldi-1', 'aldi'),
+          testProduct('aldi-2', 'aldi'),
+          testProduct('aldi-3', 'aldi'),
+        ],
+      }),
+      stubAdapter('coop', {
+        products: [
+          testProduct('coop-1', 'coop'),
+          testProduct('coop-2', 'coop'),
+          testProduct('coop-3', 'coop'),
+        ],
+      }),
+    ]);
+
+    const counts: number[] = [];
+    const result = await service.searchProducts(
+      { query: 'bread', chains: ['aldi', 'coop'], limit: 2 },
+      { onChainProgress: (event) => counts.push(event.productsSoFar) }
+    );
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    // Every streamed count is a promise the final list must be able to keep.
+    expect(Math.max(...counts)).toBeLessThanOrEqual(result.data.length);
+    expect(counts.every((n) => n <= 2)).toBe(true);
+    // …and it still only ever counts upward.
+    expect([...counts].sort((a, b) => a - b)).toEqual(counts);
+  });
+
+  it('reports an unclamped productsSoFar when the caller sets no limit', async () => {
+    const service = new SearchService([
+      stubAdapter('aldi', {
+        products: [testProduct('aldi-1', 'aldi'), testProduct('aldi-2', 'aldi')],
+      }),
+    ]);
+
+    const counts: number[] = [];
+    await service.searchProducts(
+      { query: 'bread', chains: ['aldi'] },
+      { onChainProgress: (event) => counts.push(event.productsSoFar) }
+    );
+
+    expect(counts).toEqual([2]);
+  });
+
   it('reports onChainProgress with ok:false for a failing chain, without failing the overall search', async () => {
     const service = new SearchService([
       stubAdapter('aldi', { products: [testProduct('aldi-bread', 'aldi')] }),

@@ -111,8 +111,10 @@ export async function searchProducts(params: {
 export interface SearchStreamInit {
   totalChains: number;
   chains: Chain[];
-  /** Per-chain expected latency (ms), from real measured history; undefined chains have no history yet. */
+  /** Per-chain p75 latency (ms) from real measured history; chains with no history are absent. */
   etaMsByChain: Record<string, number | undefined>;
+  /** Ceiling used for chains absent from `etaMsByChain` (the per-adapter soft timeout). */
+  fallbackEtaMs?: number;
 }
 
 export interface SearchProgressEvent {

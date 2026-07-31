@@ -223,7 +223,18 @@ export class SearchService {
           elapsedMs,
           respondedCount,
           totalCount,
-          productsSoFar,
+          // Clamped to the caller's limit so the live counter can never promise
+          // more than the response will actually contain (reported: counter
+          // climbed to 27, final list showed 12). This stays a safe lower bound
+          // on the final count: nothing downstream removes vendor products —
+          // web results are merged in additively and dedupe only collapses
+          // pairs that were double-counted — so the only reduction is this very
+          // limit. And since productsSoFar only grows, so does the clamped
+          // value: the number never counts backwards.
+          productsSoFar:
+            typeof filters.limit === 'number'
+              ? Math.min(productsSoFar, filters.limit)
+              : productsSoFar,
         });
         return { chain: adapter.chain, result };
       })

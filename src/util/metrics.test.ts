@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { mkdir, readFile, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
-import { MetricsCollector } from './metrics.js';
+import { MetricsCollector, percentile } from './metrics.js';
 
 describe('MetricsCollector', () => {
   let collector: MetricsCollector;
@@ -97,17 +97,43 @@ describe('MetricsCollector', () => {
   });
 
   describe('latency tracking', () => {
-    it('should compute avg and max per chain', () => {
+    it('should compute avg, max and p75 per chain', () => {
       collector.recordLatency('migros', 100);
       collector.recordLatency('migros', 200);
       collector.recordLatency('migros', 150);
       const snapshot = collector.snapshot();
-      expect(snapshot.latency.byChain['migros']).toEqual({ avg: 150, max: 200 });
+      expect(snapshot.latency.byChain['migros']).toEqual({ avg: 150, max: 200, p75: 200 });
     });
 
     it('should handle empty samples', () => {
       const snapshot = collector.snapshot();
       expect(snapshot.latency.byChain).toEqual({});
+    });
+
+    it('p75 should ignore a single slow outlier that max would lock onto', () => {
+      // The reported bug: one cold-start outlier made every later search claim
+      // ~18s and then finish far earlier.
+      for (let i = 0; i < 19; i += 1) collector.recordLatency('migros', 1000);
+      collector.recordLatency('migros', 18000);
+      const { p75, max } = collector.snapshot().latency.byChain['migros'];
+      expect(max).toBe(18000);
+      expect(p75).toBe(1000);
+    });
+  });
+
+  describe('percentile', () => {
+    it('should return 0 for an empty sample set', () => {
+      expect(percentile([], 0.75)).toBe(0);
+    });
+
+    it('should use nearest-rank and not interpolate', () => {
+      expect(percentile([10, 20, 30, 40], 0.75)).toBe(30);
+      expect(percentile([10, 20, 30, 40], 0.5)).toBe(20);
+      expect(percentile([10], 0.75)).toBe(10);
+    });
+
+    it('should not depend on input order', () => {
+      expect(percentile([40, 10, 30, 20], 0.75)).toBe(percentile([10, 20, 30, 40], 0.75));
     });
   });
 
@@ -226,8 +252,8 @@ describe('MetricsCollector persistence', () => {
     await collector2.loadSnapshot();
 
     const snapshot = collector2.snapshot();
-    expect(snapshot.latency.byChain.migros).toEqual({ avg: 150, max: 200 });
-    expect(snapshot.latency.byChain.coop).toEqual({ avg: 50, max: 50 });
+    expect(snapshot.latency.byChain.migros).toEqual({ avg: 150, max: 200, p75: 200 });
+    expect(snapshot.latency.byChain.coop).toEqual({ avg: 50, max: 50, p75: 50 });
   });
 
   it('should handle missing snapshot file gracefully', async () => {

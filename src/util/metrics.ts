@@ -48,8 +48,8 @@ export interface HydrationMetrics {
 export interface LatencyMetrics {
   /** Per-chain latency samples (ms). */
   samplesByChain: Record<string, number[]>;
-  /** Per-chain average/max latency (computed on snapshot). */
-  byChain?: Record<string, { avg: number; max: number }>;
+  /** Per-chain average/max/p75 latency (computed on snapshot). */
+  byChain?: Record<string, { avg: number; max: number; p75: number }>;
 }
 
 export interface CatalogCoverageMetrics {
@@ -67,7 +67,7 @@ export interface GoogleQuotaMetrics {
 }
 
 export interface LatencySnapshot {
-  byChain: Record<string, { avg: number; max: number }>;
+  byChain: Record<string, { avg: number; max: number; p75: number }>;
 }
 
 export interface MetricsSnapshot {
@@ -83,6 +83,22 @@ export interface MetricsSnapshot {
 }
 
 const MAX_LATENCY_SAMPLES = 100;
+
+/**
+ * Nearest-rank percentile over an unsorted sample set.
+ *
+ * Used for the search countdown, which previously ran off `max` — the slowest
+ * request ever recorded for a chain. One historic 18s outlier then made every
+ * subsequent search claim ~18s and finish far earlier, which is what made the
+ * ETA useless. p75 still leans pessimistic (three quarters of observed requests
+ * land at or under it) without being hostage to a single bad sample.
+ */
+export function percentile(samples: number[], fraction: number): number {
+  if (samples.length === 0) return 0;
+  const sorted = [...samples].sort((a, b) => a - b);
+  const rank = Math.ceil(fraction * sorted.length);
+  return sorted[Math.min(sorted.length - 1, Math.max(0, rank - 1))];
+}
 const MAX_PER_QUERY_SAMPLES = 50;
 
 export class MetricsCollector {
@@ -243,12 +259,12 @@ export class MetricsCollector {
           this.webSearch.perQueryCounts.length
         : 0;
 
-    const avgLatencyByChain: Record<string, { avg: number; max: number }> = {};
+    const avgLatencyByChain: Record<string, { avg: number; max: number; p75: number }> = {};
     for (const [chain, samples] of Object.entries(this.latency.samplesByChain)) {
       if (samples.length === 0) continue;
       const avg = samples.reduce((a, b) => a + b, 0) / samples.length;
       const max = Math.max(...samples);
-      avgLatencyByChain[chain] = { avg: Math.round(avg), max };
+      avgLatencyByChain[chain] = { avg: Math.round(avg), max, p75: percentile(samples, 0.75) };
     }
 
     const latencySnapshot: LatencySnapshot = { byChain: avgLatencyByChain };
