@@ -13,6 +13,8 @@ export interface SuggestInputProps
   onSuggestionSelect?: (value: string) => void;
   minLength?: number;
   debounceMs?: number;
+  /** Renders a clear (X) button while the field is non-empty. */
+  clearable?: boolean;
 }
 
 /** Debounced autocomplete dropdown over `Input`, backed by a real (non-hardcoded) suggestion source. */
@@ -23,6 +25,7 @@ export function SuggestInput({
   onSuggestionSelect,
   minLength = 2,
   debounceMs = 250,
+  clearable = false,
   className,
   ...inputProps
 }: SuggestInputProps): React.JSX.Element {
@@ -30,6 +33,7 @@ export function SuggestInput({
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
   const containerRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const requestIdRef = useRef(0);
   const justSelectedRef = useRef(false);
 
@@ -99,8 +103,21 @@ export function SuggestInput({
   return (
     <div ref={containerRef} className="relative">
       <Input
+        ref={inputRef}
         value={value}
         onChange={(event) => onChange(event.target.value)}
+        onClear={
+          clearable
+            ? () => {
+                onChange('');
+                setSuggestions([]);
+                setOpen(false);
+                // Clearing is nearly always a prelude to retyping, so keep focus
+                // (and, on mobile, the keyboard) rather than dismissing both.
+                inputRef.current?.focus();
+              }
+            : undefined
+        }
         onKeyDown={handleKeyDown}
         onFocus={() => {
           if (suggestions.length > 0) setOpen(true);

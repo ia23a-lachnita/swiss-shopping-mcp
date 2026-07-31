@@ -22,6 +22,12 @@
      close to Claude's own coral-orange branding in real-device testing. */
   --color-brand: #8f7320;
   --color-brand-ink: #f8f7f4;
+  /* Label colour for the *tinted* selected state (chips), where the background is
+     only a 15% brand wash rather than a solid fill. Plain --color-brand on that
+     wash measures ~3.2:1 in light mode — under AA for the 12px chip label — so
+     this is deliberately a darker bronze here and a brighter gold in dark mode
+     (4.8:1 / 7.8:1 respectively, both measured against the mixed chip surface). */
+  --color-brand-strong: #6f5915;
   --color-accent2: #ad8f1f;
   --color-accent2-bg: #f0e4c8;
 
@@ -48,6 +54,7 @@
 
     --color-brand: #cca23e;
     --color-brand-ink: #1b1206;
+    --color-brand-strong: #e5be59;
     --color-accent2: #ddbb4a;
     --color-accent2-bg: #3a2e12;
 
@@ -274,6 +281,26 @@ body {
   }
 }
 .button-loading-border {
+  /* Geometry MUST be set here, in CSS — not via the SVG width/height presentation
+     attributes. calc() is invalid inside an SVG geometry *attribute*, so
+     width="calc(100% - 2px)" is discarded and the rect collapses to a 14x14 stub
+     in the top-left corner. That is exactly how this shipped broken once: the
+     animation was verified as running, on a degenerate rect. As CSS geometry
+     properties (SVG2, supported in every evergreen browser) calc() is valid and
+     percentages resolve against the SVG viewport — i.e. the button's border box.
+     The inset of 1px on each side keeps the 2px stroke fully inside that box. */
+  x: 1px;
+  y: 1px;
+  width: calc(100% - 2px);
+  height: calc(100% - 2px);
+  rx: 8px; /* matches the button's rounded-lg */
+
+  /* Never currentColor: on the default (gold) button that resolves to the
+     near-black label colour and renders as a dark smudge instead of a trace.
+     Each button variant sets --loading-trace to something that reads as light
+     against its own background; the fallback keeps it visible if one forgets. */
+  stroke: var(--loading-trace, var(--color-brand));
+
   /* 15 units active line + 35 units gap, repeated twice = 100 (full perimeter) */
   stroke-dasharray: 15 35;
   animation: button-loading-trace 2.2s infinite;

@@ -12,13 +12,13 @@ import {
   type Chain,
   type Product,
 } from '../api';
-import { cn } from '../lib/utils';
 import { notifyIfBackgrounded, requestNotificationPermissionIfNeeded } from '../lib/notify';
 import { getTotalHiddenMs } from '../lib/visibilityTracker';
 import { ProductSheet } from './ProductSheet';
 import { VendorBadge } from './VendorBadge';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
+import { FilterChip } from './ui/chip';
 import { Card, CardContent } from './ui/card';
 import { Price } from './ui/price';
 import { Skeleton } from './ui/skeleton';
@@ -142,25 +142,19 @@ export function SearchView(): React.JSX.Element {
             fetchSuggestions={suggestQueries}
             placeholder="Produkt suchen, z.B. Zahnpasta"
             enterKeyHint="search"
+            clearable
             className="h-12 pl-10 text-base font-medium"
           />
         </div>
         <div className="flex flex-wrap gap-2">
           {ALL_CHAINS.map((chain) => (
-            <button
+            <FilterChip
               key={chain}
-              type="button"
+              selected={chains.includes(chain)}
               onClick={() => toggleChain(chain)}
-              className={cn(
-                'rounded-full px-3 py-1.5 text-xs font-medium transition-colors',
-                chains.includes(chain)
-                  ? 'bg-brand text-brand-ink'
-                  : 'bg-surface-sunken text-muted shadow-inset'
-              )}
-              aria-pressed={chains.includes(chain)}
             >
               {CHAIN_LABELS[chain]}
-            </button>
+            </FilterChip>
           ))}
         </div>
         <Button

@@ -5,14 +5,24 @@ import { Loader2 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
 const buttonVariants = cva(
-  'relative inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand disabled:pointer-events-none disabled:opacity-50 [&_svg]:size-4 [&_svg]:shrink-0',
+  // The icon-sizing rule deliberately excludes .loading-trace-svg. It is a
+  // descendant-selector rule, so it outranks the plain `w-full h-full` on the
+  // loading overlay and was silently clamping that SVG's viewport to 16px —
+  // which is what actually made the border trace draw as a 14px stub, since the
+  // rect sizes itself as a percentage of that viewport.
+  'relative inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand disabled:pointer-events-none disabled:opacity-50 [&_svg:not(.loading-trace-svg)]:size-4 [&_svg:not(.loading-trace-svg)]:shrink-0',
   {
     variants: {
+      // --loading-trace is the stroke colour of the loading border trace (see
+      // .button-loading-border in index.css). It is per-variant because the trace
+      // has to read as *light* against whatever the button's own background is:
+      // a warm white on the solid gold fill, the gold accent on a plain surface.
       variant: {
-        default: 'bg-brand text-brand-ink shadow-card-sm active:opacity-90',
+        default:
+          'bg-brand text-brand-ink shadow-card-sm active:opacity-90 [--loading-trace:rgba(255,250,240,0.92)]',
         outline:
-          'border border-[color:var(--color-outline-border)] bg-surface text-ink shadow-card-sm active:bg-surface-sunken',
-        ghost: 'text-muted active:bg-surface-sunken',
+          'border border-[color:var(--color-outline-border)] bg-surface text-ink shadow-card-sm active:bg-surface-sunken [--loading-trace:var(--color-brand)]',
+        ghost: 'text-muted active:bg-surface-sunken [--loading-trace:var(--color-brand)]',
       },
       size: {
         default: 'h-11 px-4',
@@ -30,7 +40,7 @@ const buttonVariants = cva(
 export interface ButtonProps
   extends ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
-  /** Shows a pulsing outline ring + spinner and forces disabled, without the dimmed "inert" look native `disabled` gives. */
+  /** Shows a traveling border trace + spinner and forces disabled, without the dimmed "inert" look native `disabled` gives. */
   loading?: boolean;
   /** Replaces children while loading (e.g. "Wird gesucht…"). Falls back to children if omitted. */
   loadingText?: React.ReactNode;
@@ -46,17 +56,20 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     >
       {loading && (
         <svg
-          className="pointer-events-none absolute inset-0 h-full w-full overflow-visible"
+          className="loading-trace-svg pointer-events-none absolute inset-0 h-full w-full overflow-visible"
           aria-hidden="true"
         >
+          {/* Geometry and stroke colour live in .button-loading-border (index.css) —
+              calc() is invalid in an SVG geometry *attribute* and silently collapses
+              the rect. These attributes are only the no-CSS-geometry-support
+              fallback: a full-bleed rect whose stroke is clipped by 1px rather than
+              a rect that disappears. pathLength=100 normalises the perimeter so the
+              two dash segments stay proportional at any button width. */}
           <rect
-            x="1"
-            y="1"
-            width="calc(100% - 2px)"
-            height="calc(100% - 2px)"
+            width="100%"
+            height="100%"
             rx="8"
             fill="none"
-            stroke="currentColor"
             strokeWidth="2"
             strokeLinecap="round"
             pathLength={100}

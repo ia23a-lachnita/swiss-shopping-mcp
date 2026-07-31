@@ -32,6 +32,7 @@ import { getTotalHiddenMs } from '../lib/visibilityTracker';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
 import { Card, CardContent } from './ui/card';
+import { FilterChip } from './ui/chip';
 import { Price } from './ui/price';
 import { Skeleton } from './ui/skeleton';
 import { SuggestInput } from './ui/suggest-input';
@@ -252,6 +253,7 @@ export function AvailabilityView(): React.JSX.Element {
             fetchSuggestions={suggestQueries}
             placeholder="Produkt, z.B. Milch"
             enterKeyHint="search"
+            clearable
             className="h-12 pl-10 text-base font-medium"
           />
         </div>
@@ -279,6 +281,7 @@ export function AvailabilityView(): React.JSX.Element {
                     onSuggestionSelect={selectLocationSuggestion}
                     placeholder="PLZ oder Ort, z.B. 8001 Zürich"
                     enterKeyHint="search"
+                    clearable
                     className="h-9 text-sm"
                   />
                 </div>
@@ -332,44 +335,25 @@ export function AvailabilityView(): React.JSX.Element {
 
         <div className="flex flex-wrap items-center gap-2">
           {AVAILABILITY_CHAINS.map((chain) => (
-            <button
+            <FilterChip
               key={chain}
-              type="button"
+              selected={chains.includes(chain)}
               onClick={() => toggleChain(chain)}
-              className={cn(
-                'rounded-full px-3 py-1.5 text-xs font-medium transition-colors',
-                chains.includes(chain)
-                  ? 'bg-brand text-brand-ink'
-                  : 'bg-surface-sunken text-muted shadow-inset'
-              )}
-              aria-pressed={chains.includes(chain)}
             >
               {CHAIN_LABELS[chain]}
-            </button>
+            </FilterChip>
           ))}
           <span className="mx-1 h-4 w-px bg-line" />
-          <button
-            type="button"
+          <FilterChip
+            tone="accent2"
+            selected={inStockOnly}
             onClick={() => setInStockOnly((v) => !v)}
-            className={cn(
-              'rounded-full px-3 py-1.5 text-xs font-medium transition-colors',
-              inStockOnly ? 'bg-accent2-bg text-accent2' : 'bg-surface-sunken text-muted shadow-inset'
-            )}
-            aria-pressed={inStockOnly}
           >
             Nur verfügbar
-          </button>
-          <button
-            type="button"
-            onClick={() => setOpenNow((v) => !v)}
-            className={cn(
-              'rounded-full px-3 py-1.5 text-xs font-medium transition-colors',
-              openNow ? 'bg-accent2-bg text-accent2' : 'bg-surface-sunken text-muted shadow-inset'
-            )}
-            aria-pressed={openNow}
-          >
+          </FilterChip>
+          <FilterChip tone="accent2" selected={openNow} onClick={() => setOpenNow((v) => !v)}>
             Jetzt offen
-          </button>
+          </FilterChip>
         </div>
 
         <Button

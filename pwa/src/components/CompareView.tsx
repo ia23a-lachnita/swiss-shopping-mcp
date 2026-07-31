@@ -5,12 +5,12 @@ import NumberFlow from '@number-flow/react';
 import { AlertTriangle, Minus, Plus, Scale } from 'lucide-react';
 
 import { ALL_CHAINS, comparePrices, suggestQueries, type Chain, type Product } from '../api';
-import { cn } from '../lib/utils';
 import { notifyIfBackgrounded, requestNotificationPermissionIfNeeded } from '../lib/notify';
 import { getTotalHiddenMs } from '../lib/visibilityTracker';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
 import { Card, CardContent } from './ui/card';
+import { FilterChip } from './ui/chip';
 import { Input } from './ui/input';
 import { Price } from './ui/price';
 import { Skeleton } from './ui/skeleton';
@@ -91,6 +91,7 @@ export function CompareView(): React.JSX.Element {
             fetchSuggestions={suggestQueries}
             placeholder="Produkt vergleichen, z.B. Butter"
             enterKeyHint="search"
+            clearable
             className="h-12 pl-10 text-base font-medium"
           />
         </div>
@@ -133,20 +134,13 @@ export function CompareView(): React.JSX.Element {
         </div>
         <div className="flex flex-wrap gap-2">
           {ALL_CHAINS.map((chain) => (
-            <button
+            <FilterChip
               key={chain}
-              type="button"
+              selected={chains.includes(chain)}
               onClick={() => toggleChain(chain)}
-              className={cn(
-                'rounded-full px-3 py-1.5 text-xs font-medium transition-colors',
-                chains.includes(chain)
-                  ? 'bg-brand text-brand-ink'
-                  : 'bg-surface-sunken text-muted shadow-inset'
-              )}
-              aria-pressed={chains.includes(chain)}
             >
               {chain === 'ottos' ? "Otto's" : chain.charAt(0).toUpperCase() + chain.slice(1)}
-            </button>
+            </FilterChip>
           ))}
         </div>
         <Button

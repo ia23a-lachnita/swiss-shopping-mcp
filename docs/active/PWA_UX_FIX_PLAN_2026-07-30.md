@@ -5,7 +5,17 @@ Research: codebase root-causing + antigravity-mcp (`gemini-3.6-flash`) consulted
 UX best practices, backend fan-out architecture, search relevance, and a third
 attempt at the loading indicator.
 
-**Status: PLAN ONLY — nothing implemented yet.**
+**Status: Phase 1 done (2026-07-30). Phase 2 done (2026-07-31). Phases 3–7 open.**
+
+> **Correction (2026-07-31, from Phase 2 implementation).** The root cause given
+> below for issue 3 is wrong, and was only caught by measuring the live DOM.
+> `calc()` in the SVG `width`/`height` *presentation attribute* is in fact honoured
+> by Chrome — it was resolving correctly, against the wrong viewport. The real
+> cause is the `Button` base class `[&_svg]:size-4`: a descendant-selector rule
+> that outranks the plain `w-full h-full` on the loading overlay, clamping that
+> `<svg>` to 16×16. The rect then sized itself to 100% − 2px *of 16px* = 14px.
+> Measured before the fix: button 468×44, svg 16×16, rect 14×14. After excluding
+> the overlay from the icon rule: svg 468×44, rect 466×42.
 
 ---
 
@@ -170,13 +180,14 @@ conversation. UI: a history sheet from the chat header, with per-item delete.
 
 ## 3. Proposed phasing
 
-**Phase 1 — Layout & state correctness (highest annoyance / lowest risk)**
+**Phase 1 — Layout & state correctness (highest annoyance / lowest risk)** — ✅ done 2026-07-30
 Issues 1, 2, 5, 6. Chat flex layout, global nav clearance, no-reload clear,
 tab state in the URL.
 
-**Phase 2 — Input & visual polish**
-Issues 3, 9, 10. Loading indicator rebuild (wired to real chain progress),
-input clear buttons, chip recalibration.
+**Phase 2 — Input & visual polish** — ✅ done 2026-07-31
+Issues 3, 9, 10. Loading indicator rebuild, input clear buttons, chip
+recalibration. (The "wired to real chain progress" part of the indicator stays
+with Phase 3, which is where the progress numbers themselves get fixed.)
 
 **Phase 3 — Honest progress**
 Issues 7, 8. p75 ETA over pending chains, monotonic result counter,
