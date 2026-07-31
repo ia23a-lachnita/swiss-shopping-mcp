@@ -12,11 +12,13 @@ import { getAllCapabilityStatuses } from '../adapters/sourceRegistry.js';
 import { CatalogService, openCatalogDb, runMigrations } from '../catalog/index.js';
 import { PriceComparisonService } from '../services/priceComparisonService.js';
 import { SearchService } from '../services/searchService.js';
+import { ChainHealthBreaker } from '../services/chainHealthBreaker.js';
+import { SearchResultCache } from '../services/searchResultCache.js';
 import { createDefaultWebProductSearch } from '../services/webProductSearchService.js';
 import { Chain, StoreAvailabilityByLocationFilters } from '../adapters/types.js';
 import { logger } from '../util/log.js';
 import { MetricsCollector } from '../util/metrics.js';
-import { ADAPTER_SOFT_TIMEOUT_MS } from '../util/timeout.js';
+import { ADAPTER_SOFT_TIMEOUT_MS, chainTimeoutMs } from '../util/timeout.js';
 
 const PORT = Number(process.env.PORT) || 3000;
 const PUBLIC_DIR = join(process.cwd(), 'src', 'web', 'public');
@@ -39,7 +41,17 @@ const METRICS_CACHE_DIR =
   process.env.SWISS_SHOPPING_CACHE_DIR ?? join(tmpdir(), 'swiss-shopping-mcp-cache');
 const metrics = new MetricsCollector(METRICS_CACHE_DIR);
 const webProductSearch = createDefaultWebProductSearch(adapters, { catalog, metrics });
-const searchService = new SearchService(adapters, { webProductSearch, catalog, metrics });
+// Breaker + whole-query cache are opted into here, not inside SearchService:
+// the MCP server and tests want a deterministic every-chain-every-time service.
+const chainBreaker = new ChainHealthBreaker();
+const resultCache = new SearchResultCache();
+const searchService = new SearchService(adapters, {
+  webProductSearch,
+  catalog,
+  metrics,
+  chainBreaker,
+  resultCache,
+});
 const priceComparisonService = new PriceComparisonService(adapters);
 
 const MIME_TYPES: Record<string, string> = {
@@ -185,10 +197,15 @@ async function handleSearchProductsStream(res: ServerResponse, url: URL): Promis
     // just the worst case forever. Capped at the per-adapter soft timeout
     // because no chain can exceed it: raceWithTimeout resolves at that point.
     // Chains with no samples yet are simply absent, and the client falls back.
+    // Each estimate is additionally capped at that chain's own budget, and a
+    // chain the breaker has open is reported as 0 — it will be skipped, so
+    // including its historic latency would inflate the countdown for a chain
+    // that is about to return instantly.
     etaMsByChain: Object.fromEntries(
       relevantChains.flatMap((chain) => {
+        if (chainBreaker.isOpen(chain)) return [[chain, 0]];
         const p75 = latencyByChain[chain]?.p75;
-        return typeof p75 === 'number' ? [[chain, Math.min(p75, ADAPTER_SOFT_TIMEOUT_MS)]] : [];
+        return typeof p75 === 'number' ? [[chain, Math.min(p75, chainTimeoutMs(chain))]] : [];
       })
     ),
     /** Ceiling for chains with no measured history, so the client never guesses. */

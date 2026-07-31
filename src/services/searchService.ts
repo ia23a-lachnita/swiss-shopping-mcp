@@ -20,7 +20,9 @@ import {
 import { sourceWarningFromError } from '../sources/warnings.js';
 import { buildTaxonomy } from '../util/taxonomyBuilder.js';
 import { resolveLocationAsync, distanceBetween } from '../util/geo.js';
-import { raceWithTimeout, ADAPTER_SOFT_TIMEOUT_MS } from '../util/timeout.js';
+import { raceWithTimeout, ADAPTER_SOFT_TIMEOUT_MS, chainTimeoutMs } from '../util/timeout.js';
+import { ChainHealthBreaker } from './chainHealthBreaker.js';
+import { SearchResultCache } from './searchResultCache.js';
 
 /**
  * Soft deadline for the web-search augmentation step (semantic discovery
@@ -131,6 +133,19 @@ export interface SearchServiceOptions {
   catalog?: CatalogService;
   /** Phase D: metrics collector for observability. */
   metrics?: MetricsCollector;
+  /**
+   * Skips chains that are currently failing, so a dead chain costs 0ms instead
+   * of its whole timeout budget on every search. Omit to disable entirely —
+   * callers that must always hit every chain (contract tests, one-off MCP
+   * diagnostics) should leave it unset.
+   */
+  chainBreaker?: ChainHealthBreaker;
+  /**
+   * Whole-query stale-while-revalidate cache in front of the fan-out. Omit to
+   * disable; `SearchService` never creates one implicitly, so a bare instance
+   * stays fully deterministic for tests.
+   */
+  resultCache?: SearchResultCache;
 }
 
 /** Fired as each vendor adapter's search resolves, before web-search augmentation runs. */
@@ -155,6 +170,8 @@ export class SearchService {
   private readonly vendorPriceShareThreshold: number;
   private readonly catalog?: CatalogService;
   private readonly metrics?: MetricsCollector;
+  private readonly chainBreaker?: ChainHealthBreaker;
+  private readonly resultCache?: SearchResultCache;
 
   public constructor(adapters: ChainAdapter[], options: SearchServiceOptions = {}) {
     this.adapters = adapters;
@@ -162,17 +179,84 @@ export class SearchService {
     this.vendorPriceShareThreshold = options.vendorPriceShareThreshold ?? 0.8;
     this.catalog = options.catalog;
     this.metrics = options.metrics;
+    this.chainBreaker = options.chainBreaker;
+    this.resultCache = options.resultCache;
   }
 
+  /**
+   * Whole-query cache in front of the fan-out (no-op unless a `resultCache` was
+   * supplied). Fresh hits return immediately; stale hits also return immediately
+   * and kick off one background refresh for the *next* caller.
+   */
   public async searchProducts(
     filters: ProductSearchFilters,
     options: SearchProductsOptions = {}
   ): Promise<Result<NormalizedProduct[]>> {
+    if (!this.resultCache) {
+      return this.searchProductsUncached(filters, options);
+    }
+
+    const key = SearchResultCache.keyFor({
+      query: filters.query,
+      chains: filters.chains,
+      maxPrice: filters.maxPrice,
+      category: filters.category,
+      limit: filters.limit,
+      matchMode: filters.matchMode,
+    });
+    const hit = this.resultCache.get(key);
+
+    if (hit.status !== 'miss') {
+      if (hit.status === 'stale') {
+        // Deliberately without onChainProgress: this call's stream has already
+        // been answered from cache, and a background refresh writing progress
+        // events into it would report chains for a search the caller never saw.
+        this.resultCache.revalidate(key, async () => {
+          const fresh = await this.runSearch(filters);
+          if (fresh.result.ok) {
+            this.resultCache?.set(
+              key,
+              { data: fresh.result.data, metadata: fresh.result.metadata },
+              fresh.chainsComplete
+            );
+          }
+        });
+      }
+      return { ok: true, data: hit.value.data, metadata: hit.value.metadata };
+    }
+
+    const { result, chainsComplete } = await this.runSearch(filters, options);
+    if (result.ok) {
+      this.resultCache.set(key, { data: result.data, metadata: result.metadata }, chainsComplete);
+    }
+    return result;
+  }
+
+  private async searchProductsUncached(
+    filters: ProductSearchFilters,
+    options: SearchProductsOptions = {}
+  ): Promise<Result<NormalizedProduct[]>> {
+    return (await this.runSearch(filters, options)).result;
+  }
+
+  /**
+   * The real search. Reports `chainsComplete` alongside the result: true only if
+   * every requested vendor chain answered ok. That is the *only* correct input
+   * to the cache-or-not decision — warnings alone are not, since the optional
+   * web-search step contributes its own and would veto caching almost always.
+   */
+  private async runSearch(
+    filters: ProductSearchFilters,
+    options: SearchProductsOptions = {}
+  ): Promise<{ result: Result<NormalizedProduct[]>; chainsComplete: boolean }> {
     const query = filters.query.trim();
     if (!query) {
       return {
-        ok: false,
-        error: { code: 'INVALID_QUERY', message: 'Query must be a non-empty string.' },
+        result: {
+          ok: false,
+          error: { code: 'INVALID_QUERY', message: 'Query must be a non-empty string.' },
+        },
+        chainsComplete: false,
       };
     }
 
@@ -182,7 +266,7 @@ export class SearchService {
     );
     const relevantAdapters = this.adapters.filter((adapter) => requestedChains.has(adapter.chain));
     if (relevantAdapters.length === 0) {
-      return { ok: true, data: [] };
+      return { result: { ok: true, data: [] }, chainsComplete: true };
     }
 
     const requestedChainList = [...requestedChains];
@@ -195,24 +279,44 @@ export class SearchService {
     const adapterResults = await Promise.all(
       relevantAdapters.map(async (adapter) => {
         const startMs = Date.now();
-        const result = await raceWithTimeout(
-          () => adapter.searchProducts({ ...filters, query, matchMode }),
-          ADAPTER_SOFT_TIMEOUT_MS,
-          () => ({
-            ok: false,
-            error: {
-              code: 'SOURCE_TIMEOUT',
-              message: `${adapter.chain} did not respond within ${ADAPTER_SOFT_TIMEOUT_MS}ms.`,
-            },
-          } as Result<NormalizedProduct[]>)
-        );
+        const budgetMs = chainTimeoutMs(adapter.chain);
+
+        // A chain the breaker has opened is skipped outright. This is the whole
+        // point of the breaker: a reliably-dead chain used to burn its full
+        // budget on every query, which set the floor for the entire search.
+        const skipped = this.chainBreaker !== undefined && !this.chainBreaker.canAttempt(adapter.chain);
+        const result = skipped
+          ? ({
+              ok: false,
+              error: {
+                code: 'SOURCE_CIRCUIT_OPEN',
+                message: `${adapter.chain} is temporarily skipped after repeated failures.`,
+              },
+            } as Result<NormalizedProduct[]>)
+          : await raceWithTimeout(
+              () => adapter.searchProducts({ ...filters, query, matchMode }),
+              budgetMs,
+              () => ({
+                ok: false,
+                error: {
+                  code: 'SOURCE_TIMEOUT',
+                  message: `${adapter.chain} did not respond within ${budgetMs}ms.`,
+                },
+              } as Result<NormalizedProduct[]>)
+            );
         const elapsedMs = Date.now() - startMs;
-        if (this.metrics) {
-          this.metrics.recordLatency(adapter.chain, elapsedMs);
-          if (result.ok) {
-            this.metrics.recordHydrationSuccess();
-          } else {
-            this.metrics.recordHydrationFailure();
+        // A skipped chain is not evidence about that chain's health, and its
+        // 0ms "latency" would poison both the p75 ETA and the failure rate that
+        // decides when to close the breaker again.
+        if (!skipped) {
+          this.chainBreaker?.record(adapter.chain, result.ok);
+          if (this.metrics) {
+            this.metrics.recordLatency(adapter.chain, elapsedMs);
+            if (result.ok) {
+              this.metrics.recordHydrationSuccess();
+            } else {
+              this.metrics.recordHydrationFailure();
+            }
           }
         }
         respondedCount += 1;
@@ -241,6 +345,9 @@ export class SearchService {
     );
 
     const successfulResults = adapterResults.filter((entry) => entry.result.ok);
+    // Every requested chain answered — the only condition under which this
+    // result is safe to cache and replay to later callers.
+    const chainsComplete = successfulResults.length === adapterResults.length;
     const vendorProducts = successfulResults.flatMap((entry) =>
       entry.result.ok ? entry.result.data : []
     );
@@ -298,7 +405,7 @@ export class SearchService {
 
     if (successfulResults.length === 0 && webProducts.length === 0 && sourceWarnings.length > 0) {
       const metadata = mergeMetadata([], sourceWarnings);
-      return { ok: true, data: [], metadata };
+      return { result: { ok: true, data: [], metadata }, chainsComplete: false };
     }
 
     // Build dynamic taxonomy from the product data
@@ -480,10 +587,13 @@ export class SearchService {
     }
 
     if (typeof filters.limit === 'number') {
-      return { ok: true, data: products.slice(0, filters.limit), metadata };
+      return {
+        result: { ok: true, data: products.slice(0, filters.limit), metadata },
+        chainsComplete,
+      };
     }
 
-    return { ok: true, data: products, metadata };
+    return { result: { ok: true, data: products, metadata }, chainsComplete };
   }
 
   /**

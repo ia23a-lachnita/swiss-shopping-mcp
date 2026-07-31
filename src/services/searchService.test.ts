@@ -19,6 +19,8 @@ import {
   StoreSearchFilters,
 } from '../adapters/types.js';
 import { SearchService } from './searchService.js';
+import { ChainHealthBreaker } from './chainHealthBreaker.js';
+import { SearchResultCache } from './searchResultCache.js';
 import { WebProductSearchService } from './webProductSearchService.js';
 
 function stubAdapter(
@@ -210,6 +212,105 @@ describe('SearchService', () => {
     );
 
     expect(counts).toEqual([2]);
+  });
+
+  it('skips a chain whose breaker is open, without calling the adapter', async () => {
+    const breaker = new ChainHealthBreaker({ minimumVolume: 2, failureRateThreshold: 0.4 });
+    breaker.record('lidl', false);
+    breaker.record('lidl', false);
+    expect(breaker.canAttempt('lidl')).toBe(false);
+
+    let lidlCalls = 0;
+    const lidl = stubAdapter('lidl', { products: [testProduct('lidl-bread', 'lidl')] });
+    const countingLidl = {
+      ...lidl,
+      searchProducts: async (filters: Parameters<typeof lidl.searchProducts>[0]): Promise<Result<NormalizedProduct[]>> => {
+        lidlCalls += 1;
+        return lidl.searchProducts(filters);
+      },
+    };
+
+    const service = new SearchService(
+      [stubAdapter('aldi', { products: [testProduct('aldi-bread', 'aldi')] }), countingLidl],
+      { chainBreaker: breaker }
+    );
+
+    const events: Array<{ chain: Chain; ok: boolean }> = [];
+    const result = await service.searchProducts(
+      { query: 'bread', chains: ['aldi', 'lidl'] },
+      { onChainProgress: (event) => events.push(event) }
+    );
+
+    expect(lidlCalls).toBe(0);
+    expect(result.ok).toBe(true);
+    // The healthy chain still answers, and the skip is reported rather than hidden.
+    if (result.ok) expect(result.data.map((p) => p.chain)).toEqual(['aldi']);
+    expect(events.find((e) => e.chain === 'lidl')?.ok).toBe(false);
+  });
+
+  it('calls every chain when no breaker is configured', async () => {
+    let lidlCalls = 0;
+    const lidl = stubAdapter('lidl', { products: [testProduct('lidl-bread', 'lidl')] });
+    const service = new SearchService([
+      {
+        ...lidl,
+        searchProducts: async (filters: Parameters<typeof lidl.searchProducts>[0]): Promise<Result<NormalizedProduct[]>> => {
+          lidlCalls += 1;
+          return lidl.searchProducts(filters);
+        },
+      },
+    ]);
+
+    await service.searchProducts({ query: 'bread', chains: ['lidl'] });
+    expect(lidlCalls).toBe(1);
+  });
+
+  it('serves a repeated identical search from the result cache without re-hitting adapters', async () => {
+    let calls = 0;
+    const aldi = stubAdapter('aldi', { products: [testProduct('aldi-bread', 'aldi')] });
+    const service = new SearchService(
+      [
+        {
+          ...aldi,
+          searchProducts: async (filters: Parameters<typeof aldi.searchProducts>[0]): Promise<Result<NormalizedProduct[]>> => {
+            calls += 1;
+            return aldi.searchProducts(filters);
+          },
+        },
+      ],
+      { resultCache: new SearchResultCache() }
+    );
+
+    const first = await service.searchProducts({ query: 'bread', chains: ['aldi'] });
+    // Same search, different casing/spacing — must still hit the same entry.
+    const second = await service.searchProducts({ query: '  BREAD ', chains: ['aldi'] });
+
+    expect(calls).toBe(1);
+    expect(first.ok && second.ok).toBe(true);
+    if (first.ok && second.ok) expect(second.data).toEqual(first.data);
+  });
+
+  it('does not cache a partial result, so a failed chain is retried next time', async () => {
+    let aldiCalls = 0;
+    const aldi = stubAdapter('aldi', { products: [testProduct('aldi-bread', 'aldi')] });
+    const service = new SearchService(
+      [
+        {
+          ...aldi,
+          searchProducts: async (filters: Parameters<typeof aldi.searchProducts>[0]): Promise<Result<NormalizedProduct[]>> => {
+            aldiCalls += 1;
+            return aldi.searchProducts(filters);
+          },
+        },
+        stubAdapter('coop', { errorCode: 'SOURCE_UNAVAILABLE' }),
+      ],
+      { resultCache: new SearchResultCache() }
+    );
+
+    await service.searchProducts({ query: 'bread', chains: ['aldi', 'coop'] });
+    await service.searchProducts({ query: 'bread', chains: ['aldi', 'coop'] });
+
+    expect(aldiCalls).toBe(2);
   });
 
   it('reports onChainProgress with ok:false for a failing chain, without failing the overall search', async () => {

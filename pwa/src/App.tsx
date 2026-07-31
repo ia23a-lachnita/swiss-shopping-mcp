@@ -9,6 +9,7 @@ import { SearchView } from './components/SearchView';
 import { CompareView } from './components/CompareView';
 import { StatusView } from './components/StatusView';
 import { useTabState } from './lib/useTabState';
+import { hydrateQueryCache, persistQueryCache } from './lib/queryPersist';
 import { cn } from './lib/utils';
 
 // The AI SDK (ai/@ai-sdk/react) is real weight (~230kB gzipped) that only the
@@ -62,6 +63,20 @@ export default function App(): React.JSX.Element {
   useEffect(() => {
     setVisitedTabs((prev) => (prev.has(tab) ? prev : new Set(prev).add(tab)));
   }, [tab]);
+
+  // react-query's cache is memory-only, so before this every page refresh threw
+  // away all results and refetched from scratch — a large part of why the app
+  // felt like it had no cache at all. Restoring it means repeating a recent
+  // search paints from IndexedDB instead of waiting on the chain fan-out again.
+  // Note this restores *results*, not the search box: a reload still shows an
+  // empty form, and the cache only pays off once the same query is submitted.
+  useEffect(() => {
+    let stop: (() => void) | undefined;
+    void hydrateQueryCache(queryClient).then(() => {
+      stop = persistQueryCache(queryClient);
+    });
+    return () => stop?.();
+  }, []);
 
   // Installed/standalone PWAs (unlike a regular browser tab) restore the
   // exact DOM focus state a WebView had when the OS backgrounded it — if a

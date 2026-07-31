@@ -5,7 +5,8 @@ Research: codebase root-causing + antigravity-mcp (`gemini-3.6-flash`) consulted
 UX best practices, backend fan-out architecture, search relevance, and a third
 attempt at the loading indicator.
 
-**Status: Phases 1–3 done (1 on 2026-07-30; 2 and 3 on 2026-07-31). Phases 4–7 open.**
+**Status: Phases 1–4 done (1 on 2026-07-30; 2, 3 and 4 on 2026-07-31), except
+real AbortController cancellation — see Phase 4 below. Phases 5–7 open.**
 
 > **Correction (2026-07-31, from Phase 2 implementation).** The root cause given
 > below for issue 3 is wrong, and was only caught by measuring the live DOM.
@@ -195,9 +196,28 @@ Issues 7, 8. p75 ETA over pending chains, monotonic result counter.
 carries `chain` + `ok` per event and nothing in the UI consumes a richer status
 yet; folded into Phase 4, which is where chain health actually starts to matter.)
 
-**Phase 4 — Fan-out performance**
-Issue 13. Per-chain budgets + AbortController, circuit breaker on the path,
-whole-query SWR cache, persisted client cache.
+**Phase 4 — Fan-out performance** — ✅ done 2026-07-31, with one carve-out
+Issue 13. Per-chain budgets, circuit breaker on the path, whole-query SWR cache,
+persisted client cache — all landed and measured.
+
+**Not done: real `AbortController` cancellation through the adapters.** It needs
+an interface change on `ChainAdapter.searchProducts` threaded through all seven
+adapters plus the Playwright path, which is a refactor of its own rather than a
+performance fix, and it is not what the user is feeling. Note the leak is already
+bounded: `SourceHttpClient` gives every HTTP request its own AbortController and
+timeout, so what survives a soft-timeout is the remainder of a multi-step
+adapter, not an unbounded socket. Worth doing, but on its own.
+
+Two things the plan got wrong, both found only by running it:
+- **"Never cache a partial result" cannot be judged from `metadata.sourceWarnings`.**
+  The optional web-search augmentation emits warnings of its own most of the
+  time (Google 400s), so that test rejected essentially everything and the cache
+  never populated at all. Completeness now means *every requested vendor chain
+  answered*, decided in `SearchService`, which is the only place that knows.
+- **Persisting the client cache achieves nothing on its own.** `SearchView` hid
+  results behind skeletons whenever `isFetching`, so a restored result was
+  blanked by the background refresh it triggered. Fixed by only showing
+  skeletons when there is genuinely nothing to show.
 
 **Phase 5 — Location correctness**
 Issue 4. GeoAdmin origins widened, validation on blur, inline invalid state.

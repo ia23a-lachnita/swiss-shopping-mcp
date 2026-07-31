@@ -154,6 +154,11 @@ export function SearchView(): React.JSX.Element {
   //  - chains still out but the estimate is spent → say so rather than sit on
   //    "0s" or a countdown that has already been proven wrong;
   //  - otherwise → show the live countdown.
+  // Skeletons mean "nothing to show yet". Once results for this exact query
+  // exist — restored from the persisted cache after a reload, or left over from
+  // a previous run — a refetch keeps them on screen instead of blanking them.
+  const showSkeletons = isFetching && visibleProducts.length === 0;
+
   const allChainsIn = progress !== undefined && progress.responded >= progress.total;
   const etaOverrun =
     !allChainsIn && (etaRemainingMs === undefined || etaRemainingMs <= 1000);
@@ -216,7 +221,7 @@ export function SearchView(): React.JSX.Element {
 
       {isFetching && (
         <div className="space-y-3" data-testid="search-loading">
-          {progress && (
+          {progress && showSkeletons && (
             <p className="flex items-center gap-1.5 text-xs text-faint" data-testid="search-progress">
               <Search className="size-3 animate-pulse" />
               <NumberFlow value={progress.productsSoFar} className="font-mono font-semibold text-ink" />
@@ -239,9 +244,17 @@ export function SearchView(): React.JSX.Element {
               )}
             </p>
           )}
-          {[0, 1, 2].map((i) => (
-            <ProductCardSkeleton key={i} />
-          ))}
+          {showSkeletons ? (
+            [0, 1, 2].map((i) => <ProductCardSkeleton key={i} />)
+          ) : (
+            // Results for this query are already on screen (restored from the
+            // persisted cache, or a previous run of the same search). Replacing
+            // them with skeletons for the background refresh would throw away
+            // the instant paint that persisting the cache exists to provide.
+            <p className="text-xs text-faint" data-testid="search-refreshing">
+              Ergebnisse werden aktualisiert…
+            </p>
+          )}
         </div>
       )}
 
@@ -288,6 +301,7 @@ export function SearchView(): React.JSX.Element {
         </p>
       )}
 
+      {/* Rendered whenever results exist, including mid-refresh — see showSkeletons. */}
       <motion.ul
         className="space-y-3"
         initial="hidden"
@@ -296,7 +310,7 @@ export function SearchView(): React.JSX.Element {
         data-testid="search-results"
       >
         <AnimatePresence>
-          {!isFetching &&
+          {!showSkeletons &&
             visibleProducts.map((product) => (
               <motion.li
                 key={`${product.chain}:${product.id}`}

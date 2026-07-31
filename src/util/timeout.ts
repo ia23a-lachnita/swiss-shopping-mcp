@@ -8,6 +8,39 @@
 export const ADAPTER_SOFT_TIMEOUT_MS = 6_000;
 
 /**
+ * Per-chain soft deadlines, replacing the single 6000ms budget for the product
+ * fan-out.
+ *
+ * One flat budget meant the *slowest* chain set the floor for every search: a
+ * chain that always times out cost a full 6s on every query, warm cache or not,
+ * which is what made caching look broken. Budgets are set by transport class,
+ * because that is what actually predicts the spread:
+ *
+ *   - JSON API (denner, volg, ottos, coop): warm p75 measured at 0.3-1.7s.
+ *   - HTML scrape (aldi, lidl): a page fetch plus parse, measured up to ~4.5s.
+ *   - Headless browser (migros): Playwright has to clear Cloudflare first.
+ *
+ * These are deliberately above each class's measured p75, not at it — the point
+ * is to cut off the pathological tail, not to start failing healthy requests.
+ * A chain exceeding its budget is dropped from *this* search only and reported
+ * as a source warning; it is never treated as an error for the whole query.
+ */
+export const CHAIN_SOFT_TIMEOUT_MS: Record<string, number> = {
+  coop: 3_000,
+  denner: 3_000,
+  volg: 3_000,
+  ottos: 3_000,
+  aldi: 5_000,
+  lidl: 5_000,
+  migros: 6_000,
+};
+
+/** Budget for `chain`, falling back to the global soft timeout for unknown chains. */
+export function chainTimeoutMs(chain: string): number {
+  return CHAIN_SOFT_TIMEOUT_MS[chain] ?? ADAPTER_SOFT_TIMEOUT_MS;
+}
+
+/**
  * Races `operation` against `timeoutMs`. If the timer fires first, resolves
  * to `onTimeout()` instead of waiting further — the underlying operation is
  * not cancelled, just no longer waited on, so a slow adapter can still
