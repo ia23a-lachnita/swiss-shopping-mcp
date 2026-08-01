@@ -32,13 +32,28 @@ import {
  */
 
 const evalDir = fileURLToPath(new URL('.', import.meta.url));
-const fixturesDir = join(evalDir, 'fixtures');
 const baselinePath = join(evalDir, 'baseline.json');
+
+/**
+ * Two tiers, scored separately.
+ *
+ * `vendor` is the raw fan-out. `web` adds the web-search augmentation, which
+ * injects web-discovered products at the *head* of the merged list — ahead of
+ * everything the adapters returned — so it can place a product in the top 5
+ * that the vendor tier never saw. A gate that only covered the vendor tier
+ * would be blind to exactly that.
+ */
+const TIERS = [
+  { name: 'vendor', dir: join(evalDir, 'fixtures') },
+  { name: 'web', dir: join(evalDir, 'fixtures-web') },
+] as const;
 
 interface Fixture {
   id: string;
   query: string;
   capturedAt: string;
+  /** Web tier only: whether augmentation changed the pool vs the vendor tier. */
+  augmented?: boolean;
   products: Array<{
     chain: string;
     name: string;
@@ -50,12 +65,12 @@ interface Fixture {
   }>;
 }
 
-function loadFixtures(): Map<string, Fixture> {
-  if (!existsSync(fixturesDir)) return new Map();
-  const entries = readdirSync(fixturesDir).filter((file) => file.endsWith('.json'));
+function loadFixtures(dir: string): Map<string, Fixture> {
+  if (!existsSync(dir)) return new Map();
+  const entries = readdirSync(dir).filter((file) => file.endsWith('.json'));
   return new Map(
     entries.map((file) => {
-      const fixture = JSON.parse(readFileSync(join(fixturesDir, file), 'utf8')) as Fixture;
+      const fixture = JSON.parse(readFileSync(join(dir, file), 'utf8')) as Fixture;
       return [fixture.id, fixture];
     })
   );
@@ -86,19 +101,49 @@ function rankedFor(fixture: Fixture, query: string): ScoredProduct[] {
     .map((product) => ({ chain: product.chain, name: product.name, brand: product.brand }));
 }
 
-const fixtures = loadFixtures();
-const baseline = existsSync(baselinePath)
-  ? (JSON.parse(readFileSync(baselinePath, 'utf8')) as Baseline & { knownGateViolations: string[] })
-  : undefined;
+type TierBaseline = Baseline & { knownGateViolations: string[] };
 
-const covered = GOLDEN_QUERIES.filter((query) => fixtures.has(query.id));
+const baselines = existsSync(baselinePath)
+  ? (JSON.parse(readFileSync(baselinePath, 'utf8')) as { tiers: Record<string, TierBaseline> }).tiers
+  : {};
 
-describe.skipIf(covered.length === 0)('search relevance golden set', () => {
+const presentTiers = TIERS.filter((tier) => loadFixtures(tier.dir).size > 0);
+
+describe('search relevance tiers', () => {
+  it('has the vendor tier captured', () => {
+    // The vendor tier is mandatory: without it this file would pass by having
+    // nothing to score, which is the failure mode it exists to prevent.
+    expect(
+      presentTiers.map((tier) => tier.name),
+      'run npm run eval:capture'
+    ).toContain('vendor');
+  });
+
+  it('only counts web-tier fixtures where augmentation actually contributed', () => {
+    // A web fixture identical to its vendor counterpart means the provider was
+    // rate-limited or unreachable at capture time. Committing it would report
+    // coverage of the augmentation path while asserting nothing about it.
+    const web = loadFixtures(TIERS[1].dir);
+    const notAugmented = [...web.values()].filter((fixture) => fixture.augmented === false);
+    expect(
+      notAugmented.map((f) => f.id),
+      're-capture with a healthy web-search provider, or drop these fixtures'
+    ).toEqual([]);
+  });
+});
+
+describe.each(presentTiers)('search relevance golden set — $name tier', ({ name, dir }) => {
+  const fixtures = loadFixtures(dir);
+  const covered = GOLDEN_QUERIES.filter((query) => fixtures.has(query.id));
+  const baseline = baselines[name];
+
   const report: RelevanceReport = buildReport(
     covered.map((query) => scoreQuery(query, rankedFor(fixtures.get(query.id)!, query.query)))
   );
 
-  it('has a fixture for every golden query', () => {
+  it.skipIf(name !== 'vendor')('has a fixture for every golden query', () => {
+    // Vendor tier only — the web tier is deliberately a subset (see
+    // WEB_TIER_QUERY_IDS), because augmentation is rate-limited.
     const missing = GOLDEN_QUERIES.filter((query) => !fixtures.has(query.id)).map((q) => q.id);
     expect(missing, 'run scripts/captureGoldenFixtures.mjs').toEqual([]);
   });
@@ -136,8 +181,8 @@ describe.skipIf(covered.length === 0)('search relevance golden set', () => {
     // see which linguistic class moved, which an aggregate number hides.
     // eslint-disable-next-line no-console -- the report is the point of this test
     console.log(
-      `\nRanking (answered queries): P@5 ${report.precisionAt5} · MRR ${report.mrr} · n=${report.scored}` +
-        `\nEnd to end (all queries):  P@5 ${report.overallPrecisionAt5} · MRR ${report.overallMrr} · coverage ${report.coverage}` +
+      `\n[${name}] Ranking (answered queries): P@5 ${report.precisionAt5} · MRR ${report.mrr} · n=${report.scored}` +
+        `\n[${name}] End to end (all queries):  P@5 ${report.overallPrecisionAt5} · MRR ${report.overallMrr} · coverage ${report.coverage}` +
         `\nBy bucket: ${Object.entries(report.byBucket)
           .map(([bucket, m]) => `${bucket} P@5 ${m.precisionAt5}/MRR ${m.mrr} (n=${m.queries})`)
           .join(' · ')}` +

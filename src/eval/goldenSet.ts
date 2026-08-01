@@ -138,3 +138,30 @@ export const GOLDEN_QUERIES: GoldenQuery[] = [
 ];
 
 export const GOLDEN_QUERIES_BY_ID = new Map(GOLDEN_QUERIES.map((q) => [q.id, q]));
+
+/**
+ * Queries captured a second time *with* web-search augmentation.
+ *
+ * A deliberate subset, not the whole corpus. Augmentation is rate-limited and
+ * circuit-broken: the provider opens after 3 failures and stays open for five
+ * minutes, and daily provider budgets are in the tens of requests. Capturing
+ * all 51 queries therefore exhausts augmentation partway through and silently
+ * writes vendor-only pools into the web tier — a fixture set that looks like
+ * coverage and asserts nothing. Measured: a 51-query web capture produced
+ * pools identical to the vendor tier for 49 of 51 queries.
+ *
+ * So the tier is scoped to where augmentation can actually do damage: it
+ * injects web-discovered products at the *head* of the merged list, so the
+ * risk is concentrated in the queries whose wrong answers we know about, plus
+ * the ambiguous compounds most likely to attract an off-target web hit.
+ */
+export const WEB_TIER_QUERY_IDS = [
+  'milchdrink-uht',
+  'protein-milch',
+  'vollmilch',
+  'dunkle-schokolade',
+  'butter',
+  'ruebli',
+  'haferflocken',
+  'bio-vollmilch',
+] as const;

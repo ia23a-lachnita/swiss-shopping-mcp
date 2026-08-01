@@ -1,11 +1,17 @@
 {
-  "_comment": "Committed baseline for the search-relevance golden set. Regenerate deliberately and review the diff — never re-baseline to make a red build green. Metrics are measured over the frozen fixtures in ./fixtures, so they only move when the ranker moves.",
+  "_comment": "Committed baseline for the search-relevance golden set. Regenerate deliberately and review the diff — never re-baseline to make a red build green. Metrics are measured over the frozen fixtures in ./fixtures and ./fixtures-web, so they only move when the ranker moves.",
   "capturedAt": "2026-08-01",
+  "_tiersComment": "vendor = raw 7-chain fan-out. web = the same fan-out plus web-search augmentation, which injects web-discovered products at the HEAD of the merged list and so can put a product in the top 5 that the vendor tier never saw. Both are gated; the local SQLite catalog is excluded from both because its contents are environment-specific and would make fixtures irreproducible.",
   "_metricsComment": "precisionAt5/mrr measure RANKING over queries that returned something. coverage is the answer rate and is gated separately: a query-understanding change that stops matching a hard class of queries would otherwise raise the ranking metrics by removing those queries from the average.",
-  "precisionAt5": 0.991,
-  "mrr": 1.0,
-  "coverage": 0.902,
-  "tolerance": 0.01,
-  "_knownGateViolationsComment": "Empty on purpose. Both defects this corpus was built around — Milchdrink UHT returning Milchschokolade, and Protein Milch returning bread — do NOT reproduce against the 2026-08-01 capture. The gate queries therefore act as regression guards rather than documented breakage; if either reappears in the top 5, the build fails.",
-  "knownGateViolations": []
+  "_knownGateViolationsComment": "Empty on purpose in both tiers. The two defects this corpus was built around — Milchdrink UHT returning Milchschokolade, and Protein Milch returning bread — do NOT reproduce in either tier against the 2026-08-01 capture. They are not known to be fixed (matcher.ts last changed 2026-06-19, six weeks before they were reported), so the gate queries stay armed as regression guards rather than being recorded as accepted breakage.",
+  "tiers": {
+    "vendor": {
+      "precisionAt5": 0.991,
+      "mrr": 1.0,
+      "coverage": 0.902,
+      "tolerance": 0.01,
+      "knownGateViolations": []
+    }
+  },
+  "_webTierComment": "No web-tier fixtures are committed. Augmentation could not be captured honestly from this machine: the auto chain is ddg-html -> ddg-lite -> google-cse, and here both DDG endpoints return an HTTP 202 bot challenge while google CSE returns a permanent 400. The paid providers whose keys are configured are deliberately NOT in the auto chain (decided 2026-07-25 — DDG works through the deployed egress). A capture attempted anyway produced pools identical to the vendor tier for 49 of 51 queries, i.e. coverage in name only, so it was discarded rather than committed. Re-run `npm run eval:capture -- --web` from an egress DDG serves."
 }

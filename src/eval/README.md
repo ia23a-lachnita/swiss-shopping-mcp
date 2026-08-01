@@ -64,10 +64,37 @@ Fixtures are a snapshot of a live catalogue and will drift. Re-capture
 deliberately and review the diff. Never re-capture to make a red build green —
 that proves nothing and destroys the only baseline you had.
 
-Capture uses a bare `SearchService` (no catalog, no web augmentation, no
-breaker/cache) so the fixture is the raw vendor candidate pool rather than a
-cache artefact. Note this means the harness does **not** currently cover the
-web-search augmentation path.
+Capture uses a bare `SearchService` (no breaker, no cache) so the fixture is the
+raw candidate pool rather than a cache artefact. The local SQLite catalog is
+excluded from both tiers because its contents are environment-specific (a few
+hundred rows here, a different set on the Pi) and fixtures captured against it
+would not be reproducible.
+
+## The web-augmentation tier
+
+`npm run eval:capture -- --web` captures a second tier into `fixtures-web/` for
+the subset in `WEB_TIER_QUERY_IDS`. It exists because augmentation injects
+web-discovered products at the *head* of the merged list, so it can put a
+product in the top 5 that the vendor tier never saw.
+
+**No web fixtures are currently committed, and that is deliberate.** From this
+machine the augmentation path cannot be exercised at all: the auto chain is
+`ddg-html → ddg-lite → google-cse`, both DDG endpoints answer with an HTTP 202
+bot challenge here, and google CSE returns a permanent 400 (it has been closed
+to new customers since 2026-07-13). The four paid providers whose keys are
+configured are deliberately *not* in the auto chain — that was decided
+2026-07-25 on the grounds that DDG works through the deployed egress, so this is
+a local-egress symptom and not necessarily a production one.
+
+A capture run anyway produced pools identical to the vendor tier for 49 of 51
+queries. Committing that would have reported coverage of the augmentation path
+while asserting nothing about it, so it was discarded. The capture script now
+stamps each web fixture with `augmented: true|false` by diffing against its
+vendor counterpart, warns loudly when augmentation contributed nothing, and the
+suite fails on any committed fixture with `augmented: false`.
+
+To close the gap, run the web capture from an egress DuckDuckGo serves (the Pi),
+and commit the result.
 
 ## Known state (2026-08-01)
 
