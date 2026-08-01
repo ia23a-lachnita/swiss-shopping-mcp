@@ -1,0 +1,155 @@
+{
+  "id": "bio-vollmilch",
+  "query": "Bio Vollmilch",
+  "capturedAt": "2026-08-01T09:01:05.170Z",
+  "products": [
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Vollmilch 3,9% Milchfett Past",
+      "brand": "Naturaplan",
+      "category": "Frische Milch",
+      "tags": [],
+      "price": 1.2,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Vollmilch 3,9% Milchfett UHT",
+      "brand": "Naturaplan",
+      "category": "UHT Milch",
+      "tags": [],
+      "price": 1.4,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Free From Bio Vollmilch pasteurisiert",
+      "brand": "Free From",
+      "category": "Frische Milch",
+      "tags": [],
+      "price": 1.5,
+      "unit": null
+    },
+    {
+      "chain": "denner",
+      "name": "Emmi Bio-Vollmilch",
+      "brand": null,
+      "category": "1144362",
+      "tags": [],
+      "price": 1.85,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Vollmilch 3,9% Milchfett Past",
+      "brand": "Naturaplan",
+      "category": "Frische Milch",
+      "tags": [],
+      "price": 1.9,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Aus der Region Bio Vollmilch",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 2.1,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Demeter Bio Vollmilch 3,9% Milchfett Past",
+      "brand": "Naturaplan",
+      "category": "Frische Milch",
+      "tags": [],
+      "price": 2.25,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Vollmilch pasteurisiert 3.9% Milchfett",
+      "brand": "Naturaplan",
+      "category": "Frische Milch",
+      "tags": [],
+      "price": 3.2,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Vollmilch 3,9% Milchfett UHT 6x1l",
+      "brand": "Naturaplan",
+      "category": "Multipacks ab 1l",
+      "tags": [],
+      "price": 11.7,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Bio Regio Gruyère Vollmilch past PET",
+      "brand": "Naturaplan",
+      "category": "Frische Milch",
+      "tags": [],
+      "price": 1.35,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Vollmilch Migros Bio",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 1.35,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Bio Regio Gruyère Vollmilch past PET",
+      "brand": "Naturaplan",
+      "category": "Frische Milch",
+      "tags": [],
+      "price": 2.05,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Regio Vollmilch 3,9% Milchfett Past Aargau",
+      "brand": "Naturaplan",
+      "category": "Frische Milch",
+      "tags": [],
+      "price": 2.05,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Regio Vollmilch 3,9% Milchfett Past Züribiet",
+      "brand": "Naturaplan",
+      "category": "Frische Milch",
+      "tags": [],
+      "price": 2.05,
+      "unit": null
+    },
+    {
+      "chain": "aldi",
+      "name": "Vollmilch, Pasteurisiert",
+      "brand": "RETOUR AUX SOURCES",
+      "category": "Retour aux sources (Bio)",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 1.85,
+      "unit": null
+    },
+    {
+      "chain": "aldi",
+      "name": "Vollmilch, UHT",
+      "brand": "RETOUR AUX SOURCES",
+      "category": "Retour aux sources (Bio)",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 1.95,
+      "unit": null
+    }
+  ]
+}

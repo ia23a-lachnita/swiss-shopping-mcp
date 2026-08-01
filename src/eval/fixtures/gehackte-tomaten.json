@@ -1,0 +1,34 @@
+{
+  "id": "gehackte-tomaten",
+  "query": "gehackte Tomaten",
+  "capturedAt": "2026-08-01T09:01:21.430Z",
+  "products": [
+    {
+      "chain": "coop",
+      "name": "Gehackte Tomaten",
+      "brand": "Coop",
+      "category": "Tomatenkonserven",
+      "tags": [],
+      "price": 1.5,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Gehackte Tomaten Tetra Pak",
+      "brand": "Naturaplan",
+      "category": "Tomatenkonserven",
+      "tags": [],
+      "price": 1.65,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Gehackte Tomaten 12x400g",
+      "brand": "Coop",
+      "category": "Tomatenkonserven",
+      "tags": [],
+      "price": 10.8,
+      "unit": null
+    }
+  ]
+}

@@ -1,0 +1,367 @@
+{
+  "id": "olivenoel",
+  "query": "Olivenöl",
+  "capturedAt": "2026-08-01T08:59:56.570Z",
+  "products": [
+    {
+      "chain": "migros",
+      "name": "Olivenöl ",
+      "brand": "Don Pablo",
+      "category": "",
+      "tags": [],
+      "price": 5.6,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Olivenöl",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 7,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Olivenöl ",
+      "brand": "M-Budget",
+      "category": "",
+      "tags": [],
+      "price": 7.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Olivenöl ",
+      "brand": "Alnatura",
+      "category": "",
+      "tags": [],
+      "price": 8.5,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Olivenöl",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 8.76,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Olivenöl",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 8.76,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Olivenöl ",
+      "brand": "Don Pablo",
+      "category": "",
+      "tags": [],
+      "price": 9.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Olivenöl ",
+      "brand": "Vitto",
+      "category": "",
+      "tags": [],
+      "price": 9.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Olivenöl",
+      "brand": "Sapigni",
+      "category": "",
+      "tags": [],
+      "price": 16.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Olivenöl",
+      "brand": "Monini",
+      "category": "",
+      "tags": [],
+      "price": 19.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Pasta Gusto Olivenöl & Basilikum",
+      "brand": "Bon Chef",
+      "category": "",
+      "tags": [],
+      "price": 3.6,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "San Giuliano Olivenöl extra vergine",
+      "brand": "San Giuliano",
+      "category": "Olivenöl",
+      "tags": [],
+      "price": 3.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Filippo Berio Olivenöl extra vergine",
+      "brand": "Filippo Berio",
+      "category": "Olivenöl",
+      "tags": [],
+      "price": 4.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Filippo Berio Olivenöl Airfryer Spray",
+      "brand": "Filippo Berio",
+      "category": "Olivenöl",
+      "tags": [],
+      "price": 5.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Filippo Berio Olivenöl extra vergine Spray",
+      "brand": "Filippo Berio",
+      "category": "Olivenöl",
+      "tags": [],
+      "price": 6.5,
+      "unit": null
+    },
+    {
+      "chain": "ottos",
+      "name": "Dr. Sacher's Olivenöl Gesichts- und Körpercreme",
+      "brand": "Dr. Sacher's",
+      "category": "Root",
+      "tags": [],
+      "price": 6.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Olivenöl extra vergine",
+      "brand": "Coop",
+      "category": "Olivenöl",
+      "tags": [],
+      "price": 6.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie Olivenöl zum Braten",
+      "brand": "Prix Garantie",
+      "category": "Olivenöl",
+      "tags": [],
+      "price": 7,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Manaki griechisches Olivenöl",
+      "brand": "Alexis",
+      "category": "",
+      "tags": [],
+      "price": 7.5,
+      "unit": null
+    },
+    {
+      "chain": "volg",
+      "name": "Rio Mare Thon Im Olivenöl",
+      "brand": null,
+      "category": "Konserven",
+      "tags": [],
+      "price": 7.55,
+      "unit": null
+    },
+    {
+      "chain": "denner",
+      "name": "enerBiO natives Olivenöl extra",
+      "brand": null,
+      "category": "1144362",
+      "tags": [],
+      "price": 7.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Demeter Olivenöl extra vergine mit Basilikum",
+      "brand": "Naturaplan",
+      "category": "Olivenöl",
+      "tags": [],
+      "price": 7.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Demeter Olivenöl extra vergine mit Zitrone",
+      "brand": "Naturaplan",
+      "category": "Olivenöl",
+      "tags": [],
+      "price": 7.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Demeter Olivenöl mit Chili",
+      "brand": "Naturaplan",
+      "category": "Olivenöl",
+      "tags": [],
+      "price": 7.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie Olivenöl extra vergine",
+      "brand": "Prix Garantie",
+      "category": "Olivenöl",
+      "tags": [],
+      "price": 7.95,
+      "unit": null
+    },
+    {
+      "chain": "ottos",
+      "name": "Sabo Olivenöl EV Mittelmeer 1 Liter",
+      "brand": "Sabo",
+      "category": "Root",
+      "tags": [],
+      "price": 7.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Filippo Berio Olivenöl extra vergine",
+      "brand": "Filippo Berio",
+      "category": "Olivenöl",
+      "tags": [],
+      "price": 8.5,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Filippo Berio Olivenöl extra vergine Squeeze",
+      "brand": "Filippo Berio",
+      "category": "Olivenöl",
+      "tags": [],
+      "price": 8.5,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Griechisches Olivenöl",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 9.12,
+      "unit": null
+    },
+    {
+      "chain": "volg",
+      "name": "Bertolli Olivenöl Extra Vergine",
+      "brand": null,
+      "category": "Öl &amp; Fett",
+      "tags": [],
+      "price": 9.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Bio 365 Olivenöl extra vergine",
+      "brand": "Bio 365",
+      "category": "Olivenöl",
+      "tags": [],
+      "price": 9.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Filippo Berio Olivenöl extra vergine Collection",
+      "brand": "Filippo Berio",
+      "category": "Olivenöl",
+      "tags": [],
+      "price": 9.95,
+      "unit": null
+    },
+    {
+      "chain": "ottos",
+      "name": "Monini Olivenöl extra vergine Classico",
+      "brand": "Monini",
+      "category": "Root",
+      "tags": [],
+      "price": 9.95,
+      "unit": null
+    },
+    {
+      "chain": "ottos",
+      "name": "Olive Oils Land Olivenöl EV Türkei 1 Liter",
+      "brand": "",
+      "category": "Root",
+      "tags": [],
+      "price": 9.95,
+      "unit": null
+    },
+    {
+      "chain": "ottos",
+      "name": "Rio Mare Thunfisch Piccante Olivenöl 2x",
+      "brand": "Rio Mare",
+      "category": "Root",
+      "tags": [],
+      "price": 9.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Koroneiki griechisches Olivenöl",
+      "brand": "Alexis",
+      "category": "",
+      "tags": [],
+      "price": 10.5,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Bio Olivenöl extra vergine Kreta",
+      "brand": "Naturaplan",
+      "category": "Olivenöl",
+      "tags": [],
+      "price": 11.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Brat Olivenöl",
+      "brand": "Alnatura",
+      "category": "",
+      "tags": [],
+      "price": 11.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Cavanna Olivenöl extra vergine",
+      "brand": "CAVANNA",
+      "category": "Olivenöl",
+      "tags": [],
+      "price": 11.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Iliada Olivenöl PDO Kalamata extra vergine",
+      "brand": "Iliada",
+      "category": "Olivenöl",
+      "tags": [],
+      "price": 11.95,
+      "unit": null
+    }
+  ]
+}

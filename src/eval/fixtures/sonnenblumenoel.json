@@ -1,0 +1,178 @@
+{
+  "id": "sonnenblumenoel",
+  "query": "Sonnenblumenöl",
+  "capturedAt": "2026-08-01T08:59:51.562Z",
+  "products": [
+    {
+      "chain": "migros",
+      "name": "Sonnenblumenöl ",
+      "brand": "M-Classic",
+      "category": "",
+      "tags": [],
+      "price": 2.7,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Sonnenblumenöl ",
+      "brand": "M-Classic",
+      "category": "",
+      "tags": [],
+      "price": 4,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Sonnenblumenöl ",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 4.52,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Sonnenblumenöl",
+      "brand": "Alnatura",
+      "category": "",
+      "tags": [],
+      "price": 6.5,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Sonnenblumenöl ",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 10.8,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Sonnenblumenöl",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 13.8,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie MSC Thon rosé Sonnenblumenöl",
+      "brand": "Prix Garantie",
+      "category": "Thunfisch mit Öl",
+      "tags": [],
+      "price": 1.35,
+      "unit": null
+    },
+    {
+      "chain": "volg",
+      "name": "Msc Thon Rose In Sonnenblumenöl",
+      "brand": null,
+      "category": "Konserven",
+      "tags": [],
+      "price": 2.1,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Dagim Thon in Sonnenblumenöl Koscher",
+      "brand": "King of Ocean",
+      "category": "Thunfisch mit Öl",
+      "tags": [],
+      "price": 3.3,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "IP-Suisse Sonnenblumenöl",
+      "brand": "Coop",
+      "category": "Sonnenblumenöl & Pflanzenöl",
+      "tags": [],
+      "price": 3.95,
+      "unit": null
+    },
+    {
+      "chain": "denner",
+      "name": "IP-SUISSE Sonnenblumenöl",
+      "brand": null,
+      "category": "1144362",
+      "tags": [],
+      "price": 3.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie Sonnenblumenöl",
+      "brand": "Prix Garantie",
+      "category": "Sonnenblumenöl & Pflanzenöl",
+      "tags": [],
+      "price": 4,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Schweizer Sonnenblumenöl",
+      "brand": "Coop",
+      "category": "Sonnenblumenöl & Pflanzenöl",
+      "tags": [],
+      "price": 4.95,
+      "unit": null
+    },
+    {
+      "chain": "volg",
+      "name": "Volg Sonnenblumenöl",
+      "brand": null,
+      "category": "Öl &amp; Fett",
+      "tags": [],
+      "price": 5.6,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Sonnenblumenöl kaltgepresst",
+      "brand": "Naturaplan",
+      "category": "Sonnenblumenöl & Pflanzenöl",
+      "tags": [],
+      "price": 5.65,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Sabo Sonnenblumenöl",
+      "brand": "Sabo",
+      "category": "Sonnenblumenöl & Pflanzenöl",
+      "tags": [],
+      "price": 6.6,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Qualité & Prix Thon rosé in Sonnenblumenöl 6x155g",
+      "brand": "Coop",
+      "category": "Thunfisch mit Öl",
+      "tags": [],
+      "price": 7.8,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Sabo Schweizer Sonnenblumenöl H.O. 2L",
+      "brand": "Sabo",
+      "category": "Sonnenblumenöl & Pflanzenöl",
+      "tags": [],
+      "price": 12.5,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Bratöl aus Schweizer High Oeic Sonnenblumenöl",
+      "brand": "Naturaplan",
+      "category": "Sonnenblumenöl & Pflanzenöl",
+      "tags": [],
+      "price": 12.95,
+      "unit": null
+    }
+  ]
+}

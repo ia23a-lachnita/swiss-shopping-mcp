@@ -1,0 +1,25 @@
+{
+  "id": "reinigungsmittel",
+  "query": "Reinigungsmittel",
+  "capturedAt": "2026-08-01T09:02:32.328Z",
+  "products": [
+    {
+      "chain": "denner",
+      "name": "Cif Reinigungsmittel Crème Citrus",
+      "brand": null,
+      "category": "1144377",
+      "tags": [],
+      "price": 9.9,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Dreame Reinigungsmittel 1 L für C1",
+      "brand": "DREAME",
+      "category": "Glasreiniger",
+      "tags": [],
+      "price": 24.95,
+      "unit": null
+    }
+  ]
+}

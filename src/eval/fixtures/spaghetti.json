@@ -1,0 +1,377 @@
+{
+  "id": "spaghetti",
+  "query": "Spaghetti",
+  "capturedAt": "2026-08-01T09:00:35.105Z",
+  "products": [
+    {
+      "chain": "aldi",
+      "name": "Spaghetti",
+      "brand": "CUCINA NOBILE",
+      "category": "Vorräte",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 1.19,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Spaghetti",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 1.2,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Spaghetti",
+      "brand": "Alnatura",
+      "category": "",
+      "tags": [],
+      "price": 1.2,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Spaghetti",
+      "brand": "Sgambaro",
+      "category": "",
+      "tags": [],
+      "price": 1.5,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Spaghetti",
+      "brand": "Bel Ticino",
+      "category": "",
+      "tags": [],
+      "price": 1.9,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Spaghetti",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 2.3,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Spaghetti",
+      "brand": "Alnatura",
+      "category": "",
+      "tags": [],
+      "price": 2.4,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Spaghetti",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 2.45,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Spaghetti",
+      "brand": "Agnesi",
+      "category": "",
+      "tags": [],
+      "price": 2.5,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Spaghetti",
+      "brand": "Agnesi",
+      "category": "",
+      "tags": [],
+      "price": 2.5,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Spaghetti",
+      "brand": "Agnesi",
+      "category": "",
+      "tags": [],
+      "price": 2.5,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Spaghetti",
+      "brand": "La Molisana",
+      "category": "",
+      "tags": [],
+      "price": 2.5,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Spaghetti",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 2.56,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Spaghetti",
+      "brand": "Garofalo",
+      "category": "",
+      "tags": [],
+      "price": 2.8,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Spaghetti",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 2.8,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Spaghetti",
+      "brand": "Poggio del Farro",
+      "category": "",
+      "tags": [],
+      "price": 3.16,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Spaghetti",
+      "brand": "Garofalo",
+      "category": "",
+      "tags": [],
+      "price": 3.4,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Spaghetti",
+      "brand": "Agnesi",
+      "category": "",
+      "tags": [],
+      "price": 3.4,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Spaghetti",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 4.2,
+      "unit": null
+    },
+    {
+      "chain": "aldi",
+      "name": "Spaghetti,  Hartweizen",
+      "brand": "BIO",
+      "category": "Vorräte",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 1.19,
+      "unit": null
+    },
+    {
+      "chain": "aldi",
+      "name": "Spaghetti, Vollkorn",
+      "brand": "BIO",
+      "category": "Vorräte",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 1.19,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Bio 365 Spaghetti",
+      "brand": "Bio 365",
+      "category": "Spaghetti",
+      "tags": [],
+      "price": 1.2,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Bio 365 Vollkorn Spaghetti",
+      "brand": "Bio 365",
+      "category": "Spaghetti",
+      "tags": [],
+      "price": 1.2,
+      "unit": null
+    },
+    {
+      "chain": "denner",
+      "name": "Denner Spaghetti",
+      "brand": null,
+      "category": "1144362",
+      "tags": [],
+      "price": 1.2,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie Spaghetti",
+      "brand": "Prix Garantie",
+      "category": "Spaghetti",
+      "tags": [],
+      "price": 1.2,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Vollkorn Spaghetti",
+      "brand": "Alnatura",
+      "category": "",
+      "tags": [],
+      "price": 1.2,
+      "unit": null
+    },
+    {
+      "chain": "aldi",
+      "name": "Dinkel Pasta, Spaghetti",
+      "brand": "CUCINA",
+      "category": "Vorräte",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 1.69,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Vollkorn Spaghettini",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 1.72,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Spaghetti Bolognese Brei ",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 1.8,
+      "unit": null
+    },
+    {
+      "chain": "denner",
+      "name": "EnerBiO Dinkel-Spaghetti",
+      "brand": null,
+      "category": "1144362",
+      "tags": [],
+      "price": 2.15,
+      "unit": null
+    },
+    {
+      "chain": "aldi",
+      "name": "Glutenfreie Teigwaren, Spaghetti",
+      "brand": "MY VAY",
+      "category": "Vegetarisch & Vegan",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 2.29,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Spaghetti Bolognese Brei ",
+      "brand": "Hipp",
+      "category": "",
+      "tags": [],
+      "price": 2.35,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Gala 3-Eier Spaghetti",
+      "brand": "Gala",
+      "category": "Spaghetti",
+      "tags": [],
+      "price": 2.45,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Gala 3-Eier Spaghettini",
+      "brand": "Gala",
+      "category": "Spaghetti",
+      "tags": [],
+      "price": 2.45,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie Spaghetti Bolognese",
+      "brand": "Prix Garantie",
+      "category": "Pasta mit Sauce",
+      "tags": [],
+      "price": 2.45,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie Spaghetti Carbonara",
+      "brand": "Prix Garantie",
+      "category": "Pasta mit Sauce",
+      "tags": [],
+      "price": 2.45,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Spaghetti Bolognese Brei ",
+      "brand": "Hipp",
+      "category": "",
+      "tags": [],
+      "price": 2.45,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Spaghetti mit Tomaten und Mozzarella ",
+      "brand": "Hipp",
+      "category": "",
+      "tags": [],
+      "price": 2.45,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Spaghettini",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 2.45,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Barilla Spaghetti No. 5",
+      "brand": "Barilla",
+      "category": "Spaghetti",
+      "tags": [],
+      "price": 2.5,
+      "unit": null
+    }
+  ]
+}

@@ -1,0 +1,178 @@
+{
+  "id": "protein-milch",
+  "query": "Protein Milch",
+  "capturedAt": "2026-08-01T09:01:00.155Z",
+  "products": [
+    {
+      "chain": "coop",
+      "name": "High Protein Milchdrink",
+      "brand": "Coop",
+      "category": "Milchalternativen Vegan",
+      "tags": [],
+      "price": 2.25,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Milch",
+      "brand": "Migros High Protein",
+      "category": "",
+      "tags": [],
+      "price": 2.2,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "High Protein Apple-Cinnamon",
+      "brand": "High Protein",
+      "category": "Milchshakes & Lassi",
+      "tags": [],
+      "price": 1.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "High Protein Drink Banana",
+      "brand": "High Protein",
+      "category": "Milchshakes & Lassi",
+      "tags": [],
+      "price": 1.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "High Protein Drink Choco",
+      "brand": "High Protein",
+      "category": "Milchshakes & Lassi",
+      "tags": [],
+      "price": 1.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "High Protein Drink Choco Macchiato",
+      "brand": "High Protein",
+      "category": "Schoko-Milch",
+      "tags": [],
+      "price": 1.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "High Protein Drink Erdbeere",
+      "brand": "High Protein",
+      "category": "Milchshakes & Lassi",
+      "tags": [],
+      "price": 1.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "High Protein Drink Nature",
+      "brand": "High Protein",
+      "category": "Spezialmilch",
+      "tags": [],
+      "price": 1.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "High Protein Drink Vanille",
+      "brand": "High Protein",
+      "category": "Milchshakes & Lassi",
+      "tags": [],
+      "price": 1.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "High Protein Double Zero Banana-Choco",
+      "brand": "High Protein",
+      "category": "Milchshakes & Lassi",
+      "tags": [],
+      "price": 2.1,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "High Protein Drink Choco & Nuts",
+      "brand": "High Protein",
+      "category": "Milchshakes & Lassi",
+      "tags": [],
+      "price": 2.3,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Emmi good day Protein Milk UHT",
+      "brand": "Emmi good day",
+      "category": "Spezialmilch",
+      "tags": [],
+      "price": 2.8,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Emmi Energy Milk High Protein Double Zero Banana",
+      "brand": "Emmi Energy Milk",
+      "category": "Milchshakes & Lassi",
+      "tags": [],
+      "price": 3.1,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Emmi Energy Milk High Protein Double Zero Choco",
+      "brand": "Emmi Energy Milk",
+      "category": "Milchshakes & Lassi",
+      "tags": [],
+      "price": 3.1,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Emmi Energy Milk High Protein Zero Vanille",
+      "brand": "Emmi Energy Milk",
+      "category": "Milchshakes & Lassi",
+      "tags": [],
+      "price": 3.1,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Emmi Energy Milk High Protein Double Zero Erdbeere -Banane",
+      "brand": "Emmi Energy Milk",
+      "category": "Milchshakes & Lassi",
+      "tags": [],
+      "price": 3.15,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "alpro Protein nature",
+      "brand": "alpro",
+      "category": "Milchalternativen Vegan",
+      "tags": [],
+      "price": 3.5,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "vly Barista aus Erbsenprotein",
+      "brand": "vly",
+      "category": "Milchalternativen Vegan",
+      "tags": [],
+      "price": 3.75,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "vly High Protein aus Erbsenprotein",
+      "brand": "vly",
+      "category": "Milchalternativen Vegan",
+      "tags": [],
+      "price": 3.75,
+      "unit": null
+    }
+  ]
+}

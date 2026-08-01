@@ -1,0 +1,367 @@
+{
+  "id": "ovomaltine",
+  "query": "Ovomaltine",
+  "capturedAt": "2026-08-01T09:01:54.156Z",
+  "products": [
+    {
+      "chain": "coop",
+      "name": "Ovomaltine Crunchy Biscuit Pocket",
+      "brand": "Ovomaltine",
+      "category": "Guezli mit Schokoladenzutat",
+      "tags": [],
+      "price": 1.75,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Branche",
+      "brand": "Ovomaltine",
+      "category": "",
+      "tags": [],
+      "price": 1.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Ovo Break",
+      "brand": "Ovomaltine",
+      "category": "",
+      "tags": [],
+      "price": 1.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Ovomaltine Branchli",
+      "brand": "Ovomaltine",
+      "category": "Schokoladenriegel",
+      "tags": [],
+      "price": 1.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Ovomaltine Schokolade",
+      "brand": "Ovomaltine",
+      "category": "Milchschokoladentafeln",
+      "tags": [],
+      "price": 1.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Drink",
+      "brand": "Ovomaltine",
+      "category": "",
+      "tags": [],
+      "price": 2.1,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Coffee",
+      "brand": "Ovomaltine",
+      "category": "",
+      "tags": [],
+      "price": 2.5,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Milk",
+      "brand": "Ovomaltine",
+      "category": "",
+      "tags": [],
+      "price": 3.2,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Noir",
+      "brand": "Ovomaltine",
+      "category": "",
+      "tags": [],
+      "price": 3.2,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Ovomaltine Schokolade",
+      "brand": "Ovomaltine",
+      "category": "Milchschokoladentafeln",
+      "tags": [],
+      "price": 3.2,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Ovomaltine Schokolade noir",
+      "brand": "Ovomaltine",
+      "category": "Schokoladentafeln dunkel",
+      "tags": [],
+      "price": 3.2,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Drink",
+      "brand": "Ovomaltine",
+      "category": "",
+      "tags": [],
+      "price": 3.4,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Drink",
+      "brand": "Ovomaltine",
+      "category": "",
+      "tags": [],
+      "price": 3.4,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Ovomaltine Branchli Noir 5x22g",
+      "brand": "Ovomaltine",
+      "category": "Schokoladenriegel",
+      "tags": [],
+      "price": 3.45,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Ovomaltine Crunchy Cream",
+      "brand": "Ovomaltine",
+      "category": "Andere süsse Brotaufstriche",
+      "tags": [],
+      "price": 3.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Choc Ovo ",
+      "brand": "Ovomaltine",
+      "category": "",
+      "tags": [],
+      "price": 4.2,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Ovomaltine Choc Ovo Riegel 3x20g",
+      "brand": "Ovomaltine",
+      "category": "Schokoladenriegel",
+      "tags": [],
+      "price": 4.2,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Ovo Petit Beurre",
+      "brand": "Ovomaltine",
+      "category": "",
+      "tags": [],
+      "price": 4.35,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Ovomaltine Crunchy Biscuit",
+      "brand": "Ovomaltine",
+      "category": "Guezli mit Schokoladenzutat",
+      "tags": [],
+      "price": 4.35,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Ovomaltine Petit Beurre Chocolat",
+      "brand": "Ovomaltine",
+      "category": "Guezli mit Schokoüberzug",
+      "tags": [],
+      "price": 4.35,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Ovomaltine Petit Beurre Chocolat Noir",
+      "brand": "Ovomaltine",
+      "category": "Guezli mit Schokoüberzug",
+      "tags": [],
+      "price": 4.35,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Branche",
+      "brand": "Ovomaltine",
+      "category": "",
+      "tags": [],
+      "price": 4.4,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Ovomaltine Branchli 5x22g",
+      "brand": "Ovomaltine",
+      "category": "Schokoladenriegel",
+      "tags": [],
+      "price": 4.4,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Ovo Rocks",
+      "brand": "Ovomaltine",
+      "category": "",
+      "tags": [],
+      "price": 4.7,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Ovomaltine Ovo Rocks",
+      "brand": "Ovomaltine",
+      "category": "Schokoladen-Snacks",
+      "tags": [],
+      "price": 4.7,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Ovomaltine Brotaufstrich Crunchy Cream",
+      "brand": "Ovomaltine",
+      "category": "Andere süsse Brotaufstriche",
+      "tags": [],
+      "price": 4.9,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Ovomaltine Riegel Crisp Müesli Snack",
+      "brand": "Ovomaltine",
+      "category": "Müesliriegel mit Schokolade",
+      "tags": [],
+      "price": 4.9,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Riegel",
+      "brand": "Ovomaltine",
+      "category": "",
+      "tags": [],
+      "price": 4.9,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Ovo Break",
+      "brand": "Ovomaltine",
+      "category": "",
+      "tags": [],
+      "price": 4.95,
+      "unit": null
+    },
+    {
+      "chain": "ottos",
+      "name": "Ovo Crisp Müesli Snack",
+      "brand": "Ovomaltine",
+      "category": "Root",
+      "tags": [],
+      "price": 4.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Ovo Drink UHT 3x  250ml",
+      "brand": "Ovomaltine",
+      "category": "Schoko-Milch",
+      "tags": [],
+      "price": 4.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Ovomaltine Choc Ovo Riegel Mini 12x7,5g",
+      "brand": "Ovomaltine",
+      "category": "Schokoladen-Snacks",
+      "tags": [],
+      "price": 4.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Ovomaltine Ovo Sport 2x60g",
+      "brand": "Ovomaltine",
+      "category": "Schokoladen-Snacks",
+      "tags": [],
+      "price": 4.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Ovomaltine Schokolade",
+      "brand": "Ovomaltine",
+      "category": "Milchschokoladentafeln",
+      "tags": [],
+      "price": 4.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Tafel",
+      "brand": "Ovomaltine",
+      "category": "",
+      "tags": [],
+      "price": 4.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Crunchy Cream",
+      "brand": "Ovomaltine",
+      "category": "",
+      "tags": [],
+      "price": 5.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Ovomaltine Crunchy Cream Less Sugar",
+      "brand": "Ovomaltine",
+      "category": "Andere süsse Brotaufstriche",
+      "tags": [],
+      "price": 5.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Kakaogetränk",
+      "brand": "Ovomaltine",
+      "category": "",
+      "tags": [],
+      "price": 6.5,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Ovomaltine Stick 10x15g",
+      "brand": "Ovomaltine",
+      "category": "Ovomaltine & Malt",
+      "tags": [],
+      "price": 6.5,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Ovomaltine Branchli 10x22g",
+      "brand": "Ovomaltine",
+      "category": "Schokoladenriegel",
+      "tags": [],
+      "price": 6.95,
+      "unit": null
+    }
+  ]
+}

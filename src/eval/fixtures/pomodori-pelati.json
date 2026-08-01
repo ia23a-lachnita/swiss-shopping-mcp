@@ -1,0 +1,16 @@
+{
+  "id": "pomodori-pelati",
+  "query": "pomodori pelati",
+  "capturedAt": "2026-08-01T09:02:47.355Z",
+  "products": [
+    {
+      "chain": "coop",
+      "name": "Mutti Pelati Pomodori",
+      "brand": "Mutti",
+      "category": "Tomatenkonserven",
+      "tags": [],
+      "price": 1.95,
+      "unit": null
+    }
+  ]
+}

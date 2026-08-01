@@ -1,0 +1,343 @@
+{
+  "id": "toblerone",
+  "query": "Toblerone",
+  "capturedAt": "2026-08-01T09:02:14.200Z",
+  "products": [
+    {
+      "chain": "migros",
+      "name": "Crunchy Almond",
+      "brand": "Toblerone",
+      "category": "",
+      "tags": [],
+      "price": 3.3,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Dark",
+      "brand": "Toblerone",
+      "category": "",
+      "tags": [],
+      "price": 3.3,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Milchschokolade",
+      "brand": "Toblerone",
+      "category": "",
+      "tags": [],
+      "price": 3.3,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Toblerone dunkel",
+      "brand": "Toblerone",
+      "category": "Schokoladentafeln dunkel",
+      "tags": [],
+      "price": 3.3,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Toblerone Milch",
+      "brand": "Toblerone",
+      "category": "Milchschokoladentafeln",
+      "tags": [],
+      "price": 3.3,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Toblerone weiss",
+      "brand": "Toblerone",
+      "category": "Schokoladentafeln weiss",
+      "tags": [],
+      "price": 3.3,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "White",
+      "brand": "Toblerone",
+      "category": "",
+      "tags": [],
+      "price": 3.3,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Toblerone Crunchy Almonds 100g",
+      "brand": "Toblerone",
+      "category": "Nuss-Milchschokoladetafeln",
+      "tags": [],
+      "price": 3.5,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Cheesecake Toblerone 2x85g",
+      "brand": "Toblerone",
+      "category": "Frische Desserts",
+      "tags": [],
+      "price": 4.25,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Toblerone Milch 4x35g",
+      "brand": "Toblerone",
+      "category": "Milchschokoladentafeln",
+      "tags": [],
+      "price": 5.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Toblerone dunkel 3x100g",
+      "brand": "Toblerone",
+      "category": "Schokoladentafeln dunkel",
+      "tags": [],
+      "price": 6.9,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Tiny ",
+      "brand": "Toblerone",
+      "category": "",
+      "tags": [],
+      "price": 8.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Toblerone Tiny Milch 248g",
+      "brand": "Toblerone",
+      "category": "Pralinen zum Kaffee",
+      "tags": [],
+      "price": 8.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "milk",
+      "brand": "Toblerone",
+      "category": "",
+      "tags": [],
+      "price": 9.4,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Toblerone Milch",
+      "brand": "Toblerone",
+      "category": "Milchschokoladentafeln",
+      "tags": [],
+      "price": 9.4,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Tiny ",
+      "brand": "Toblerone",
+      "category": "",
+      "tags": [],
+      "price": 9.5,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Toblerone Tiny assortiert 248g",
+      "brand": "Toblerone",
+      "category": "Pralinen zum Kaffee",
+      "tags": [],
+      "price": 9.5,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Golden",
+      "brand": "Toblerone",
+      "category": "",
+      "tags": [],
+      "price": 9.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Pralinés",
+      "brand": "Toblerone",
+      "category": "",
+      "tags": [],
+      "price": 9.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Toblerone Pralinés 180g",
+      "brand": "Toblerone",
+      "category": "Klassische Pralinen",
+      "tags": [],
+      "price": 9.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Toblerone Pralinés Biscoff",
+      "brand": "Toblerone",
+      "category": "Milchschokoladentafeln mit Zutat",
+      "tags": [],
+      "price": 9.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Toblerone Tiny Milch",
+      "brand": "Toblerone",
+      "category": "Pralinen zum Kaffee",
+      "tags": [],
+      "price": 9.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Toblerone Weiss",
+      "brand": "Toblerone",
+      "category": "Schokoladentafeln weiss",
+      "tags": [],
+      "price": 9.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "White",
+      "brand": "Toblerone",
+      "category": "",
+      "tags": [],
+      "price": 9.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Dark",
+      "brand": "Toblerone",
+      "category": "",
+      "tags": [],
+      "price": 10.6,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Orange Twist",
+      "brand": "Toblerone",
+      "category": "",
+      "tags": [],
+      "price": 10.6,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Toblerone Crunchy Almonds 360g",
+      "brand": "Toblerone",
+      "category": "Nuss-Milchschokoladetafeln",
+      "tags": [],
+      "price": 10.6,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Toblerone Dark",
+      "brand": "Toblerone",
+      "category": "Schokoladentafeln dunkel",
+      "tags": [],
+      "price": 10.6,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Toblerone Orange Twist 360g",
+      "brand": "Toblerone",
+      "category": "Milchschokoladentafeln",
+      "tags": [],
+      "price": 10.6,
+      "unit": null
+    },
+    {
+      "chain": "aldi",
+      "name": "Toblerone",
+      "brand": "TOBLERONE",
+      "category": "Süssigkeiten & Snacks",
+      "tags": [
+        "in-stock",
+        "special-buy"
+      ],
+      "price": 14.99,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Toblerone Tiny Milch",
+      "brand": "Toblerone",
+      "category": "Klassische Pralinen",
+      "tags": [],
+      "price": 17.8,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Toblerone Mix Dose 3x100g",
+      "brand": "Toblerone",
+      "category": "Pralinen zum Kaffee",
+      "tags": [],
+      "price": 17.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Tiny ",
+      "brand": "Toblerone",
+      "category": "",
+      "tags": [],
+      "price": 18.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Toblerone Mix 4x100g",
+      "brand": "Toblerone",
+      "category": "Pralinen zum Kaffee",
+      "tags": [],
+      "price": 18.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Toblerone Tiny assortiert 496g",
+      "brand": "Toblerone",
+      "category": "Pralinen zum Kaffee",
+      "tags": [],
+      "price": 18.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Toblerone Milch 750G",
+      "brand": "Toblerone",
+      "category": "Milchschokoladentafeln",
+      "tags": [],
+      "price": 24.95,
+      "unit": null
+    },
+    {
+      "chain": "volg",
+      "name": "Toblerone Milch",
+      "brand": null,
+      "category": "Schokolade",
+      "tags": [],
+      "price": 3.95,
+      "unit": null
+    }
+  ]
+}

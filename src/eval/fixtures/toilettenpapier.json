@@ -1,0 +1,375 @@
+{
+  "id": "toilettenpapier",
+  "query": "Toilettenpapier",
+  "capturedAt": "2026-08-01T09:00:20.072Z",
+  "products": [
+    {
+      "chain": "coop",
+      "name": "Prix Garantie feuchtes Toilettenpapier 2x70 Stück",
+      "brand": "Prix Garantie",
+      "category": "Feuchtes Toilettenpapier",
+      "tags": [],
+      "price": 1.5,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "My Baby Junior Dragon Fruit feuchtes Toilettenpapier 60 Stück",
+      "brand": "MyBaby",
+      "category": "Toilettentücher für Kinder",
+      "tags": [],
+      "price": 1.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "My Baby Junior Feuchtes Toilettenpapier 60 Stück",
+      "brand": "MyBaby",
+      "category": "Toilettentücher für Kinder",
+      "tags": [],
+      "price": 1.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "JaMaDu feuchtesToilettenpapier 60ST",
+      "brand": "JaMaDu",
+      "category": "Feuchtes Toilettenpapier",
+      "tags": [],
+      "price": 2.5,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaline Kids Feuchtes Toilettenpapier 50 Stück",
+      "brand": "Naturaline Cosmetics",
+      "category": "Toilettentücher für Kinder",
+      "tags": [],
+      "price": 2.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Oecoplan Duckies Toilettenpapier feucht natural",
+      "brand": "Duckies",
+      "category": "Feuchtes Toilettenpapier",
+      "tags": [],
+      "price": 2.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Oecoplan Toilettenpapier feucht",
+      "brand": "Oecoplan",
+      "category": "Feuchtes Toilettenpapier",
+      "tags": [],
+      "price": 2.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Tempo Feuchtes Toilettenpapier Limited Edition 42 Tücher",
+      "brand": "Tempo",
+      "category": "Feuchtes Toilettenpapier",
+      "tags": [],
+      "price": 3.4,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Tempo Feuchtes Toilettenpapier Sanft & Pflegend 42 Tücher",
+      "brand": "Tempo",
+      "category": "Feuchtes Toilettenpapier",
+      "tags": [],
+      "price": 3.4,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Tempo Feuchtes Toilettenpapier Sanft & Pur 42 Tücher",
+      "brand": "Tempo",
+      "category": "Feuchtes Toilettenpapier",
+      "tags": [],
+      "price": 3.4,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Tempo Feuchtes Toilettenpapier Sanft & Sensitiv 42 Tücher",
+      "brand": "Tempo",
+      "category": "Feuchtes Toilettenpapier",
+      "tags": [],
+      "price": 3.4,
+      "unit": null
+    },
+    {
+      "chain": "volg",
+      "name": "Hakle Feuchtes Toilettenpapier Nachfüllpackung 42 Stk.",
+      "brand": null,
+      "category": "Hygieneartikel",
+      "tags": [],
+      "price": 3.65,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie Toilettenpapier 3-lagig 10 Rollen",
+      "brand": "Prix Garantie",
+      "category": "Trockenes Toilettenpapier",
+      "tags": [],
+      "price": 3.75,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Hipp Feuchts Toilettenpapier Ultra-Sensitiv 50 Stück",
+      "brand": "Hipp",
+      "category": "Toilettentücher für Kinder",
+      "tags": [],
+      "price": 3.95,
+      "unit": null
+    },
+    {
+      "chain": "aldi",
+      "name": "Toilettenpapier mit Duft, 4-lagig",
+      "brand": "KOKETT",
+      "category": "Aktionen",
+      "tags": [
+        "in-stock",
+        "special-buy"
+      ],
+      "price": 3.99,
+      "unit": null
+    },
+    {
+      "chain": "aldi",
+      "name": "Toilettenpapier, 4-lagig",
+      "brand": "KOKETT",
+      "category": "Aktionen",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 4.39,
+      "unit": null
+    },
+    {
+      "chain": "ottos",
+      "name": "Toffly Toilettenpapier 3-lagig Rosa 12 Rollen",
+      "brand": "Toffly",
+      "category": "Root",
+      "tags": [],
+      "price": 4.95,
+      "unit": null
+    },
+    {
+      "chain": "volg",
+      "name": "Hakle Toilettenpapier 4 Lagig, 4 Rollen",
+      "brand": null,
+      "category": "Hygieneartikel",
+      "tags": [],
+      "price": 5.9,
+      "unit": null
+    },
+    {
+      "chain": "denner",
+      "name": "ecoma Toilettenpapier Recycling",
+      "brand": null,
+      "category": "1144377",
+      "tags": [],
+      "price": 5.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie Toilettenpapier 3-lagig 20 Rollen",
+      "brand": "Prix Garantie",
+      "category": "Trockenes Toilettenpapier",
+      "tags": [],
+      "price": 5.95,
+      "unit": null
+    },
+    {
+      "chain": "denner",
+      "name": "Denner Toilettenpapier Comfort",
+      "brand": null,
+      "category": "1144377",
+      "tags": [],
+      "price": 6.25,
+      "unit": null
+    },
+    {
+      "chain": "aldi",
+      "name": "Feuchtes Toilettenpapier",
+      "brand": "TEMPO",
+      "category": "Haushalt & Wohnen",
+      "tags": [
+        "in-stock",
+        "special-buy"
+      ],
+      "price": 6.49,
+      "unit": null
+    },
+    {
+      "chain": "denner",
+      "name": "ecoma Toilettenpapier Kamille",
+      "brand": null,
+      "category": "1144377",
+      "tags": [],
+      "price": 6.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Tempo Feuchtes Toilettenpapier Family Maxi Pack 84 Tücher",
+      "brand": "Tempo",
+      "category": "Feuchtes Toilettenpapier",
+      "tags": [],
+      "price": 6.95,
+      "unit": null
+    },
+    {
+      "chain": "ottos",
+      "name": "Hakle Toilettenpapier Traumweich 4-lagig 16 Rollen",
+      "brand": "Hakle",
+      "category": "Root",
+      "tags": [],
+      "price": 7.95,
+      "unit": null
+    },
+    {
+      "chain": "ottos",
+      "name": "Zewa Toilettenpapier 3-lagig bewährt Lufterfrischer",
+      "brand": "Zewa",
+      "category": "Root",
+      "tags": [],
+      "price": 7.95,
+      "unit": null
+    },
+    {
+      "chain": "ottos",
+      "name": "Zewa Toilettenpapier 4-lagig Ultra Soft",
+      "brand": "Zewa",
+      "category": "Root",
+      "tags": [],
+      "price": 8.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Classic Toilettenpapier 9x",
+      "brand": "Tempo",
+      "category": "",
+      "tags": [],
+      "price": 9.3,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Tela Toilettenpapier Futura 3-lagig 9 Rollen",
+      "brand": "Tela",
+      "category": "Trockenes Toilettenpapier",
+      "tags": [],
+      "price": 9.3,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Tempo Toilettenpapier Classic weiss 3-lagig 9x160 Blatt",
+      "brand": "Tempo",
+      "category": "Trockenes Toilettenpapier",
+      "tags": [],
+      "price": 9.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Tempo Toilettenpapier Premium 4-lagig 9x120 Blatt",
+      "brand": "Tempo",
+      "category": "Trockenes Toilettenpapier",
+      "tags": [],
+      "price": 9.95,
+      "unit": null
+    },
+    {
+      "chain": "ottos",
+      "name": "Zewa Toilettenpapier 5-lagig Premium",
+      "brand": "Zewa",
+      "category": "Root",
+      "tags": [],
+      "price": 9.95,
+      "unit": null
+    },
+    {
+      "chain": "ottos",
+      "name": "Veltie Toilettenpapier Soft&White 3-lagig 32 Rollen",
+      "brand": "Veltie",
+      "category": "Root",
+      "tags": [],
+      "price": 10,
+      "unit": null
+    },
+    {
+      "chain": "volg",
+      "name": "Tempo Toilettenpapier 3 Lagig, 9 Rollen",
+      "brand": null,
+      "category": "Hygieneartikel",
+      "tags": [],
+      "price": 10.6,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Hakle Pflegende Sauberkeit Toilettenpapier, 9 Rollen",
+      "brand": "Hakle",
+      "category": "Trockenes Toilettenpapier",
+      "tags": [],
+      "price": 10.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Hakle Verwöhnende Sauberkeit Toilettenpapier, 9 Rollen",
+      "brand": "Hakle",
+      "category": "Trockenes Toilettenpapier",
+      "tags": [],
+      "price": 10.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Tempo Toilettenpapier Deluxe 5-lagig 9x80 Blatt",
+      "brand": "Tempo",
+      "category": "Trockenes Toilettenpapier",
+      "tags": [],
+      "price": 10.95,
+      "unit": null
+    },
+    {
+      "chain": "volg",
+      "name": "Hakle Toilettenpapier 4 Lagig, 9 Rollen",
+      "brand": null,
+      "category": "Hygieneartikel",
+      "tags": [],
+      "price": 11.7,
+      "unit": null
+    },
+    {
+      "chain": "ottos",
+      "name": "Hakle Toilettenpapier 3-lagig Jasmin 24 Rollen",
+      "brand": "Hakle",
+      "category": "Root",
+      "tags": [],
+      "price": 11.95,
+      "unit": null
+    },
+    {
+      "chain": "ottos",
+      "name": "Hakle Toilettenpapier 3-lagig klassisch weiss 24 Rollen",
+      "brand": "Hakle",
+      "category": "Root",
+      "tags": [],
+      "price": 11.95,
+      "unit": null
+    }
+  ]
+}

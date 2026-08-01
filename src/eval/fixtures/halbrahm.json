@@ -1,0 +1,286 @@
+{
+  "id": "halbrahm",
+  "query": "Halbrahm",
+  "capturedAt": "2026-08-01T08:59:11.477Z",
+  "products": [
+    {
+      "chain": "migros",
+      "name": "Halbrahm",
+      "brand": "Valflora",
+      "category": "",
+      "tags": [],
+      "price": 1.6,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Halbrahm",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 2.45,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Halbrahm",
+      "brand": "Valflora",
+      "category": "",
+      "tags": [],
+      "price": 2.65,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Halbrahm",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 3,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Halbrahm",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 3.1,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Halbrahm",
+      "brand": "Valflora",
+      "category": "",
+      "tags": [],
+      "price": 3.25,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Halbrahm",
+      "brand": "Heidi",
+      "category": "",
+      "tags": [],
+      "price": 4.3,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Saurer Halbrahm",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 1.5,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Halbrahm UHT IP-Suisse",
+      "brand": "Coop",
+      "category": "Vollrahm & Halbrahm",
+      "tags": [],
+      "price": 1.6,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie Saurer Halbrahm",
+      "brand": "Prix Garantie",
+      "category": "Rahm Spezialitäten",
+      "tags": [],
+      "price": 1.65,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Saurer Halbrahm",
+      "brand": "Valflora",
+      "category": "",
+      "tags": [],
+      "price": 1.65,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Saurer Halbrahm",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 1.75,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Saurer Halbrahm IP-Suisse",
+      "brand": "Coop",
+      "category": "Rahm Spezialitäten",
+      "tags": [],
+      "price": 1.75,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Saurer Halbrahm 15%",
+      "brand": "Naturaplan",
+      "category": "Vollrahm & Halbrahm",
+      "tags": [],
+      "price": 1.8,
+      "unit": null
+    },
+    {
+      "chain": "volg",
+      "name": "Hirz Saurer Halbrahm",
+      "brand": null,
+      "category": "Milch, Rahm &amp; Milchmischgetränke",
+      "tags": [],
+      "price": 1.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Saucenhalbrahm",
+      "brand": "Valflora",
+      "category": "",
+      "tags": [],
+      "price": 2.1,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Saucen Halbrahm IP-Suisse",
+      "brand": "Coop",
+      "category": "Vollrahm & Halbrahm",
+      "tags": [],
+      "price": 2.15,
+      "unit": null
+    },
+    {
+      "chain": "volg",
+      "name": "Halbrahm Past",
+      "brand": null,
+      "category": "Milch, Rahm &amp; Milchmischgetränke",
+      "tags": [],
+      "price": 2.25,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Free From Halbrahm 25% Milchfett UHT lactosefrei",
+      "brand": "Free From",
+      "category": "Vollrahm & Halbrahm",
+      "tags": [],
+      "price": 2.45,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Züribiet Halbrahm",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 2.6,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "IP-Suisse Halbrahm pasteurisiert",
+      "brand": "Coop",
+      "category": "Vollrahm & Halbrahm",
+      "tags": [],
+      "price": 2.65,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie Halbrahm 25% UHT",
+      "brand": "Prix Garantie",
+      "category": "Vollrahm & Halbrahm",
+      "tags": [],
+      "price": 2.65,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Halbrahm UHT IP-Suisse",
+      "brand": "Coop",
+      "category": "Vollrahm & Halbrahm",
+      "tags": [],
+      "price": 2.9,
+      "unit": null
+    },
+    {
+      "chain": "volg",
+      "name": "Halbrahm UHT",
+      "brand": null,
+      "category": "Milch, Rahm &amp; Milchmischgetränke",
+      "tags": [],
+      "price": 3.1,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Halbrahm pasteurisiert",
+      "brand": "Naturaplan",
+      "category": "Vollrahm & Halbrahm",
+      "tags": [],
+      "price": 3.15,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Halbrahm UHT IP-Suisse 3x125ml",
+      "brand": "Coop",
+      "category": "Vollrahm & Halbrahm",
+      "tags": [],
+      "price": 3.25,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Halbrahm pasteurisiert IP-Suisse",
+      "brand": "Coop",
+      "category": "Vollrahm & Halbrahm",
+      "tags": [],
+      "price": 4.3,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Halbrahm Schlagrahm",
+      "brand": "Valflora",
+      "category": "",
+      "tags": [],
+      "price": 4.3,
+      "unit": null
+    },
+    {
+      "chain": "volg",
+      "name": "Dose Halbrahm ohne Zucker",
+      "brand": null,
+      "category": "Milch, Rahm &amp; Milchmischgetränke",
+      "tags": [],
+      "price": 4.6,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Emmi good day Halbrahm Dose",
+      "brand": "Emmi good day",
+      "category": "Schlagrahm",
+      "tags": [],
+      "price": 5.3,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Floralp Schlagrahm Halbrahm Dose ohne Zuckerzusatz 30% Milchfett UHT 2x  250g",
+      "brand": "Floralp",
+      "category": "Schlagrahm",
+      "tags": [],
+      "price": 6.95,
+      "unit": null
+    }
+  ]
+}

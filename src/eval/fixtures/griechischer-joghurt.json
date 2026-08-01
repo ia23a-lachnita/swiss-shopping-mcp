@@ -1,0 +1,208 @@
+{
+  "id": "griechischer-joghurt",
+  "query": "griechischer Joghurt",
+  "capturedAt": "2026-08-01T09:01:15.186Z",
+  "products": [
+    {
+      "chain": "coop",
+      "name": "Total griechischer Joghurt 0% mit Honig",
+      "brand": "Fage",
+      "category": "Vanillejogurt, Carameljogurt & Honigjogurt",
+      "tags": [],
+      "price": 1.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Fage Total Griechischer Joghurt 0% Fett",
+      "brand": "Fage",
+      "category": "Joghurt Nature",
+      "tags": [],
+      "price": 2.1,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Fage Total Griechischer Joghurt 2% Fett",
+      "brand": "Fage",
+      "category": "Joghurt Nature",
+      "tags": [],
+      "price": 2.1,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Fage Total Griechischer Joghurt 5% Fett",
+      "brand": "Fage",
+      "category": "Joghurt Nature",
+      "tags": [],
+      "price": 2.1,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Fage Total Griechischer Joghurt 0% Fett",
+      "brand": "Fage",
+      "category": "Joghurt Nature",
+      "tags": [],
+      "price": 5.8,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Fage Total Griechischer Joghurt 5% Fett",
+      "brand": "Fage",
+      "category": "Joghurt Nature",
+      "tags": [],
+      "price": 5.8,
+      "unit": null
+    },
+    {
+      "chain": "aldi",
+      "name": "BIO-Joghurt, nature, griechischer Art",
+      "brand": "RETOUR AUX SOURCES",
+      "category": "Retour aux sources (Bio)",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 1.19,
+      "unit": null
+    },
+    {
+      "chain": "aldi",
+      "name": "Naturejoghurt, griechischer Art",
+      "brand": "SAVEURS SUISSES",
+      "category": "Saveurs Suisses",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 2.15,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Yaos Joghurt 0% Fett Nature nach Griechischer Art 2x150g",
+      "brand": "Nestlé YAOS",
+      "category": "Joghurt Nature",
+      "tags": [],
+      "price": 2.6,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Yaos Joghurt Feigen nach Griechischer Art 2x150g",
+      "brand": "Nestlé YAOS",
+      "category": "Jogurt Exotenfrüchte & Jogurt Zitrusfrüchte",
+      "tags": [],
+      "price": 2.6,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Yaos Joghurt Honig nach Griechischer Art 2x150g",
+      "brand": "Nestlé YAOS",
+      "category": "Vanillejogurt, Carameljogurt & Honigjogurt",
+      "tags": [],
+      "price": 2.6,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Yaos Joghurt Nature nach Griechischer Art 2x150g",
+      "brand": "Nestlé YAOS",
+      "category": "Joghurt Nature",
+      "tags": [],
+      "price": 2.6,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Yaos Joghurt Nature nach Griechischer Art 2x150g",
+      "brand": "Nestlé YAOS",
+      "category": "Joghurt Nature",
+      "tags": [],
+      "price": 2.6,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Yaos Joghurt Nature nach Griechischer Art, ungesüsst 2x150g",
+      "brand": "Nestlé YAOS",
+      "category": "Joghurt Nature",
+      "tags": [],
+      "price": 2.6,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Yaos Joghurt Nature nach Griechischer Art ungesüsst",
+      "brand": "Nestlé YAOS",
+      "category": "Joghurt Nature",
+      "tags": [],
+      "price": 3,
+      "unit": null
+    },
+    {
+      "chain": "aldi",
+      "name": "Fruchtjoghurt griechischer Art, Blutorange-Granatapfel",
+      "brand": "LYTTOS",
+      "category": "Tiefpreisversprechen",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 3.15,
+      "unit": null
+    },
+    {
+      "chain": "aldi",
+      "name": "Fruchtjoghurt griechischer Art, Heidelbeere",
+      "brand": "LYTTOS",
+      "category": "Tiefpreisversprechen",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 3.15,
+      "unit": null
+    },
+    {
+      "chain": "aldi",
+      "name": "Fruchtjoghurt griechischer Art, Himbeer-Feige",
+      "brand": "LYTTOS",
+      "category": "Tiefpreisversprechen",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 3.15,
+      "unit": null
+    },
+    {
+      "chain": "aldi",
+      "name": "Fruchtjoghurt griechischer Art, Kirsche",
+      "brand": "LYTTOS",
+      "category": "Tiefpreisversprechen",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 3.15,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Yaos Joghurt Nature 0% nach Griechischer Art",
+      "brand": "Nestlé YAOS",
+      "category": "Joghurt Nature",
+      "tags": [],
+      "price": 3.3,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie Joghurt griechischer Art",
+      "brand": "Prix Garantie",
+      "category": "Joghurt Nature",
+      "tags": [],
+      "price": 4.15,
+      "unit": null
+    }
+  ]
+}

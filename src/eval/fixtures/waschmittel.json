@@ -1,0 +1,372 @@
+{
+  "id": "waschmittel",
+  "query": "Waschmittel",
+  "capturedAt": "2026-08-01T09:00:25.087Z",
+  "products": [
+    {
+      "chain": "coop",
+      "name": "Prix Garantie Feinwaschmittel",
+      "brand": "Prix Garantie",
+      "category": "Universal-Waschmittel & White-Waschmittel",
+      "tags": [],
+      "price": 1.9,
+      "unit": null
+    },
+    {
+      "chain": "aldi",
+      "name": "Feinwaschmittel",
+      "brand": "TANDIL",
+      "category": "Aktionen",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 1.99,
+      "unit": null
+    },
+    {
+      "chain": "volg",
+      "name": "Volg Handabwaschmittel Citrus",
+      "brand": null,
+      "category": "Körperpflege, Reinigung, Haushalt &amp; Tierbedarf",
+      "tags": [],
+      "price": 2.5,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Feinwaschmittel",
+      "brand": "M-Budget",
+      "category": "",
+      "tags": [],
+      "price": 2.55,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Flüssigwaschmittel",
+      "brand": "M-Budget",
+      "category": "",
+      "tags": [],
+      "price": 2.7,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie 1 for All Waschmittel",
+      "brand": "Prix Garantie",
+      "category": "Universal-Waschmittel & White-Waschmittel",
+      "tags": [],
+      "price": 3,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Maxil Vollwaschmittel 20 Waschgänge",
+      "brand": "Maxil",
+      "category": "Universal-Waschmittel & White-Waschmittel",
+      "tags": [],
+      "price": 3.05,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Oecoplan Handwaschmittel",
+      "brand": "Oecoplan",
+      "category": "Universal-Waschmittel & White-Waschmittel",
+      "tags": [],
+      "price": 3.8,
+      "unit": null
+    },
+    {
+      "chain": "volg",
+      "name": "Palmolive Handabwaschmittel Sensitive",
+      "brand": null,
+      "category": "Körperpflege, Reinigung, Haushalt &amp; Tierbedarf",
+      "tags": [],
+      "price": 4.8,
+      "unit": null
+    },
+    {
+      "chain": "ottos",
+      "name": "Felce Azzurra Flüssigwaschmittel Active Color 40 Waschgänge",
+      "brand": "Felce Azzurra",
+      "category": "Root",
+      "tags": [],
+      "price": 4.95,
+      "unit": null
+    },
+    {
+      "chain": "ottos",
+      "name": "Felce Azzurra Flüssigwaschmittel Original 40 Waschgänge",
+      "brand": "Felce Azzurra",
+      "category": "Root",
+      "tags": [],
+      "price": 4.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Baby Weiss Bleich-Waschmittel",
+      "brand": "Baby weiss",
+      "category": "Fleckenentferner",
+      "tags": [],
+      "price": 5.35,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Sentimat W&C Waschmittel 80 Waschgänge",
+      "brand": "Sentimat",
+      "category": "Universal-Waschmittel & White-Waschmittel",
+      "tags": [],
+      "price": 5.4,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Ace  Fleckenentferner Waschmittel",
+      "brand": "Ace",
+      "category": "Fleckenentferner",
+      "tags": [],
+      "price": 5.5,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Waschmittel Caps",
+      "brand": "Total",
+      "category": "",
+      "tags": [],
+      "price": 6.98,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie Vollwaschmittel 65 Waschgänge",
+      "brand": "Prix Garantie",
+      "category": "Universal-Waschmittel & White-Waschmittel",
+      "tags": [],
+      "price": 7.15,
+      "unit": null
+    },
+    {
+      "chain": "aldi",
+      "name": "XXL Waschmittel flüssig",
+      "brand": "TANDIL",
+      "category": "Aktionen",
+      "tags": [
+        "in-stock",
+        "special-buy"
+      ],
+      "price": 7.99,
+      "unit": null
+    },
+    {
+      "chain": "volg",
+      "name": "Volg Waschmittel Flüssig Color 27WG",
+      "brand": null,
+      "category": "Körperpflege, Reinigung, Haushalt &amp; Tierbedarf",
+      "tags": [],
+      "price": 8.9,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Cashmere Waschmittel 5 Waschgänge",
+      "brand": "Cashmere",
+      "category": "Farbfänger",
+      "tags": [],
+      "price": 9.95,
+      "unit": null
+    },
+    {
+      "chain": "denner",
+      "name": "ecoma Feinwaschmittel",
+      "brand": null,
+      "category": "1144377",
+      "tags": [],
+      "price": 9.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Frosch Baby Waschmittel",
+      "brand": "Frosch",
+      "category": "Textilpflege für Baby & Kind ",
+      "tags": [],
+      "price": 9.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Lenor Flüssig-Waschmittel Blütentraum 20 Waschgänge",
+      "brand": "Lenor",
+      "category": "Color-Waschmittel",
+      "tags": [],
+      "price": 10.5,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Lenor Waschmittel Aprilfrisch schnell auflösend 18 Waschgänge",
+      "brand": "Lenor",
+      "category": "Universal-Waschmittel & White-Waschmittel",
+      "tags": [],
+      "price": 10.5,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Chanteclair Waschmittel Color 40 Waschgänge",
+      "brand": "Chanteclair",
+      "category": "Color-Waschmittel",
+      "tags": [],
+      "price": 10.7,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Chanteclair Waschmittel Marseille 40 Waschgänge",
+      "brand": "Chanteclair",
+      "category": "Universal-Waschmittel & White-Waschmittel",
+      "tags": [],
+      "price": 10.7,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Chanteclair Waschmittel w. Moschus 40 Waschgänge",
+      "brand": "Chanteclair",
+      "category": "Universal-Waschmittel & White-Waschmittel",
+      "tags": [],
+      "price": 10.7,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Coral Flüssig-Waschmittel Black Velvet 25 Waschgänge",
+      "brand": "Coral",
+      "category": "Waschmittel für schwarzes",
+      "tags": [],
+      "price": 10.9,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Coral Flüssig-Waschmittel Optimal Color 25 Waschgänge",
+      "brand": "Coral",
+      "category": "Color-Waschmittel",
+      "tags": [],
+      "price": 10.9,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Coral Flüssig-Waschmittel Optimal White 25 Waschgänge",
+      "brand": "Coral",
+      "category": "Universal-Waschmittel & White-Waschmittel",
+      "tags": [],
+      "price": 10.9,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Coral Flüssig-Waschmittel Wool&Silk 25 Waschgänge",
+      "brand": "Coral",
+      "category": "Color-Waschmittel",
+      "tags": [],
+      "price": 10.9,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "L'Arbre vert Waschmittel Baby",
+      "brand": "L'Arbre vert",
+      "category": "Sensitive- Waschmittel",
+      "tags": [],
+      "price": 10.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Feinwaschmittel",
+      "brand": "Perwoll",
+      "category": "",
+      "tags": [],
+      "price": 11.9,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Feinwaschmittel",
+      "brand": "Perwoll",
+      "category": "",
+      "tags": [],
+      "price": 11.9,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Feinwaschmittel",
+      "brand": "Perwoll",
+      "category": "",
+      "tags": [],
+      "price": 11.9,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Held Woll- & Feinwaschmittel 22 Waschgänge",
+      "brand": "Held",
+      "category": "Sensitive- Waschmittel",
+      "tags": [],
+      "price": 11.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Omo Color Waschmittel Flüssig 25 Waschgänge",
+      "brand": "Omo",
+      "category": "Color-Waschmittel",
+      "tags": [],
+      "price": 12.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Omo Universal Waschmittel Flüssig 25 Waschgänge",
+      "brand": "Omo",
+      "category": "Universal-Waschmittel & White-Waschmittel",
+      "tags": [],
+      "price": 12.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Flüssigwaschmittel",
+      "brand": "Nature Clean",
+      "category": "",
+      "tags": [],
+      "price": 13.5,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Oecoplan Feinwaschmittel 40 Waschgänge",
+      "brand": "Oecoplan",
+      "category": "Sensitive- Waschmittel",
+      "tags": [],
+      "price": 13.5,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Oecoplan Waschmittel 1 for all Sensitive 23 Waschgänge",
+      "brand": "Oecoplan",
+      "category": "Sensitive- Waschmittel",
+      "tags": [],
+      "price": 13.5,
+      "unit": null
+    }
+  ]
+}

@@ -1,0 +1,196 @@
+{
+  "id": "ruebli",
+  "query": "Rüebli",
+  "capturedAt": "2026-08-01T08:59:26.506Z",
+  "products": [
+    {
+      "chain": "coop",
+      "name": "Betty Bossi Marzipan Rüebli",
+      "brand": "Betty Bossi",
+      "category": "Marzipan",
+      "tags": [],
+      "price": 2.2,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Rüebli-Rörtli",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 2.45,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Rüebli Kuchenstück",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 2.6,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Betty Bossi Marzipan-Rüebli ganz mit Kraut",
+      "brand": "Betty Bossi",
+      "category": "Marzipan",
+      "tags": [],
+      "price": 2.8,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Cake Rüebli",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 2.9,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Rüeblisalat",
+      "brand": "Naturaplan",
+      "category": "Fertigsalate",
+      "tags": [],
+      "price": 2.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Betty Bossi Suppe Rüebli & Kokos",
+      "brand": "Betty Bossi",
+      "category": "Gemüsesuppen & Pilzssuppen",
+      "tags": [],
+      "price": 3.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Rüebli-Kürbis",
+      "brand": "Blévita",
+      "category": "",
+      "tags": [],
+      "price": 3.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Rüebli-Orange-Ingwer",
+      "brand": "Biotta",
+      "category": "",
+      "tags": [],
+      "price": 4.4,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Saft Orangen Rüebli & Ingwer",
+      "brand": "Naturaplan",
+      "category": "Frucht- & Gemüsesäfte",
+      "tags": [],
+      "price": 4.5,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Holle Rüebli Keks ab 12+ Monate",
+      "brand": "Holle",
+      "category": "Babynahrung Snacks ab 12 Monate +",
+      "tags": [],
+      "price": 4.75,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Rüebli Keks",
+      "brand": "Holle",
+      "category": "",
+      "tags": [],
+      "price": 4.75,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Biotta Naturaplan Bio demeter Rüebli Orange & Ingwer 2x  50cl",
+      "brand": "Biotta",
+      "category": "Gemüsesäfte",
+      "tags": [],
+      "price": 8.8,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Ünique Karotten ca. 500g",
+      "brand": "Ünique",
+      "category": "Rüebli & Pastinaken",
+      "tags": [],
+      "price": 1,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Karotten IP-Suisse ca. 500g",
+      "brand": "Coop",
+      "category": "Rüebli & Pastinaken",
+      "tags": [],
+      "price": 1.05,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie Karotten",
+      "brand": "Prix Garantie",
+      "category": "Rüebli & Pastinaken",
+      "tags": [],
+      "price": 1.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Karotten IP-Suisse",
+      "brand": "Coop",
+      "category": "Rüebli & Pastinaken",
+      "tags": [],
+      "price": 2,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Snack Karotten",
+      "brand": "Snack Eat",
+      "category": "Rüebli & Pastinaken",
+      "tags": [],
+      "price": 2.5,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Demeter Bio Karotten",
+      "brand": "Naturaplan",
+      "category": "Rüebli & Pastinaken",
+      "tags": [],
+      "price": 2.7,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Karotten",
+      "brand": "Naturaplan",
+      "category": "Rüebli & Pastinaken",
+      "tags": [],
+      "price": 3.3,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie Karotten",
+      "brand": "Prix Garantie",
+      "category": "Rüebli & Pastinaken",
+      "tags": [],
+      "price": 3.9,
+      "unit": null
+    }
+  ]
+}

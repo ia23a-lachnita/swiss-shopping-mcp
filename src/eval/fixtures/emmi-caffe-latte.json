@@ -1,0 +1,367 @@
+{
+  "id": "emmi-caffe-latte",
+  "query": "Emmi Caffè Latte",
+  "capturedAt": "2026-08-01T09:02:04.177Z",
+  "products": [
+    {
+      "chain": "migros",
+      "name": "Cappuccino",
+      "brand": "Emmi Caffè Latte",
+      "category": "",
+      "tags": [],
+      "price": 2.15,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Emmi Caffè Latte Espresso",
+      "brand": "Emmi Caffè Latte",
+      "category": "Kaffeegetränke & Chai-Latte",
+      "tags": [],
+      "price": 2.15,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Espresso",
+      "brand": "Emmi Caffè Latte",
+      "category": "",
+      "tags": [],
+      "price": 2.15,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Macchiato",
+      "brand": "Emmi Caffè Latte",
+      "category": "",
+      "tags": [],
+      "price": 2.15,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Balance",
+      "brand": "Emmi Caffè Latte",
+      "category": "",
+      "tags": [],
+      "price": 2.45,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Double Zero",
+      "brand": "Emmi Caffè Latte",
+      "category": "",
+      "tags": [],
+      "price": 2.45,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Emmi Caffè Latte Vanilla",
+      "brand": "Emmi Caffè Latte",
+      "category": "Kaffeegetränke & Chai-Latte",
+      "tags": [],
+      "price": 2.45,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Vanilla",
+      "brand": "Emmi Caffè Latte",
+      "category": "",
+      "tags": [],
+      "price": 2.45,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Decaf",
+      "brand": "Emmi Caffè Latte",
+      "category": "",
+      "tags": [],
+      "price": 2.55,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Double Zero Macchiato",
+      "brand": "Emmi Caffè Latte",
+      "category": "",
+      "tags": [],
+      "price": 2.55,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Emmi Caffè Latte Decaf",
+      "brand": "Emmi Caffè Latte",
+      "category": "Kaffeegetränke & Chai-Latte",
+      "tags": [],
+      "price": 2.55,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Emmi Caffè Latte Double Zero Macchiato",
+      "brand": "Emmi Caffè Latte",
+      "category": "Kaffeegetränke & Chai-Latte",
+      "tags": [],
+      "price": 2.55,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Emmi Matcha Latte",
+      "brand": "Emmi Caffè Latte",
+      "category": "Kaffeegetränke & Chai-Latte",
+      "tags": [],
+      "price": 2.55,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Matcha",
+      "brand": "Emmi Caffè Latte",
+      "category": "",
+      "tags": [],
+      "price": 2.55,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Cappuccino",
+      "brand": "Emmi Caffè Latte",
+      "category": "",
+      "tags": [],
+      "price": 3.15,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Emmi Caffè Latte Mr. Big Cappuccino",
+      "brand": "Emmi Caffè Latte",
+      "category": "Kaffeegetränke & Chai-Latte",
+      "tags": [],
+      "price": 3.15,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Emmi Caffè Latte Mr. Big Macchiato",
+      "brand": "Emmi Caffè Latte",
+      "category": "Kaffeegetränke & Chai-Latte",
+      "tags": [],
+      "price": 3.15,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Macchiato",
+      "brand": "Emmi Caffè Latte",
+      "category": "",
+      "tags": [],
+      "price": 3.15,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Double Zero",
+      "brand": "Emmi Caffè Latte",
+      "category": "",
+      "tags": [],
+      "price": 3.25,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Emmi Caffè Latte Mr. Big Balance",
+      "brand": "Emmi Caffè Latte",
+      "category": "Kaffeegetränke & Chai-Latte",
+      "tags": [],
+      "price": 3.25,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Emmi Caffè Latte Mr. Big Double Zero",
+      "brand": "Emmi Caffè Latte",
+      "category": "Kaffeegetränke & Chai-Latte",
+      "tags": [],
+      "price": 3.25,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Emmi Caffè Latte Mr. Big Espresso",
+      "brand": "Emmi Caffè Latte",
+      "category": "Kaffeegetränke & Chai-Latte",
+      "tags": [],
+      "price": 3.25,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Emmi Caffè Latte Protein Coffee Double Zero",
+      "brand": "Emmi Caffè Latte",
+      "category": "Kaffeegetränke & Chai-Latte",
+      "tags": [],
+      "price": 3.3,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Emmi Caffè Latte Protein Coffee Macchiato",
+      "brand": "Emmi Caffè Latte",
+      "category": "Kaffeegetränke & Chai-Latte",
+      "tags": [],
+      "price": 3.3,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Protein Cappuccino",
+      "brand": "Emmi Caffè Latte",
+      "category": "",
+      "tags": [],
+      "price": 3.3,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Protein Double Zero",
+      "brand": "Emmi Caffè Latte",
+      "category": "",
+      "tags": [],
+      "price": 3.3,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Protein Macchiato",
+      "brand": "Emmi Caffè Latte",
+      "category": "",
+      "tags": [],
+      "price": 3.3,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Emmi Caffè Latte High Protein",
+      "brand": "Emmi Caffè Latte",
+      "category": "Kaffeegetränke & Chai-Latte",
+      "tags": [],
+      "price": 3.6,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Kaffee",
+      "brand": "Emmi Caffè Latte",
+      "category": "",
+      "tags": [],
+      "price": 3.6,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Emmi Caffè Latte Cappuccino 3x  230ml",
+      "brand": "Emmi Caffè Latte",
+      "category": "Kaffeegetränke & Chai-Latte",
+      "tags": [],
+      "price": 5.1,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Emmi Caffè Latte Macchiato 3x  230ml",
+      "brand": "Emmi Caffè Latte",
+      "category": "Kaffeegetränke & Chai-Latte",
+      "tags": [],
+      "price": 5.1,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Emmi Caffè Latte Mr. Huge Macchiato",
+      "brand": "Emmi Caffè Latte",
+      "category": "Kaffeegetränke & Chai-Latte",
+      "tags": [],
+      "price": 5.35,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Macchiato",
+      "brand": "Emmi Caffè Latte",
+      "category": "",
+      "tags": [],
+      "price": 5.35,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Double Zero",
+      "brand": "Emmi Caffè Latte",
+      "category": "",
+      "tags": [],
+      "price": 5.55,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Emmi Caffè Latte Mr. Huge Double Zero",
+      "brand": "Emmi Caffè Latte",
+      "category": "Kaffeegetränke & Chai-Latte",
+      "tags": [],
+      "price": 5.55,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Emmi Caffè Latte Balance 3x  230ml",
+      "brand": "Emmi Caffè Latte",
+      "category": "Kaffeegetränke & Chai-Latte",
+      "tags": [],
+      "price": 5.85,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Emmi Caffè Latte Double Zero 3x  230ml",
+      "brand": "Emmi Caffè Latte",
+      "category": "Kaffeegetränke & Chai-Latte",
+      "tags": [],
+      "price": 5.85,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Cappucino",
+      "brand": "Emmi Caffè Latte",
+      "category": "",
+      "tags": [],
+      "price": 8.6,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Emmi Caffè Latte Macchiato 4x230ml",
+      "brand": "Emmi Caffè Latte",
+      "category": "Kaffeegetränke & Chai-Latte",
+      "tags": [],
+      "price": 8.6,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Macchiato",
+      "brand": "Emmi Caffè Latte",
+      "category": "",
+      "tags": [],
+      "price": 8.6,
+      "unit": null
+    }
+  ]
+}

@@ -19,6 +19,8 @@
     "test:integration": "vitest run --passWithNoTests .integration.test.ts",
     "test:contract": "cross-env RUN_CONTRACT_TESTS=1 vitest run --passWithNoTests contract.test.ts",
     "test:eval": "cross-env RUN_AGENT_EVAL=1 vitest run --passWithNoTests .eval.test.ts",
+    "eval:relevance": "vitest run src/eval",
+    "eval:capture": "npm run build && node scripts/captureGoldenFixtures.mjs",
     "test:ui": "vitest --ui",
     "test:browser": "npx playwright test",
     "test:coverage": "vitest --coverage",

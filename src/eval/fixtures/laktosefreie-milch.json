@@ -1,0 +1,29 @@
+{
+  "id": "laktosefreie-milch",
+  "query": "laktosefreie Milch",
+  "capturedAt": "2026-08-01T09:01:10.179Z",
+  "products": [
+    {
+      "chain": "aldi",
+      "name": "Laktosefreie Milch UHT 1.5 % Fett",
+      "brand": "MILSANI",
+      "category": "Aktionen",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 1.95,
+      "unit": null
+    },
+    {
+      "chain": "aldi",
+      "name": "Laktosefreie Drinkmilch, 2.5% Fett",
+      "brand": "SAVEURS SUISSES",
+      "category": "Saveurs Suisses",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 1.95,
+      "unit": null
+    }
+  ]
+}

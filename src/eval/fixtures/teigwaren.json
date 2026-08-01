@@ -1,0 +1,118 @@
+{
+  "id": "teigwaren",
+  "query": "Teigwaren",
+  "capturedAt": "2026-08-01T09:02:27.314Z",
+  "products": [
+    {
+      "chain": "aldi",
+      "name": "Glutenfreie Teigwaren, Fusilli",
+      "brand": "MY VAY",
+      "category": "Vegetarisch & Vegan",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 2.29,
+      "unit": null
+    },
+    {
+      "chain": "aldi",
+      "name": "Glutenfreie Teigwaren, Penne",
+      "brand": "MY VAY",
+      "category": "Vegetarisch & Vegan",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 2.29,
+      "unit": null
+    },
+    {
+      "chain": "aldi",
+      "name": "Glutenfreie Teigwaren, Spaghetti",
+      "brand": "MY VAY",
+      "category": "Vegetarisch & Vegan",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 2.29,
+      "unit": null
+    },
+    {
+      "chain": "aldi",
+      "name": "Teigwaren, Hörnli",
+      "brand": "AMI",
+      "category": "Grillen",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 3.19,
+      "unit": null
+    },
+    {
+      "chain": "aldi",
+      "name": "Teigwaren, Spätzli",
+      "brand": "AMI",
+      "category": "Grillen",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 3.19,
+      "unit": null
+    },
+    {
+      "chain": "aldi",
+      "name": "Teigwaren, Spiralen",
+      "brand": "AMI",
+      "category": "Grillen",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 3.19,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "JaMaDu Zoo Pasta",
+      "brand": "JaMaDu",
+      "category": "Speziell geformte Teigwaren",
+      "tags": [],
+      "price": 2.5,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Barilla Collezione Farfalle n. 65",
+      "brand": "Barilla",
+      "category": "Speziell geformte Teigwaren",
+      "tags": [],
+      "price": 2.7,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Kernser Pasta UrDinkel Amori",
+      "brand": "Kernser",
+      "category": "Speziell geformte Teigwaren",
+      "tags": [],
+      "price": 4.2,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Arte&Pasta Lumaconi",
+      "brand": "Arte&Pasta",
+      "category": "Speziell geformte Teigwaren",
+      "tags": [],
+      "price": 4.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Echt Entlebucher Pasta Urdinkel vo Härze",
+      "brand": "Echt Entlebuch",
+      "category": "Speziell geformte Teigwaren",
+      "tags": [],
+      "price": 5.6,
+      "unit": null
+    }
+  ]
+}

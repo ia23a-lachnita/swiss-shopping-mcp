@@ -1,0 +1,383 @@
+{
+  "id": "hackfleisch",
+  "query": "Hackfleisch",
+  "capturedAt": "2026-08-01T08:59:31.517Z",
+  "products": [
+    {
+      "chain": "migros",
+      "name": "Hackfleisch",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 1.25,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Hackfleisch",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 1.25,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Hackfleisch",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 1.5,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Hackfleisch",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 1.8,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Hackfleisch ",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 2,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Rindshackfleisch",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 1.55,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Poulethackfleisch",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 1.9,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "für Hackfleisch",
+      "brand": "Bon Chef",
+      "category": "",
+      "tags": [],
+      "price": 1.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Rindshackfleisch",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 2.1,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Rindshackfleisch",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 2.1,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Rindshackfleisch",
+      "brand": "Weiderind",
+      "category": "",
+      "tags": [],
+      "price": 2.3,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Rindshackfleisch",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 2.5,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Rindshackfleisch light",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 3.05,
+      "unit": null
+    },
+    {
+      "chain": "denner",
+      "name": "IP-SUISSE Kräuterschwein Hackfleisch",
+      "brand": null,
+      "category": "1144362",
+      "tags": [],
+      "price": 5.5,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Poulet Hackfleisch ca. 300g",
+      "brand": "Coop",
+      "category": "Geflügelfleisch abgepackt",
+      "tags": [],
+      "price": 5.85,
+      "unit": null
+    },
+    {
+      "chain": "denner",
+      "name": "IP-SUISSE Rindshackfleisch",
+      "brand": null,
+      "category": "1144362",
+      "tags": [],
+      "price": 5.9,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Rindshackfleisch",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 5.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Bio Schweinshackfleisch ca. 300g",
+      "brand": "Naturaplan",
+      "category": "Hackfleisch",
+      "tags": [],
+      "price": 6.6,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturafarm Rind/Schwein Hackfleisch gemischt ca. 400g",
+      "brand": "Naturafarm",
+      "category": "Hackfleisch",
+      "tags": [],
+      "price": 6.6,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Rindshackfleisch",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 6.65,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturapan Bio Rindshackfleisch ca. 300g",
+      "brand": "Naturaplan",
+      "category": "Hackfleisch",
+      "tags": [],
+      "price": 6.8,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Betty Bossi Hackfleischbällchen mit Kartoffelstock",
+      "brand": "Betty Bossi",
+      "category": "Frische Fertiggerichte Tellerfertig",
+      "tags": [],
+      "price": 6.95,
+      "unit": null
+    },
+    {
+      "chain": "aldi",
+      "name": "Hackfleisch, gemischt, light",
+      "brand": "SAVEURS SUISSES",
+      "category": "Fleisch",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 7.39,
+      "unit": null
+    },
+    {
+      "chain": "aldi",
+      "name": "Hackfleisch, gemischt",
+      "brand": "SAVEURS SUISSES",
+      "category": "Fleisch",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 7.49,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie Hackfleisch gemischt 500g",
+      "brand": "Prix Garantie",
+      "category": "Hackfleisch",
+      "tags": [],
+      "price": 7.5,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturafarm Hackfleisch Schwein ca. 400g",
+      "brand": "Naturafarm",
+      "category": "Hackfleisch",
+      "tags": [],
+      "price": 7.6,
+      "unit": null
+    },
+    {
+      "chain": "aldi",
+      "name": "Rindshackfleisch",
+      "brand": "COUNTRY'S BEST",
+      "category": "Fleisch",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 7.79,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie Rindshackfleisch ca. 500g",
+      "brand": "Prix Garantie",
+      "category": "Hackfleisch",
+      "tags": [],
+      "price": 7.8,
+      "unit": null
+    },
+    {
+      "chain": "aldi",
+      "name": "Hackfleisch vom Weiderind",
+      "brand": "RETOUR AUX SOURCES",
+      "category": "Fleisch",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 7.85,
+      "unit": null
+    },
+    {
+      "chain": "volg",
+      "name": "Hilcona Kartoffelstock mit Hackfleischbällchen",
+      "brand": null,
+      "category": "Fertiggerichte",
+      "tags": [],
+      "price": 7.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Hackfleisch Lamm ca. 300g",
+      "brand": "Coop",
+      "category": "Hackfleisch",
+      "tags": [],
+      "price": 8.7,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturafarm Rindshackfleisch ca. 400g",
+      "brand": "Naturafarm",
+      "category": "Hackfleisch",
+      "tags": [],
+      "price": 8.8,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturafarm Freiland Poulet Hackfleisch ca. 300g",
+      "brand": "Naturafarm",
+      "category": "Hackfleisch",
+      "tags": [],
+      "price": 8.85,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturafarm Rinds Hackfleisch Low ca. 300g",
+      "brand": "Naturafarm",
+      "category": "Hackfleisch",
+      "tags": [],
+      "price": 8.85,
+      "unit": null
+    },
+    {
+      "chain": "aldi",
+      "name": "Rindshackfleisch, light",
+      "brand": "SAVEURS SUISSES",
+      "category": "Fleisch",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 8.89,
+      "unit": null
+    },
+    {
+      "chain": "denner",
+      "name": "Denner Schweinshackfleisch",
+      "brand": null,
+      "category": "1144362",
+      "tags": [],
+      "price": 8.9,
+      "unit": null
+    },
+    {
+      "chain": "aldi",
+      "name": "Hackfleisch light vom Weiderind",
+      "brand": "RETOUR AUX SOURCES",
+      "category": "Fleisch",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 8.99,
+      "unit": null
+    },
+    {
+      "chain": "aldi",
+      "name": "Rindshackfleisch, Halal",
+      "brand": "SAVEURS SUISSES",
+      "category": "Fleisch",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 8.99,
+      "unit": null
+    },
+    {
+      "chain": "aldi",
+      "name": "Hackfleisch, gemischt",
+      "brand": "COUNTRY'S BEST",
+      "category": "Fleisch",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 9.49,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Hackfleisch Rind ca. 500g",
+      "brand": "Coop",
+      "category": "Hackfleisch",
+      "tags": [],
+      "price": 9.75,
+      "unit": null
+    }
+  ]
+}

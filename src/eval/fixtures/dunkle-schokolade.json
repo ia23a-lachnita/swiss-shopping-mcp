@@ -1,0 +1,135 @@
+{
+  "id": "dunkle-schokolade",
+  "query": "dunkle Schokolade",
+  "capturedAt": "2026-08-01T09:01:34.120Z",
+  "products": [
+    {
+      "chain": "migros",
+      "name": "Dunkle Schokolade",
+      "brand": "M-Budget",
+      "category": "",
+      "tags": [],
+      "price": 0.8,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Dunkle Schokolade",
+      "brand": "M-Budget",
+      "category": "",
+      "tags": [],
+      "price": 1.4,
+      "unit": null
+    },
+    {
+      "chain": "aldi",
+      "name": "Dunkle Schokolade, Zarbitter Kakao 70%",
+      "brand": "MOSER ROTH",
+      "category": "Süssigkeiten & Snacks",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 1.75,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Cailler Crémant 64% Dunkle Schokoladentafel",
+      "brand": "Cailler",
+      "category": "Kochschokolade",
+      "tags": [],
+      "price": 3.5,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Cailler Crémant Dunkle Schokoladentafel",
+      "brand": "Cailler",
+      "category": "Kochschokolade",
+      "tags": [],
+      "price": 3.5,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Cailler Dunkle Schokoladentafel mit Haselnüssen",
+      "brand": "Cailler",
+      "category": "Schokoladentafeln dunkel",
+      "tags": [],
+      "price": 3.5,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Cailler Frigor Dunkle Schokoladentafel",
+      "brand": "Cailler",
+      "category": "Schokoladentafeln dunkel",
+      "tags": [],
+      "price": 3.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Cailler Dessert 80% Dunkle Schokolade Tafel",
+      "brand": "Cailler",
+      "category": "Schokoladentafeln dunkel",
+      "tags": [],
+      "price": 4.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Cailler Dessert dunkle Schokolade Tafel",
+      "brand": "Cailler",
+      "category": "Kochschokolade",
+      "tags": [],
+      "price": 4.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Cailler Dunkle Schokoladentafel mit Haselnüssen",
+      "brand": "Cailler",
+      "category": "Schokoladentafeln dunkel",
+      "tags": [],
+      "price": 5.5,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Cailler Tafel Dunkle Schokolade mit Mandeln",
+      "brand": "Cailler",
+      "category": "Schokoladentafeln dunkel",
+      "tags": [],
+      "price": 5.5,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Cailler Dunkle Schokoladentropfe",
+      "brand": "Cailler",
+      "category": "Kochschokolade",
+      "tags": [],
+      "price": 6.4,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Casting Crème Gloss 323 Dunkle Schokolade",
+      "brand": "Casting Creme Gloss",
+      "category": "Braune & Schwarze Haarcolorationen",
+      "tags": [],
+      "price": 8.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Trüfrü® gefrorene Himbeeren mit weisser und dunkler Schokolade",
+      "brand": "Mars",
+      "category": "Glace Desserts",
+      "tags": [],
+      "price": 7.95,
+      "unit": null
+    }
+  ]
+}

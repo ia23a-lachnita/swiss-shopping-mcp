@@ -1,0 +1,367 @@
+{
+  "id": "zahnpasta",
+  "query": "Zahnpasta",
+  "capturedAt": "2026-08-01T09:00:55.141Z",
+  "products": [
+    {
+      "chain": "migros",
+      "name": "Zahnpasta",
+      "brand": "M-Budget",
+      "category": "",
+      "tags": [],
+      "price": 0.4,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Zahnpasta",
+      "brand": "Meridol",
+      "category": "",
+      "tags": [],
+      "price": 1.5,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Zahnpasta",
+      "brand": "Elmex",
+      "category": "",
+      "tags": [],
+      "price": 4.9,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Zahnpasta",
+      "brand": "Elmex",
+      "category": "",
+      "tags": [],
+      "price": 4.9,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Zahnpasta",
+      "brand": "Meridol",
+      "category": "",
+      "tags": [],
+      "price": 5.15,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Zahnpasta",
+      "brand": "Sensodyne",
+      "category": "",
+      "tags": [],
+      "price": 5.45,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Zahnpasta",
+      "brand": "Elmex",
+      "category": "",
+      "tags": [],
+      "price": 6.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Zahnpasta",
+      "brand": "Elmex",
+      "category": "",
+      "tags": [],
+      "price": 6.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Zahnpasta",
+      "brand": "Meridol",
+      "category": "",
+      "tags": [],
+      "price": 7.2,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Zahnpasta",
+      "brand": "Meridol",
+      "category": "",
+      "tags": [],
+      "price": 7.7,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Zahnpasta",
+      "brand": "Sensodyne",
+      "category": "",
+      "tags": [],
+      "price": 7.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Zahnpasta ",
+      "brand": "Parodontax",
+      "category": "",
+      "tags": [],
+      "price": 7.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Zahnpasta",
+      "brand": "Sensodyne",
+      "category": "",
+      "tags": [],
+      "price": 8.45,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Zahnpasta",
+      "brand": "Elmex",
+      "category": "",
+      "tags": [],
+      "price": 10.4,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Zahnpasta",
+      "brand": "Meridol",
+      "category": "",
+      "tags": [],
+      "price": 10.8,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Zahnpasta",
+      "brand": "Elmex",
+      "category": "",
+      "tags": [],
+      "price": 10.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Zahnpasta",
+      "brand": "Elmex",
+      "category": "",
+      "tags": [],
+      "price": 10.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie Mint Zahnpasta",
+      "brand": "Prix Garantie",
+      "category": "Zahnpaste für Erwachsene",
+      "tags": [],
+      "price": 0.4,
+      "unit": null
+    },
+    {
+      "chain": "denner",
+      "name": "Prokudent Zahnpasta Kräuter",
+      "brand": null,
+      "category": "1144377",
+      "tags": [],
+      "price": 0.4,
+      "unit": null
+    },
+    {
+      "chain": "ottos",
+      "name": "Close Up Zahnpasta Eucalyptus Freeze",
+      "brand": "Close Up",
+      "category": "Root",
+      "tags": [],
+      "price": 0.75,
+      "unit": null
+    },
+    {
+      "chain": "ottos",
+      "name": "Close Up Zahnpasta Methol Paradise",
+      "brand": "Close Up",
+      "category": "Root",
+      "tags": [],
+      "price": 0.75,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Kids Zahnpasta",
+      "brand": "M-Budget",
+      "category": "",
+      "tags": [],
+      "price": 0.8,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Multicare Zahnpasta",
+      "brand": "Candida",
+      "category": "",
+      "tags": [],
+      "price": 1.2,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie Whitening Zahnpasta",
+      "brand": "Prix Garantie",
+      "category": "Zahnpaste für Erwachsene",
+      "tags": [],
+      "price": 1.45,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Sensitive Zahnpasta",
+      "brand": "M-Budget",
+      "category": "",
+      "tags": [],
+      "price": 1.45,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Whitening Zahnpasta",
+      "brand": "M-Budget",
+      "category": "",
+      "tags": [],
+      "price": 1.45,
+      "unit": null
+    },
+    {
+      "chain": "ottos",
+      "name": "Colgate Junior Zahnpasta 6–12 Jahre",
+      "brand": "Colgate",
+      "category": "Root",
+      "tags": [],
+      "price": 1.5,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Colgate Total Original Zahnpasta Travel Size",
+      "brand": "Colgate",
+      "category": "Zahnpaste für Erwachsene",
+      "tags": [],
+      "price": 1.5,
+      "unit": null
+    },
+    {
+      "chain": "volg",
+      "name": "Volg Zahnpasta",
+      "brand": null,
+      "category": "Hygieneartikel",
+      "tags": [],
+      "price": 1.75,
+      "unit": null
+    },
+    {
+      "chain": "ottos",
+      "name": "Odol-Med3 Zahnpasta Kids Paw Patrol",
+      "brand": "Odol",
+      "category": "Root",
+      "tags": [],
+      "price": 1.95,
+      "unit": null
+    },
+    {
+      "chain": "ottos",
+      "name": "Signal Zahnpasta Integral 8 Actions White",
+      "brand": "Signal",
+      "category": "Root",
+      "tags": [],
+      "price": 1.95,
+      "unit": null
+    },
+    {
+      "chain": "ottos",
+      "name": "Signal Zahnpasta Integral 8 Interdental",
+      "brand": "Signal",
+      "category": "Root",
+      "tags": [],
+      "price": 1.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Elmex Sensitive Professional Zahnpasta Travel Size",
+      "brand": "Elmex",
+      "category": "Zahnpaste für Erwachsene",
+      "tags": [],
+      "price": 2.5,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Colgate Dentagard Original Zahnpasta",
+      "brand": "Colgate",
+      "category": "Zahnpaste für Erwachsene",
+      "tags": [],
+      "price": 2.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Dentamed Zahnpasta Kids Bubble Gum",
+      "brand": "Dentamed",
+      "category": "Zahnpaste für Kinder",
+      "tags": [],
+      "price": 2.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Junior Zahnpasta",
+      "brand": "Candida",
+      "category": "",
+      "tags": [],
+      "price": 2.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Junior Zahnpasta",
+      "brand": "Candida",
+      "category": "",
+      "tags": [],
+      "price": 2.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Kids Zahnpasta",
+      "brand": "Candida",
+      "category": "",
+      "tags": [],
+      "price": 2.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Kids Zahnpasta",
+      "brand": "Candida",
+      "category": "",
+      "tags": [],
+      "price": 2.95,
+      "unit": null
+    },
+    {
+      "chain": "ottos",
+      "name": "Sensodyne Zahnpasta ProSchmelz",
+      "brand": "Sensodyne",
+      "category": "Root",
+      "tags": [],
+      "price": 2.95,
+      "unit": null
+    }
+  ]
+}

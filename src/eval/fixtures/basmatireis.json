@@ -1,0 +1,43 @@
+{
+  "id": "basmatireis",
+  "query": "Basmatireis",
+  "capturedAt": "2026-08-01T09:00:40.113Z",
+  "products": [
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Demeter Basmatireis",
+      "brand": "Naturaplan",
+      "category": "Basmatireis & Parfumreis",
+      "tags": [],
+      "price": 2.5,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie Fairtrade Basmatireis",
+      "brand": "Prix Garantie",
+      "category": "Basmatireis & Parfumreis",
+      "tags": [],
+      "price": 3,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Fairtrade Basmatireis",
+      "brand": "Naturaplan",
+      "category": "Basmatireis & Parfumreis",
+      "tags": [],
+      "price": 5.25,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Betty Bossi Fairtrade Chicken Tikka Masala mit Basmatireis",
+      "brand": "Betty Bossi",
+      "category": "Frische asiatische Fertigerichte",
+      "tags": [],
+      "price": 7.95,
+      "unit": null
+    }
+  ]
+}

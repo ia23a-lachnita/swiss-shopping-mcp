@@ -1,0 +1,241 @@
+{
+  "id": "vollrahm",
+  "query": "Vollrahm",
+  "capturedAt": "2026-08-01T08:59:16.483Z",
+  "products": [
+    {
+      "chain": "migros",
+      "name": "Vollrahm",
+      "brand": "Valflora",
+      "category": "",
+      "tags": [],
+      "price": 2.1,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Vollrahm",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 2.65,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Vollrahm",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 2.85,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Vollrahm",
+      "brand": "Valflora",
+      "category": "",
+      "tags": [],
+      "price": 3.3,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Vollrahm",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 3.5,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Vollrahm",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 3.6,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Vollrahm",
+      "brand": "Valflora",
+      "category": "",
+      "tags": [],
+      "price": 4.35,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Vollrahm",
+      "brand": "Heidi",
+      "category": "",
+      "tags": [],
+      "price": 5.3,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Vollrahm",
+      "brand": "Valflora",
+      "category": "",
+      "tags": [],
+      "price": 6.55,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Vollrahm UHT IP-Suisse",
+      "brand": "Coop",
+      "category": "Vollrahm & Halbrahm",
+      "tags": [],
+      "price": 2.1,
+      "unit": null
+    },
+    {
+      "chain": "volg",
+      "name": "Vollrahm Past",
+      "brand": null,
+      "category": "Milch, Rahm &amp; Milchmischgetränke",
+      "tags": [],
+      "price": 2.5,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Vollrahm UHT",
+      "brand": "Naturaplan",
+      "category": "Vollrahm & Halbrahm",
+      "tags": [],
+      "price": 2.7,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Züribieter Vollrahm",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 2.9,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Free From Vollrahm 35% Milchfett UHT lactosefrei",
+      "brand": "Free From",
+      "category": "Vollrahm & Halbrahm",
+      "tags": [],
+      "price": 2.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Vollrahm pasteurisiert IP-Suisse",
+      "brand": "Coop",
+      "category": "Vollrahm & Halbrahm",
+      "tags": [],
+      "price": 2.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie Vollrahm 35% UHT",
+      "brand": "Prix Garantie",
+      "category": "Vollrahm & Halbrahm",
+      "tags": [],
+      "price": 3.3,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Vollrahm pasteurisiert",
+      "brand": "Naturaplan",
+      "category": "Vollrahm & Halbrahm",
+      "tags": [],
+      "price": 3.65,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Vollrahm UHT IP-Suisse",
+      "brand": "Coop",
+      "category": "Vollrahm & Halbrahm",
+      "tags": [],
+      "price": 3.75,
+      "unit": null
+    },
+    {
+      "chain": "volg",
+      "name": "Vollrahm UHT",
+      "brand": null,
+      "category": "Milch, Rahm &amp; Milchmischgetränke",
+      "tags": [],
+      "price": 3.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Emmi Vollrahm past. 35%",
+      "brand": "Emmi",
+      "category": "Vollrahm & Halbrahm",
+      "tags": [],
+      "price": 4.2,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Vollrahm UHT IP-Suisse 3x125ml",
+      "brand": "Coop",
+      "category": "Vollrahm & Halbrahm",
+      "tags": [],
+      "price": 4.35,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie Vollrahm ohne Zucker",
+      "brand": "Prix Garantie",
+      "category": "Schlagrahm",
+      "tags": [],
+      "price": 4.4,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Vollrahm Schlagrahm",
+      "brand": "Valflora",
+      "category": "",
+      "tags": [],
+      "price": 4.4,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Vollrahm 35% Milchfett pasteurisiert IP-Suisse",
+      "brand": "Coop",
+      "category": "Vollrahm & Halbrahm",
+      "tags": [],
+      "price": 5.3,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Vollrahm Past",
+      "brand": "Naturaplan",
+      "category": "Vollrahm & Halbrahm",
+      "tags": [],
+      "price": 5.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Vollrahm UHT IP-Suisse",
+      "brand": "Coop",
+      "category": "Vollrahm & Halbrahm",
+      "tags": [],
+      "price": 7.4,
+      "unit": null
+    }
+  ]
+}

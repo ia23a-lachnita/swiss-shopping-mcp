@@ -1,0 +1,121 @@
+{
+  "id": "obst",
+  "query": "Obst",
+  "capturedAt": "2026-08-01T09:02:22.302Z",
+  "products": [
+    {
+      "chain": "coop",
+      "name": "Hipp Bio Brei Obst & Vollkorn ab 6+ Monate",
+      "brand": "Hipp",
+      "category": "Glasmahlzeiten 6 Monaten +",
+      "tags": [],
+      "price": 2.1,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Demeter Obstessig",
+      "brand": "Naturaplan",
+      "category": "Essig Spezialitäten",
+      "tags": [],
+      "price": 2.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Mischobst",
+      "brand": "Sun Queen",
+      "category": "",
+      "tags": [],
+      "price": 3.1,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Dr. Beckmann Fleckenentferner Fleckenteufel Obst & Getränke",
+      "brand": "Dr.Beckmann",
+      "category": "Fleckenentferner",
+      "tags": [],
+      "price": 3.45,
+      "unit": null
+    },
+    {
+      "chain": "aldi",
+      "name": "Obstriege, Erdbeere-Banane",
+      "brand": "GOLDEN BRIDGE",
+      "category": "Süssigkeiten & Snacks",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 3.69,
+      "unit": null
+    },
+    {
+      "chain": "aldi",
+      "name": "Obstriegel, Cranberry-Kirsche",
+      "brand": "GOLDEN BRIDGE",
+      "category": "Süssigkeiten & Snacks",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 3.69,
+      "unit": null
+    },
+    {
+      "chain": "aldi",
+      "name": "Obstriegel, Waldfrucht",
+      "brand": "GOLDEN BRIDGE",
+      "category": "Süssigkeiten & Snacks",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 3.69,
+      "unit": null
+    },
+    {
+      "chain": "denner",
+      "name": "Farmatura Obst-Mix",
+      "brand": null,
+      "category": "1144362",
+      "tags": [],
+      "price": 3.95,
+      "unit": null
+    },
+    {
+      "chain": "ottos",
+      "name": "Nectaflor Mischobst",
+      "brand": "Nectaflor",
+      "category": "Root",
+      "tags": [],
+      "price": 5.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Langnese Honig Bee Easy Obstblüten",
+      "brand": "Langnese",
+      "category": "Honig",
+      "tags": [],
+      "price": 8.3,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Kernobstbranntwein",
+      "brand": "Blum",
+      "category": "Obstler & Chrüterschnaps",
+      "tags": [],
+      "price": 16.4,
+      "unit": null
+    },
+    {
+      "chain": "volg",
+      "name": "St.Georg Kernobstbrand",
+      "brand": null,
+      "category": "Getränke",
+      "tags": [],
+      "price": 22.5,
+      "unit": null
+    }
+  ]
+}

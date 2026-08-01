@@ -1,0 +1,367 @@
+{
+  "id": "gemuese",
+  "query": "Gemüse",
+  "capturedAt": "2026-08-01T09:02:20.404Z",
+  "products": [
+    {
+      "chain": "denner",
+      "name": "enerBIO Gemüse-Tomatensauce",
+      "brand": null,
+      "category": "1144362",
+      "tags": [],
+      "price": 1.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Sommergemüse ",
+      "brand": "Alnatura",
+      "category": "",
+      "tags": [],
+      "price": 1.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Buttergemüse",
+      "brand": "Alnatura",
+      "category": "",
+      "tags": [],
+      "price": 2.5,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Rügenwalder vegane Alternative zu Spicker Grillgemüse",
+      "brand": "Rügenwalder Mühle",
+      "category": "Pflanzliche Alternativen zu Aufschnitt & Charcuterie",
+      "tags": [],
+      "price": 2.8,
+      "unit": null
+    },
+    {
+      "chain": "denner",
+      "name": "Biotta Gemüse-Cocktail",
+      "brand": null,
+      "category": "1144372",
+      "tags": [],
+      "price": 2.9,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Gemüse-Cocktail",
+      "brand": "Biotta",
+      "category": "",
+      "tags": [],
+      "price": 2.9,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Gemüsezwiebel 1 Stück",
+      "brand": "Coop",
+      "category": "Zwiebeln & Knoblauch",
+      "tags": [],
+      "price": 2.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Asia Gemüsemischung",
+      "brand": "M-Budget",
+      "category": "",
+      "tags": [],
+      "price": 3.2,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Gemüsemischung",
+      "brand": "M-Budget",
+      "category": "",
+      "tags": [],
+      "price": 3.2,
+      "unit": null
+    },
+    {
+      "chain": "ottos",
+      "name": "Ben's Original Sauce süss-sauer Gemüse",
+      "brand": "Ben's",
+      "category": "Root",
+      "tags": [],
+      "price": 3.4,
+      "unit": null
+    },
+    {
+      "chain": "denner",
+      "name": "Mmmh Frühlingsrollen Gemüse mit Sweet Sour Sauce",
+      "brand": null,
+      "category": "1144362",
+      "tags": [],
+      "price": 3.5,
+      "unit": null
+    },
+    {
+      "chain": "volg",
+      "name": "Felix Vielfalt Gemüse in Gel",
+      "brand": null,
+      "category": "Körperpflege, Reinigung, Haushalt &amp; Tierbedarf",
+      "tags": [],
+      "price": 3.7,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Betty Bossi Marktgemüse",
+      "brand": "Betty Bossi",
+      "category": "Pfannenfertiges Gemüse",
+      "tags": [],
+      "price": 3.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Linsen mit Gemüse",
+      "brand": "You",
+      "category": "",
+      "tags": [],
+      "price": 3.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Snack Gemüse Mix",
+      "brand": "Snack Eat",
+      "category": "Peperoni",
+      "tags": [],
+      "price": 3.95,
+      "unit": null
+    },
+    {
+      "chain": "ottos",
+      "name": "Knorr Bouillon Gemüse Stangen",
+      "brand": "Knorr",
+      "category": "Root",
+      "tags": [],
+      "price": 4,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Favorit Gemüsemischung",
+      "brand": "Farmer's Best",
+      "category": "",
+      "tags": [],
+      "price": 4.3,
+      "unit": null
+    },
+    {
+      "chain": "volg",
+      "name": "Knorr Gemüsebouillon Stange",
+      "brand": null,
+      "category": "Gewürze, Saucen, Suppen &amp; Bouillons",
+      "tags": [],
+      "price": 4.8,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Pfannengemüse",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 4.8,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Gemüsemischung",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 4.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Gemüsemischung",
+      "brand": "Farmer's Best",
+      "category": "",
+      "tags": [],
+      "price": 5.2,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Romanesco Gemüsemischung",
+      "brand": "Farmer's Best",
+      "category": "",
+      "tags": [],
+      "price": 5.25,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Snack Gemüse Mix",
+      "brand": "Coop",
+      "category": "Peperoni",
+      "tags": [],
+      "price": 5.5,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Brunoise Gemüsemischung",
+      "brand": "Farmer's Best",
+      "category": "",
+      "tags": [],
+      "price": 5.7,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Orogel Gemüse frittiert",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 5.9,
+      "unit": null
+    },
+    {
+      "chain": "lidl",
+      "name": "Mini Springrolls Gemüse",
+      "brand": null,
+      "category": "Food",
+      "tags": [],
+      "price": 5.99,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Buttergemüse",
+      "brand": "Farmer's Best",
+      "category": "",
+      "tags": [],
+      "price": 6.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Ratatouille Gemüsemischung",
+      "brand": "Farmer's Best",
+      "category": "",
+      "tags": [],
+      "price": 7.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Gemüse Papaya grün 1 Stück",
+      "brand": "Coop",
+      "category": "Weitere exotische Früchte",
+      "tags": [],
+      "price": 9.95,
+      "unit": null
+    },
+    {
+      "chain": "volg",
+      "name": "Knorr Gemüse-Extrakt Dose",
+      "brand": null,
+      "category": "Gewürze, Saucen, Suppen &amp; Bouillons",
+      "tags": [],
+      "price": 10.6,
+      "unit": null
+    },
+    {
+      "chain": "ottos",
+      "name": "Collina D'Oro Bouillon Gemüse",
+      "brand": "Collina D'Oro",
+      "category": "Root",
+      "tags": [],
+      "price": 10.95,
+      "unit": null
+    },
+    {
+      "chain": "ottos",
+      "name": "Knorr Gemüse Bouillon Paste",
+      "brand": "Knorr",
+      "category": "Root",
+      "tags": [],
+      "price": 14.95,
+      "unit": null
+    },
+    {
+      "chain": "ottos",
+      "name": "Knorr Gemüse Bouillon Pulver",
+      "brand": "Knorr",
+      "category": "Root",
+      "tags": [],
+      "price": 16.95,
+      "unit": null
+    },
+    {
+      "chain": "ottos",
+      "name": "Knorr Gemüseextrakt Granulat",
+      "brand": "Knorr",
+      "category": "Root",
+      "tags": [],
+      "price": 19.95,
+      "unit": null
+    },
+    {
+      "chain": "ottos",
+      "name": "Knorr Gemüseextrakt Granulat fettarm",
+      "brand": "Knorr",
+      "category": "Root",
+      "tags": [],
+      "price": 19.95,
+      "unit": null
+    },
+    {
+      "chain": "ottos",
+      "name": "Ohmex Gemüsereibe Elektrisch mit 5 Reibekegeln",
+      "brand": "Ohmex",
+      "category": "Root",
+      "tags": [],
+      "price": 24.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Betty Bossi Asian Wok Seoul",
+      "brand": "Betty Bossi",
+      "category": "Pfannenfertiges Gemüse",
+      "tags": [],
+      "price": 3.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Asian Wok Hanoi",
+      "brand": "Naturaplan",
+      "category": "Pfannenfertiges Gemüse",
+      "tags": [],
+      "price": 4.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Betty Bossi Asian Wok Shanghai",
+      "brand": "Betty Bossi",
+      "category": "Pfannenfertiges Gemüse",
+      "tags": [],
+      "price": 5.5,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Krautstiel",
+      "brand": "Coop",
+      "category": "Blattgemüse & Artischocken",
+      "tags": [],
+      "price": 5.95,
+      "unit": null
+    }
+  ]
+}

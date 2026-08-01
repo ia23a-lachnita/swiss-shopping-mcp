@@ -1,0 +1,118 @@
+{
+  "id": "kaffeebohnen",
+  "query": "Kaffeebohnen",
+  "capturedAt": "2026-08-01T09:00:50.126Z",
+  "products": [
+    {
+      "chain": "aldi",
+      "name": "Kaffeebohnen, Crema",
+      "brand": "BARISSIMO",
+      "category": "Kaffeebohnen, Crema",
+      "tags": [
+        "in-stock",
+        "special-buy"
+      ],
+      "price": 5.99,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Lungo Kaffeebohnen gemahlen",
+      "brand": "Naturaplan",
+      "category": "Kaffee gemahlen",
+      "tags": [],
+      "price": 9.95,
+      "unit": null
+    },
+    {
+      "chain": "ottos",
+      "name": "Caffè Chicco d'Oro Tradition Kaffeebohnen",
+      "brand": "Chicco D'Oro",
+      "category": "Root",
+      "tags": [],
+      "price": 13.95,
+      "unit": null
+    },
+    {
+      "chain": "ottos",
+      "name": "Mövenpick Kaffeebohnen Crema",
+      "brand": "Mövenpick",
+      "category": "Root",
+      "tags": [],
+      "price": 13.95,
+      "unit": null
+    },
+    {
+      "chain": "ottos",
+      "name": "Mövenpick Kaffeebohnen Espresso",
+      "brand": "Mövenpick",
+      "category": "Root",
+      "tags": [],
+      "price": 13.95,
+      "unit": null
+    },
+    {
+      "chain": "ottos",
+      "name": "Lavazza Qualità Rossa Kaffeebohnen",
+      "brand": "Lavazza",
+      "category": "Root",
+      "tags": [],
+      "price": 15.95,
+      "unit": null
+    },
+    {
+      "chain": "ottos",
+      "name": "Kimbo Aroma Gold Kaffeebohnen",
+      "brand": "Kimbo",
+      "category": "Root",
+      "tags": [],
+      "price": 17.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "La Semeuse Kaffeebohnen Entre Sierras Colombie",
+      "brand": "La Semeuse",
+      "category": "Bohnenkaffee",
+      "tags": [],
+      "price": 17.95,
+      "unit": null
+    },
+    {
+      "chain": "ottos",
+      "name": "Lavazza Qualità Oro Kaffeebohnen",
+      "brand": "Lavazza",
+      "category": "Root",
+      "tags": [],
+      "price": 17.95,
+      "unit": null
+    },
+    {
+      "chain": "ottos",
+      "name": "Jacobs Médaille d'Or Kaffeebohnen",
+      "brand": "Jacobs",
+      "category": "Root",
+      "tags": [],
+      "price": 27.95,
+      "unit": null
+    },
+    {
+      "chain": "ottos",
+      "name": "Mastro Lorenzo Crema Kaffeebohnen",
+      "brand": "Mastro Lorenzo",
+      "category": "Root",
+      "tags": [],
+      "price": 27.95,
+      "unit": null
+    },
+    {
+      "chain": "ottos",
+      "name": "Mastro Lorenzo Intenso Kaffeebohnen",
+      "brand": "Mastro Lorenzo",
+      "category": "Root",
+      "tags": [],
+      "price": 27.95,
+      "unit": null
+    }
+  ]
+}

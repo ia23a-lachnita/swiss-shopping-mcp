@@ -1,0 +1,139 @@
+{
+  "id": "kaegi-fret",
+  "query": "Kägi fret",
+  "capturedAt": "2026-08-01T09:02:19.217Z",
+  "products": [
+    {
+      "chain": "volg",
+      "name": "Kägi Fret",
+      "brand": null,
+      "category": "Biscuits",
+      "tags": [],
+      "price": 4.75,
+      "unit": null
+    },
+    {
+      "chain": "aldi",
+      "name": "Mini Dark",
+      "brand": "KÄGI-FRET",
+      "category": "Aktionen",
+      "tags": [
+        "in-stock",
+        "special-buy"
+      ],
+      "price": 7.99,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Kägi fret 3x50g",
+      "brand": "Kägi",
+      "category": "Hüppen, Waffeln & Läckerli",
+      "tags": [],
+      "price": 3.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Kägi fret Classic mini",
+      "brand": "Kägi",
+      "category": "Hüppen, Waffeln & Läckerli",
+      "tags": [],
+      "price": 3.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Kägi fret Dark mini",
+      "brand": "Kägi",
+      "category": "Hüppen, Waffeln & Läckerli",
+      "tags": [],
+      "price": 3.95,
+      "unit": null
+    },
+    {
+      "chain": "volg",
+      "name": "Kägi Fret Mini",
+      "brand": null,
+      "category": "Biscuits",
+      "tags": [],
+      "price": 4.4,
+      "unit": null
+    },
+    {
+      "chain": "denner",
+      "name": "Kägi fret Classic",
+      "brand": null,
+      "category": "1144362",
+      "tags": [],
+      "price": 5.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Kägi fret Classic mini 3x128g",
+      "brand": "Kägi",
+      "category": "Hüppen, Waffeln & Läckerli",
+      "tags": [],
+      "price": 8.2,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Kägi fret Dark mini 3x128g",
+      "brand": "Kägi",
+      "category": "Hüppen, Waffeln & Läckerli",
+      "tags": [],
+      "price": 8.2,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Kägi fret Waffeln 3x (3x50g)",
+      "brand": "Kägi",
+      "category": "Hüppen, Waffeln & Läckerli",
+      "tags": [],
+      "price": 8.2,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Kägi fret Classic mini 4x128g",
+      "brand": "Kägi",
+      "category": "Hüppen, Waffeln & Läckerli",
+      "tags": [],
+      "price": 12.6,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Kägi fret Dark Classic mini 4x128g",
+      "brand": "Kägi",
+      "category": "Hüppen, Waffeln & Läckerli",
+      "tags": [],
+      "price": 12.6,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "fret",
+      "brand": "Kägi",
+      "category": "",
+      "tags": [],
+      "price": 2.1,
+      "unit": null
+    },
+    {
+      "chain": "aldi",
+      "name": "Fret Mini",
+      "brand": "KÄGI",
+      "category": "Aktionen",
+      "tags": [
+        "in-stock",
+        "special-buy"
+      ],
+      "price": 7.99,
+      "unit": null
+    }
+  ]
+}

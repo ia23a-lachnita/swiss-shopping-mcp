@@ -1,0 +1,369 @@
+{
+  "id": "kartoffeln",
+  "query": "Kartoffeln",
+  "capturedAt": "2026-08-01T09:00:01.587Z",
+  "products": [
+    {
+      "chain": "migros",
+      "name": "Kartoffeln",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 1.7,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Kartoffeln",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 1.9,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Kartoffeln",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 1.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Kartoffeln",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 2.1,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Kartoffeln",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 2.8,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Kartoffeln",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 3.2,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Kartoffeln",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 3.2,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Kartoffeln",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 3.2,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Kartoffeln",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 3.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Kartoffeln",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 3.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Kartoffeln",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 4.15,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Kartoffeln",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 4.75,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Kartoffeln",
+      "brand": "Extra",
+      "category": "",
+      "tags": [],
+      "price": 4.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Kartoffeln",
+      "brand": "M-Budget",
+      "category": "",
+      "tags": [],
+      "price": 5.6,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Kartoffeln",
+      "brand": "M-Budget",
+      "category": "",
+      "tags": [],
+      "price": 5.6,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Kartoffeln",
+      "brand": "Anna's Best",
+      "category": "",
+      "tags": [],
+      "price": 6,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Ünique Kartoffeln",
+      "brand": "Ünique",
+      "category": "Kartoffeln",
+      "tags": [],
+      "price": 1.1,
+      "unit": null
+    },
+    {
+      "chain": "aldi",
+      "name": "Orientalischer Salat, Bulgur-Süsskartoffeln",
+      "brand": "WONNEMEYER",
+      "category": "Grillen",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 1.59,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Primagusto Kartoffeln Celtiane IP-Suisse ca. 500g",
+      "brand": "Primagusto",
+      "category": "Kartoffeln",
+      "tags": [],
+      "price": 1.8,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie Süsskartoffeln",
+      "brand": "Prix Garantie",
+      "category": "Kartoffeln",
+      "tags": [],
+      "price": 1.8,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Süsskartoffeln",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 1.8,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Karotten mit Kartoffeln & Rind Brei ",
+      "brand": "Alnatura",
+      "category": "",
+      "tags": [],
+      "price": 1.85,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Spinatbrei mit Kartoffeln ",
+      "brand": "Holle",
+      "category": "",
+      "tags": [],
+      "price": 1.95,
+      "unit": null
+    },
+    {
+      "chain": "denner",
+      "name": "Baby-Kartoffeln im Körbli",
+      "brand": null,
+      "category": "1144362",
+      "tags": [],
+      "price": 2,
+      "unit": null
+    },
+    {
+      "chain": "denner",
+      "name": "IP-SUISSE Kartoffeln",
+      "brand": null,
+      "category": "1144362",
+      "tags": [],
+      "price": 2,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Früh Karottenbrei mit Kartoffeln ",
+      "brand": "Hipp",
+      "category": "",
+      "tags": [],
+      "price": 2.2,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Mais mit Kartoffeln und Bio Pute",
+      "brand": "Hipp",
+      "category": "",
+      "tags": [],
+      "price": 2.35,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Betty Bossi Sous vide Kartoffeln",
+      "brand": "Betty Bossi",
+      "category": "Kartoffeln",
+      "tags": [],
+      "price": 2.7,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Babykartoffeln festkochend",
+      "brand": "Naturaplan",
+      "category": "Kartoffeln",
+      "tags": [],
+      "price": 2.8,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie Kartoffeln",
+      "brand": "Prix Garantie",
+      "category": "Kartoffeln",
+      "tags": [],
+      "price": 2.8,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Demeter Bio Kartoffeln",
+      "brand": "Naturaplan",
+      "category": "Kartoffeln",
+      "tags": [],
+      "price": 2.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Primagusto Babykartoffeln Celtiane IP-Suisse",
+      "brand": "Primagusto",
+      "category": "Kartoffeln",
+      "tags": [],
+      "price": 2.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Kartoffeln mit Wildlachs & Karotten ",
+      "brand": "Hipp",
+      "category": "",
+      "tags": [],
+      "price": 3.15,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Frühkartoffeln",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 3.2,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Kartoffeln festkochend",
+      "brand": "Naturaplan",
+      "category": "Kartoffeln",
+      "tags": [],
+      "price": 3.2,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Kartoffeln mehligkochend",
+      "brand": "Naturaplan",
+      "category": "Kartoffeln",
+      "tags": [],
+      "price": 3.2,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Kartoffeln vorwiegend festkochend",
+      "brand": "Naturaplan",
+      "category": "Kartoffeln",
+      "tags": [],
+      "price": 3.2,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Frühkartoffeln",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 3.45,
+      "unit": null
+    },
+    {
+      "chain": "denner",
+      "name": "IP-SUISSE Kartoffeln",
+      "brand": null,
+      "category": "1144362",
+      "tags": [],
+      "price": 3.5,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Pro Specie Rara Frühkartoffeln Ostara",
+      "brand": "ProSpecieRara",
+      "category": "Kartoffeln",
+      "tags": [],
+      "price": 3.95,
+      "unit": null
+    }
+  ]
+}

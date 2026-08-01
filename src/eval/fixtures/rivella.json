@@ -1,0 +1,371 @@
+{
+  "id": "rivella",
+  "query": "Rivella",
+  "capturedAt": "2026-08-01T09:01:59.164Z",
+  "products": [
+    {
+      "chain": "coop",
+      "name": "Rivella Peach Zero",
+      "brand": "Rivella",
+      "category": "Cola & Limonaden",
+      "tags": [],
+      "price": 1.3,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Rivella Rot Dose",
+      "brand": "Rivella",
+      "category": "Cola & Limonaden",
+      "tags": [],
+      "price": 1.3,
+      "unit": null
+    },
+    {
+      "chain": "aldi",
+      "name": "Blau",
+      "brand": "RIVELLA",
+      "category": "Alkoholfreie Getränke",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 1.59,
+      "unit": null
+    },
+    {
+      "chain": "aldi",
+      "name": "Rot",
+      "brand": "RIVELLA",
+      "category": "Alkoholfreie Getränke",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 1.59,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Blau",
+      "brand": "Rivella",
+      "category": "",
+      "tags": [],
+      "price": 1.6,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Gelb",
+      "brand": "Rivella",
+      "category": "",
+      "tags": [],
+      "price": 1.6,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Rivella Gelb",
+      "brand": "Rivella",
+      "category": "Rivella",
+      "tags": [],
+      "price": 1.6,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Rot",
+      "brand": "Rivella",
+      "category": "",
+      "tags": [],
+      "price": 1.6,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Blau",
+      "brand": "Rivella",
+      "category": "",
+      "tags": [],
+      "price": 2.5,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Gelb",
+      "brand": "Rivella",
+      "category": "",
+      "tags": [],
+      "price": 2.5,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Rot",
+      "brand": "Rivella",
+      "category": "",
+      "tags": [],
+      "price": 2.5,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Rivella Blau 4x1l",
+      "brand": "Rivella",
+      "category": "Soft Drink Multipacks mit Flaschen/Tetra ab 1 Liter",
+      "tags": [],
+      "price": 8.8,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Rivella Rot 4x1l",
+      "brand": "Rivella",
+      "category": "Soft Drink Multipacks mit Flaschen/Tetra ab 1 Liter",
+      "tags": [],
+      "price": 8.8,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Rivella Blau 6x1,5l",
+      "brand": "Rivella",
+      "category": "Soft Drink Multipacks mit Flaschen/Tetra ab 1 Liter",
+      "tags": [],
+      "price": 8.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Rivella Gelb Refresh 6x1.5 Liter",
+      "brand": "Rivella",
+      "category": "Soft Drink Multipacks mit Flaschen/Tetra ab 1 Liter",
+      "tags": [],
+      "price": 8.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Rivella Grüntee  6x1,5l",
+      "brand": "Rivella",
+      "category": "Soft Drink Multipacks mit Flaschen/Tetra ab 1 Liter",
+      "tags": [],
+      "price": 8.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Rivella Rot 6x1,5l",
+      "brand": "Rivella",
+      "category": "Soft Drink Multipacks mit Flaschen/Tetra ab 1 Liter",
+      "tags": [],
+      "price": 8.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Blau",
+      "brand": "Rivella",
+      "category": "",
+      "tags": [],
+      "price": 9.3,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Gelb",
+      "brand": "Rivella",
+      "category": "",
+      "tags": [],
+      "price": 9.3,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Gelb",
+      "brand": "Rivella",
+      "category": "",
+      "tags": [],
+      "price": 9.3,
+      "unit": null
+    },
+    {
+      "chain": "ottos",
+      "name": "Rivella Blau",
+      "brand": "Rivella",
+      "category": "Root",
+      "tags": [],
+      "price": 9.3,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Rivella Blau 6x50cl",
+      "brand": "Rivella",
+      "category": "Soft Drink Multipacks mit Flaschen/Dosen unter 1 Liter",
+      "tags": [],
+      "price": 9.3,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Rivella Gelb Refresh 6x50cl",
+      "brand": "Rivella",
+      "category": "Soft Drink Multipacks mit Flaschen/Dosen unter 1 Liter",
+      "tags": [],
+      "price": 9.3,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Rivella Grüntee 6x50cl",
+      "brand": "Rivella",
+      "category": "Soft Drink Multipacks mit Flaschen/Dosen unter 1 Liter",
+      "tags": [],
+      "price": 9.3,
+      "unit": null
+    },
+    {
+      "chain": "ottos",
+      "name": "Rivella Rot",
+      "brand": "Rivella",
+      "category": "Root",
+      "tags": [],
+      "price": 9.3,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Rivella Rot 6x50cl",
+      "brand": "Rivella",
+      "category": "Soft Drink Multipacks mit Flaschen/Dosen unter 1 Liter",
+      "tags": [],
+      "price": 9.3,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Rot",
+      "brand": "Rivella",
+      "category": "",
+      "tags": [],
+      "price": 9.3,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Rot",
+      "brand": "Rivella",
+      "category": "",
+      "tags": [],
+      "price": 9.3,
+      "unit": null
+    },
+    {
+      "chain": "ottos",
+      "name": "Rivella Blau",
+      "brand": "Rivella",
+      "category": "Root",
+      "tags": [],
+      "price": 9.5,
+      "unit": null
+    },
+    {
+      "chain": "ottos",
+      "name": "Rivella Rot",
+      "brand": "Rivella",
+      "category": "Root",
+      "tags": [],
+      "price": 9.5,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Blau",
+      "brand": "Rivella",
+      "category": "",
+      "tags": [],
+      "price": 14.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Gelb",
+      "brand": "Rivella",
+      "category": "",
+      "tags": [],
+      "price": 14.95,
+      "unit": null
+    },
+    {
+      "chain": "ottos",
+      "name": "Rivella blau 6 x 1,5 Liter",
+      "brand": "Rivella",
+      "category": "Root",
+      "tags": [],
+      "price": 14.95,
+      "unit": null
+    },
+    {
+      "chain": "ottos",
+      "name": "Rivella rot 6 x 1,5 Liter",
+      "brand": "Rivella",
+      "category": "Root",
+      "tags": [],
+      "price": 14.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Rot",
+      "brand": "Rivella",
+      "category": "",
+      "tags": [],
+      "price": 14.95,
+      "unit": null
+    },
+    {
+      "chain": "volg",
+      "name": "Rivella Blau",
+      "brand": null,
+      "category": "Alkoholfreie Getränke",
+      "tags": [],
+      "price": 1.75,
+      "unit": null
+    },
+    {
+      "chain": "volg",
+      "name": "Rivella Rot",
+      "brand": null,
+      "category": "Alkoholfreie Getränke",
+      "tags": [],
+      "price": 1.75,
+      "unit": null
+    },
+    {
+      "chain": "volg",
+      "name": "Rivella Blau",
+      "brand": null,
+      "category": "Alkoholfreie Getränke",
+      "tags": [],
+      "price": 2.75,
+      "unit": null
+    },
+    {
+      "chain": "volg",
+      "name": "Rivella Rot",
+      "brand": null,
+      "category": "Alkoholfreie Getränke",
+      "tags": [],
+      "price": 2.75,
+      "unit": null
+    },
+    {
+      "chain": "denner",
+      "name": "Rivella Blau",
+      "brand": null,
+      "category": "1144372",
+      "tags": [],
+      "price": 6.5,
+      "unit": null
+    }
+  ]
+}

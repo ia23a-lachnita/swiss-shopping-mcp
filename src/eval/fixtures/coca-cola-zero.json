@@ -1,0 +1,300 @@
+{
+  "id": "coca-cola-zero",
+  "query": "Coca Cola Zero",
+  "capturedAt": "2026-08-01T09:02:09.186Z",
+  "products": [
+    {
+      "chain": "aldi",
+      "name": "COCA-COLA, Zero",
+      "brand": "COCA-COLA",
+      "category": "Alkoholfreie Getränke",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 1.09,
+      "unit": null
+    },
+    {
+      "chain": "denner",
+      "name": "Coca-Cola Zero",
+      "brand": null,
+      "category": "1144372",
+      "tags": [],
+      "price": 12.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Coca Cola Zero 4x25cl",
+      "brand": "Coca Cola",
+      "category": "Cola",
+      "tags": [],
+      "price": 4.2,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Coca-Cola Zero Dosen 6x33cl",
+      "brand": "Coca Cola",
+      "category": "Soft Drink Multipacks mit Flaschen/Dosen unter 1 Liter",
+      "tags": [],
+      "price": 6.5,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Coca Cola Zero 4x90cl",
+      "brand": "Coca Cola",
+      "category": "Cola & Limonaden",
+      "tags": [],
+      "price": 7.8,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Coca Cola Zero koffeinfrei 4x90cl",
+      "brand": "Coca Cola",
+      "category": "Cola & Limonaden",
+      "tags": [],
+      "price": 7.8,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Coca Cola Zero 12x15cl",
+      "brand": "Coca Cola",
+      "category": "Soft Drink Multipacks mit Flaschen/Dosen unter 1 Liter",
+      "tags": [],
+      "price": 8.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Coca-Cola Zero 6x50cl",
+      "brand": "Coca Cola",
+      "category": "Soft Drink Multipacks mit Flaschen/Dosen unter 1 Liter",
+      "tags": [],
+      "price": 9.3,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Coca-Cola Zero koffeinfrei 6x50cl",
+      "brand": "Coca Cola",
+      "category": "Soft Drink Multipacks mit Flaschen/Dosen unter 1 Liter",
+      "tags": [],
+      "price": 9.3,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Coca Cola zero 10x33cl",
+      "brand": "Coca Cola",
+      "category": "Soft Drink Multipacks mit Flaschen/Dosen unter 1 Liter",
+      "tags": [],
+      "price": 10.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Coca Cola Zero 18x33cl",
+      "brand": "Coca Cola",
+      "category": "Soft Drink Multipacks mit Flaschen/Dosen unter 1 Liter",
+      "tags": [],
+      "price": 10.95,
+      "unit": null
+    },
+    {
+      "chain": "ottos",
+      "name": "Coca-Cola Zero 12 x 50 cl (8+4 gratis)",
+      "brand": "Coca Cola",
+      "category": "Root",
+      "tags": [],
+      "price": 11.95,
+      "unit": null
+    },
+    {
+      "chain": "ottos",
+      "name": "Coca-Cola Zero Zucker",
+      "brand": "Coca Cola",
+      "category": "Root",
+      "tags": [],
+      "price": 11.95,
+      "unit": null
+    },
+    {
+      "chain": "ottos",
+      "name": "Coca-Cola Zero Zucker",
+      "brand": "Coca Cola",
+      "category": "Root",
+      "tags": [],
+      "price": 12.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Coca Cola zero koffeinfrei 6x1.5l",
+      "brand": "Coca Cola",
+      "category": "Soft Drink Multipacks mit Flaschen/Tetra ab 1 Liter",
+      "tags": [],
+      "price": 14.35,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Coca-Cola Zero 6x1,5l",
+      "brand": "Coca Cola",
+      "category": "Soft Drink Multipacks mit Flaschen/Tetra ab 1 Liter",
+      "tags": [],
+      "price": 14.35,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Coca-Cola Zero 6x2l",
+      "brand": "Coca Cola",
+      "category": "Soft Drink Multipacks mit Flaschen/Tetra ab 1 Liter",
+      "tags": [],
+      "price": 15.6,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Zero",
+      "brand": "Coca-Cola",
+      "category": "",
+      "tags": [],
+      "price": 1.1,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "zero Zucker und zero Koffein",
+      "brand": "Coca-Cola",
+      "category": "",
+      "tags": [],
+      "price": 1.1,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Zero",
+      "brand": "Coca-Cola",
+      "category": "",
+      "tags": [],
+      "price": 1.55,
+      "unit": null
+    },
+    {
+      "chain": "aldi",
+      "name": "Zero",
+      "brand": "COCA-COLA",
+      "category": "Aktionen",
+      "tags": [
+        "in-stock",
+        "special-buy"
+      ],
+      "price": 1.55,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "zero Zucker und zero Koffein",
+      "brand": "Coca-Cola",
+      "category": "",
+      "tags": [],
+      "price": 1.55,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Zero",
+      "brand": "Coca-Cola",
+      "category": "",
+      "tags": [],
+      "price": 1.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Zero",
+      "brand": "Coca-Cola",
+      "category": "",
+      "tags": [],
+      "price": 2.4,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "zero Zucker und zero Koffein",
+      "brand": "Coca-Cola",
+      "category": "",
+      "tags": [],
+      "price": 2.4,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Zero Dose",
+      "brand": "Coca-Cola",
+      "category": "",
+      "tags": [],
+      "price": 6.5,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "zero Zucker und zero Koffein",
+      "brand": "Coca-Cola",
+      "category": "",
+      "tags": [],
+      "price": 6.5,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Zero",
+      "brand": "Coca-Cola",
+      "category": "",
+      "tags": [],
+      "price": 7.15,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "zero Zucker und zero Koffein",
+      "brand": "Coca-Cola",
+      "category": "",
+      "tags": [],
+      "price": 7.15,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Zero",
+      "brand": "Coca-Cola",
+      "category": "",
+      "tags": [],
+      "price": 7.8,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Zero",
+      "brand": "Coca-Cola",
+      "category": "",
+      "tags": [],
+      "price": 9.3,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Zero Zucker und  Zero Koffein",
+      "brand": "Coca-Cola",
+      "category": "",
+      "tags": [],
+      "price": 9.3,
+      "unit": null
+    }
+  ]
+}

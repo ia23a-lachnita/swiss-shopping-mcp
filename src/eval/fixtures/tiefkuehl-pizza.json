@@ -1,0 +1,367 @@
+{
+  "id": "tiefkuehl-pizza",
+  "query": "Tiefkühl Pizza",
+  "capturedAt": "2026-08-01T09:01:24.100Z",
+  "products": [
+    {
+      "chain": "coop",
+      "name": "Prix Garantie Pizza Margherita 2 Stück",
+      "brand": "Prix Garantie",
+      "category": "Tiefkühlpizza",
+      "tags": [],
+      "price": 2.4,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie Pizza Prosciutto 2x330g",
+      "brand": "Prix Garantie",
+      "category": "Tiefkühlpizza",
+      "tags": [],
+      "price": 2.75,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie Mini Pizza Margherita",
+      "brand": "Prix Garantie",
+      "category": "Tiefkühlpizza",
+      "tags": [],
+      "price": 3.15,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Buitoni Airfryer Pizza Mozzarella",
+      "brand": "Buitoni",
+      "category": "Tiefkühlpizza",
+      "tags": [],
+      "price": 3.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Italpizza Numero uno Margherita",
+      "brand": "ITALPIZZA",
+      "category": "Tiefkühlpizza",
+      "tags": [],
+      "price": 4.7,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Italpizza Numero uno Prosciutto",
+      "brand": "ITALPIZZA",
+      "category": "Tiefkühlpizza",
+      "tags": [],
+      "price": 4.7,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Italpizza Numero uno Salame",
+      "brand": "ITALPIZZA",
+      "category": "Tiefkühlpizza",
+      "tags": [],
+      "price": 4.7,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Italpizza Numero uno Tonno",
+      "brand": "ITALPIZZA",
+      "category": "Tiefkühlpizza",
+      "tags": [],
+      "price": 4.7,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Buitoni Piccolinis Pizza Salame 9 Stück",
+      "brand": "Buitoni",
+      "category": "Tiefkühlpizza",
+      "tags": [],
+      "price": 4.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Dr. Oetker Pizza Ristorante Piccola Margherita",
+      "brand": "Dr. Oetker",
+      "category": "Tiefkühlpizza",
+      "tags": [],
+      "price": 4.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Gourmet d'Alsace Flammkuchen Original",
+      "brand": "Gourmet d'Alsace",
+      "category": "Tiefkühlpizza",
+      "tags": [],
+      "price": 4.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Dr. Oetker Bistro Flammenkuchen Elsässer Art",
+      "brand": "Dr. Oetker",
+      "category": "Tiefkühlpizza",
+      "tags": [],
+      "price": 5.2,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Buitoni Forno di Pietra Caprese",
+      "brand": "Buitoni",
+      "category": "Tiefkühlpizza",
+      "tags": [],
+      "price": 5.5,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Buitoni Forno di Pietra Prosciutto e Pesto",
+      "brand": "Buitoni",
+      "category": "Tiefkühlpizza",
+      "tags": [],
+      "price": 5.5,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Buitoni Pizza Forno Diavola",
+      "brand": "Buitoni",
+      "category": "Tiefkühlpizza",
+      "tags": [],
+      "price": 5.5,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Italpizza 26x38 Margherita",
+      "brand": "ITALPIZZA",
+      "category": "Tiefkühlpizza",
+      "tags": [],
+      "price": 5.7,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Italpizza 26x38 Prosciutto Fungh",
+      "brand": "ITALPIZZA",
+      "category": "Tiefkühlpizza",
+      "tags": [],
+      "price": 5.7,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Italpizza Numero uno Bufala",
+      "brand": "ITALPIZZA",
+      "category": "Tiefkühlpizza",
+      "tags": [],
+      "price": 5.7,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Dr. Oetker Pizza Ristorante Hawaii",
+      "brand": "Dr. Oetker",
+      "category": "Tiefkühlpizza",
+      "tags": [],
+      "price": 5.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Dr. Oetker Pizza Ristorante Margherita vegan",
+      "brand": "Dr. Oetker",
+      "category": "Tiefkühlpizza",
+      "tags": [],
+      "price": 5.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Dr. Oetker Pizza Ristorante Quattro Formaggi",
+      "brand": "Dr. Oetker",
+      "category": "Tiefkühlpizza",
+      "tags": [],
+      "price": 5.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Dr. Oetker Pizza Ristorante Spinaci",
+      "brand": "Dr. Oetker",
+      "category": "Tiefkühlpizza",
+      "tags": [],
+      "price": 5.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Dr. Oetker Pizza Ristorante Tonno",
+      "brand": "Dr. Oetker",
+      "category": "Tiefkühlpizza",
+      "tags": [],
+      "price": 5.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Dr. Oetker Ristorante Pizza Funghi",
+      "brand": "Dr. Oetker",
+      "category": "Tiefkühlpizza",
+      "tags": [],
+      "price": 5.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Dr. Oetker Ristorante Pizza Mozzarella",
+      "brand": "Dr. Oetker",
+      "category": "Tiefkühlpizza",
+      "tags": [],
+      "price": 5.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Dr. Oetker Ristorante Pizza Prosciutto",
+      "brand": "Dr. Oetker",
+      "category": "Tiefkühlpizza",
+      "tags": [],
+      "price": 5.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Dr. Oetker Ristorante Salame",
+      "brand": "Dr. Oetker",
+      "category": "Tiefkühlpizza",
+      "tags": [],
+      "price": 5.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Elsässer Mini Flammkuchen",
+      "brand": "Coop",
+      "category": "Tiefkühlpizza",
+      "tags": [],
+      "price": 5.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Dr. Oetker Casa di Mama Margherita",
+      "brand": "Dr. Oetker",
+      "category": "Tiefkühlpizza",
+      "tags": [],
+      "price": 6.6,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Dr. Oetker Pizza Casa di Mama Diavola",
+      "brand": "Dr. Oetker",
+      "category": "Tiefkühlpizza",
+      "tags": [],
+      "price": 6.6,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Dr. Oetker Pizza Casa di Mama Pizza Speciale",
+      "brand": "Dr. Oetker",
+      "category": "Tiefkühlpizza",
+      "tags": [],
+      "price": 6.6,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Dr. Oetker Pizza Ristorante Prosciutto glutenfrei",
+      "brand": "Dr. Oetker",
+      "category": "Tiefkühlpizza",
+      "tags": [],
+      "price": 6.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Italpizza Margherita glutenfrei",
+      "brand": "ITALPIZZA",
+      "category": "Tiefkühlpizza",
+      "tags": [],
+      "price": 6.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Buitoni La Classica Due Formaggi 2 Stück",
+      "brand": "Buitoni",
+      "category": "Tiefkühlpizza",
+      "tags": [],
+      "price": 7.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Buitoni La Classica Pizza Salame",
+      "brand": "Buitoni",
+      "category": "Tiefkühlpizza",
+      "tags": [],
+      "price": 7.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Buitoni Pizza La Classica Prosciutto",
+      "brand": "Buitoni",
+      "category": "Tiefkühlpizza",
+      "tags": [],
+      "price": 7.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Dr.Oetker Pizza Suprema Margherita",
+      "brand": "Dr. Oetker",
+      "category": "Tiefkühlpizza",
+      "tags": [],
+      "price": 7.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Dr.Oetker Pizza Suprema 5 Formaggi",
+      "brand": "Dr. Oetker",
+      "category": "Tiefkühlpizza",
+      "tags": [],
+      "price": 8.5,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Dr.Oetker Pizza Suprema Calabrese & Nduja",
+      "brand": "Dr. Oetker",
+      "category": "Tiefkühlpizza",
+      "tags": [],
+      "price": 8.5,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Buitoni Piccolinis Pizza Prosciutto Formaggio 40 Stück",
+      "brand": "Buitoni",
+      "category": "Tiefkühlpizza",
+      "tags": [],
+      "price": 16.5,
+      "unit": null
+    }
+  ]
+}

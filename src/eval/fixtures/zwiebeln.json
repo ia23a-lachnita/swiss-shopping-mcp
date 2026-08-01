@@ -1,0 +1,369 @@
+{
+  "id": "zwiebeln",
+  "query": "Zwiebeln",
+  "capturedAt": "2026-08-01T09:00:04.592Z",
+  "products": [
+    {
+      "chain": "migros",
+      "name": "Zwiebeln",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 1.2,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Zwiebeln",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 1.7,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Zwiebeln",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 1.8,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Zwiebeln",
+      "brand": "M-Classic",
+      "category": "",
+      "tags": [],
+      "price": 2.1,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Zwiebeln",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 2.5,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Zwiebeln",
+      "brand": "M-Budget",
+      "category": "",
+      "tags": [],
+      "price": 3.4,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Zwiebeln",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 3.75,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Zwiebeln",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 4.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Zwiebeln",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 7.5,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Saucenzwiebeln",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 0.9,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Silberzwiebeln",
+      "brand": "M-Budget",
+      "category": "",
+      "tags": [],
+      "price": 0.9,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Zwiebeln gelb IP-Suisse ca. 500g",
+      "brand": "Coop",
+      "category": "Zwiebeln & Knoblauch",
+      "tags": [],
+      "price": 0.95,
+      "unit": null
+    },
+    {
+      "chain": "denner",
+      "name": "IP-SUISSE Zwiebeln",
+      "brand": null,
+      "category": "1144362",
+      "tags": [],
+      "price": 1.2,
+      "unit": null
+    },
+    {
+      "chain": "denner",
+      "name": "IP-SUISSE Zwiebeln rot",
+      "brand": null,
+      "category": "1144362",
+      "tags": [],
+      "price": 1.2,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Röstzwiebeln",
+      "brand": "M-Classic",
+      "category": "",
+      "tags": [],
+      "price": 1.35,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Saucenzwiebeln IP-Suisse",
+      "brand": "Coop",
+      "category": "Zwiebeln & Knoblauch",
+      "tags": [],
+      "price": 1.5,
+      "unit": null
+    },
+    {
+      "chain": "aldi",
+      "name": "Orientalischer Salat, Paprika-Zwiebeln-Kräuter",
+      "brand": "WONNEMEYER",
+      "category": "Grillen",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 1.59,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Bundzwiebeln",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 1.6,
+      "unit": null
+    },
+    {
+      "chain": "denner",
+      "name": "Bundzwiebeln",
+      "brand": null,
+      "category": "1144362",
+      "tags": [],
+      "price": 1.6,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie Zwiebeln Bund",
+      "brand": "Prix Garantie",
+      "category": "Zwiebeln & Knoblauch",
+      "tags": [],
+      "price": 1.6,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Zwiebeln rot IP-Suisse",
+      "brand": "Coop",
+      "category": "Zwiebeln & Knoblauch",
+      "tags": [],
+      "price": 1.6,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Zwiebeln geröstet",
+      "brand": "Coop",
+      "category": "Knoblauchpulver & Zwiebelpulver",
+      "tags": [],
+      "price": 1.65,
+      "unit": null
+    },
+    {
+      "chain": "lidl",
+      "name": "Schweizer Bio Zwiebeln rot",
+      "brand": null,
+      "category": "Food",
+      "tags": [],
+      "price": 1.69,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie Zwiebeln",
+      "brand": "Prix Garantie",
+      "category": "Zwiebeln & Knoblauch",
+      "tags": [],
+      "price": 1.7,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Zwiebeln rot",
+      "brand": "Naturaplan",
+      "category": "Zwiebeln & Knoblauch",
+      "tags": [],
+      "price": 1.8,
+      "unit": null
+    },
+    {
+      "chain": "denner",
+      "name": "IP-SUISSE Zwiebeln",
+      "brand": null,
+      "category": "1144362",
+      "tags": [],
+      "price": 1.85,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Silberzwiebeln",
+      "brand": "Condy",
+      "category": "",
+      "tags": [],
+      "price": 1.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Silberzwiebeln",
+      "brand": "Coop",
+      "category": "Gemüse in Essig",
+      "tags": [],
+      "price": 1.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Zwiebeln mix IP-Suisse",
+      "brand": "Coop",
+      "category": "Zwiebeln & Knoblauch",
+      "tags": [],
+      "price": 2.2,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Knorr Stocki Kartoffelstock Express mit Zwiebeln & Speck",
+      "brand": "Knorr",
+      "category": "Haltbare Fertiggerichte",
+      "tags": [],
+      "price": 2.4,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Knorr Zwiebel Suppe Röstzwiebeln 4 Portionen",
+      "brand": "Knorr",
+      "category": "Gemüsesuppen & Pilzssuppen",
+      "tags": [],
+      "price": 2.5,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Zwiebeln",
+      "brand": "Naturaplan",
+      "category": "Zwiebeln & Knoblauch",
+      "tags": [],
+      "price": 2.5,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Zwiebeln pastellata",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 2.55,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Borettane Zwiebeln",
+      "brand": "Coop",
+      "category": "Gemüse in Essig",
+      "tags": [],
+      "price": 2.6,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Chirat Silberzwiebeln",
+      "brand": "Chirat",
+      "category": "Gemüse in Essig",
+      "tags": [],
+      "price": 2.7,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Zwiebeln gehackt",
+      "brand": "Naturaplan",
+      "category": "Knoblauchpulver & Zwiebelpulver",
+      "tags": [],
+      "price": 2.7,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Hugo Schweizer Rote Zwiebeln in Streifen in Rotweinessig",
+      "brand": "HUGO",
+      "category": "Apéro Gemüse",
+      "tags": [],
+      "price": 2.75,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Borettane Zwiebeln",
+      "brand": "Condy",
+      "category": "",
+      "tags": [],
+      "price": 2.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Chirat Mini Silberzwiebeln",
+      "brand": "Chirat",
+      "category": "Gemüse in Essig",
+      "tags": [],
+      "price": 3.2,
+      "unit": null
+    },
+    {
+      "chain": "denner",
+      "name": "IP-SUISSE Zwiebeln",
+      "brand": null,
+      "category": "1144362",
+      "tags": [],
+      "price": 3.4,
+      "unit": null
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  "id": "freilandeier",
+  "query": "Freilandeier",
+  "capturedAt": "2026-08-01T09:00:09.602Z",
+  "products": [
+    {
+      "chain": "aldi",
+      "name": "Regionale Freilandeier 4er Pack, Ostschweiz",
+      "brand": "SAVEURS SUISSES",
+      "category": "Saveurs Suisses",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 3.49,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie Freilandeier CH PicNic 6 Stück",
+      "brand": "Prix Garantie",
+      "category": "Eier gekocht",
+      "tags": [],
+      "price": 3.6,
+      "unit": null
+    },
+    {
+      "chain": "aldi",
+      "name": "BIO-Pic-Nic-Freilandeier",
+      "brand": "RETOUR AUX SOURCES",
+      "category": "Ostern",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 3.99,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Freilandeier 53g+ 10 Stück",
+      "brand": "Coop",
+      "category": "Eier roh",
+      "tags": [],
+      "price": 4.2,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Golden Egg Freilandeier CH 53g+ 6er",
+      "brand": null,
+      "category": "Eier roh",
+      "tags": [],
+      "price": 4.3,
+      "unit": null
+    },
+    {
+      "chain": "volg",
+      "name": "Agri Natura Freilandeier 53g+ 6er",
+      "brand": null,
+      "category": "Eier",
+      "tags": [],
+      "price": 4.45,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Cocor Schweizer Freilandeier 10 Stück",
+      "brand": "Cocor",
+      "category": "Eier roh",
+      "tags": [],
+      "price": 5.5,
+      "unit": null
+    }
+  ]
+}

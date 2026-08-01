@@ -1,0 +1,369 @@
+{
+  "id": "apfelsaft",
+  "query": "Apfelsaft",
+  "capturedAt": "2026-08-01T08:59:36.529Z",
+  "products": [
+    {
+      "chain": "migros",
+      "name": "Apfelsaft",
+      "brand": "M-Classic",
+      "category": "",
+      "tags": [],
+      "price": 0.45,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Apfelsaft",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 1,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Apfelsaft",
+      "brand": "Ramseier",
+      "category": "",
+      "tags": [],
+      "price": 1.2,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Apfelsaft",
+      "brand": "M-Classic",
+      "category": "",
+      "tags": [],
+      "price": 1.3,
+      "unit": null
+    },
+    {
+      "chain": "aldi",
+      "name": "Apfelsaft",
+      "brand": "RIO D' ORO",
+      "category": "Alkoholfreie Getränke",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 1.79,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Apfelsaft",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 1.8,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Apfelsaft",
+      "brand": "Alnatura",
+      "category": "",
+      "tags": [],
+      "price": 2.4,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Apfelsaft",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 2.6,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Apfelsaft",
+      "brand": "M-Classic",
+      "category": "",
+      "tags": [],
+      "price": 2.7,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Apfelsaft",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 2.9,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Apfelsaft",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 2.9,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Apfelsaft",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 2.9,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Apfelsaft",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 3.3,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Apfelsaft",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 4.9,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Apfelsaft",
+      "brand": "M-Classic",
+      "category": "",
+      "tags": [],
+      "price": 5.2,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Apfelsaft",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 10.75,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Apfelsaft",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 10.9,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Apfelsaft",
+      "brand": "M-Classic",
+      "category": "",
+      "tags": [],
+      "price": 12.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Apfelsaft",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 14.5,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Apfelsaft",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 15.9,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Apfelsaft",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 19.5,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Gold Apfelsaft Klar ",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 1.5,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Möhl Apfelsaft",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 1.75,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie Apfelsaft",
+      "brand": "Prix Garantie",
+      "category": "Apfelgetränke & Most",
+      "tags": [],
+      "price": 1.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Antarès Apfelsaft",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 2.05,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Apfelsaft klar 4x25cl",
+      "brand": "Coop",
+      "category": "Apfelgetränke & Most",
+      "tags": [],
+      "price": 2.2,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "JaMaDu Apfelsaft 4x20cl",
+      "brand": "JaMaDu",
+      "category": "Apfelgetränke & Most",
+      "tags": [],
+      "price": 2.4,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Naturtrüb Apfelsaft",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 2.5,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Zürcher Apfelsaft ",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 2.6,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Cassis- und Apfelsaft",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 2.65,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Himbeer- und Apfelsaft",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 2.65,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Apfelsaft naturtrüb",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 2.7,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Milder Apfelsaft",
+      "brand": "Alnatura",
+      "category": "",
+      "tags": [],
+      "price": 2.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Apfelsaft",
+      "brand": "Naturaplan",
+      "category": "Apfelgetränke & Most",
+      "tags": [],
+      "price": 2.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Möhl Apfelsaft",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 3.1,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Andros Granatapfelsaft",
+      "brand": "Andros",
+      "category": "Übrige Fruchtsäfte",
+      "tags": [],
+      "price": 3.2,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Granatapfelsaft",
+      "brand": "Naturaplan",
+      "category": "Übrige Fruchtsäfte",
+      "tags": [],
+      "price": 3.5,
+      "unit": null
+    },
+    {
+      "chain": "denner",
+      "name": "Biotta Granatapfelsaft",
+      "brand": null,
+      "category": "1144372",
+      "tags": [],
+      "price": 4.9,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Schweizer Apfelsaft 4x1l",
+      "brand": "Coop",
+      "category": "Apfelgetränke & Most",
+      "tags": [],
+      "price": 5.2,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Ramseier Apfelsaft 6x50cl",
+      "brand": "Ramseier",
+      "category": "Apfelgetränke & Most",
+      "tags": [],
+      "price": 6.45,
+      "unit": null
+    }
+  ]
+}

@@ -1,0 +1,220 @@
+{
+  "id": "weissmehl",
+  "query": "Weissmehl",
+  "capturedAt": "2026-08-01T09:00:30.096Z",
+  "products": [
+    {
+      "chain": "aldi",
+      "name": "Weissmehl",
+      "brand": "HAPPY HARVEST",
+      "category": "Vorräte",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 0.99,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Weissmehl",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 1,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Weissmehl",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 1.7,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Weissmehl",
+      "brand": "M-Classic",
+      "category": "",
+      "tags": [],
+      "price": 1.9,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Weissmehl",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 2.1,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Weissmehl",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 3,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Weissmehl",
+      "brand": "M-Classic",
+      "category": "",
+      "tags": [],
+      "price": 7.6,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie Weissmehl",
+      "brand": "Prix Garantie",
+      "category": "Mehle",
+      "tags": [],
+      "price": 1,
+      "unit": null
+    },
+    {
+      "chain": "aldi",
+      "name": "Weissmehl, revitaminisiert",
+      "brand": "HAPPY HARVEST",
+      "category": "Vorräte",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 1.29,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio CH Weissmehl",
+      "brand": "Naturaplan",
+      "category": "Mehle",
+      "tags": [],
+      "price": 1.7,
+      "unit": null
+    },
+    {
+      "chain": "denner",
+      "name": "IP-SUISSE Weissmehl",
+      "brand": null,
+      "category": "1144362",
+      "tags": [],
+      "price": 1.9,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Weissmehl IP Suisse",
+      "brand": "Coop",
+      "category": "Mehle",
+      "tags": [],
+      "price": 1.9,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Halbweissmehl",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 2.1,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "IP-Suisse Halbweissmehl",
+      "brand": "Coop",
+      "category": "Mehle",
+      "tags": [],
+      "price": 2.1,
+      "unit": null
+    },
+    {
+      "chain": "volg",
+      "name": "Volg Weissmehl",
+      "brand": null,
+      "category": "Backzutaten",
+      "tags": [],
+      "price": 2.3,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Weissmehl Stadtmühle Zürich",
+      "brand": "Zürich Regio",
+      "category": "Mehle",
+      "tags": [],
+      "price": 2.3,
+      "unit": null
+    },
+    {
+      "chain": "denner",
+      "name": "IP-SUISSE Halbweissmehl",
+      "brand": null,
+      "category": "1144362",
+      "tags": [],
+      "price": 2.5,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Halbweissmehl",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 2.6,
+      "unit": null
+    },
+    {
+      "chain": "aldi",
+      "name": "Mehl, Halbweissmehl",
+      "brand": "BIO",
+      "category": "Vorräte",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 2.79,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio CH Weissmehl",
+      "brand": "Naturaplan",
+      "category": "Mehle",
+      "tags": [],
+      "price": 3,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Halbweissmehl",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 3.2,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Halbweissmehl",
+      "brand": "Naturaplan",
+      "category": "Mehle",
+      "tags": [],
+      "price": 3.2,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Weissmehl IP-Suisse",
+      "brand": "Coop",
+      "category": "Mehle",
+      "tags": [],
+      "price": 4.8,
+      "unit": null
+    }
+  ]
+}

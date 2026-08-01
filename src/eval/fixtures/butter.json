@@ -1,0 +1,379 @@
+{
+  "id": "butter",
+  "query": "Butter",
+  "capturedAt": "2026-08-01T09:00:12.172Z",
+  "products": [
+    {
+      "chain": "migros",
+      "name": "Butter",
+      "brand": "Valflora",
+      "category": "",
+      "tags": [],
+      "price": 1.75,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Butter",
+      "brand": "Floralp",
+      "category": "",
+      "tags": [],
+      "price": 1.9,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Butter",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 2.7,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Butter",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 2.75,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Butter",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 2.9,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Butter",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 2.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Butter",
+      "brand": "Valflora",
+      "category": "",
+      "tags": [],
+      "price": 3.1,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Butter",
+      "brand": "M-Classic",
+      "category": "",
+      "tags": [],
+      "price": 3.65,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Butter",
+      "brand": "Die Butter",
+      "category": "",
+      "tags": [],
+      "price": 3.85,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Butter",
+      "brand": "Heidi",
+      "category": "",
+      "tags": [],
+      "price": 4.2,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Butter",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 4.25,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Butter",
+      "brand": "Die Butter",
+      "category": "",
+      "tags": [],
+      "price": 4.45,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Butter",
+      "brand": "M-Classic",
+      "category": "",
+      "tags": [],
+      "price": 4.55,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Butter",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 4.75,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Butter",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 4.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Butter",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 5.75,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Butter",
+      "brand": "Die Butter",
+      "category": "",
+      "tags": [],
+      "price": 14.1,
+      "unit": null
+    },
+    {
+      "chain": "aldi",
+      "name": "Buttergipfel",
+      "brand": "PANETTERIA",
+      "category": "Brot & Backwaren",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 0.65,
+      "unit": null
+    },
+    {
+      "chain": "aldi",
+      "name": "Butterweggli",
+      "brand": "PANETTERIA",
+      "category": "Brot & Backwaren",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 0.65,
+      "unit": null
+    },
+    {
+      "chain": "aldi",
+      "name": "Jumbo Laugenbuttergipfel",
+      "brand": "PANETTERIA",
+      "category": "Brot & Backwaren",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 0.99,
+      "unit": null
+    },
+    {
+      "chain": "volg",
+      "name": "Buttergipfel",
+      "brand": null,
+      "category": "Brot, Backwaren &amp; Frühstück",
+      "tags": [],
+      "price": 1.2,
+      "unit": null
+    },
+    {
+      "chain": "denner",
+      "name": "Denner Flûtes mit Butter und Salz 150",
+      "brand": null,
+      "category": "1144362",
+      "tags": [],
+      "price": 1.45,
+      "unit": null
+    },
+    {
+      "chain": "denner",
+      "name": "IP-SUISSE Laugenbrezel mit Butter",
+      "brand": null,
+      "category": "1144362",
+      "tags": [],
+      "price": 1.6,
+      "unit": null
+    },
+    {
+      "chain": "aldi",
+      "name": "Butterwaffeln",
+      "brand": "FINEST BAKERY",
+      "category": "Süssigkeiten & Snacks",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 1.62,
+      "unit": null
+    },
+    {
+      "chain": "aldi",
+      "name": "Butterbrezel",
+      "brand": "PANETTERIA",
+      "category": "Brot & Backwaren",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 1.65,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Floralp Vorzugsbutter Portionen 4x15g",
+      "brand": "Floralp",
+      "category": "Butter",
+      "tags": [],
+      "price": 1.9,
+      "unit": null
+    },
+    {
+      "chain": "denner",
+      "name": "IP-SUISSE Vorzugsbutter",
+      "brand": null,
+      "category": "1144362",
+      "tags": [],
+      "price": 1.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Napfgoldbutter",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 2.1,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Butter Portion 4x15g",
+      "brand": "Naturaplan",
+      "category": "Butter",
+      "tags": [],
+      "price": 2.15,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Floralp Vorzugsbutter",
+      "brand": "Floralp",
+      "category": "Butter",
+      "tags": [],
+      "price": 2.2,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Gesalzene Butter",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 2.25,
+      "unit": null
+    },
+    {
+      "chain": "lidl",
+      "name": "Butterzopf",
+      "brand": null,
+      "category": "Food",
+      "tags": [],
+      "price": 2.29,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Hirz Kräuterbutter 4x15g",
+      "brand": "Nestle Hirz",
+      "category": "Gewürzte Butter",
+      "tags": [],
+      "price": 2.35,
+      "unit": null
+    },
+    {
+      "chain": "aldi",
+      "name": "Butter-Mandelblätter, Classic",
+      "brand": "FINEST BAKERY",
+      "category": "Süssigkeiten & Snacks",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 2.39,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Floralp Vorzugsbutter",
+      "brand": "Floralp",
+      "category": "Butter",
+      "tags": [],
+      "price": 2.45,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Vorzugsbutter",
+      "brand": "Floralp",
+      "category": "",
+      "tags": [],
+      "price": 2.45,
+      "unit": null
+    },
+    {
+      "chain": "ottos",
+      "name": "True Dates Peanut Butter",
+      "brand": "True Dates",
+      "category": "Root",
+      "tags": [],
+      "price": 2.5,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Butter",
+      "brand": "Naturaplan",
+      "category": "Butter",
+      "tags": [],
+      "price": 2.65,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Free From Bio Vorzugsbutter",
+      "brand": "Free From",
+      "category": "Butter",
+      "tags": [],
+      "price": 2.9,
+      "unit": null
+    },
+    {
+      "chain": "denner",
+      "name": "Guschlbauer Butter mini Stangerl",
+      "brand": null,
+      "category": "1144362",
+      "tags": [],
+      "price": 2.95,
+      "unit": null
+    }
+  ]
+}

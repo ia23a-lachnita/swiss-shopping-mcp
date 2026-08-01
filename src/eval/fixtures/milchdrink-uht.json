@@ -1,0 +1,115 @@
+{
+  "id": "milchdrink-uht",
+  "query": "Milchdrink UHT",
+  "capturedAt": "2026-08-01T08:59:01.447Z",
+  "products": [
+    {
+      "chain": "volg",
+      "name": "Milchdrink UHT",
+      "brand": null,
+      "category": "Milch",
+      "tags": [],
+      "price": 1.15,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Milchdrink UHT 1.5% IP-Suisse",
+      "brand": "Coop",
+      "category": "UHT Milch",
+      "tags": [],
+      "price": 0.75,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Milchdrink UHT 1.5% IP-Suisse",
+      "brand": "Coop",
+      "category": "UHT Milch",
+      "tags": [],
+      "price": 0.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Free From Milchdrink UHT",
+      "brand": "Free From",
+      "category": "Spezialmilch",
+      "tags": [],
+      "price": 1.35,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Milchdrink UHT 1.5% Edge IP-Suisse",
+      "brand": "Coop",
+      "category": "UHT Milch",
+      "tags": [],
+      "price": 1.6,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Milchdrink UHT 1.5% IP-Suisse",
+      "brand": "Coop",
+      "category": "UHT Milch",
+      "tags": [],
+      "price": 1.6,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Free From Bio Milchdrink UHT 1L",
+      "brand": "Free From",
+      "category": "Spezialmilch",
+      "tags": [],
+      "price": 2.45,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Milchdrink UHT 1.5% IP-Suisse 6x1.5l",
+      "brand": "Coop",
+      "category": "UHT Milch",
+      "tags": [],
+      "price": 15.6,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Qualité & Prix Milchdrink UHT IP-Suisse 6x1.5l",
+      "brand": "Coop",
+      "category": "UHT Milch",
+      "tags": [],
+      "price": 15.6,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Milchdrink UHT 1.5% IP-Suisse 6x1l 2x  6l",
+      "brand": "Coop",
+      "category": "UHT Milch",
+      "tags": [],
+      "price": 15.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Milchdrink UHT 1.5% IP-Suisse 6x1l 2x  6l",
+      "brand": "Coop",
+      "category": "UHT Milch",
+      "tags": [],
+      "price": 15.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie Milchdrink 1.5% UHT",
+      "brand": "Prix Garantie",
+      "category": "Frische Milch",
+      "tags": [],
+      "price": 1.7,
+      "unit": null
+    }
+  ]
+}

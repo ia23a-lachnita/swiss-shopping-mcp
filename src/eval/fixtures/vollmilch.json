@@ -1,0 +1,367 @@
+{
+  "id": "vollmilch",
+  "query": "Vollmilch",
+  "capturedAt": "2026-08-01T08:59:06.468Z",
+  "products": [
+    {
+      "chain": "migros",
+      "name": "Vollmilch",
+      "brand": "Valflora",
+      "category": "",
+      "tags": [],
+      "price": 0.6,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Vollmilch",
+      "brand": "Valflora",
+      "category": "",
+      "tags": [],
+      "price": 0.9,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Vollmilch",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 0.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Vollmilch",
+      "brand": "Valflora",
+      "category": "",
+      "tags": [],
+      "price": 0.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Vollmilch",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 1.05,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Vollmilch",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 1.15,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Vollmilch",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 1.2,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Vollmilch",
+      "brand": "Valflora",
+      "category": "",
+      "tags": [],
+      "price": 1.35,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Vollmilch",
+      "brand": "Valflora",
+      "category": "",
+      "tags": [],
+      "price": 1.55,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Vollmilch",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 1.6,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Vollmilch",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 1.7,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Vollmilch",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 1.75,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Vollmilch",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 1.8,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Vollmilch",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 1.85,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Vollmilch",
+      "brand": "Heidi",
+      "category": "",
+      "tags": [],
+      "price": 1.85,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Vollmilch",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 1.85,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Vollmilch",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 1.9,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Vollmilch",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 1.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Vollmilch",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 2,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Vollmilch",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 2,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Vollmilch",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 2,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Vollmilch",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 2.05,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Vollmilch",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 2.25,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Vollmilch",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 2.25,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Vollmilch",
+      "brand": "M-Budget",
+      "category": "",
+      "tags": [],
+      "price": 2.25,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Vollmilch",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 3.2,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Vollmilch",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 3.2,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Vollmilch",
+      "brand": "Valflora",
+      "category": "",
+      "tags": [],
+      "price": 9.3,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Vollmilch",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 11.7,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Vollmilch UHT 3.5% IP-Suisse",
+      "brand": "Coop",
+      "category": "UHT Milch",
+      "tags": [],
+      "price": 0.75,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Vollmilch UHT 3.5% IP-Suisse",
+      "brand": "Coop",
+      "category": "UHT Milch",
+      "tags": [],
+      "price": 0.95,
+      "unit": null
+    },
+    {
+      "chain": "denner",
+      "name": "IP-SUISSE Wiesenmilch Vollmilch",
+      "brand": null,
+      "category": "1144362",
+      "tags": [],
+      "price": 1.15,
+      "unit": null
+    },
+    {
+      "chain": "volg",
+      "name": "Vollmilch UHT",
+      "brand": null,
+      "category": "Milch",
+      "tags": [],
+      "price": 1.15,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Vollmilch 3,9% Milchfett Past",
+      "brand": "Naturaplan",
+      "category": "Frische Milch",
+      "tags": [],
+      "price": 1.2,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Bio Regio Gruyère Vollmilch past PET",
+      "brand": "Naturaplan",
+      "category": "Frische Milch",
+      "tags": [],
+      "price": 1.35,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie Vollmilch 3.5% hochpasteurisiert",
+      "brand": "Prix Garantie",
+      "category": "Frische Milch",
+      "tags": [],
+      "price": 1.35,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Vollmilch 3,9% Milchfett UHT",
+      "brand": "Naturaplan",
+      "category": "UHT Milch",
+      "tags": [],
+      "price": 1.4,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Free From Bio Vollmilch pasteurisiert",
+      "brand": "Free From",
+      "category": "Frische Milch",
+      "tags": [],
+      "price": 1.5,
+      "unit": null
+    },
+    {
+      "chain": "denner",
+      "name": "Denner Vollmilch",
+      "brand": null,
+      "category": "1144362",
+      "tags": [],
+      "price": 1.55,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Vollmilch UHT 3.5% IP-Suisse",
+      "brand": "Coop",
+      "category": "UHT Milch",
+      "tags": [],
+      "price": 1.6,
+      "unit": null
+    }
+  ]
+}
