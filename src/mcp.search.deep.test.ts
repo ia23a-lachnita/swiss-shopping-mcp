@@ -3,10 +3,16 @@ import { readFile } from 'node:fs/promises';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { MessageExtraInfo, JSONRPCMessage } from '@modelcontextprotocol/sdk/types.js';
 import { Transport } from '@modelcontextprotocol/sdk/shared/transport.js';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 
 import { createServer } from './index.js';
 import { NormalizedProduct, NormalizedPromotion } from './adapters/types.js';
+
+// Every test in this file drives the real multi-chain fan-out against live
+// vendor endpoints, where a single search legitimately takes 5-15s. Vitest's
+// 5000ms default is a budget for unit tests and only ever fails here by racing
+// vendor latency, never by catching a defect.
+vi.setConfig({ testTimeout: 30_000, hookTimeout: 30_000 });
 
 // ─── Loopback Transport ──────────────────────────────────────────────────────
 

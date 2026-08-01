@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { MessageExtraInfo, JSONRPCMessage } from '@modelcontextprotocol/sdk/types.js';
 import { Transport } from '@modelcontextprotocol/sdk/shared/transport.js';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 
 import { createServer } from './index.js';
 import { UnsupportedChainAdapter } from './adapters/unsupportedAdapter.js';
@@ -20,6 +20,12 @@ import {
   StoreProductAvailabilityFilters,
   StoreProductAvailabilityResult,
 } from './adapters/types.js';
+
+// Production-pattern coverage runs the real tools against live vendor
+// endpoints; `search_products` and `compare_prices` here take several seconds
+// by design. Vitest's 5000ms default only ever fails these by racing vendor
+// latency, so it is raised for the file rather than left to flake.
+vi.setConfig({ testTimeout: 30_000, hookTimeout: 30_000 });
 
 // ─── Loopback Transport ──────────────────────────────────────────────────────
 
