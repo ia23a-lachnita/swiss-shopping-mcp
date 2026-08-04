@@ -39,6 +39,12 @@ function dependenciesFor(adapters: ChainAdapter[]): ToolDependencies {
   };
 }
 
+// v3 finish reasons are objects ({ unified, raw }), not bare strings — the
+// salvage middleware rewrites `unified` in place, so the mock has to carry the
+// real shape for that path to be exercised honestly.
+const STOP_FINISH = { unified: 'stop', raw: 'stop' } as const;
+const TOOL_CALLS_FINISH = { unified: 'tool-calls', raw: 'tool_calls' } as const;
+
 const USAGE = {
   inputTokens: { total: 10, noCache: 10, cacheRead: undefined, cacheWrite: undefined },
   outputTokens: { total: 5, text: 5, reasoning: undefined },
@@ -51,7 +57,7 @@ function toolCallStep(toolName: string, input: Record<string, unknown>): Languag
     { type: 'tool-input-delta', id: 'call-1', delta: JSON.stringify(input) },
     { type: 'tool-input-end', id: 'call-1' },
     { type: 'tool-call', toolCallId: 'call-1', toolName, input: JSON.stringify(input) },
-    { type: 'finish', finishReason: 'tool-calls', usage: USAGE },
+    { type: 'finish', finishReason: TOOL_CALLS_FINISH, usage: USAGE },
   ];
 }
 
@@ -72,7 +78,18 @@ function textStep(text: string): LanguageModelV3StreamPart[] {
     { type: 'text-start', id: 'text-1' },
     { type: 'text-delta', id: 'text-1', delta: text },
     { type: 'text-end', id: 'text-1' },
-    { type: 'finish', finishReason: 'stop', usage: USAGE },
+    { type: 'finish', finishReason: STOP_FINISH, usage: USAGE },
+  ];
+}
+
+/** A step whose text is streamed in several deltas, so tag openers split across chunks. */
+function chunkedTextStep(...deltas: string[]): LanguageModelV3StreamPart[] {
+  return [
+    { type: 'stream-start', warnings: [] },
+    { type: 'text-start', id: 'text-1' },
+    ...deltas.map((delta) => ({ type: 'text-delta' as const, id: 'text-1', delta })),
+    { type: 'text-end', id: 'text-1' },
+    { type: 'finish', finishReason: STOP_FINISH, usage: USAGE },
   ];
 }
 
@@ -124,6 +141,60 @@ describe('runChatAgent', () => {
 
     const text = await result.text;
     expect(text).toContain('nichts finden');
+  });
+
+  // Reported from a real phone on 2026-08-04: the model wrote its tool call as
+  // message text, so nothing executed and the tags rendered as the answer.
+  it('executes a tool call the model wrote as text instead of as a real call', async () => {
+    const adapter = stubAdapter('coop', []);
+    const availabilitySpy = vi.spyOn(adapter, 'lookupStoreProductAvailability');
+    const dependencies = dependenciesFor([adapter]);
+
+    const mockModel = new MockLanguageModelV3({
+      doStream: mockDoStream(
+        // Split exactly where a tag opener straddles two chunks — a naive
+        // per-delta scan would miss this one.
+        chunkedTextStep(
+          'Einen Moment. <tool',
+          '_call>\n<function=lookup_store_product_availability_storeId>\n',
+          '5537? Actually we need to pass: { chain: "coop", storeId: "5532", query: "almond milk"}'
+        ),
+        textStep('Almond Milk ist in dieser Filiale nicht gelistet.')
+      ),
+    });
+
+    const result = await runChatAgent({
+      messages: [{ id: '1', role: 'user', parts: [{ type: 'text', text: 'gibt es almond milk?' }] }],
+      dependencies,
+      model: mockModel,
+    });
+
+    const text = await result.text;
+    const steps = await result.steps;
+
+    expect(availabilitySpy).toHaveBeenCalledWith(
+      expect.objectContaining({ storeId: '5532', query: 'almond milk' })
+    );
+    // `result.text` is the last step only, so the leaked step is checked directly.
+    expect(steps[0].text).toBe('Einen Moment. '); // prose before the tag survives; the tag does not
+    expect(text).not.toContain('tool_call');
+    expect(text).toContain('nicht gelistet');
+  });
+
+  it('lets an unsalvageable tool-call leak through as text rather than dropping the turn', async () => {
+    const dependencies = dependenciesFor([]);
+    const mockModel = new MockLanguageModelV3({
+      // No recoverable tool name — the client turns this into a visible failed turn.
+      doStream: mockDoStream(chunkedTextStep('<tool_call>{"query": "milch"}</tool_call>')),
+    });
+
+    const result = await runChatAgent({
+      messages: [{ id: '1', role: 'user', parts: [{ type: 'text', text: 'milch' }] }],
+      dependencies,
+      model: mockModel,
+    });
+
+    expect(await result.text).toContain('<tool_call>');
   });
 
   it('folds activeLocation into the system prompt for that turn when provided', async () => {

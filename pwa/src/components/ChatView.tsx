@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { useChat } from '@ai-sdk/react';
 import { DefaultChatTransport, getToolName, isToolUIPart, type UIMessage } from 'ai';
-import { AlertTriangle, MapPin, Scale, Search, Send, Sparkles } from 'lucide-react';
+import { AlertTriangle, MapPin, RefreshCw, Scale, Search, Send, Sparkles } from 'lucide-react';
 
 import { CHAIN_LABELS, type Chain, type Product } from '../api';
 import {
@@ -31,6 +31,29 @@ interface CompareToolOutput {
 interface StoresToolOutput {
   stores?: Array<{ id: string; chain: Chain; name: string; address: string; openingHours?: string }>;
   error?: { code?: string; message?: string };
+}
+
+/**
+ * Mirrors the tag openers the server salvages (src/agent/textToolCall.ts).
+ * Whatever the model emits, tool-call syntax is never shown to a user as an
+ * answer: on 2026-08-04 a `<tool_call>` template rendered verbatim as the
+ * assistant's reply. The server recovers what it can; this is the backstop for
+ * what it cannot.
+ */
+const TOOL_CALL_SYNTAX = /<tool_call|<function_call|<function=/;
+
+function looksLikeToolCallSyntax(text: string): boolean {
+  return TOOL_CALL_SYNTAX.test(text);
+}
+
+/** Anything the user can actually read: prose, or a tool card with a result. */
+function hasRenderableContent(message: UIMessage): boolean {
+  return message.parts.some((part) => {
+    if (part.type === 'text') {
+      return part.text.trim().length > 0 && !looksLikeToolCallSyntax(part.text);
+    }
+    return isToolUIPart(part) && (part.state === 'output-available' || part.state === 'output-error');
+  });
 }
 
 function ToolLoadingPill({ toolName }: { toolName: string }): React.JSX.Element {
@@ -195,6 +218,13 @@ function MessageBubble({
     <div className={cn('flex flex-col gap-2', isUser ? 'items-end' : 'items-start')}>
       {message.parts.map((part, index) => {
         if (part.type === 'text' && part.text.trim().length > 0) {
+          if (!isUser && looksLikeToolCallSyntax(part.text)) {
+            return (
+              <div key={index} className="w-full max-w-[95%]">
+                <ToolErrorNote message="Das Modell hat einen Werkzeugaufruf als Text geschrieben statt ihn auszuführen — die Antwort ist unbrauchbar." />
+              </div>
+            );
+          }
           return (
             <div
               key={index}
@@ -284,7 +314,8 @@ function ChatConversation({
   const [activeLocation, setActiveLocation] = useState<string | undefined>(initialActiveLocation);
   const listEndRef = useRef<HTMLDivElement>(null);
 
-  const { messages, sendMessage, status, error, setMessages } = useChat({
+  const [turnFailed, setTurnFailed] = useState(false);
+  const { messages, sendMessage, regenerate, status, error, setMessages } = useChat({
     messages: initialMessages,
     transport: new DefaultChatTransport({
       api: '/api/chat',
@@ -321,6 +352,25 @@ function ChatConversation({
   }, [messages]);
 
   const busy = status === 'submitted' || status === 'streaming';
+
+  // A turn that produces nothing readable used to end by simply removing the
+  // "denkt nach…" indicator, which is indistinguishable from a crash — the
+  // reported reaction was to type "hello?" into the void. Watch the
+  // busy → idle transition and say plainly that the turn failed, with a way
+  // to retry. `status === 'error'` keeps its own message below.
+  const previousStatusRef = useRef(status);
+  useEffect(() => {
+    const previous = previousStatusRef.current;
+    previousStatusRef.current = status;
+    if (status === 'submitted' || status === 'streaming') {
+      setTurnFailed(false);
+      return;
+    }
+    if (status === 'ready' && (previous === 'submitted' || previous === 'streaming')) {
+      const last = messages[messages.length - 1];
+      setTurnFailed(last === undefined || last.role !== 'assistant' || !hasRenderableContent(last));
+    }
+  }, [status, messages]);
 
   function submit(event?: FormEvent): void {
     event?.preventDefault();
@@ -378,6 +428,22 @@ function ChatConversation({
           </div>
         )}
         {error && !busy && <ToolErrorNote message={error.message} />}
+        {turnFailed && !busy && !error && (
+          <div className="space-y-2" data-testid="chat-turn-failed">
+            <ToolErrorNote message="Keine Antwort erhalten — die Anfrage ist ohne Ergebnis geendet." />
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setTurnFailed(false);
+                void regenerate();
+              }}
+            >
+              <RefreshCw /> Nochmal versuchen
+            </Button>
+          </div>
+        )}
         <div ref={listEndRef} />
       </div>
 

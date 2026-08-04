@@ -2,9 +2,17 @@
 // the full research/decision trail behind the framework, model, and
 // grounding-discipline choices made here.
 import { createOpenRouter } from '@openrouter/ai-sdk-provider';
-import { convertToModelMessages, LanguageModel, stepCountIs, streamText, UIMessage } from 'ai';
+import {
+  convertToModelMessages,
+  LanguageModel,
+  stepCountIs,
+  streamText,
+  UIMessage,
+  wrapLanguageModel,
+} from 'ai';
 
 import { ToolDependencies } from '../tools/handlers.js';
+import { textToolCallSalvageMiddleware } from './textToolCallMiddleware.js';
 import { createAgentTools } from './tools.js';
 import { repairToolCall } from './toolCallRepair.js';
 
@@ -86,6 +94,20 @@ function resolveModel(): LanguageModel {
   return openrouter(PRIMARY_MODEL_ID, { models: [...FALLBACK_MODEL_IDS] });
 }
 
+/**
+ * Every model this agent talks to gets the text-form tool-call salvage.
+ * Anything that is not a v3 model instance — a bare model id string, or a
+ * legacy v2 model — passes through untouched, since a v3 middleware cannot
+ * wrap it. Applied to the test override too, so the recovery path is
+ * exercised by the same harness as the normal one.
+ */
+function withToolCallSalvage(model: LanguageModel): LanguageModel {
+  if (typeof model === 'string' || model.specificationVersion !== 'v3') {
+    return model;
+  }
+  return wrapLanguageModel({ model, middleware: textToolCallSalvageMiddleware });
+}
+
 export async function runChatAgent({
   messages,
   dependencies,
@@ -97,7 +119,7 @@ export async function runChatAgent({
     : SYSTEM_PROMPT;
 
   return streamText({
-    model: model ?? resolveModel(),
+    model: withToolCallSalvage(model ?? resolveModel()),
     system,
     messages: await convertToModelMessages(messages),
     tools: createAgentTools(dependencies),
