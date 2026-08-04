@@ -1,6 +1,15 @@
 name: Deploy to Pi
 
 on:
+  # Every green CI run on main deploys itself. Deploying used to be a manual
+  # dispatch, which meant main could sit undeployed indefinitely and nobody
+  # could tell from the outside what the Pi was actually running.
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  # Kept for redeploying an arbitrary ref — a rollback to a known-good SHA, or
+  # a retry after fixing something on the Pi itself.
   workflow_dispatch:
     inputs:
       ref:
@@ -10,6 +19,8 @@ on:
 
 concurrency:
   group: deploy-pi
+  # Never interrupt a deploy in flight: it swaps the running container and can
+  # roll back, and a half-applied swap is worse than a queued one.
   cancel-in-progress: false
 
 env:
@@ -18,12 +29,17 @@ env:
 
 jobs:
   deploy:
+    # A failed CI run still fires workflow_run, so the conclusion has to be
+    # checked explicitly or a red main would deploy itself.
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
     runs-on: [self-hosted, linux, arm64, pi]
     steps:
       - name: Checkout
+        # workflow_run reports the commit CI actually tested, which is what
+        # should be deployed — not whatever main has moved on to since.
         uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.ref }}
+          ref: ${{ inputs.ref || github.event.workflow_run.head_sha }}
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -31,9 +47,10 @@ jobs:
           node-version: 20
           cache: npm
 
-      # Re-runs the same gate as CI, scoped to whatever ref was actually
-      # dispatched -- workflow_dispatch can target any branch/tag/SHA, so this
-      # must not assume the ref already passed the push-triggered CI workflow.
+      # Re-runs the same gate as CI. Not redundant with it: workflow_dispatch
+      # can target any branch/tag/SHA, which may never have passed CI at all,
+      # and CI itself runs on ubuntu x64 while this is the arm64 machine the
+      # code actually has to work on.
       - name: Verify (lint + test + build)
         run: |
           npm ci
