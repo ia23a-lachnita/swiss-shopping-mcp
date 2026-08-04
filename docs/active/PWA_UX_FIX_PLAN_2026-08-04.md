@@ -1,11 +1,30 @@
 # PWA UX fix plan — round 4 (2026-08-04)
 
 Five items reported by the owner from real phone use of the deployed PWA, in
-their words plus what the code actually does. **Nothing here is implemented
-yet.** Round 3's plan is `PWA_UX_FIX_PLAN_2026-07-30.md`; this supersedes
-nothing in it, phases 6–7 there are still open.
+their words plus what the code actually does. Round 3's plan is
+`PWA_UX_FIX_PLAN_2026-07-30.md`; this supersedes nothing in it, phases 6–7
+there are still open.
 
 Read `docs/active/IMPLEMENTATION_TRACKER.md` first, as always.
+
+## Implementation status — all five shipped 2026-08-04
+
+Each section below is the original analysis, kept as written. What actually
+landed, and where it departed from the plan:
+
+| # | Status | Landed as | Verified by |
+|---|--------|-----------|-------------|
+| 1 | done | Five stacked rects (`.button-loading-border--taper-1…5`, `index.css`; `button.tsx` renders the stack). **Departure:** each layer is centred by padding the dash *pattern* (`0 1.5 12 36.5`) rather than by a per-layer `stroke-dashoffset`, because dashoffset is the property the shared animation drives — this keeps one animation and one set of keyframes. Opacities are `0.15/0.24/0.38/0.55/1.0`, not a linear ramp: stacked alphas compose as `1-(1-a₁)(1-a₂)…`, so a flat 0.2 per layer would have plateaued at 0.67 and never reached full brightness. Round caps only on the outermost layer — on a 3-unit dash a round cap is wider than the dash and blooms the core. Both corrections came from the antigravity consult the plan asked for (gemini-3.6-flash). | Frozen-frame screenshots at four animation offsets (the taper is invisible in motion — a running animation looks plausible either way) |
+| 2 | done | `restartable` in `SearchView.tsx` (query *or* chain set differs while fetching) swaps the button to "Neue Suche starten"; `streamSearchProducts` now takes react-query's `signal` and closes the `EventSource` on abort; the SSE route stops writing once `req` closes. | Browser: stream A closed **without ever receiving `done`** at the click, stream B opened the same millisecond |
+| 3 | done | The ETA is a *range* now, never a single confident number. The server sends `budgetMsByChain` (the hard per-chain budget, not the p75) and `postFanOutMs` (web augmentation + merge), and the client shows "noch 4–14s", falling back to "warte auf Aldi, bis zu 13s" once the likely time is spent but the budget is not. | Browser: observed all three states live, including the reported 6/7 straggler case |
+| 4 | done | `limit: 12` removed from the PWA's search call. The clamp in `searchService` stays for callers that *do* pass a limit (it is still honest there) — it simply no longer applies to the app. Stagger is now `min(0.05, 0.9/count)` so 80 cards still settle in under a second. | Browser: "Milch" renders 84 products, last card fully opaque. Measured first: 66–80 products / ~80KB for a broad query |
+| 5 | done | Server: `textToolCall.ts` (parser) + `textToolCallMiddleware.ts` (a language-model middleware that rewrites the provider stream, since the repair hook is unreachable here) — layer 1. Client: `ChatView.tsx` never renders tool-call syntax and shows an explicit failed-turn state with a retry — layers 2 and 3. Layer 4: the lineup was re-verified against the live catalog (see §5 below); no model change. | Unit test replays the field sample verbatim; browser test with a stubbed `/api/chat` for both the leaked-syntax and the empty-turn case |
+
+Not done, and deliberately: the server still runs the fan-out to completion
+after a client abort (tracker item 4, needs a real `AbortController` through
+`ChainAdapter.searchProducts`), and the out-of-order transcript noted at the
+end of §5 was not reproduced — `submit()` refuses to send while a turn is in
+flight, so the ordering path that produced it is still unexplained.
 
 ---
 
@@ -225,6 +244,24 @@ finished. From the user's side that is indistinguishable from a crash — hence
    Re-verify against `GET https://openrouter.ai/api/v1/models` and consider
    promoting a model with reliable structured tool calling to primary — layers
    1–3 are still needed regardless, since free models will keep doing this.
+
+   **Re-verified 2026-08-04 against the live catalog:** all three configured
+   ids are still listed and all three still declare `tools` support. Only 13
+   free models declare tools at all today, so the lineup is not stale. **No
+   model change made**, deliberately: the obvious candidate to promote
+   (`openai/gpt-oss-20b:free`) would be a swap on reputation, not evidence,
+   and the instrument that could decide it is the golden-eval
+   (`npm run test:eval`), which asserts tool *selection* against the real
+   model. Promote only on a run that shows the current primary losing.
+
+   That run was attempted on 2026-08-04 and is **inconclusive**: 8 of 10 cases
+   failed with upstream `429 free-models-per-min` from Google AI Studio's
+   shared free pool, after the SDK's three retries. The eval fires its ten
+   cases in parallel, which the free tier will not serve — so it measures
+   rate limits, not tool selection, unless it is run serially or with a
+   paid key. The two cases that did get through passed. Note also that
+   OpenRouter's `models` fallback array did **not** rescue the 429s; do not
+   assume it covers rate limiting.
 
 **Also visible in the same screenshot:** the store-card results render *after*
 the user's later "Hello?" message, so a slow turn's output can land below a

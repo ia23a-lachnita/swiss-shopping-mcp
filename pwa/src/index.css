@@ -306,3 +306,55 @@ body {
   animation: button-loading-trace 2.2s infinite;
   will-change: stroke-dashoffset;
 }
+
+/* Each travelling segment fades from its own centre outward — a comet, not a
+   flat bar. The taper has to move WITH the dash, which rules out both an SVG
+   <linearGradient> on the stroke and a gradient <mask>: they paint in user
+   space, so the fade would be keyed to position on the button and each segment
+   would just brighten and dim as it travelled. A conic-gradient sweep was
+   already rejected for distorting on a rounded rect (see above).
+
+   So: five copies of the same rect, all running the one shared animation and
+   therefore travelling together, each drawing a shorter dash centred inside the
+   same 15-unit slot. Centring is done in the dash *pattern* rather than with a
+   per-layer stroke-dashoffset, deliberately — dashoffset is the property the
+   animation drives, and a per-layer constant would mean either five sets of
+   keyframes or an @property-registered custom property. A leading zero-length
+   dash plus a (15-L)/2 gap puts each layer where it belongs with the single
+   shared animation untouched. Every pattern sums to 50 and so still repeats
+   exactly twice over pathLength=100.
+
+   Opacities are not the linear ramp they look like they should be: stacked
+   alphas compose as 1-(1-a1)(1-a2)…, so a flat 0.2 per layer would plateau at
+   0.67 in the middle and never reach full brightness. These five values
+   (verified with antigravity-mcp/gemini-3.6-flash, which caught this and the
+   linecap gotcha below) compose to 0.15 / 0.35 / 0.60 / 0.82 / 1.0 outward-in.
+
+   stroke-linecap stays round only on the outermost layer: a round cap adds half
+   a stroke-width at each end, which on a 3-unit dash dominates the dash itself
+   and blooms the bright core into a blob. The inner layers use butt caps and
+   are hidden inside the outer one's soft ends anyway. */
+.button-loading-border--taper-2 {
+  stroke-dasharray: 0 1.5 12 36.5;
+  stroke-linecap: butt;
+  opacity: 0.24;
+}
+.button-loading-border--taper-3 {
+  stroke-dasharray: 0 3 9 38;
+  stroke-linecap: butt;
+  opacity: 0.38;
+}
+.button-loading-border--taper-4 {
+  stroke-dasharray: 0 4.5 6 39.5;
+  stroke-linecap: butt;
+  opacity: 0.55;
+}
+.button-loading-border--taper-5 {
+  stroke-dasharray: 0 6 3 41;
+  stroke-linecap: butt;
+  opacity: 1;
+}
+/* The full-length base layer carries the softest alpha and the round ends. */
+.button-loading-border--taper-1 {
+  opacity: 0.15;
+}

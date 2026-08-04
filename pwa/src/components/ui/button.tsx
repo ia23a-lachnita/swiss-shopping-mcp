@@ -64,17 +64,25 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
               the rect. These attributes are only the no-CSS-geometry-support
               fallback: a full-bleed rect whose stroke is clipped by 1px rather than
               a rect that disappears. pathLength=100 normalises the perimeter so the
-              two dash segments stay proportional at any button width. */}
-          <rect
-            width="100%"
-            height="100%"
-            rx="8"
-            fill="none"
-            strokeWidth="2"
-            strokeLinecap="round"
-            pathLength={100}
-            className="button-loading-border"
-          />
+              two dash segments stay proportional at any button width.
+
+              Five stacked copies, not one: each draws a shorter dash centred in the
+              same slot at a higher alpha, which is what makes every travelling
+              segment fade from its own centre outward. The layering (and why a
+              gradient cannot do this) is documented on the CSS side. */}
+          {[1, 2, 3, 4, 5].map((layer) => (
+            <rect
+              key={layer}
+              width="100%"
+              height="100%"
+              rx="8"
+              fill="none"
+              strokeWidth="2"
+              strokeLinecap="round"
+              pathLength={100}
+              className={`button-loading-border button-loading-border--taper-${layer}`}
+            />
+          ))}
         </svg>
       )}
       {loading ? (
