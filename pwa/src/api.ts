@@ -115,6 +115,10 @@ export interface SearchStreamInit {
   etaMsByChain: Record<string, number | undefined>;
   /** Ceiling used for chains absent from `etaMsByChain` (the per-adapter soft timeout). */
   fallbackEtaMs?: number;
+  /** Per-chain hard budget (ms) — what a chain is still allowed to take, not what it usually takes. */
+  budgetMsByChain?: Record<string, number | undefined>;
+  /** Upper bound on the work after the last chain answers (web augmentation + merge/rank). */
+  postFanOutMs?: number;
 }
 
 export interface SearchProgressEvent {
@@ -136,9 +140,20 @@ export function streamSearchProducts(
   handlers: {
     onInit?: (init: SearchStreamInit) => void;
     onProgress?: (event: SearchProgressEvent) => void;
+    /**
+     * Abort the search. `EventSource` has no `AbortSignal` support of its own,
+     * but it does have `close()`, which is what makes the "edit the query and
+     * restart" flow cheap on the client. The server stops writing when the
+     * socket closes; it still runs the fan-out to completion (tracker item 4).
+     */
+    signal?: AbortSignal;
   } = {}
 ): Promise<{ products: Product[]; warnings: SourceWarning[] }> {
   return new Promise((resolve, reject) => {
+    if (handlers.signal?.aborted) {
+      reject(new DOMException('Search aborted.', 'AbortError'));
+      return;
+    }
     const qs = new URLSearchParams();
     qs.set('query', params.query);
     if (params.chains) qs.set('chains', params.chains.join(','));
@@ -146,6 +161,11 @@ export function streamSearchProducts(
     if (params.limit !== undefined) qs.set('limit', String(params.limit));
 
     const source = new EventSource(`/api/search-products/stream?${qs.toString()}`);
+
+    handlers.signal?.addEventListener('abort', () => {
+      source.close();
+      reject(new DOMException('Search aborted.', 'AbortError'));
+    });
 
     source.addEventListener('init', (e) => {
       handlers.onInit?.(JSON.parse((e as MessageEvent).data) as SearchStreamInit);

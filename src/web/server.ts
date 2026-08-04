@@ -21,6 +21,8 @@ import { MetricsCollector } from '../util/metrics.js';
 import { ADAPTER_SOFT_TIMEOUT_MS, chainTimeoutMs } from '../util/timeout.js';
 
 const PORT = Number(process.env.PORT) || 3000;
+/** Allowance for catalog hydration + merge/rank once the fan-out is done, for the SSE ETA. */
+const MERGE_ALLOWANCE_MS = 1_500;
 const PUBLIC_DIR = join(process.cwd(), 'src', 'web', 'public');
 // Built PWA assets (vite build output; see pwa/vite.config.ts).
 const PWA_DIR = join(process.cwd(), 'dist', 'pwa');
@@ -163,7 +165,11 @@ function writeSseEvent(res: ServerResponse, event: string, data: unknown): void 
  * event as each chain's vendor search resolves, then a `done` event carrying
  * the same envelope shape as the POST endpoint's response.
  */
-async function handleSearchProductsStream(res: ServerResponse, url: URL): Promise<void> {
+async function handleSearchProductsStream(
+  req: IncomingMessage,
+  res: ServerResponse,
+  url: URL
+): Promise<void> {
   const query = url.searchParams.get('query')?.trim() ?? '';
   if (!query) {
     sendJson(res, 400, { ok: false, error: { code: 'INVALID_QUERY', message: 'Query is required.' } });
@@ -186,9 +192,22 @@ async function handleSearchProductsStream(res: ServerResponse, url: URL): Promis
     Connection: 'keep-alive',
   });
 
+  // The client closes the EventSource when the shopper edits the query and
+  // restarts mid-search. Stop writing into the dead socket at that point —
+  // the fan-out itself still runs to completion, which needs a real
+  // AbortController through ChainAdapter.searchProducts (tracker item 4).
+  let clientGone = false;
+  req.on('close', () => {
+    clientGone = true;
+  });
+  const send = (event: string, data: unknown): void => {
+    if (clientGone) return;
+    writeSseEvent(res, event, data);
+  };
+
   const relevantChains = chains ?? adapters.map((adapter) => adapter.chain);
   const latencyByChain = metrics.snapshot().latency.byChain;
-  writeSseEvent(res, 'init', {
+  send('init', {
     totalChains: relevantChains.length,
     chains: relevantChains,
     // p75, not max. Using max meant one historic outlier (an 18s cold Migros
@@ -210,17 +229,34 @@ async function handleSearchProductsStream(res: ServerResponse, url: URL): Promis
     ),
     /** Ceiling for chains with no measured history, so the client never guesses. */
     fallbackEtaMs: ADAPTER_SOFT_TIMEOUT_MS,
+    /**
+     * What each chain is still *allowed* to take. The p75 above is the likely
+     * case and is wrong 25% of the time by construction; this is the hard cap
+     * `raceWithTimeout` enforces, so a countdown bounded below by it can never
+     * promise less time than a chain may legitimately still spend.
+     */
+    budgetMsByChain: Object.fromEntries(
+      relevantChains.map((chain) => [chain, chainBreaker.isOpen(chain) ? 0 : chainTimeoutMs(chain)])
+    ),
+    /**
+     * Everything after the last vendor answers: the optional web-search
+     * augmentation plus the merge/rank step. Previously invisible to the
+     * estimate, which is one of the three reasons it under-promised.
+     */
+    postFanOutMs:
+      (searchService.webAugmentationPossible ? SearchService.webSearchSoftTimeoutMs : 0) +
+      MERGE_ALLOWANCE_MS,
   });
 
   const result = await searchService.searchProducts(
     { query, chains, maxPrice, category, limit },
-    { onChainProgress: (event) => writeSseEvent(res, 'progress', event) }
+    { onChainProgress: (event) => send('progress', event) }
   );
 
   if (result.ok) {
-    writeSseEvent(res, 'done', { ok: true, data: result.data, metadata: result.metadata });
+    send('done', { ok: true, data: result.data, metadata: result.metadata });
   } else {
-    writeSseEvent(res, 'done', { ok: false, error: result.error });
+    send('done', { ok: false, error: result.error });
   }
   res.end();
 }
@@ -445,7 +481,7 @@ async function handleRequest(req: IncomingMessage, res: ServerResponse): Promise
   }
 
   if (req.method === 'GET' && url.pathname === '/api/search-products/stream') {
-    await handleSearchProductsStream(res, url);
+    await handleSearchProductsStream(req, res, url);
     return;
   }
 

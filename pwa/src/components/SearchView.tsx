@@ -42,26 +42,55 @@ interface SearchProgress {
   responded: number;
   total: number;
   productsSoFar: number;
+  /** Chains that have not reported yet, so the UI can name the last straggler. */
+  pending: Chain[];
   /**
-   * Expected finish time for the *slowest chain still outstanding*, as a ms
+   * Likely finish time for the *slowest chain still outstanding*, as a ms
    * offset from the search start. Recomputed on every chain that reports in, so
    * once the slow chains are done the countdown collapses instead of running
    * out the original worst-case estimate. Undefined once nothing is pending.
    */
   etaMs?: number;
+  /** The same instant, derived from what those chains are still *allowed* to take. */
+  etaCeilingMs?: number;
 }
 
 /** Only used if the server omits `fallbackEtaMs`; mirrors ADAPTER_SOFT_TIMEOUT_MS. */
 const DEFAULT_CHAIN_ETA_MS = 6000;
 
-/** Remaining-time estimate over chains that have not reported yet. */
-function pendingEtaMs(
+interface EtaInputs {
+  etaMsByChain: Record<string, number | undefined>;
+  budgetMsByChain: Record<string, number | undefined>;
+  fallbackMs: number;
+  postFanOutMs: number;
+}
+
+/**
+ * Remaining-time estimate over chains that have not reported yet — a range, not
+ * a promise.
+ *
+ * The single number this replaces was the max of the pending chains' p75s, and
+ * it under-promised for three structural reasons (reported from a real phone:
+ * "it told me 5s but took actually 12s"): a p75 is wrong a quarter of the time
+ * by construction and the max of several p75s is not the p75 of the max; the
+ * estimate never grew when a straggler blew through its own p75, it just
+ * counted down to zero; and it modelled the vendor fan-out only, ignoring the
+ * web-augmentation and merge/rank work that follows it.
+ *
+ * `ceilingMs` answers all three: it is built from each pending chain's hard
+ * budget (what `raceWithTimeout` still allows it) plus the server's
+ * post-fan-out allowance, so "up to X" cannot be falsified by a slow vendor.
+ */
+function pendingEta(
   pending: Iterable<string>,
-  etaMsByChain: Record<string, number | undefined>,
-  fallbackMs: number
-): number | undefined {
-  const estimates = [...pending].map((chain) => etaMsByChain[chain] ?? fallbackMs);
-  return estimates.length > 0 ? Math.max(...estimates) : undefined;
+  inputs: EtaInputs
+): { likelyMs: number; ceilingMs: number } | undefined {
+  const chains = [...pending];
+  if (chains.length === 0) return undefined;
+
+  const likelyMs = Math.max(...chains.map((chain) => inputs.etaMsByChain[chain] ?? inputs.fallbackMs));
+  const budgetMs = Math.max(...chains.map((chain) => inputs.budgetMsByChain[chain] ?? inputs.fallbackMs));
+  return { likelyMs, ceilingMs: budgetMs + inputs.postFanOutMs };
 }
 
 export function SearchView(): React.JSX.Element {
@@ -73,33 +102,49 @@ export function SearchView(): React.JSX.Element {
   const [progress, setProgress] = useState<SearchProgress | undefined>();
   const [tick, setTick] = useState(0);
   const searchStartRef = useRef(0);
-  const etaByChainRef = useRef<Record<string, number | undefined>>({});
-  const fallbackEtaRef = useRef(DEFAULT_CHAIN_ETA_MS);
-  const pendingChainsRef = useRef<Set<string>>(new Set());
+  const etaInputsRef = useRef<EtaInputs>({
+    etaMsByChain: {},
+    budgetMsByChain: {},
+    fallbackMs: DEFAULT_CHAIN_ETA_MS,
+    postFanOutMs: 0,
+  });
+  const pendingChainsRef = useRef<Set<Chain>>(new Set());
 
   const { data: queryResult, isFetching, error } = useQuery({
     queryKey: ['search', submitted],
-    queryFn: async () => {
+    // `signal` is react-query's: consuming it is what makes this query
+    // cancellable, so submitting a new query mid-search tears the old
+    // EventSource down instead of leaving it streaming into the void.
+    queryFn: async ({ signal }) => {
       const start = performance.now();
       const hiddenMsAtStart = getTotalHiddenMs();
       searchStartRef.current = start;
       setProgress(undefined);
       const data = await streamSearchProducts(
-        { ...submitted!, limit: 12 },
+        // No limit. The 12 that used to be here was a payload cap nobody had
+        // revisited, and it was also what made the live counter park at "12
+        // gefunden" while chains kept reporting. A broad query ("Milch",
+        // "Brot") measures at 66–80 products / ~80KB across seven chains,
+        // which is a normal page for a comparison app.
+        { ...submitted! },
         {
+          signal,
           onInit: (init) => {
-            etaByChainRef.current = init.etaMsByChain;
-            fallbackEtaRef.current = init.fallbackEtaMs ?? DEFAULT_CHAIN_ETA_MS;
+            etaInputsRef.current = {
+              etaMsByChain: init.etaMsByChain,
+              budgetMsByChain: init.budgetMsByChain ?? {},
+              fallbackMs: init.fallbackEtaMs ?? DEFAULT_CHAIN_ETA_MS,
+              postFanOutMs: init.postFanOutMs ?? 0,
+            };
             pendingChainsRef.current = new Set(init.chains);
+            const eta = pendingEta(pendingChainsRef.current, etaInputsRef.current);
             setProgress({
               responded: 0,
               total: init.totalChains,
               productsSoFar: 0,
-              etaMs: pendingEtaMs(
-                pendingChainsRef.current,
-                etaByChainRef.current,
-                fallbackEtaRef.current
-              ),
+              pending: [...pendingChainsRef.current],
+              etaMs: eta?.likelyMs,
+              etaCeilingMs: eta?.ceilingMs,
             });
           },
           onProgress: (event) => {
@@ -108,16 +153,14 @@ export function SearchView(): React.JSX.Element {
             // and never revised it, so the countdown kept running against the
             // slowest chain long after that chain had already replied.
             pendingChainsRef.current.delete(event.chain);
-            const etaMs = pendingEtaMs(
-              pendingChainsRef.current,
-              etaByChainRef.current,
-              fallbackEtaRef.current
-            );
+            const eta = pendingEta(pendingChainsRef.current, etaInputsRef.current);
             setProgress({
               responded: event.respondedCount,
               total: event.totalCount,
               productsSoFar: event.productsSoFar,
-              etaMs,
+              pending: [...pendingChainsRef.current],
+              etaMs: eta?.likelyMs,
+              etaCeilingMs: eta?.ceilingMs,
             });
           },
         }
@@ -142,26 +185,42 @@ export function SearchView(): React.JSX.Element {
     const interval = setInterval(() => setTick((t) => t + 1), 250);
     return () => clearInterval(interval);
   }, [isFetching]);
-  const etaRemainingMs =
-    progress?.etaMs !== undefined
-      ? Math.max(0, progress.etaMs - (performance.now() - searchStartRef.current))
-      : undefined;
-  void tick; // triggers the re-render that recomputes etaRemainingMs above
+  const elapsedSinceStartMs = performance.now() - searchStartRef.current;
+  const remainingMs = (target: number | undefined): number | undefined =>
+    target !== undefined ? Math.max(0, target - elapsedSinceStartMs) : undefined;
+  const etaRemainingMs = remainingMs(progress?.etaMs);
+  const etaCeilingRemainingMs = remainingMs(progress?.etaCeilingMs);
+  void tick; // triggers the re-render that recomputes the countdowns above
 
-  // Three honest states, in priority order:
+  // Four honest states, in priority order:
   //  - every chain has answered → the remaining time is the merge/rank step,
   //    which has no per-chain estimate, so stop counting and say so;
-  //  - chains still out but the estimate is spent → say so rather than sit on
-  //    "0s" or a countdown that has already been proven wrong;
-  //  - otherwise → show the live countdown.
+  //  - both bounds alive → show the range, never a single confident number;
+  //  - the likely time is spent but the budget is not → "up to Xs", naming the
+  //    straggler once it is the only one left (the 6/7 case that was reported);
+  //  - even the budget is spent → say it is taking longer than usual.
   // Skeletons mean "nothing to show yet". Once results for this exact query
   // exist — restored from the persisted cache after a reload, or left over from
   // a previous run — a refetch keeps them on screen instead of blanking them.
   const showSkeletons = isFetching && visibleProducts.length === 0;
 
   const allChainsIn = progress !== undefined && progress.responded >= progress.total;
-  const etaOverrun =
-    !allChainsIn && (etaRemainingMs === undefined || etaRemainingMs <= 1000);
+  const withinLikely = etaRemainingMs !== undefined && etaRemainingMs > 1000;
+  const withinBudget = etaCeilingRemainingMs !== undefined && etaCeilingRemainingMs > 1000;
+  const lastStraggler =
+    progress?.pending.length === 1 ? CHAIN_LABELS[progress.pending[0]] : undefined;
+
+  // While a search runs, editing the query (or the chain selection) turns the
+  // button back into an action: the shopper who mistyped should not have to
+  // wait out a search they no longer want.
+  const restartable =
+    isFetching &&
+    submitted !== undefined &&
+    query.trim().length > 0 &&
+    chains.length > 0 &&
+    (query.trim() !== submitted.query ||
+      chains.length !== submitted.chains.length ||
+      chains.some((chain) => !submitted.chains.includes(chain)));
 
   function submit(event?: FormEvent): void {
     event?.preventDefault();
@@ -212,10 +271,10 @@ export function SearchView(): React.JSX.Element {
           type="submit"
           className="w-full"
           disabled={!query.trim()}
-          loading={isFetching}
+          loading={isFetching && !restartable}
           loadingText="Wird gesucht…"
         >
-          <Search /> Suchen
+          <Search /> {restartable ? 'Neue Suche starten' : 'Suchen'}
         </Button>
       </form>
 
@@ -231,16 +290,25 @@ export function SearchView(): React.JSX.Element {
               </span>
               {allChainsIn ? (
                 <span> · Ergebnisse werden zusammengeführt…</span>
-              ) : etaOverrun ? (
-                <span> · dauert länger als üblich…</span>
-              ) : (
+              ) : withinLikely && withinBudget ? (
                 <span>
                   {' '}
-                  · noch ~
+                  · noch{' '}
                   <b className="font-mono font-semibold text-ink">
-                    {Math.ceil((etaRemainingMs as number) / 1000)}s
+                    {Math.ceil((etaRemainingMs as number) / 1000)}–
+                    {Math.ceil((etaCeilingRemainingMs as number) / 1000)}s
                   </b>
                 </span>
+              ) : withinBudget ? (
+                <span>
+                  {' '}
+                  · {lastStraggler ? `warte auf ${lastStraggler}, ` : ''}bis zu{' '}
+                  <b className="font-mono font-semibold text-ink">
+                    {Math.ceil((etaCeilingRemainingMs as number) / 1000)}s
+                  </b>
+                </span>
+              ) : (
+                <span> · dauert länger als üblich…</span>
               )}
             </p>
           )}
@@ -306,7 +374,14 @@ export function SearchView(): React.JSX.Element {
         className="space-y-3"
         initial="hidden"
         animate="visible"
-        variants={{ visible: { transition: { staggerChildren: 0.05 } } }}
+        // Per-item stagger, but the whole list must still finish arriving in
+        // under a second: without the old `limit: 12` a broad query renders
+        // 60–80 cards, and a flat 0.05s each would take four seconds to settle.
+        variants={{
+          visible: {
+            transition: { staggerChildren: Math.min(0.05, 0.9 / Math.max(visibleProducts.length, 1)) },
+          },
+        }}
         data-testid="search-results"
       >
         <AnimatePresence>

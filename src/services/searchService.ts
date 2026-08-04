@@ -174,6 +174,19 @@ export class SearchService {
   private readonly chainBreaker?: ChainHealthBreaker;
   private readonly resultCache?: SearchResultCache;
 
+  /**
+   * Whether a search can still spend time on web augmentation after the last
+   * vendor has answered. The SSE ETA needs this: the fan-out is not the whole
+   * wait, and an estimate that models only the fan-out is the reason a search
+   * that promised 5s took 12s.
+   */
+  public get webAugmentationPossible(): boolean {
+    return this.webProductSearch !== undefined;
+  }
+
+  /** Upper bound on that augmentation step, for the same estimate. */
+  public static readonly webSearchSoftTimeoutMs = WEB_SEARCH_SOFT_TIMEOUT_MS;
+
   public constructor(adapters: ChainAdapter[], options: SearchServiceOptions = {}) {
     this.adapters = adapters;
     this.webProductSearch = options.webProductSearch;
