@@ -8,13 +8,33 @@ the current backlog. These are the only things actually open:
 
 | # | Item | Where |
 |---|------|-------|
-| 2 | **Phase 6 — search relevance.** ~~Blocked on its golden set~~ — **the golden set now exists** (`src/eval/`, 51 labelled queries, P@5/MRR/coverage gated in CI, 2026-08-01), so this is unblocked. But the brief has changed: the two defects it was written against **do not reproduce** and, more usefully, the harness found different problems worth fixing first — **coverage 0.902** (5 of 51 queries return nothing from any chain, including *both* French queries in a ~23% francophone country) and an inflected-adjective miss ("geriebener Käse"). That is a query-understanding/recall gap, not a ranking one, so a re-ranker would not touch it. Read `src/eval/README.md` before starting. | `PWA_UX_FIX_PLAN_2026-07-30.md` §2.10, `src/eval/README.md` |
+| 2 | **Phase 6 — search relevance.** The golden set exists (`src/eval/`, 51 labelled queries, gated in CI) and its **coverage half is now done**: 0.902 → **1.0**, end-to-end P@5 0.894 → 0.98, via query understanding (`src/util/queryUnderstanding.ts`) rather than any ranker change — modifiers now match across inflection and are canonicalised for vendor dispatch, and fully-romance queries are translated before dispatch. Verified per query before re-baselining: none fell, 5 rose from 0. **Still open:** the answered-only P@5 is 0.98 with `Rüebli`→carrot cake at #3 non-gating, and the two originally-reported defects (Milchdrink UHT → Milchschokolade, Protein Milch → bread) remain **masked, not fixed** — still armed as gate queries. Read `src/eval/README.md` before starting. | `PWA_UX_FIX_PLAN_2026-07-30.md` §2.10, `src/eval/README.md` |
 | 3 | **Phase 7 — multi-conversation chat.** IndexedDB v2 + migration + history sheet. Chat history is currently one fixed record. | `PWA_UX_FIX_PLAN_2026-07-30.md` §2.11 |
 | 4 | **Phase 4 carve-out: real `AbortController` cancellation.** Deliberately skipped when Phase 4 landed. Needs an interface change on `ChainAdapter.searchProducts` threaded through all seven adapters plus the Playwright path — a refactor, not a perf fix. Leak is bounded today: `SourceHttpClient` gives every HTTP request its own controller/timeout, so only the remainder of a multi-step adapter survives a soft timeout. | tracker row "Phase 4 — fan-out performance" |
 | 5 | **Pi deployment — awaiting owner approval.** Not blocked technically; never approved. Now also blocks item 8. | — |
 | 8 | **Capture the web-augmentation eval tier from the Pi.** The mechanism is built and committed (`npm run eval:capture -- --web`, `WEB_TIER_QUERY_IDS`, `augmented` stamping, suite fails on a non-augmented fixture) but **no web fixtures are committed**: from the dev machine both DuckDuckGo endpoints return an HTTP 202 bot challenge and google CSE returns a permanent 400, so a capture produced pools identical to the vendor tier for 49/51 queries. That is coverage in name only, so it was discarded rather than committed. Needs one run from an egress DDG serves. | `src/eval/README.md` |
 | 6 | **Aldi "Protein Milch" returns bread.** *(2026-08-01: does not currently reproduce — Aldi now returns **zero** results for this query, so the bread is gone but so is the milk. `matcher.ts` last changed 2026-06-19, six weeks before the report, so nothing in the relevance logic fixed it; treat it as masked by vendor churn or the per-chain timeout, not repaired. Armed as a gate query in `src/eval/`.)* Original note: Real product lives on the unbuilt `aldi-now.ch` storefront; plus an ingredient-text AND-match false positive in `matcher.ts`/catalog FTS5. Overlaps item 2. Deferred by owner 2026-07-30. | — |
 | ~~7~~ | ~~**Two pre-existing live-network test flakes.**~~ **Fixed 2026-08-01.** Both files now call `vi.setConfig({ testTimeout: 30_000, hookTimeout: 30_000 })` at the top, scoped to the two files that drive real vendor endpoints rather than raising the global default and blinding the unit suite. 194/194 pass. The flakes were correctly diagnosed earlier but left red across several sessions — a known-failing suite trains everyone to ignore red, so a verified-pre-existing failure still needs fixing, not just labelling. | — |
+
+Three defects the golden set could not have caught, found by driving the SPA in
+a browser on 2026-08-01 while verifying item 2, and fixed with it:
+
+- **The eval and the browser disagreed.** Catalog hits were merged into results
+  without any relevance check — the comment claimed "apply the same filters as
+  vendor search" and only applied `maxPrice` — so "glutenfreies Brot" returned
+  Butterzopf in the UI while the fixtures looked clean, because
+  `eval:capture` runs without a local catalog. **Any future relevance claim
+  measured only by `src/eval/` inherits that blind spot.**
+- **Constraints leaked through the co-occurrence taxonomy.** One "Glutenfreies
+  Brot" in a result set teaches `buildTaxonomy` that `glutenfreies` goes with
+  `brot`, after which every bread scored 42. Diet/allergen claims now refuse
+  the taxonomy path entirely.
+- **Two SPA render crashes.** A source warning with no chain (the aggregated
+  web-search failure carries none) threw on `undefined.charAt` and replaced the
+  whole result list with "Network error"; and Otto's returned the raw OCC
+  opening-hours *object* where `NormalizedStore.openingHours` is typed
+  `string`, which the response cast hid from the compiler and which broke the
+  store list the same way.
 
 Round-3 PWA UX fix plan status: **Phases 1–5 done** (1 on 2026-07-30; 2, 3, 4, 5
 on 2026-07-31), Phases 6–7 open. Full plan with root causes and rejected

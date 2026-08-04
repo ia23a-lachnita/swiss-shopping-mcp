@@ -1,7 +1,7 @@
 {
   "id": "griechischer-joghurt",
   "query": "griechischer Joghurt",
-  "capturedAt": "2026-08-01T09:01:15.186Z",
+  "capturedAt": "2026-08-01T10:55:39.796Z",
   "products": [
     {
       "chain": "coop",
@@ -202,6 +202,197 @@
       "category": "Joghurt Nature",
       "tags": [],
       "price": 4.15,
+      "unit": null
+    },
+    {
+      "chain": "aldi",
+      "name": "BIO-Joghurt, griechische Art",
+      "brand": "RETOUR AUX SOURCES",
+      "category": "Retour aux sources (Bio)",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 4.59,
+      "unit": null
+    },
+    {
+      "chain": "aldi",
+      "name": "Joghurt Erdbeere",
+      "brand": "RETOUR AUX SOURCES",
+      "category": "Retour aux sources (Bio)",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 0.79,
+      "unit": null
+    },
+    {
+      "chain": "aldi",
+      "name": "Joghurt Heidelbeere",
+      "brand": "RETOUR AUX SOURCES",
+      "category": "Retour aux sources (Bio)",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 0.79,
+      "unit": null
+    },
+    {
+      "chain": "aldi",
+      "name": "Joghurt Vanille",
+      "brand": "RETOUR AUX SOURCES",
+      "category": "Retour aux sources (Bio)",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 0.79,
+      "unit": null
+    },
+    {
+      "chain": "aldi",
+      "name": "Joghurt Nature Bifidus",
+      "brand": "RETOUR AUX SOURCES",
+      "category": "Retour aux sources (Bio)",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 0.89,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Joghurt",
+      "brand": "Yogos",
+      "category": "",
+      "tags": [],
+      "price": 1.05,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Joghurt",
+      "brand": "Yogos",
+      "category": "",
+      "tags": [],
+      "price": 1.05,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Joghurt",
+      "brand": "Yogos",
+      "category": "",
+      "tags": [],
+      "price": 1.05,
+      "unit": null
+    },
+    {
+      "chain": "aldi",
+      "name": "BIO-Naturejoghurt 1.5% Fett",
+      "brand": "RETOUR AUX SOURCES",
+      "category": "Retour aux sources (Bio)",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 1.29,
+      "unit": null
+    },
+    {
+      "chain": "aldi",
+      "name": "BIO-Naturejoghurt 3.5% Fett",
+      "brand": "RETOUR AUX SOURCES",
+      "category": "Retour aux sources (Bio)",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 1.29,
+      "unit": null
+    },
+    {
+      "chain": "aldi",
+      "name": "Vegetarischer Fruchtgummi, Joghurt-Früchtchen",
+      "brand": "SWEET LAND",
+      "category": "Süssigkeiten & Snacks",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 1.49,
+      "unit": null
+    },
+    {
+      "chain": "ottos",
+      "name": "Haribo Tropifrutti Joghurt",
+      "brand": "Haribo",
+      "category": "Root",
+      "tags": [],
+      "price": 1.5,
+      "unit": null
+    },
+    {
+      "chain": "aldi",
+      "name": "Naturejoghurt, 1.5% Fett",
+      "brand": "SAVEURS SUISSES",
+      "category": "Saveurs Suisses",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 1.58,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Fairtrade Joghurt à la grecque Mango 2x150g",
+      "brand": "Naturaplan",
+      "category": "Jogurt Exotenfrüchte & Jogurt Zitrusfrüchte",
+      "tags": [],
+      "price": 2,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Joghurt à la grecque Feigen 2x150g",
+      "brand": "Naturaplan",
+      "category": "Jogurt mit Gartenfrüchten",
+      "tags": [],
+      "price": 2,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Joghurt à la grecque Honig 2x150g",
+      "brand": "Naturaplan",
+      "category": "Joghurt Nature",
+      "tags": [],
+      "price": 2,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Joghurt à la grecque nature 2x150g",
+      "brand": "Naturaplan",
+      "category": "Joghurt Nature",
+      "tags": [],
+      "price": 2,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Joghurt",
+      "brand": "Yogos",
+      "category": "",
+      "tags": [],
+      "price": 2.15,
+      "unit": null
+    },
+    {
+      "chain": "aldi",
+      "name": "Ciambella, Joghurt",
+      "brand": "CUCINA NOBILE",
+      "category": "Brot & Backwaren",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 2.69,
       "unit": null
     }
   ]

@@ -1,6 +1,115 @@
 {
   "id": "glutenfreies-brot",
   "query": "glutenfreies Brot",
-  "capturedAt": "2026-08-01T09:01:29.112Z",
-  "products": []
+  "capturedAt": "2026-08-01T11:01:54.471Z",
+  "products": [
+    {
+      "chain": "coop",
+      "name": "Schär Brot Campagnard glutenfrei",
+      "brand": "Schär",
+      "category": "Lang haltbare Brote",
+      "tags": [],
+      "price": 4.5,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Schär Kaiserbrötchen glutenfrei",
+      "brand": "Schär",
+      "category": "Frischback Brot",
+      "tags": [],
+      "price": 4.5,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Schär Meisterbäcker Brot Mehrkorn glutenfrei",
+      "brand": "Schär",
+      "category": "Lang haltbare Brote",
+      "tags": [],
+      "price": 4.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Schär Meisterbäcker Brot Vitalbrot glutenfrei",
+      "brand": "Schär",
+      "category": "Lang haltbare Brote",
+      "tags": [],
+      "price": 4.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Schär Vitaminbrot glutenfrei",
+      "brand": "Schär",
+      "category": "Lang haltbare Brote",
+      "tags": [],
+      "price": 5.3,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Schär Brot-Mix glutenfrei",
+      "brand": "Schär",
+      "category": "Mehl",
+      "tags": [],
+      "price": 6.4,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Schnitzer Bio Frischback-Brot Chia & Quinoa glutenfrei",
+      "brand": "Schnitzer",
+      "category": "Frischback Brot",
+      "tags": [],
+      "price": 7.2,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Schär Frischback Ciabatta glutenfrei",
+      "brand": "Schär",
+      "category": "Frischback Brot",
+      "tags": [],
+      "price": 3.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Old El Paso Street Market Corn Tortillas glutenfrei 10 Stück",
+      "brand": "Old el Paso",
+      "category": "Fladenbrote & Tortillas",
+      "tags": [],
+      "price": 4.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Schär Meisterbäckers Classic glutenfrei",
+      "brand": "Schär",
+      "category": "Lang haltbare Brote",
+      "tags": [],
+      "price": 4.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Old El Paso Tortilla glutenfrei 6 Stück",
+      "brand": "Old el Paso",
+      "category": "Fladenbrote & Tortillas",
+      "tags": [],
+      "price": 5.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Schnitzer Bio Baguette Rustic glutenfrei",
+      "brand": "Schnitzer",
+      "category": "Frischback Brot",
+      "tags": [],
+      "price": 5.95,
+      "unit": null
+    }
+  ]
 }

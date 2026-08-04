@@ -4,7 +4,7 @@
  * without hitting the network.
  *
  * Run from the repo root after `npm run build`:
- *   node scripts/captureGoldenFixtures.mjs [--only <queryId>] [--web]
+ *   node scripts/captureGoldenFixtures.mjs [--only <id>[,<id>...]] [--web]
  *
  * Two tiers:
  *   default  raw vendor fan-out          -> src/eval/fixtures/
@@ -39,8 +39,20 @@ const { createDefaultWebProductSearch } = await import(
 );
 const { GOLDEN_QUERIES, WEB_TIER_QUERY_IDS } = await import('../dist/eval/goldenSet.js');
 
+// Comma-separated, because the honest way to re-capture after a change to
+// query understanding is to re-capture exactly the queries that change and
+// leave the rest frozen — otherwise vendor drift lands in the same diff and
+// nobody can tell which moved the numbers.
 const onlyIndex = process.argv.indexOf('--only');
-const only = onlyIndex >= 0 ? process.argv[onlyIndex + 1] : undefined;
+const only =
+  onlyIndex >= 0
+    ? new Set(
+        (process.argv[onlyIndex + 1] ?? '')
+          .split(',')
+          .map((id) => id.trim())
+          .filter(Boolean)
+      )
+    : undefined;
 
 const adapters = createDefaultAdapters();
 let webProductSearch;
@@ -63,7 +75,7 @@ mkdirSync(outDir, { recursive: true });
 const inScope = withWeb
   ? GOLDEN_QUERIES.filter((q) => WEB_TIER_QUERY_IDS.includes(q.id))
   : GOLDEN_QUERIES;
-const queries = only ? inScope.filter((q) => q.id === only) : inScope;
+const queries = only ? inScope.filter((q) => only.has(q.id)) : inScope;
 console.log(`Capturing ${queries.length} queries...`);
 
 /** Read the vendor-tier pool so the web tier can tell whether augmentation actually did anything. */

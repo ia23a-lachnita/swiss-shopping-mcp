@@ -1,6 +1,25 @@
 {
   "id": "roter-thai-curry",
   "query": "rotes Thai Curry",
-  "capturedAt": "2026-08-01T09:01:39.127Z",
-  "products": []
+  "capturedAt": "2026-08-01T10:56:02.558Z",
+  "products": [
+    {
+      "chain": "coop",
+      "name": "Thai Kitchen Curry Paste rot",
+      "brand": "Thai Kitchen",
+      "category": "Curry Saucen",
+      "tags": [],
+      "price": 4.9,
+      "unit": null
+    },
+    {
+      "chain": "ottos",
+      "name": "Mitsuba SFM Thai Green Curry",
+      "brand": "Mitsuba",
+      "category": "Root",
+      "tags": [],
+      "price": 2.5,
+      "unit": null
+    }
+  ]
 }

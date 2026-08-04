@@ -50,9 +50,14 @@ test.describe('SPA Bug Fixes — Round 2', () => {
     // Click — should open
     await btn.click();
     await expect(expandable).toHaveClass(/open/);
-    // Content should show allergens text
-    await expect(expandable.locator('.ingredients-text')).toBeVisible();
-    const text = await expandable.locator('.ingredients-text').textContent();
+    // Content should show allergens text. The panel carries an "Ingredients:"
+    // block *and* an "Allergens:" one when the vendor supplies both, so an
+    // unqualified locator matches two elements and fails Playwright's strict
+    // mode — the assertion is about the panel having content, not about there
+    // being exactly one kind of it.
+    const texts = expandable.locator('.ingredients-text');
+    await expect(texts.first()).toBeVisible();
+    const text = await texts.first().textContent();
     expect(text!.length).toBeGreaterThan(0);
 
     // Click again — should close

@@ -64,11 +64,71 @@ export interface OttosOccProduct {
   description?: string;
 }
 
+/**
+ * Otto's OCC opening hours: a structured object, not the string the previous
+ * declaration claimed.
+ *
+ * The claim was never checked — the response is cast, so nothing failed at
+ * compile time and the object travelled all the way into `NormalizedStore`,
+ * whose contract says `openingHours?: string`. The SPA then called
+ * `String.replace` on it and replaced the whole store list with "Network
+ * error: str.replace is not a function".
+ */
+export interface OttosOccOpeningHours {
+  weekDayOpeningList?: Array<{
+    closed?: boolean;
+    weekDay?: string;
+    openingTime?: { formattedHour?: string };
+    closingTime?: { formattedHour?: string };
+  }>;
+}
+
 export interface OttosOccStore {
   name: string;
   address?: { town?: string; postalCode?: string; line1?: string };
   geoPoint?: { latitude?: number; longitude?: number };
-  openingHours?: string;
+  openingHours?: string | OttosOccOpeningHours;
+}
+
+const WEEKDAYS = new Set(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']);
+
+/**
+ * Renders OCC opening hours as `Mon-Fri: 09:00-19:00, 09:00-20:00 | Sat-Sun:
+ * 09:00-17:00` — the format Migros already emits and `isStoreOpen` already
+ * parses, including its convention that a section may carry several ranges
+ * when the days within it differ (Otto's closes at 20:00 on Thursdays).
+ *
+ * Returns undefined rather than a placeholder when there is nothing usable:
+ * an absent value is honest, an invented one is not.
+ */
+export function formatOccOpeningHours(
+  value: string | OttosOccOpeningHours | undefined
+): string | undefined {
+  if (typeof value === 'string') return value.trim() === '' ? undefined : value;
+  const days = value?.weekDayOpeningList;
+  if (!days || days.length === 0) return undefined;
+
+  const collect = (inWeek: boolean): string[] => {
+    const ranges: string[] = [];
+    for (const day of days) {
+      if (day.closed === true || typeof day.weekDay !== 'string') continue;
+      if (WEEKDAYS.has(day.weekDay) !== inWeek) continue;
+      const open = day.openingTime?.formattedHour;
+      const close = day.closingTime?.formattedHour;
+      if (!open || !close) continue;
+      const range = `${open}-${close}`;
+      if (!ranges.includes(range)) ranges.push(range);
+    }
+    return ranges;
+  };
+
+  const sections: string[] = [];
+  const weekday = collect(true);
+  const weekend = collect(false);
+  if (weekday.length > 0) sections.push(`Mon-Fri: ${weekday.join(', ')}`);
+  if (weekend.length > 0) sections.push(`Sat-Sun: ${weekend.join(', ')}`);
+
+  return sections.length > 0 ? sections.join(' | ') : undefined;
 }
 
 function parsePrice(value: unknown): { current: number; currency: string } | undefined {
@@ -142,7 +202,7 @@ export function parseOttosOccStore(store: OttosOccStore, index: number, _sourceU
     address: parts.join(', '),
     latitude: lat,
     longitude: lon,
-    openingHours: store.openingHours,
+    openingHours: formatOccOpeningHours(store.openingHours),
   };
 }
 

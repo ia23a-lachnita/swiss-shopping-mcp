@@ -1,7 +1,7 @@
 {
   "id": "dunkle-schokolade",
   "query": "dunkle Schokolade",
-  "capturedAt": "2026-08-01T09:01:34.120Z",
+  "capturedAt": "2026-08-01T10:55:57.549Z",
   "products": [
     {
       "chain": "migros",
@@ -124,11 +124,245 @@
     },
     {
       "chain": "coop",
+      "name": "Halba Tafelschokolade dunkel Limette",
+      "brand": "Halba",
+      "category": "Schokoladentafeln dunkel",
+      "tags": [],
+      "price": 2.4,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Fairtrade Tafelschokolade Crémant dunkel",
+      "brand": "Naturaplan",
+      "category": "Schokoladentafeln dunkel",
+      "tags": [],
+      "price": 2.5,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Favarger Tafelschokolade dunkel 66%",
+      "brand": "Favarger",
+      "category": "Schokoladentafeln dunkel",
+      "tags": [],
+      "price": 3.75,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Lindt Chocoletti Dunkel Tafelschokolade",
+      "brand": "Lindt",
+      "category": "Schokoladen-Snacks",
+      "tags": [],
+      "price": 3.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Villars Tafelschokolade Dunkel Schoko-Köpfli",
+      "brand": "Villars",
+      "category": "Schokoladentafeln dunkel",
+      "tags": [],
+      "price": 4.7,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Lindt Excellence Dunkel 70% Cacao Tafelschokolade",
+      "brand": "Lindt",
+      "category": "Schokoladentafeln dunkel",
+      "tags": [],
+      "price": 4.8,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Lindt Excellence Dunkel 78% Cacao Tafelschokolade",
+      "brand": "Lindt",
+      "category": "Schokoladentafeln dunkel",
+      "tags": [],
+      "price": 4.8,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Lindt Excellence Dunkel 85% Cacao Tafelschokolade",
+      "brand": "Lindt",
+      "category": "Schokoladentafeln dunkel",
+      "tags": [],
+      "price": 4.8,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Lindt Excellence Dunkel 90% Cacao Tafelschokolade",
+      "brand": "Lindt",
+      "category": "Schokoladentafeln dunkel",
+      "tags": [],
+      "price": 4.8,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Lindt Excellence Dunkel Caramel à la Pointe de Sel Tafelschokolade",
+      "brand": "Lindt",
+      "category": "Schokoladentafeln dunkel",
+      "tags": [],
+      "price": 4.8,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Lindt Excellence Dunkel Fleur de Sel Tafelschokolade",
+      "brand": "Lindt",
+      "category": "Schokoladentafeln dunkel",
+      "tags": [],
+      "price": 4.8,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Lindt Excellence Dunkel Orange Tafelschokolade",
+      "brand": "Lindt",
+      "category": "Schokoladentafeln dunkel",
+      "tags": [],
+      "price": 4.8,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Fairtrade Tafelschokolade dunkel Pistazien gesalzen",
+      "brand": "Naturaplan",
+      "category": "Schokoladentafeln dunkel",
+      "tags": [],
+      "price": 5.4,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Cailler Tafelschokolade Dunkel mit Heidelbeeren, Mandeln und Haselnüssen",
+      "brand": "Cailler",
+      "category": "Nuss-Milchschokoladetafeln",
+      "tags": [],
+      "price": 5.5,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Lindt Les Grandes Dunkel Nuss Tafelschokolade",
+      "brand": "Lindt",
+      "category": "Schokoladentafeln dunkel",
+      "tags": [],
+      "price": 5.95,
+      "unit": null
+    },
+    {
+      "chain": "denner",
+      "name": "Camille Bloch Schokoladen-Eili Torino Dunkel",
+      "brand": null,
+      "category": "1144362",
+      "tags": [],
+      "price": 6.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Villars Tafelschokoladeschokolade dunkel Nuss & Crêpe",
+      "brand": "Villars",
+      "category": "Schokoladentafeln dunkel",
+      "tags": [],
+      "price": 6.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
       "name": "Trüfrü® gefrorene Himbeeren mit weisser und dunkler Schokolade",
       "brand": "Mars",
       "category": "Glace Desserts",
       "tags": [],
       "price": 7.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Cailler Crémant Tafelschokolade Dunkel",
+      "brand": "Cailler",
+      "category": "Schokoladentafeln dunkel",
+      "tags": [],
+      "price": 8.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Läckerli Huus Basler Läckerli mit Schokolade dunkel",
+      "brand": "Läckerli-Huus",
+      "category": "Hüppen, Waffeln & Läckerli",
+      "tags": [],
+      "price": 9.9,
+      "unit": null
+    },
+    {
+      "chain": "denner",
+      "name": "Lindt Tafelschokolade Dunkel Crémant 49%",
+      "brand": null,
+      "category": "1144362",
+      "tags": [],
+      "price": 11.95,
+      "unit": null
+    },
+    {
+      "chain": "denner",
+      "name": "Lindt Lindor Tafelschokolade Extra Dunkel 70% Cacao",
+      "brand": null,
+      "category": "1144362",
+      "tags": [],
+      "price": 14.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Cailler Crémant Tafelschokolade Dunkel",
+      "brand": "Cailler",
+      "category": "Kochschokolade",
+      "tags": [],
+      "price": 38.5,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie Fairtrade Tafelschokolade Noir",
+      "brand": "Prix Garantie",
+      "category": "Schokoladentafeln dunkel",
+      "tags": [],
+      "price": 0.8,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie Tafel noir 65%",
+      "brand": "Prix Garantie",
+      "category": "Schokoladentafeln dunkel",
+      "tags": [],
+      "price": 1.4,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Halba Tafelschokolade Noir 72%",
+      "brand": "Halba",
+      "category": "Schokoladentafeln dunkel",
+      "tags": [],
+      "price": 2.2,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Halba Tafelschokolade Noir Pistaches",
+      "brand": "Halba",
+      "category": "Schokoladentafeln dunkel",
+      "tags": [],
+      "price": 2.8,
       "unit": null
     }
   ]

@@ -35,6 +35,7 @@ import { SearchResultCache } from './searchResultCache.js';
  */
 const WEB_SEARCH_SOFT_TIMEOUT_MS = 8_000;
 import { calculateMatchStrength, sortProducts } from '../util/matcher.js';
+import { vendorQueryFor } from '../util/queryUnderstanding.js';
 import { logger } from '../util/log.js';
 import { CatalogService } from '../catalog/catalogService.js';
 import { WebProductSearchService, WebProductSearchResult } from './webProductSearchService.js';
@@ -272,6 +273,13 @@ export class SearchService {
     const requestedChainList = [...requestedChains];
     const now = new Date().toISOString();
 
+    // The adapters query German catalogues, so a French query has to be
+    // translated before dispatch or the products never reach us at all — no
+    // amount of local matching can rank what was never fetched. Ranking still
+    // sees the shopper's own words (`query`); only the vendors see this.
+    // Returns `query` unchanged unless the whole query is romance.
+    const vendorQuery = vendorQueryFor(query);
+
     // Step 1: Run vendor searches first to evaluate strength
     let respondedCount = 0;
     let productsSoFar = 0;
@@ -294,7 +302,7 @@ export class SearchService {
               },
             } as Result<NormalizedProduct[]>)
           : await raceWithTimeout(
-              () => adapter.searchProducts({ ...filters, query, matchMode }),
+              () => adapter.searchProducts({ ...filters, query: vendorQuery, matchMode }),
               budgetMs,
               () => ({
                 ok: false,
@@ -451,7 +459,11 @@ export class SearchService {
     if (this.catalog) {
       try {
         const vendorKeySet = new Set(products.map((p) => `${p.chain}:${p.id}`));
-        const catalogResults = this.catalog.search(query, { limit: (filters.limit ?? 20) * 2 });
+        // Same rewrite the adapters got: the catalog stores German product
+        // text, so a French query finds nothing in it either.
+        const catalogResults = this.catalog.search(vendorQuery, {
+          limit: (filters.limit ?? 20) * 2,
+        });
         const catalogOnly = catalogResults
           .filter((r) => !vendorKeySet.has(`${r.product.chain}:${r.product.productId}`))
           .filter((r) => requestedChains.has(r.product.chain as Chain));
@@ -511,7 +523,13 @@ export class SearchService {
           for (const hydrated of hydratedProducts) {
             const key = `${hydrated.chain}:${hydrated.id}`;
             if (vendorKeySet.has(key)) continue;
-            // Apply the same filters as vendor search
+            // Apply the same filters as vendor search. Relevance included:
+            // this claimed to and did not, so catalog hits entered on the
+            // FTS index's terms alone. Measured in the browser — "glutenfreies
+            // Brot" returned Dinkel-Vollkornbrot and Butterzopf from here,
+            // while the eval fixtures looked clean because the capture script
+            // runs without a catalog.
+            if (calculateMatchStrength(hydrated, query, matchMode, dynamicTaxonomy) === 0) continue;
             if (typeof filters.maxPrice === 'number' && hydrated.price.current > filters.maxPrice) continue;
             products.push(hydrated);
             vendorKeySet.add(key);

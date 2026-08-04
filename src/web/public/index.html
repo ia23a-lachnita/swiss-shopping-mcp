@@ -886,7 +886,8 @@
 
         let summaryHtml = '';
         const chainsWithData = new Set(offers.map(item => item.chain));
-        const chainsWithWarnings = new Set(compareWarnings.map(w => w.chain));
+        // See renderChainSummary: a chainless warning is not a failed chain.
+        const chainsWithWarnings = new Set(compareWarnings.map(w => w.chain).filter(Boolean));
         const totalQueried = chainsWithData.size + chainsWithWarnings.size;
         if (totalQueried > 1) {
           const failedChains = [...chainsWithWarnings].filter(c => !chainsWithData.has(c));
@@ -1172,7 +1173,11 @@
 
     function renderChainSummary(data, warnings, containerId, label) {
       const chainsWithData = new Set(data.map(item => item.chain));
-      const chainsWithWarnings = new Set(warnings.map(w => w.chain));
+      // Not every warning belongs to a chain — the aggregated web-search
+      // failure carries none. Counting it as a failed chain used to throw on
+      // undefined.charAt() and replace the whole result list with "Network
+      // error", so a degraded search rendered as a broken one.
+      const chainsWithWarnings = new Set(warnings.map(w => w.chain).filter(Boolean));
       const totalQueried = chainsWithData.size + chainsWithWarnings.size;
       if (totalQueried <= 1) return;
 

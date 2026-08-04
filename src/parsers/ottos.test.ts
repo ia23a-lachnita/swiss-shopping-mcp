@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { OttosOccProduct, OttosProduct, parseOttosOccProduct, parseOttosSearchResponse, parseOttosStoresResponse } from './ottos.js';
+import { OttosOccProduct, OttosProduct, formatOccOpeningHours, parseOttosOccProduct, parseOttosSearchResponse, parseOttosStoresResponse } from './ottos.js';
 
 describe('Ottos parser', () => {
   it('parses search response', () => {
@@ -95,5 +95,29 @@ describe('Ottos parser', () => {
       expect(result?.name).toBe("Otto's Kaffee");
       expect(result?.size).toBeUndefined();
     });
+  });
+});
+
+describe('formatOccOpeningHours', () => {
+  it('renders the structured OCC object as the format isStoreOpen parses', () => {
+    // The real shape from the OCC store search. It used to reach the SPA
+    // unconverted and crash the whole store list on String.replace.
+    const hours = {
+      weekDayOpeningList: [
+        { weekDay: 'Monday', closed: false, openingTime: { formattedHour: '09:00' }, closingTime: { formattedHour: '19:00' } },
+        { weekDay: 'Thursday', closed: false, openingTime: { formattedHour: '09:00' }, closingTime: { formattedHour: '20:00' } },
+        { weekDay: 'Saturday', closed: false, openingTime: { formattedHour: '09:00' }, closingTime: { formattedHour: '17:00' } },
+        { weekDay: 'Sunday', closed: true },
+      ],
+    };
+
+    expect(formatOccOpeningHours(hours)).toBe('Mon-Fri: 09:00-19:00, 09:00-20:00 | Sat-Sun: 09:00-17:00');
+  });
+
+  it('passes a string through and gives up honestly on anything unusable', () => {
+    expect(formatOccOpeningHours('07:30 - 20:00')).toBe('07:30 - 20:00');
+    expect(formatOccOpeningHours(undefined)).toBeUndefined();
+    expect(formatOccOpeningHours({ weekDayOpeningList: [] })).toBeUndefined();
+    expect(formatOccOpeningHours({ weekDayOpeningList: [{ weekDay: 'Sunday', closed: true }] })).toBeUndefined();
   });
 });

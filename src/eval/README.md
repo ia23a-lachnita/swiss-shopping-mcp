@@ -96,16 +96,44 @@ suite fails on any committed fixture with `augmented: false`.
 To close the gap, run the web capture from an egress DuckDuckGo serves (the Pi),
 and commit the result.
 
-## Known state (2026-08-01)
+## Known state (2026-08-01, after query understanding)
 
-- Ranking P@5 **0.991**, MRR **1.0** over 46 answered queries.
-- End to end P@5 **0.894**, coverage **0.902**.
-- 5 queries return nothing from any of the 7 chains: `geriebener-kaese`,
-  `glutenfreies-brot`, `roter-thai-curry`, `lait-entier`, `jus-orange`. Both
-  French queries are in that list, in a country that is ~23% francophone. This
-  is a recall / query-understanding gap, not a ranking one.
+- Ranking P@5 **0.98**, MRR **0.987** over 51 answered queries.
+- End to end P@5 **0.98**, MRR **0.987**, coverage **1.0**.
+- The two pairs are now identical because every query answers. They were
+  0.991/1.0 against 0.894/0.902 before, and the answered-only pair going *down*
+  while the end-to-end pair went up is the whole point of reporting both: the
+  old 0.991 was a mean over the 46 easiest queries, because the 5 hardest
+  returned nothing and were silently excluded.
 - One non-gating violation: `Rüebli` ranks "Rüebli Kuchenstück" (carrot cake) at
   #3 for a carrot query.
+- Two queries are scored below what they deserve, by the labels rather than by
+  the ranker, and were left alone rather than relabelled to raise a number:
+  `glutenfreies-brot` 0.8 (all five results are Schär gluten-free bread, but
+  "Kaiserbrötchen" folds to `kaiserbroetchen` and so misses the `brot` lemma)
+  and `jus-orange` 0.6 (`Fruchtsaft, Orange` is orange juice, but the pattern
+  `orange.*saft` assumes the other word order).
+
+### What made the last five answer
+
+Both fixes are in `src/util/queryUnderstanding.ts`, and neither is a ranker
+change:
+
+1. **Modifier inflection.** Retailers write "Käse gerieben", shoppers write
+   "geriebener Käse", and conjunctive substring matching discarded the product
+   entirely. Query modifiers now match across inflection, and the *dispatched*
+   query is canonicalised too — measured against the live fan-out, "geriebener
+   Käse" returns one grated cheese among cheese-flavoured crisps while
+   "gerieben Käse" returns eight grated cheeses.
+2. **Romance translation.** The adapters query German catalogues, so no amount
+   of local matching helps a French query — the products are never fetched.
+   Fully-romance queries are translated before dispatch, all-or-nothing, so a
+   single recognised word cannot hijack a brand query ("Emmi Caffè Latte").
+
+A missing modifier costs rank rather than disqualifying — *except* for diet,
+allergen and certification claims, which disqualify. Treating those as
+preferences too put ordinary milk and coconut milk into the top 5 of
+"laktosefreie Milch" and took it from 1.0 to 0.4.
 - `knownGateViolations` is empty: neither reported defect (Milchdrink UHT →
   Milchschokolade, Protein Milch → bread) reproduces against this capture. They
   are **not** known to be fixed — `matcher.ts` last changed 2026-06-19, six
