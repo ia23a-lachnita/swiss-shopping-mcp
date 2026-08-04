@@ -46,6 +46,23 @@ function looksLikeToolCallSyntax(text: string): boolean {
   return TOOL_CALL_SYNTAX.test(text);
 }
 
+/**
+ * The chat transport throws with the raw response body, so a server error
+ * arrives here as the whole `{"ok":false,"error":{…}}` envelope. Show the
+ * sentence inside it — a shopper who is rate-limited should read "in 34s
+ * wieder versuchen", not a JSON blob.
+ */
+function readableError(error: Error): string {
+  try {
+    const parsed: unknown = JSON.parse(error.message);
+    const message = (parsed as { error?: { message?: string } })?.error?.message;
+    if (typeof message === 'string' && message.length > 0) return message;
+  } catch {
+    // not JSON — the message is already prose
+  }
+  return error.message;
+}
+
 /** Anything the user can actually read: prose, or a tool card with a result. */
 function hasRenderableContent(message: UIMessage): boolean {
   return message.parts.some((part) => {
@@ -427,7 +444,14 @@ function ChatConversation({
             <Sparkles className="size-3.5 animate-pulse" /> denkt nach…
           </div>
         )}
-        {error && !busy && <ToolErrorNote message={error.message} />}
+        {error && !busy && (
+          <div className="space-y-2" data-testid="chat-error">
+            <ToolErrorNote message={readableError(error)} />
+            <Button type="button" variant="outline" size="sm" onClick={() => void regenerate()}>
+              <RefreshCw /> Nochmal versuchen
+            </Button>
+          </div>
+        )}
         {turnFailed && !busy && !error && (
           <div className="space-y-2" data-testid="chat-turn-failed">
             <ToolErrorNote message="Keine Antwort erhalten — die Anfrage ist ohne Ergebnis geendet." />

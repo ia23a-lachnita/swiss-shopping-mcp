@@ -6,6 +6,7 @@ import { tmpdir } from 'node:os';
 import { pipeUIMessageStreamToResponse, UIMessage } from 'ai';
 
 import { runChatAgent } from '../agent/chatAgent.js';
+import { RateLimitedError } from '../agent/openRouterRateLimit.js';
 import { createDefaultAdapters } from '../adapters/index.js';
 import { reverseGeocodeAsync, resolveLocationAsync, suggestLocationsAsync } from '../util/geo.js';
 import { getAllCapabilityStatuses } from '../adapters/sourceRegistry.js';
@@ -451,6 +452,24 @@ async function handleChat(res: ServerResponse, raw: string): Promise<void> {
   } catch (err) {
     logger.error('Chat agent request failed:', err);
     if (!res.headersSent) {
+      // Speak the same protocol we consume: a rate limit is a 429 with a
+      // Retry-After, not an opaque 500. The seconds come from OpenRouter's own
+      // response, so the number shown to the shopper is the real one.
+      if (err instanceof RateLimitedError) {
+        const retryAfterSeconds = Math.ceil(err.retryAfterMs / 1000);
+        res.setHeader('Retry-After', String(retryAfterSeconds));
+        sendJson(res, 429, {
+          ok: false,
+          error: {
+            code: err.scope === 'per-day' ? 'RATE_LIMITED_DAILY' : 'RATE_LIMITED',
+            message:
+              err.scope === 'per-day'
+                ? 'Das Tageslimit des kostenlosen Modell-Kontingents ist erreicht. Morgen wieder verfügbar.'
+                : `Zu viele Anfragen an das Modell. In ${retryAfterSeconds}s wieder versuchen.`,
+          },
+        });
+        return;
+      }
       sendJson(res, 500, {
         ok: false,
         error: {

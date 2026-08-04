@@ -18,7 +18,7 @@ landed, and where it departed from the plan:
 | 2 | done | `restartable` in `SearchView.tsx` (query *or* chain set differs while fetching) swaps the button to "Neue Suche starten"; `streamSearchProducts` now takes react-query's `signal` and closes the `EventSource` on abort; the SSE route stops writing once `req` closes. | Browser: stream A closed **without ever receiving `done`** at the click, stream B opened the same millisecond |
 | 3 | done | The ETA is a *range* now, never a single confident number. The server sends `budgetMsByChain` (the hard per-chain budget, not the p75) and `postFanOutMs` (web augmentation + merge), and the client shows "noch 4–14s", falling back to "warte auf Aldi, bis zu 13s" once the likely time is spent but the budget is not. | Browser: observed all three states live, including the reported 6/7 straggler case |
 | 4 | done | `limit: 12` removed from the PWA's search call. The clamp in `searchService` stays for callers that *do* pass a limit (it is still honest there) — it simply no longer applies to the app. Stagger is now `min(0.05, 0.9/count)` so 80 cards still settle in under a second. | Browser: "Milch" renders 84 products, last card fully opaque. Measured first: 66–80 products / ~80KB for a broad query |
-| 5 | done | Server: `textToolCall.ts` (parser) + `textToolCallMiddleware.ts` (a language-model middleware that rewrites the provider stream, since the repair hook is unreachable here) — layer 1. Client: `ChatView.tsx` never renders tool-call syntax and shows an explicit failed-turn state with a retry — layers 2 and 3. Layer 4: the lineup was re-verified against the live catalog (see §5 below); no model change. | Unit test replays the field sample verbatim; browser test with a stubbed `/api/chat` for both the leaked-syntax and the empty-turn case |
+| 5 | done | Server: `textToolCall.ts` (parser) + `textToolCallMiddleware.ts` (a language-model middleware that rewrites the provider stream, since the repair hook is unreachable here) — layer 1. Client: `ChatView.tsx` never renders tool-call syntax and shows an explicit failed-turn state with a retry — layers 2 and 3. Layer 4: the lineup was re-verified against the live catalog (see §5 below); no model change, but the rate-limit handling that made the verification run look "upstream" was rewritten — `openRouterRateLimit.ts`. | Unit test replays the field sample verbatim; browser test with a stubbed `/api/chat` for the leaked-syntax, empty-turn and 429 cases |
 
 Not done, and deliberately: the server still runs the fan-out to completion
 after a client abort (tracker item 4, needs a real `AbortController` through
@@ -254,14 +254,43 @@ finished. From the user's side that is indistinguishable from a crash — hence
    (`npm run test:eval`), which asserts tool *selection* against the real
    model. Promote only on a run that shows the current primary losing.
 
-   That run was attempted on 2026-08-04 and is **inconclusive**: 8 of 10 cases
-   failed with upstream `429 free-models-per-min` from Google AI Studio's
-   shared free pool, after the SDK's three retries. The eval fires its ten
-   cases in parallel, which the free tier will not serve — so it measures
-   rate limits, not tool selection, unless it is run serially or with a
-   paid key. The two cases that did get through passed. Note also that
-   OpenRouter's `models` fallback array did **not** rescue the 429s; do not
-   assume it covers rate limiting.
+   That run was attempted on 2026-08-04 and was **inconclusive**: 8 of 10
+   cases failed with `429 free-models-per-min`. **That was our bug, not an
+   upstream one**, and the first write-up of it here was wrong twice — it
+   blamed "upstream" and claimed the eval runs its cases in parallel. It does
+   not; `it.each` is sequential. What actually happened, against the limits
+   OpenRouter publishes at `/docs/api-reference/limits`:
+
+   - The cap is **20 requests/minute across every `:free` model on the
+     account**, not per model. Ten sequential cases at one to two model
+     requests each sit on that cap by themselves.
+   - Because the cap is account-wide, `FALLBACK_MODEL_IDS` — three `:free`
+     ids — **cannot rescue a 429**: every entry shares the same counter. The
+     "fallback chain" was useless against the single most likely failure.
+   - The AI SDK then retried each failure three more times with blind
+     exponential backoff, which is the one thing guaranteed to keep an account
+     rate-limited.
+   - `Retry-After` and `X-RateLimit-Reset` came back on every 429 and we
+     ignored both.
+
+   **Fixed the same day** in `src/agent/openRouterRateLimit.ts`: a
+   process-wide sliding-window limiter paces free-tier requests below the
+   documented cap (16/min, deliberately under 20 since the counter is shared
+   with any other process on the same key), a 429 records its own
+   `Retry-After` so *every* queued caller waits it out rather than each
+   discovering the limit separately, per-day limits are not retried at all
+   (the quota is gone until tomorrow), and the limiter refuses to sleep past
+   the caller's own deadline instead of stalling into an opaque abort.
+   `maxRetries` on `streamText` drops to 1, since retrying a 429 above a
+   layer that already waited it out just fires more requests at the counter
+   refusing us. The server now answers a rate limit with a real `429` and
+   `Retry-After` instead of a 500, and the PWA shows the sentence rather than
+   the JSON envelope.
+
+   The eval's per-case timeout goes from 30s to 120s to match: with pacing, a
+   case can legitimately wait most of a minute. A red run there should now
+   mean the model picked the wrong tool — never that we out-ran a published
+   limit.
 
 **Also visible in the same screenshot:** the store-card results render *after*
 the user's later "Hello?" message, so a slow turn's output can land below a

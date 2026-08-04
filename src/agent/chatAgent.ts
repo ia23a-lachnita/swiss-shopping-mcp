@@ -12,6 +12,7 @@ import {
 } from 'ai';
 
 import { ToolDependencies } from '../tools/handlers.js';
+import { createRateLimitedFetch } from './openRouterRateLimit.js';
 import { textToolCallSalvageMiddleware } from './textToolCallMiddleware.js';
 import { createAgentTools } from './tools.js';
 import { repairToolCall } from './toolCallRepair.js';
@@ -78,7 +79,7 @@ export interface ChatAgentRequest {
   model?: LanguageModel;
 }
 
-function resolveModel(): LanguageModel {
+function resolveModel(deadline: number): LanguageModel {
   const apiKey = process.env.OPENROUTER_API_KEY;
   if (!apiKey) {
     throw new Error(
@@ -86,7 +87,11 @@ function resolveModel(): LanguageModel {
     );
   }
 
-  const openrouter = createOpenRouter({ apiKey });
+  // Paced and 429-aware — see openRouterRateLimit.ts. The free tier's cap is
+  // 20 requests/minute across the whole account, which is also why the
+  // `models` chain below cannot rescue a rate limit: every id in it is
+  // `:free` and shares that one counter.
+  const openrouter = createOpenRouter({ apiKey, fetch: createRateLimitedFetch({ deadline }) });
   // Primary model id drives the request's top-level `model`; `models` is
   // OpenRouter's own server-side fallback chain (walked in order on
   // downtime/rate-limit/context-length/moderation failures), so a single
@@ -118,13 +123,23 @@ export async function runChatAgent({
     ? `${SYSTEM_PROMPT}\n\nThe user's current chat location is "${activeLocation}". Use it for location-based tools unless they just gave a different one in this message.`
     : SYSTEM_PROMPT;
 
+  // One budget, shared by the abort signal and the rate limiter: the limiter
+  // refuses to sleep past this instead of stalling into an opaque timeout.
+  const deadline = Date.now() + REQUEST_TIMEOUT_MS;
+
   return streamText({
-    model: withToolCallSalvage(model ?? resolveModel()),
+    model: withToolCallSalvage(model ?? resolveModel(deadline)),
     system,
     messages: await convertToModelMessages(messages),
     tools: createAgentTools(dependencies),
     stopWhen: stepCountIs(MAX_STEPS),
     abortSignal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
     experimental_repairToolCall: repairToolCall,
+    // One, not the default two. A 429 is already handled below us by a
+    // rate-limit-aware wait; retrying it up here just fires more requests at
+    // the counter that is currently refusing us — which is exactly how the
+    // 2026-08-04 eval turned a brush with the cap into 8 red cases. This
+    // retry is left in place only for transient non-429 failures.
+    maxRetries: 1,
   });
 }

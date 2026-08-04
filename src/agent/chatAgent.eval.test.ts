@@ -124,5 +124,11 @@ describe.skipIf(process.env.RUN_AGENT_EVAL !== '1')('chat agent golden-eval (rea
       const inputJson = JSON.stringify(matchingCall?.input ?? {}).toLowerCase();
       expect(inputJson).toContain(expectedInputContains.toLowerCase());
     }
-  }, 30_000);
+    // 30s was not enough once requests are paced. The free tier allows 20
+    // model requests a minute across the whole account, and these ten cases
+    // are one or two requests each, so the limiter (openRouterRateLimit.ts)
+    // will legitimately hold a case for most of a minute rather than fire it
+    // into a 429. A red run here should mean "the model picked the wrong
+    // tool", never "we out-ran a published rate limit".
+  }, 120_000);
 });
