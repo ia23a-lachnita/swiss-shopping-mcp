@@ -1,6 +1,6 @@
 # PWA UX fix plan — round 4 (2026-08-04)
 
-Four items reported by the owner from real phone use of the deployed PWA, in
+Five items reported by the owner from real phone use of the deployed PWA, in
 their words plus what the code actually does. **Nothing here is implemented
 yet.** Round 3's plan is `PWA_UX_FIX_PLAN_2026-07-30.md`; this supersedes
 nothing in it, phases 6–7 there are still open.
@@ -169,7 +169,69 @@ on the phone rather than the dev machine.
 
 ---
 
-## Verification for all four
+## 5. The chat broke: raw tool-call syntax rendered as an answer
+
+> "the chat broke. I wrote 'hello?' since it didn't look like anything was
+> processing, the 'ich denke nach' text just vanished at some point"
+
+**What the screenshot shows.** The assistant's final bubble is not prose, it is
+the model's own tool-call template rendered verbatim:
+
+```
+<tool_call>
+<function=lookup_store_product_availability_storeId>
+5537? Actually we need to pass: { chain: "coop", storeId: "5532", query: "almond milk"}
+```
+
+Three separate failures, in order:
+
+**(a) The model emitted a text-form tool call instead of a structured one.**
+The primary model is `google/gemma-4-31b-it:free` (`src/agent/chatAgent.ts:14`).
+Small free models fall back to writing Hermes/Qwen-style `<tool_call>` tags as
+*content* rather than using the provider's tool-calling API. Note the mangled
+name — `lookup_store_product_availability` with the parameter `storeId` glued
+on — and the model arguing with itself mid-call ("5537? Actually we need to
+pass:"). This is the same family as the already-known Gemma-4 wrong-parameter
+behaviour that `toolCallRepair.ts` exists for.
+
+**(b) `experimental_repairToolCall` cannot catch it.** That hook only fires
+when the SDK *has* a tool call to repair (bad name, bad args). Here nothing was
+ever parsed as a tool call, so no tool ran, and the text streamed straight
+through as an assistant message.
+
+**(c) The turn ended silently.** No tool result, no answer, and the thinking
+indicator (`busy`, `ChatView.tsx:323`) simply went away when the stream
+finished. From the user's side that is indistinguishable from a crash — hence
+"hello?".
+
+**Fix, in layers (each is independently worth having):**
+
+1. **Salvage it server-side.** Add a text-form tool-call parser one layer above
+   `toolCallRepair.ts`: detect `<tool_call>` / `<function=…>` in assistant
+   text, recover the tool by longest-prefix match against `TOOL_NAMES` (which
+   turns `lookup_store_product_availability_storeId` back into
+   `lookup_store_product_availability`), extract the first balanced JSON object
+   as arguments, then hand it to the existing repair path and continue the
+   loop. The observed sample is recoverable by exactly this.
+2. **Never render tool-call syntax as an answer.** Whatever the model does, the
+   client must not print `<tool_call>` to a user. Treat a message matching that
+   shape as a failed turn.
+3. **Fail visibly.** A turn that ends with no assistant text, or with leaked
+   syntax, needs an explicit error state and a retry affordance instead of the
+   indicator vanishing. This is the same honesty principle as round 3's
+   progress work.
+4. **Reconsider the model.** `FALLBACK_MODEL_IDS` already lists alternatives,
+   and the catalog comment warns the free tier rotates (snapshot 2026-07-29).
+   Re-verify against `GET https://openrouter.ai/api/v1/models` and consider
+   promoting a model with reliable structured tool calling to primary — layers
+   1–3 are still needed regardless, since free models will keep doing this.
+
+**Also visible in the same screenshot:** the store-card results render *after*
+the user's later "Hello?" message, so a slow turn's output can land below a
+newer user message and read as a reply to it. Worth confirming whether the
+transcript orders by arrival rather than by turn.
+
+## Verification for all five
 
 Browser-verify on a real device or emulated mobile viewport, not just the
 desktop SPA — every one of these was found on a phone. The relevance eval
