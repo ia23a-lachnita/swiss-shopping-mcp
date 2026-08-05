@@ -1,0 +1,133 @@
+{
+  "id": "basmatireis",
+  "query": "Basmatireis",
+  "capturedAt": "2026-08-05T21:40:58.742Z",
+  "pool": [
+    {
+      "chain": "migros",
+      "name": "Himalaya Basmati Reis",
+      "brand": "Alnatura",
+      "category": "",
+      "tags": [],
+      "price": 2,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Fairtrade Basmatireis",
+      "brand": "Naturaplan",
+      "category": "Basmatireis & Parfumreis",
+      "tags": [],
+      "price": 5.25,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie Fairtrade Basmatireis",
+      "brand": "Prix Garantie",
+      "category": "Basmatireis & Parfumreis",
+      "tags": [],
+      "price": 3,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Betty Bossi Fairtrade Chicken Tikka Masala mit Basmatireis",
+      "brand": "Betty Bossi",
+      "category": "Frische asiatische Fertigerichte",
+      "tags": [],
+      "price": 7.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Demeter Basmatireis",
+      "brand": "Naturaplan",
+      "category": "Basmatireis & Parfumreis",
+      "tags": [],
+      "price": 2.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Basmati",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 3,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Basmati",
+      "brand": "Mister Rice",
+      "category": "",
+      "tags": [],
+      "price": 3.15,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Basmati",
+      "brand": "Mister Rice",
+      "category": "",
+      "tags": [],
+      "price": 2.77,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Basmati",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 5.25,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Basmati",
+      "brand": "M-Budget",
+      "category": "",
+      "tags": [],
+      "price": 1.6,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Basmati",
+      "brand": "Mister Rice",
+      "category": "",
+      "tags": [],
+      "price": 5.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Basmati",
+      "brand": "Mister Rice",
+      "category": "",
+      "tags": [],
+      "price": 5.3,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Chicken Tikka Masala",
+      "brand": "Anna's Best",
+      "category": "",
+      "tags": [],
+      "price": 7.5,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "lidl",
+      "name": "Drink Mango-Passionsfrucht",
+      "brand": null,
+      "category": "Food",
+      "tags": [],
+      "price": 5.79,
+      "keptAtCapture": false
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 {
   "id": "halbrahm",
   "query": "Halbrahm",
-  "capturedAt": "2026-08-01T08:59:11.477Z",
+  "capturedAt": "2026-08-05T21:43:17.707Z",
   "products": [
     {
       "chain": "migros",
@@ -202,15 +202,6 @@
       "unit": null
     },
     {
-      "chain": "coop",
-      "name": "Halbrahm UHT IP-Suisse",
-      "brand": "Coop",
-      "category": "Vollrahm & Halbrahm",
-      "tags": [],
-      "price": 2.9,
-      "unit": null
-    },
-    {
       "chain": "volg",
       "name": "Halbrahm UHT",
       "brand": null,
@@ -266,6 +257,15 @@
     },
     {
       "chain": "coop",
+      "name": "Halbrahm UHT IP-Suisse 2x  500ml",
+      "brand": "Coop",
+      "category": "Vollrahm & Halbrahm",
+      "tags": [],
+      "price": 4.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
       "name": "Emmi good day Halbrahm Dose",
       "brand": "Emmi good day",
       "category": "Schlagrahm",
@@ -280,6 +280,15 @@
       "category": "Schlagrahm",
       "tags": [],
       "price": 6.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Halbentrahmte Milch",
+      "brand": "M-Budget",
+      "category": "",
+      "tags": [],
+      "price": 2.25,
       "unit": null
     }
   ]

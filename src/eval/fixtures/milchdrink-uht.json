@@ -1,7 +1,7 @@
 {
   "id": "milchdrink-uht",
   "query": "Milchdrink UHT",
-  "capturedAt": "2026-08-01T08:59:01.447Z",
+  "capturedAt": "2026-08-05T21:43:15.244Z",
   "products": [
     {
       "chain": "volg",
@@ -109,6 +109,170 @@
       "category": "Frische Milch",
       "tags": [],
       "price": 1.7,
+      "unit": null
+    },
+    {
+      "chain": "lidl",
+      "name": "Milchdrink 1,5% UHT/Multipack",
+      "brand": null,
+      "category": "Food",
+      "tags": [],
+      "price": 6.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Free From Milch Drink 1,5% Milchfett UHT lactosefrei",
+      "brand": "Free From",
+      "category": "UHT Milch",
+      "tags": [],
+      "price": 1.95,
+      "unit": null
+    },
+    {
+      "chain": "aldi",
+      "name": "Milch-Drink, UHT",
+      "brand": "RETOUR AUX SOURCES",
+      "category": "Retour aux sources (Bio)",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 1.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Milch Drink 2,7% Milchfett UHT 6x1l",
+      "brand": "Naturaplan",
+      "category": "Spezialmilch",
+      "tags": [],
+      "price": 11.7,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Fairtrade Chocato Drink UHT",
+      "brand": "Chocato",
+      "category": "Schoko-Milch",
+      "tags": [],
+      "price": 0.95,
+      "unit": null
+    },
+    {
+      "chain": "denner",
+      "name": "IP-SUISSE Wiesenmilch Milchdrink",
+      "brand": null,
+      "category": "1144362",
+      "tags": [],
+      "price": 1.15,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Fairtrade Chocato Drink UHT 2x  250ml",
+      "brand": "Chocato",
+      "category": "Schoko-Milch",
+      "tags": [],
+      "price": 1.2,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Milchdrink",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 1.6,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Milchdrink",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 1.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Milchdrink",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 1.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Comella Schokoladen-Drink UHT",
+      "brand": "Emmi Comella",
+      "category": "Schoko-Milch",
+      "tags": [],
+      "price": 2.2,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Emmi good day Milk Drink UHT",
+      "brand": "Emmi good day",
+      "category": "Spezialmilch",
+      "tags": [],
+      "price": 2.4,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Good day Milch Drink",
+      "brand": "Emmi",
+      "category": "",
+      "tags": [],
+      "price": 2.4,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Comella Schokoladen-Drink UHT",
+      "brand": "Emmi Comella",
+      "category": "Schoko-Milch",
+      "tags": [],
+      "price": 2.85,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Oatly Haferdrink Barista Edition UHT",
+      "brand": "OATLY",
+      "category": "Milchalternativen Vegan",
+      "tags": [],
+      "price": 3.4,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Ovo Drink UHT 3x  250ml",
+      "brand": "Ovomaltine",
+      "category": "Schoko-Milch",
+      "tags": [],
+      "price": 4.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Ovo Drink UHT 3x  500ml",
+      "brand": "Ovomaltine",
+      "category": "Schoko-Milch",
+      "tags": [],
+      "price": 8.1,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Milchdrink",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 11.7,
       "unit": null
     }
   ]

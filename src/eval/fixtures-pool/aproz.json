@@ -1,0 +1,376 @@
+{
+  "id": "aproz",
+  "query": "Aproz",
+  "capturedAt": "2026-08-05T21:41:18.317Z",
+  "pool": [
+    {
+      "chain": "migros",
+      "name": "Gazéifiée",
+      "brand": "Aproz",
+      "category": "",
+      "tags": [],
+      "price": 6.4,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Evian",
+      "category": "",
+      "tags": [],
+      "price": 6.6,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "S. Pellegrino",
+      "category": "",
+      "tags": [],
+      "price": 6.9,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Evian",
+      "category": "",
+      "tags": [],
+      "price": 6.5,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Rocchetta",
+      "category": "",
+      "tags": [],
+      "price": 4.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Evian",
+      "category": "",
+      "tags": [],
+      "price": 5.6,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Evian",
+      "category": "",
+      "tags": [],
+      "price": 6.3,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Valais",
+      "category": "",
+      "tags": [],
+      "price": 4.48,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Contrex",
+      "category": "",
+      "tags": [],
+      "price": 7.5,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Volvic",
+      "category": "",
+      "tags": [],
+      "price": 11.7,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Valais",
+      "category": "",
+      "tags": [],
+      "price": 4.48,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Vittel",
+      "category": "",
+      "tags": [],
+      "price": 6.5,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Volvic",
+      "category": "",
+      "tags": [],
+      "price": 11.7,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser Mini",
+      "brand": "Evian",
+      "category": "",
+      "tags": [],
+      "price": 9.2,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Volvic",
+      "category": "",
+      "tags": [],
+      "price": 11.7,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Valais",
+      "category": "",
+      "tags": [],
+      "price": 3.92,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Badoit",
+      "category": "",
+      "tags": [],
+      "price": 4.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Volvic",
+      "category": "",
+      "tags": [],
+      "price": 1.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Volvic",
+      "category": "",
+      "tags": [],
+      "price": 1.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Volvic",
+      "category": "",
+      "tags": [],
+      "price": 1.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Vittel",
+      "category": "",
+      "tags": [],
+      "price": 1.15,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 1.5,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Evian",
+      "category": "",
+      "tags": [],
+      "price": 0.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Evian",
+      "category": "",
+      "tags": [],
+      "price": 1.1,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Valais",
+      "category": "",
+      "tags": [],
+      "price": 1.1,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Rocchetta",
+      "category": "",
+      "tags": [],
+      "price": 0.85,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Evian",
+      "category": "",
+      "tags": [],
+      "price": 1.15,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Knutwiler",
+      "category": "",
+      "tags": [],
+      "price": 1.1,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "S. Benedetto",
+      "category": "",
+      "tags": [],
+      "price": 4.35,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Valais",
+      "category": "",
+      "tags": [],
+      "price": 1.1,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Knutwiler",
+      "category": "",
+      "tags": [],
+      "price": 6,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Contrex",
+      "category": "",
+      "tags": [],
+      "price": 1.3,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Eptinger",
+      "category": "",
+      "tags": [],
+      "price": 0.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Valais",
+      "category": "",
+      "tags": [],
+      "price": 0.9,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Evian",
+      "category": "",
+      "tags": [],
+      "price": 1.15,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 0.25,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Appenzeller",
+      "category": "",
+      "tags": [],
+      "price": 1.35,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Appenzeller",
+      "category": "",
+      "tags": [],
+      "price": 7.9,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Appenzeller",
+      "category": "",
+      "tags": [],
+      "price": 5.7,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Appenzeller",
+      "category": "",
+      "tags": [],
+      "price": 1,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "coop",
+      "name": "Tom's Best Paella Reis Arroz Bomba",
+      "brand": "TOM'S BEST",
+      "category": "Langkornreis & Vitaminreis",
+      "tags": [],
+      "price": 8.5,
+      "keptAtCapture": false
+    }
+  ]
+}

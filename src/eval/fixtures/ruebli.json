@@ -1,7 +1,7 @@
 {
   "id": "ruebli",
   "query": "Rüebli",
-  "capturedAt": "2026-08-01T08:59:26.506Z",
+  "capturedAt": "2026-08-05T21:43:21.929Z",
   "products": [
     {
       "chain": "coop",
@@ -145,15 +145,6 @@
       "category": "Rüebli & Pastinaken",
       "tags": [],
       "price": 1.95,
-      "unit": null
-    },
-    {
-      "chain": "coop",
-      "name": "Karotten IP-Suisse",
-      "brand": "Coop",
-      "category": "Rüebli & Pastinaken",
-      "tags": [],
-      "price": 2,
       "unit": null
     },
     {

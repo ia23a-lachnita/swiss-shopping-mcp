@@ -1,7 +1,7 @@
 {
   "id": "kaffeebohnen",
   "query": "Kaffeebohnen",
-  "capturedAt": "2026-08-01T09:00:50.126Z",
+  "capturedAt": "2026-08-05T21:43:45.162Z",
   "products": [
     {
       "chain": "aldi",
@@ -22,15 +22,6 @@
       "category": "Kaffee gemahlen",
       "tags": [],
       "price": 9.95,
-      "unit": null
-    },
-    {
-      "chain": "ottos",
-      "name": "Caffè Chicco d'Oro Tradition Kaffeebohnen",
-      "brand": "Chicco D'Oro",
-      "category": "Root",
-      "tags": [],
-      "price": 13.95,
       "unit": null
     },
     {
@@ -89,6 +80,15 @@
     },
     {
       "chain": "ottos",
+      "name": "Caffè Chicco d'Oro Tradition Kaffeebohnen",
+      "brand": "Chicco D'Oro",
+      "category": "Root",
+      "tags": [],
+      "price": 19.9,
+      "unit": null
+    },
+    {
+      "chain": "ottos",
       "name": "Jacobs Médaille d'Or Kaffeebohnen",
       "brand": "Jacobs",
       "category": "Root",
@@ -112,6 +112,258 @@
       "category": "Root",
       "tags": [],
       "price": 27.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Bohnenkaffee",
+      "brand": "Kaffee Rast",
+      "category": "",
+      "tags": [],
+      "price": 7.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Bohnenkaffee",
+      "brand": "Boncampo",
+      "category": "",
+      "tags": [],
+      "price": 8,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Bohnenkaffee",
+      "brand": "Admir Cafés",
+      "category": "",
+      "tags": [],
+      "price": 8.5,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Bohnenkaffee",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 9.2,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Bohnenkaffee",
+      "brand": "Caruso",
+      "category": "",
+      "tags": [],
+      "price": 9.5,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Bohnenkaffee",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 9.5,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Bohnenkaffee",
+      "brand": "Admir Cafés",
+      "category": "",
+      "tags": [],
+      "price": 9.5,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Bohnenkaffee",
+      "brand": "Admir Cafés",
+      "category": "",
+      "tags": [],
+      "price": 9.5,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Bohnenkaffee",
+      "brand": "Caruso",
+      "category": "",
+      "tags": [],
+      "price": 9.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Bohnenkaffee",
+      "brand": "Boncampo",
+      "category": "",
+      "tags": [],
+      "price": 9.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Bohnenkaffee",
+      "brand": "Caruso",
+      "category": "",
+      "tags": [],
+      "price": 9.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Bohnenkaffee",
+      "brand": "Caruso",
+      "category": "",
+      "tags": [],
+      "price": 9.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Bohnenkaffee",
+      "brand": "La Semeuse",
+      "category": "",
+      "tags": [],
+      "price": 9.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Bohnenkaffee Espresso",
+      "brand": "Naturaplan",
+      "category": "Bohnenkaffee",
+      "tags": [],
+      "price": 9.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Bohnenkaffee Espresso Intenso",
+      "brand": "Naturaplan",
+      "category": "Bohnenkaffee",
+      "tags": [],
+      "price": 9.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Lungo Bohnenkaffee",
+      "brand": "Naturaplan",
+      "category": "Bohnenkaffee",
+      "tags": [],
+      "price": 9.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Bohnenkaffee",
+      "brand": "Bertschi",
+      "category": "",
+      "tags": [],
+      "price": 10.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Bohnenkaffee",
+      "brand": "Café Royal",
+      "category": "",
+      "tags": [],
+      "price": 11.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Bohnenkaffee",
+      "brand": "Café Royal",
+      "category": "",
+      "tags": [],
+      "price": 11.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Bohnenkaffee",
+      "brand": "Café Royal",
+      "category": "",
+      "tags": [],
+      "price": 11.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Mövenpick Caffè Crema Bohnenkaffee",
+      "brand": "Mövenpick",
+      "category": "Bohnenkaffee",
+      "tags": [],
+      "price": 11.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Mövenpick Himmlische Bohnenkaffee",
+      "brand": "Mövenpick",
+      "category": "Bohnenkaffee",
+      "tags": [],
+      "price": 11.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Bohnenkaffee",
+      "brand": "Chicco D'Oro",
+      "category": "",
+      "tags": [],
+      "price": 12.9,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Bohnenkaffee",
+      "brand": "Turm Kaffee",
+      "category": "",
+      "tags": [],
+      "price": 12.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Bohnenkaffee",
+      "brand": "Bertschi",
+      "category": "",
+      "tags": [],
+      "price": 12.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Bohnenkaffee",
+      "brand": "Bertschi",
+      "category": "",
+      "tags": [],
+      "price": 12.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Bohnenkaffee Decaf",
+      "brand": "Naturaplan",
+      "category": "Bohnenkaffee",
+      "tags": [],
+      "price": 12.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Vicafe Bohnenkaffee Créma Mischung",
+      "brand": "VICAFE",
+      "category": "Bohnenkaffee",
+      "tags": [],
+      "price": 12.95,
       "unit": null
     }
   ]

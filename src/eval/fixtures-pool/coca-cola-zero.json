@@ -1,0 +1,958 @@
+{
+  "id": "coca-cola-zero",
+  "query": "Coca Cola Zero",
+  "capturedAt": "2026-08-05T21:41:24.477Z",
+  "pool": [
+    {
+      "chain": "migros",
+      "name": "Zero Dose",
+      "brand": "Coca-Cola",
+      "category": "",
+      "tags": [],
+      "price": 6.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Zero",
+      "brand": "Coca-Cola",
+      "category": "",
+      "tags": [],
+      "price": 9.3,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Zero",
+      "brand": "Coca-Cola",
+      "category": "",
+      "tags": [],
+      "price": 7.15,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Zero",
+      "brand": "Coca-Cola",
+      "category": "",
+      "tags": [],
+      "price": 7.8,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Zero",
+      "brand": "Coca-Cola",
+      "category": "",
+      "tags": [],
+      "price": 2.4,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Zero",
+      "brand": "Coca-Cola",
+      "category": "",
+      "tags": [],
+      "price": 1.1,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Zero",
+      "brand": "Coca-Cola",
+      "category": "",
+      "tags": [],
+      "price": 1.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Zero",
+      "brand": "Coca-Cola",
+      "category": "",
+      "tags": [],
+      "price": 1.55,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Zero Zucker und  Zero Koffein",
+      "brand": "Coca-Cola",
+      "category": "",
+      "tags": [],
+      "price": 9.3,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "zero Zucker und zero Koffein",
+      "brand": "Coca-Cola",
+      "category": "",
+      "tags": [],
+      "price": 6.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "zero Zucker und zero Koffein",
+      "brand": "Coca-Cola",
+      "category": "",
+      "tags": [],
+      "price": 1.55,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "zero Zucker und zero Koffein",
+      "brand": "Coca-Cola",
+      "category": "",
+      "tags": [],
+      "price": 2.4,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "zero Zucker und zero Koffein",
+      "brand": "Coca-Cola",
+      "category": "",
+      "tags": [],
+      "price": 1.1,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "zero Zucker und zero Koffein",
+      "brand": "Coca-Cola",
+      "category": "",
+      "tags": [],
+      "price": 7.15,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Coca-Cola Zero Dosen 6x33cl",
+      "brand": "Coca Cola",
+      "category": "Soft Drink Multipacks mit Flaschen/Dosen unter 1 Liter",
+      "tags": [],
+      "price": 6.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Coca-Cola Zero 6x1,5l",
+      "brand": "Coca Cola",
+      "category": "Soft Drink Multipacks mit Flaschen/Tetra ab 1 Liter",
+      "tags": [],
+      "price": 14.35,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Coca-Cola Zero 6x50cl",
+      "brand": "Coca Cola",
+      "category": "Soft Drink Multipacks mit Flaschen/Dosen unter 1 Liter",
+      "tags": [],
+      "price": 9.3,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Coca Cola Zero 12x15cl",
+      "brand": "Coca Cola",
+      "category": "Soft Drink Multipacks mit Flaschen/Dosen unter 1 Liter",
+      "tags": [],
+      "price": 8.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Coca-Cola Zero koffeinfrei 6x50cl",
+      "brand": "Coca Cola",
+      "category": "Soft Drink Multipacks mit Flaschen/Dosen unter 1 Liter",
+      "tags": [],
+      "price": 9.3,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Coca Cola Zero 4x90cl",
+      "brand": "Coca Cola",
+      "category": "Cola & Limonaden",
+      "tags": [],
+      "price": 7.8,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Coca Cola zero koffeinfrei 6x1.5l",
+      "brand": "Coca Cola",
+      "category": "Soft Drink Multipacks mit Flaschen/Tetra ab 1 Liter",
+      "tags": [],
+      "price": 14.35,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Coca-Cola Zero 6x2l",
+      "brand": "Coca Cola",
+      "category": "Soft Drink Multipacks mit Flaschen/Tetra ab 1 Liter",
+      "tags": [],
+      "price": 15.6,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Coca Cola Zero 18x33cl",
+      "brand": "Coca Cola",
+      "category": "Soft Drink Multipacks mit Flaschen/Dosen unter 1 Liter",
+      "tags": [],
+      "price": 10.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Coca Cola Zero koffeinfrei 4x90cl",
+      "brand": "Coca Cola",
+      "category": "Cola & Limonaden",
+      "tags": [],
+      "price": 7.8,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Coca Cola Zero 4x25cl",
+      "brand": "Coca Cola",
+      "category": "Cola",
+      "tags": [],
+      "price": 4.2,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Coca Cola zero 10x33cl",
+      "brand": "Coca Cola",
+      "category": "Soft Drink Multipacks mit Flaschen/Dosen unter 1 Liter",
+      "tags": [],
+      "price": 10.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Coca-Cola Zero 12 x 50 cl (8+4 gratis)",
+      "brand": "Coca Cola",
+      "category": "Root",
+      "tags": [],
+      "price": 11.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Coca-Cola Zero Zucker",
+      "brand": "Coca Cola",
+      "category": "Root",
+      "tags": [],
+      "price": 12.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Coca-Cola Zero",
+      "brand": "Coca Cola",
+      "category": "Root",
+      "tags": [],
+      "price": 12.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Coca-Cola Zero Zucker",
+      "brand": "Coca Cola",
+      "category": "Root",
+      "tags": [],
+      "price": 11.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Coca-Cola Zero",
+      "brand": "Coca Cola",
+      "category": "Root",
+      "tags": [],
+      "price": 9.3,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Coca-Cola Zero",
+      "brand": "Coca Cola",
+      "category": "Root",
+      "tags": [],
+      "price": 14.35,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "aldi",
+      "name": "COCA-COLA, Zero",
+      "brand": "COCA-COLA",
+      "category": "Alkoholfreie Getränke",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 1.09,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "aldi",
+      "name": "Zero",
+      "brand": "COCA-COLA",
+      "category": "Aktionen",
+      "tags": [
+        "in-stock",
+        "special-buy"
+      ],
+      "price": 1.55,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Cola Zero",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 2.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Cola Zero",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 0.5,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Zero",
+      "brand": "Pepsi",
+      "category": "",
+      "tags": [],
+      "price": 5.4,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Zero",
+      "brand": "Pepsi",
+      "category": "",
+      "tags": [],
+      "price": 7.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Zero",
+      "brand": "Pepsi",
+      "category": "",
+      "tags": [],
+      "price": 12.5,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Zero",
+      "brand": "Pepsi",
+      "category": "",
+      "tags": [],
+      "price": 0.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Zero",
+      "brand": "Pepsi",
+      "category": "",
+      "tags": [],
+      "price": 1.4,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Zero",
+      "brand": "Pepsi",
+      "category": "",
+      "tags": [],
+      "price": 2.1,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Zero Sugar",
+      "brand": "Pepsi",
+      "category": "",
+      "tags": [],
+      "price": 6.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Zero",
+      "brand": "Vivi Kola",
+      "category": "",
+      "tags": [],
+      "price": 2.1,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Zero",
+      "brand": "Vivi Kola",
+      "category": "",
+      "tags": [],
+      "price": 12.6,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Zero",
+      "brand": "Vivi Kola",
+      "category": "",
+      "tags": [],
+      "price": 1.65,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Zero",
+      "brand": "Vivi Kola",
+      "category": "",
+      "tags": [],
+      "price": 9.9,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Zero",
+      "brand": "Vivi Kola",
+      "category": "",
+      "tags": [],
+      "price": 1.5,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Cherry Zero",
+      "brand": "Pepsi",
+      "category": "",
+      "tags": [],
+      "price": 1.2,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "lidl",
+      "name": "Zero",
+      "brand": null,
+      "category": "Food",
+      "tags": [],
+      "price": 7.99,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "COLAB Trockenshampoo Unicorn",
+      "brand": "COLAB",
+      "category": "Root",
+      "tags": [],
+      "price": 3.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Coca-Cola 18 x 50 cl (12 + 6)",
+      "brand": "Coca Cola",
+      "category": "Root",
+      "tags": [],
+      "price": 15.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Coca-Cola Vanilla",
+      "brand": "Coca Cola",
+      "category": "Root",
+      "tags": [],
+      "price": 12.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Coca-Cola Classic",
+      "brand": "Coca Cola",
+      "category": "Root",
+      "tags": [],
+      "price": 15.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "LU Barquette Chocolat",
+      "brand": "LU",
+      "category": "Root",
+      "tags": [],
+      "price": 2.25,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Coca-Cola Original Taste",
+      "brand": "Coca Cola",
+      "category": "Root",
+      "tags": [],
+      "price": 12.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Coca-Cola Original Taste",
+      "brand": "Coca Cola",
+      "category": "Root",
+      "tags": [],
+      "price": 12.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Pepsi Original",
+      "brand": "Pepsi",
+      "category": "Root",
+      "tags": [],
+      "price": 12.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Coca-Cola Classic 12 x 50 cl (9+3 gratis)",
+      "brand": "Coca Cola",
+      "category": "Root",
+      "tags": [],
+      "price": 11.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Monster Lando Norris Zero",
+      "brand": "Monster",
+      "category": "Root",
+      "tags": [],
+      "price": 11.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Ricola O.Z. Kräuter",
+      "brand": "Ricola",
+      "category": "Root",
+      "tags": [],
+      "price": 6.3,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Ricola O.Z. Gletscher Minze",
+      "brand": "Ricola",
+      "category": "Root",
+      "tags": [],
+      "price": 6.3,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Ricola O.Z. Zitronenmelisse",
+      "brand": "Ricola",
+      "category": "Root",
+      "tags": [],
+      "price": 6.3,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Ricola Gletscherminze ohne Zucker",
+      "brand": "Ricola",
+      "category": "Root",
+      "tags": [],
+      "price": 2.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Ricola O.Z. Holunder Blüten",
+      "brand": "Ricola",
+      "category": "Root",
+      "tags": [],
+      "price": 6.3,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Ricola Zitronenmelisse ohne Zucker",
+      "brand": "Ricola",
+      "category": "Root",
+      "tags": [],
+      "price": 2.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Ricola Original ohne Zucker Box",
+      "brand": "Ricola",
+      "category": "Root",
+      "tags": [],
+      "price": 2.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Ricola Himbeer-Melisse ohne Zucker",
+      "brand": "Ricola",
+      "category": "Root",
+      "tags": [],
+      "price": 2.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Ricola O.Z. Salbei",
+      "brand": "Ricola",
+      "category": "Root",
+      "tags": [],
+      "price": 6.5,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Bailey's Chocolate",
+      "brand": "Bailey's",
+      "category": "Root",
+      "tags": [],
+      "price": 17.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Katjes Al Paka Cola",
+      "brand": "Katjes",
+      "category": "Root",
+      "tags": [],
+      "price": 1.5,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Baileys Chocolate Hazelnut",
+      "brand": "Bailey's",
+      "category": "Root",
+      "tags": [],
+      "price": 17.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "The Chocolate Block",
+      "brand": "Chocolate Block",
+      "category": "Root",
+      "tags": [],
+      "price": 21.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Coca-Cola Original Taste",
+      "brand": "Coca Cola",
+      "category": "Root",
+      "tags": [],
+      "price": 9.3,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Coca-Cola Original Taste",
+      "brand": "Coca Cola",
+      "category": "Root",
+      "tags": [],
+      "price": 14.35,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Capri-Sun Cola Mix",
+      "brand": "Capri Sun",
+      "category": "Root",
+      "tags": [],
+      "price": 3.3,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Kambly Butterfly Chocolat",
+      "brand": "Kambly",
+      "category": "Root",
+      "tags": [],
+      "price": 9.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Birra Moretti Zero 0.0%",
+      "brand": "Moretti",
+      "category": "Root",
+      "tags": [],
+      "price": 3.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "COLAB Trockenshampoo Original",
+      "brand": "COLAB",
+      "category": "Root",
+      "tags": [],
+      "price": 3.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Roland Petite Pause Chocolat Family",
+      "brand": "Kambly",
+      "category": "Root",
+      "tags": [],
+      "price": 4.75,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Clif Bar Crunchy Chocolate Chip,",
+      "brand": "",
+      "category": "Root",
+      "tags": [],
+      "price": 6.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Clif Bar Crunchy White Chocolate,",
+      "brand": "",
+      "category": "Root",
+      "tags": [],
+      "price": 6.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "COLAB Trockenshampoo Extreme Volume",
+      "brand": "COLAB",
+      "category": "Root",
+      "tags": [],
+      "price": 3.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "COLAB Trockenshampoo Paradise",
+      "brand": "COLAB",
+      "category": "Root",
+      "tags": [],
+      "price": 3.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Pains au Chocolat",
+      "brand": "FINEST BAKERY",
+      "category": "Brot & Backwaren",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 2.49,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Cola, Zero",
+      "brand": "RIVER",
+      "category": "Alkoholfreie Getränke",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 0.39,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Cola, Classic",
+      "brand": "RIVER",
+      "category": "Alkoholfreie Getränke",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 0.39,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Don Mate, Zero",
+      "brand": "ALDI",
+      "category": "Alkoholfreie Getränke",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 0.59,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Mini-Doppelkeks, Chocolate",
+      "brand": "FINEST BAKERY",
+      "category": "Süssigkeiten & Snacks",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 1.75,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Eistee Pfirsich, Zero",
+      "brand": "WESTCLIFF",
+      "category": "Alkoholfreie Getränke",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 0.59,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Mini Waffeln, Chocolate",
+      "brand": "FINEST BAKERY",
+      "category": "Brot & Backwaren",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 3.29,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Orange, Zero",
+      "brand": "FLIRT",
+      "category": "Alkoholfreie Getränke",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 0.49,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Zitrone, Zero",
+      "brand": "FLIRT",
+      "category": "Alkoholfreie Getränke",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 0.49,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Raspberry Zero",
+      "brand": "VITAMIN WELL",
+      "category": "Alkoholfreie Getränke",
+      "tags": [
+        "in-stock",
+        "special-buy"
+      ],
+      "price": 1.49,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Regular",
+      "brand": "COCA-COLA",
+      "category": "Aktionen",
+      "tags": [
+        "in-stock",
+        "special-buy"
+      ],
+      "price": 1.55,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Protein-/Vegan-Layer-Riegel, Chocolate Brownie",
+      "brand": "MULTIPOWER",
+      "category": "Süssigkeiten & Snacks",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 2.99,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Original",
+      "brand": "COCA-COLA",
+      "category": "Alkoholfreie Getränke",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 2.05,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Bonbon, Milk Chocolate & Cherry",
+      "brand": "MAGNUM",
+      "category": "Tiefgekühlte Produkte",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 7.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Extrême Cornets, Chocolate-Hazelnut",
+      "brand": "FRISCO",
+      "category": "Tiefgekühlte Produkte",
+      "tags": [
+        "in-stock",
+        "special-buy"
+      ],
+      "price": 9.49,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Cola, Zero",
+      "brand": "RIVER",
+      "category": "Alkoholfreie Getränke",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 0.49,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Cola, Classic",
+      "brand": "RIVER",
+      "category": "Alkoholfreie Getränke",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 0.49,
+      "keptAtCapture": false
+    }
+  ]
+}

@@ -1,0 +1,925 @@
+{
+  "id": "gemuese",
+  "query": "Gemüse",
+  "capturedAt": "2026-08-05T21:41:28.150Z",
+  "pool": [
+    {
+      "chain": "migros",
+      "name": "Rahmspinat",
+      "brand": "Farmer's Best",
+      "category": "",
+      "tags": [],
+      "price": 3.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Broccoli",
+      "brand": "M-Budget",
+      "category": "",
+      "tags": [],
+      "price": 3.35,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Linsen mit Gemüse",
+      "brand": "You",
+      "category": "",
+      "tags": [],
+      "price": 3.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Gemüse-Cocktail",
+      "brand": "Biotta",
+      "category": "",
+      "tags": [],
+      "price": 2.9,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Broccoli",
+      "brand": "Farmer's Best",
+      "category": "",
+      "tags": [],
+      "price": 4.7,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Rahmspinat",
+      "brand": "M-Budget",
+      "category": "",
+      "tags": [],
+      "price": 2.1,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Bohnen",
+      "brand": "Farmer's Best",
+      "category": "",
+      "tags": [],
+      "price": 2.9,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Gemüsemischung",
+      "brand": "M-Budget",
+      "category": "",
+      "tags": [],
+      "price": 3.2,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Bohnen",
+      "brand": "Farmer's Best",
+      "category": "",
+      "tags": [],
+      "price": 2.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Blumenkohl-Röschen",
+      "brand": "Farmer's Best",
+      "category": "",
+      "tags": [],
+      "price": 2.25,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Erbsen",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 3,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Gartenerbsen",
+      "brand": "Farmer's Best",
+      "category": "",
+      "tags": [],
+      "price": 4.2,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Blattspinat",
+      "brand": "Farmer's Best",
+      "category": "",
+      "tags": [],
+      "price": 3.2,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Erbsen",
+      "brand": "M-Budget",
+      "category": "",
+      "tags": [],
+      "price": 2.55,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Rahmspinat",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 3.6,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Hackspinat",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 3.9,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Gemüsemischung",
+      "brand": "Farmer's Best",
+      "category": "",
+      "tags": [],
+      "price": 5.2,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Orogel Gemüse frittiert",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 5.9,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Blattspinat",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 3.6,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Blumenkohl",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 3.8,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Hackspinat",
+      "brand": "Farmer's Best",
+      "category": "",
+      "tags": [],
+      "price": 3.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Rosenkohl",
+      "brand": "Farmer's Best",
+      "category": "",
+      "tags": [],
+      "price": 3.1,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Gemüsemischung",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 4.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Asia Gemüsemischung",
+      "brand": "M-Budget",
+      "category": "",
+      "tags": [],
+      "price": 3.2,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Brunoise Gemüsemischung",
+      "brand": "Farmer's Best",
+      "category": "",
+      "tags": [],
+      "price": 5.7,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Buttergemüse",
+      "brand": "Alnatura",
+      "category": "",
+      "tags": [],
+      "price": 2.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Ratatouille Gemüsemischung",
+      "brand": "Farmer's Best",
+      "category": "",
+      "tags": [],
+      "price": 7.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Buttergemüse",
+      "brand": "Farmer's Best",
+      "category": "",
+      "tags": [],
+      "price": 6.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Favorit Gemüsemischung",
+      "brand": "Farmer's Best",
+      "category": "",
+      "tags": [],
+      "price": 4.3,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Gartenerbsen mit Karotten",
+      "brand": "Farmer's Best",
+      "category": "",
+      "tags": [],
+      "price": 2.3,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Rahmlauch",
+      "brand": "Farmer's Best",
+      "category": "",
+      "tags": [],
+      "price": 4.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Romanesco Gemüsemischung",
+      "brand": "Farmer's Best",
+      "category": "",
+      "tags": [],
+      "price": 5.25,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Sommergemüse ",
+      "brand": "Alnatura",
+      "category": "",
+      "tags": [],
+      "price": 1.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Pfannengemüse",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 4.8,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "lidl",
+      "name": "Mini Springrolls Gemüse",
+      "brand": null,
+      "category": "Food",
+      "tags": [],
+      "price": 5.99,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "lidl",
+      "name": "Bouillon Pulver Gemüse",
+      "brand": null,
+      "category": "Food",
+      "tags": [],
+      "price": 16.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "lidl",
+      "name": "Bouillon Granulat Gemüse Extrakt",
+      "brand": null,
+      "category": "Food",
+      "tags": [],
+      "price": 19.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "lidl",
+      "name": "Schweizer Bio Zwiebeln rot",
+      "brand": null,
+      "category": "Food",
+      "tags": [],
+      "price": 1.69,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "lidl",
+      "name": "Schweizer Auberginen",
+      "brand": null,
+      "category": "Food",
+      "tags": [],
+      "price": 2.99,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "lidl",
+      "name": "Kopfsalat",
+      "brand": null,
+      "category": "Food",
+      "tags": [],
+      "price": 1.29,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "volg",
+      "name": "Felix Vielfalt Gemüse in Gel",
+      "brand": null,
+      "category": "Körperpflege, Reinigung, Haushalt &amp; Tierbedarf",
+      "tags": [],
+      "price": 3.7,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "volg",
+      "name": "Knorr Gemüse-Extrakt Dose",
+      "brand": null,
+      "category": "Gewürze, Saucen, Suppen &amp; Bouillons",
+      "tags": [],
+      "price": 10.6,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "volg",
+      "name": "Knorr Gemüsebouillon Stange",
+      "brand": null,
+      "category": "Gewürze, Saucen, Suppen &amp; Bouillons",
+      "tags": [],
+      "price": 4.8,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Gemüsezwiebel 1 Stück",
+      "brand": "Coop",
+      "category": "Zwiebeln & Knoblauch",
+      "tags": [],
+      "price": 2.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Snack Gemüse Mix",
+      "brand": "Snack Eat",
+      "category": "Peperoni",
+      "tags": [],
+      "price": 3.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Rügenwalder vegane Alternative zu Spicker Grillgemüse",
+      "brand": "Rügenwalder Mühle",
+      "category": "Pflanzliche Alternativen zu Aufschnitt & Charcuterie",
+      "tags": [],
+      "price": 2.8,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Betty Bossi Marktgemüse",
+      "brand": "Betty Bossi",
+      "category": "Pfannenfertiges Gemüse",
+      "tags": [],
+      "price": 3.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Snack Gemüse Mix",
+      "brand": "Coop",
+      "category": "Peperoni",
+      "tags": [],
+      "price": 5.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Gemüse Papaya grün 1 Stück",
+      "brand": "Coop",
+      "category": "Weitere exotische Früchte",
+      "tags": [],
+      "price": 9.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Bio Zucchetti",
+      "brand": "Naturaplan",
+      "category": "Zucchetti, Kürbis & Aubergine",
+      "tags": [],
+      "price": 2.7,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Zucchetti ca. 500g",
+      "brand": "Coop",
+      "category": "Zucchetti, Kürbis & Aubergine",
+      "tags": [],
+      "price": 2.1,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Auberginen ca. 500g",
+      "brand": "Naturaplan",
+      "category": "Zucchetti, Kürbis & Aubergine",
+      "tags": [],
+      "price": 3,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Fenchel ca. 500g",
+      "brand": "Naturaplan",
+      "category": "Lauch & Fenchel",
+      "tags": [],
+      "price": 3.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Fenchel ca. 500g",
+      "brand": "Coop",
+      "category": "Lauch & Fenchel",
+      "tags": [],
+      "price": 1.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Auberginen ca. 500g",
+      "brand": "Coop",
+      "category": "Zucchetti, Kürbis & Aubergine",
+      "tags": [],
+      "price": 2.3,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Lauch grün ca. 500g",
+      "brand": "Coop",
+      "category": "Lauch & Fenchel",
+      "tags": [],
+      "price": 2.4,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie Zucchetti",
+      "brand": "Prix Garantie",
+      "category": "Zucchetti, Kürbis & Aubergine",
+      "tags": [],
+      "price": 2.8,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Betty Bossi Zuckermais gekocht 2x  500g",
+      "brand": "Betty Bossi",
+      "category": "Mais, Erbsen & Bohnen",
+      "tags": [],
+      "price": 6.9,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Bohnen",
+      "brand": "Naturaplan",
+      "category": "Mais, Erbsen & Bohnen",
+      "tags": [],
+      "price": 4.3,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie Auberginen",
+      "brand": "Prix Garantie",
+      "category": "Zucchetti, Kürbis & Aubergine",
+      "tags": [],
+      "price": 2.65,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Demeter Zucchetti gelb ca. 500g",
+      "brand": "Naturaplan",
+      "category": "Zucchetti, Kürbis & Aubergine",
+      "tags": [],
+      "price": 5.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Bohnen grün",
+      "brand": null,
+      "category": "Mais, Erbsen & Bohnen",
+      "tags": [],
+      "price": 2.35,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Zucchetti Rondini ca. 500g",
+      "brand": "Coop",
+      "category": "Zucchetti, Kürbis & Aubergine",
+      "tags": [],
+      "price": 4,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Schlangen Auberginen",
+      "brand": "Coop",
+      "category": "Zucchetti, Kürbis & Aubergine",
+      "tags": [],
+      "price": 4.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie Zuckermais",
+      "brand": "Prix Garantie",
+      "category": "Mais, Erbsen & Bohnen",
+      "tags": [],
+      "price": 2,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Mini Kefen",
+      "brand": "Coop",
+      "category": "Mais, Erbsen & Bohnen",
+      "tags": [],
+      "price": 3.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Bohnen Mini extra fein",
+      "brand": "Coop",
+      "category": "Mais, Erbsen & Bohnen",
+      "tags": [],
+      "price": 3.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Asian Wok Hanoi",
+      "brand": "Naturaplan",
+      "category": "Pfannenfertiges Gemüse",
+      "tags": [],
+      "price": 4.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Zuckermais gekocht",
+      "brand": "Naturaplan",
+      "category": "Mais, Erbsen & Bohnen",
+      "tags": [],
+      "price": 4.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Coco Bohnen",
+      "brand": "Coop",
+      "category": "Mais, Erbsen & Bohnen",
+      "tags": [],
+      "price": 2.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Krautstiel",
+      "brand": "Coop",
+      "category": "Blattgemüse & Artischocken",
+      "tags": [],
+      "price": 5.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Betty Bossi Asian Wok Seoul",
+      "brand": "Betty Bossi",
+      "category": "Pfannenfertiges Gemüse",
+      "tags": [],
+      "price": 3.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Betty Bossi Asian Wok Shanghai",
+      "brand": "Betty Bossi",
+      "category": "Pfannenfertiges Gemüse",
+      "tags": [],
+      "price": 5.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Zuckermais",
+      "brand": "Naturaplan",
+      "category": "Mais, Erbsen & Bohnen",
+      "tags": [],
+      "price": 4.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Betty Bossi Corn Ribs",
+      "brand": "Betty Bossi",
+      "category": "Mais, Erbsen & Bohnen",
+      "tags": [],
+      "price": 1.45,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Schweizer Dörrbohnen",
+      "brand": "Coop",
+      "category": "Mais, Erbsen & Bohnen",
+      "tags": [],
+      "price": 4.8,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Auberginen gestreift offen ca. 500g",
+      "brand": "Coop",
+      "category": "Zucchetti, Kürbis & Aubergine",
+      "tags": [],
+      "price": 3.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Dörrbohnen",
+      "brand": "Naturaplan",
+      "category": "Mais, Erbsen & Bohnen",
+      "tags": [],
+      "price": 6.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Gurken",
+      "brand": "Naturaplan",
+      "category": "Gurken",
+      "tags": [],
+      "price": 2.3,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Rispentomaten ca. 1kg",
+      "brand": "Coop",
+      "category": "Tomaten",
+      "tags": [],
+      "price": 4.4,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Karotten IP-Suisse ca. 500g",
+      "brand": "Coop",
+      "category": "Rüebli & Pastinaken",
+      "tags": [],
+      "price": 1.05,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Ohmex Gemüsereibe Elektrisch mit 5 Reibekegeln",
+      "brand": "Ohmex",
+      "category": "Root",
+      "tags": [],
+      "price": 24.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Collina D'Oro Bouillon Gemüse",
+      "brand": "Collina D'Oro",
+      "category": "Root",
+      "tags": [],
+      "price": 10.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Ben's Original Sauce süss-sauer Gemüse",
+      "brand": "Ben's",
+      "category": "Root",
+      "tags": [],
+      "price": 2.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Knorr Gemüse Bouillon Pulver",
+      "brand": "Knorr",
+      "category": "Root",
+      "tags": [],
+      "price": 16.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Knorr Gemüse Bouillon Paste",
+      "brand": "Knorr",
+      "category": "Root",
+      "tags": [],
+      "price": 14.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Knorr Bouillon Gemüse",
+      "brand": "Knorr",
+      "category": "Root",
+      "tags": [],
+      "price": 8.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Knorr Gemüseextrakt Granulat",
+      "brand": "Knorr",
+      "category": "Root",
+      "tags": [],
+      "price": 19.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Knorr Bouillon Gemüse Stangen",
+      "brand": "Knorr",
+      "category": "Root",
+      "tags": [],
+      "price": 4,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Knorr Gemüseextrakt Granulat fettarm",
+      "brand": "Knorr",
+      "category": "Root",
+      "tags": [],
+      "price": 19.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Kefen",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 3.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Edamame",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 5.5,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Kürbis",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 4.3,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Krautstiele",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 8.9,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Edamame",
+      "brand": "Farmer's Best",
+      "category": "",
+      "tags": [],
+      "price": 4.6,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Röschen Trio",
+      "brand": "Farmer's Best",
+      "category": "",
+      "tags": [],
+      "price": 3.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "lidl",
+      "name": "Frischer Zuckermais",
+      "brand": null,
+      "category": "Food",
+      "tags": [],
+      "price": 1.49,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "lidl",
+      "name": "Schweizer Kartoffeln Baked",
+      "brand": null,
+      "category": "Food",
+      "tags": [],
+      "price": 4.99,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Zitrone 1 Stück",
+      "brand": "Naturaplan",
+      "category": "Zitronen & Limetten",
+      "tags": [],
+      "price": 0.65,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Heidelbeeren",
+      "brand": "Naturaplan",
+      "category": "Beeren",
+      "tags": [],
+      "price": 6.2,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Berger & Lanz Allesschneider AM220R",
+      "brand": "Weber Home",
+      "category": "Root",
+      "tags": [],
+      "price": 299,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Graef Allesschneider Master M20",
+      "brand": "Graef",
+      "category": "Root",
+      "tags": [],
+      "price": 299,
+      "keptAtCapture": false
+    }
+  ]
+}

@@ -1,8 +1,17 @@
 {
   "id": "toilettenpapier",
   "query": "Toilettenpapier",
-  "capturedAt": "2026-08-01T09:00:20.072Z",
+  "capturedAt": "2026-08-05T21:43:37.305Z",
   "products": [
+    {
+      "chain": "lidl",
+      "name": "Toilettenpapier",
+      "brand": null,
+      "category": "Food",
+      "tags": [],
+      "price": 15.95,
+      "unit": null
+    },
     {
       "chain": "coop",
       "name": "Prix Garantie feuchtes Toilettenpapier 2x70 Stück",
@@ -10,24 +19,6 @@
       "category": "Feuchtes Toilettenpapier",
       "tags": [],
       "price": 1.5,
-      "unit": null
-    },
-    {
-      "chain": "coop",
-      "name": "My Baby Junior Dragon Fruit feuchtes Toilettenpapier 60 Stück",
-      "brand": "MyBaby",
-      "category": "Toilettentücher für Kinder",
-      "tags": [],
-      "price": 1.95,
-      "unit": null
-    },
-    {
-      "chain": "coop",
-      "name": "My Baby Junior Feuchtes Toilettenpapier 60 Stück",
-      "brand": "MyBaby",
-      "category": "Toilettentücher für Kinder",
-      "tags": [],
-      "price": 1.95,
       "unit": null
     },
     {
@@ -130,14 +121,11 @@
       "unit": null
     },
     {
-      "chain": "aldi",
-      "name": "Toilettenpapier mit Duft, 4-lagig",
-      "brand": "KOKETT",
-      "category": "Aktionen",
-      "tags": [
-        "in-stock",
-        "special-buy"
-      ],
+      "chain": "lidl",
+      "name": "Toilettenpapier 4-lagig",
+      "brand": null,
+      "category": "Food",
+      "tags": [],
       "price": 3.99,
       "unit": null
     },
@@ -159,6 +147,24 @@
       "category": "Root",
       "tags": [],
       "price": 4.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "My Baby Junior Dragon Fruit feuchtes Toilettenpapier 60 Stück 4x  60ST",
+      "brand": "MyBaby",
+      "category": "Toilettentücher für Kinder",
+      "tags": [],
+      "price": 5.45,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "My Baby Junior Feuchtes Toilettenpapier 60 Stück 4x  60ST",
+      "brand": "MyBaby",
+      "category": "Toilettentücher für Kinder",
+      "tags": [],
+      "price": 5.45,
       "unit": null
     },
     {
@@ -356,15 +362,6 @@
     {
       "chain": "ottos",
       "name": "Hakle Toilettenpapier 3-lagig Jasmin 24 Rollen",
-      "brand": "Hakle",
-      "category": "Root",
-      "tags": [],
-      "price": 11.95,
-      "unit": null
-    },
-    {
-      "chain": "ottos",
-      "name": "Hakle Toilettenpapier 3-lagig klassisch weiss 24 Rollen",
       "brand": "Hakle",
       "category": "Root",
       "tags": [],

@@ -4,11 +4,23 @@
  * without hitting the network.
  *
  * Run from the repo root after `npm run build`:
- *   node scripts/captureGoldenFixtures.mjs [--only <id>[,<id>...]] [--web]
+ *   node scripts/captureGoldenFixtures.mjs [--only <id>[,<id>...]] [--web|--pool]
  *
- * Two tiers:
- *   default  raw vendor fan-out          -> src/eval/fixtures/
+ * Three tiers:
+ *   default  raw vendor fan-out           -> src/eval/fixtures/
  *   --web    plus web-search augmentation -> src/eval/fixtures-web/
+ *   --pool   what the vendors returned *before* our own relevance filter
+ *                                         -> src/eval/fixtures-pool/
+ *
+ * The pool tier exists because the other two are captured downstream of
+ * `productMatches`, so every product this project wrongly discards is already
+ * gone from them. A recall metric built on those fixtures would be blind to
+ * exactly the defect it was added to catch — measured 2026-08-05, the filter
+ * discarded 45.4% of everything the vendors returned, including every Migros
+ * pasta for the query "Teigwaren", while the fixture-based gate reported P@5
+ * 0.98. Blindness was a property of *when* we captured, not of fixtures: taking
+ * the snapshot one step earlier makes recall measurable offline and
+ * deterministically, with no live vendor call in CI.
  *
  * The web tier exists because augmentation injects web-discovered products at
  * the *head* of the merged list, ahead of everything the adapters returned, so
@@ -30,7 +42,17 @@ import { fileURLToPath } from 'node:url';
 const here = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(here, '..');
 const withWeb = process.argv.includes('--web');
-const outDir = join(repoRoot, 'src', 'eval', withWeb ? 'fixtures-web' : 'fixtures');
+const withPool = process.argv.includes('--pool');
+if (withWeb && withPool) {
+  console.error('--web and --pool are different tiers; capture them separately.');
+  process.exit(1);
+}
+const outDir = join(
+  repoRoot,
+  'src',
+  'eval',
+  withWeb ? 'fixtures-web' : withPool ? 'fixtures-pool' : 'fixtures'
+);
 
 const { createDefaultAdapters } = await import('../dist/adapters/index.js');
 const { SearchService } = await import('../dist/services/searchService.js');
@@ -38,7 +60,15 @@ const { createDefaultWebProductSearch } = await import(
   '../dist/services/webProductSearchService.js'
 );
 const { chainTimeoutMs } = await import('../dist/util/timeout.js');
+const { matchDiagnostics } = await import('../dist/adapters/live/baseLiveAdapter.js');
 const { GOLDEN_QUERIES, WEB_TIER_QUERY_IDS } = await import('../dist/eval/goldenSet.js');
+
+// The pool tier records both sides of the filter's decision from inside the
+// adapters, which is the only place the discarded products still exist.
+if (withPool) {
+  matchDiagnostics.enabled = true;
+  matchDiagnostics.collectSamples = true;
+}
 
 // Comma-separated, because the honest way to re-capture after a change to
 // query understanding is to re-capture exactly the queries that change and
@@ -146,7 +176,13 @@ if (withWeb) {
 // No breaker and no cache in either tier: the fixture must be the candidate
 // pool the adapters actually produced, not a cache artefact.
 const service = new SearchService(adapters, { webProductSearch });
-console.log(withWeb ? 'Tier: vendor + web augmentation' : 'Tier: raw vendor fan-out');
+console.log(
+  withWeb
+    ? 'Tier: vendor + web augmentation'
+    : withPool
+      ? 'Tier: vendor candidate pool, before our relevance filter'
+      : 'Tier: raw vendor fan-out'
+);
 
 mkdirSync(outDir, { recursive: true });
 
@@ -195,6 +231,7 @@ for (const golden of queries) {
   let webWarnings = [];
   recordedByChain.clear();
   webAttempt = undefined;
+  matchDiagnostics.reset();
   try {
     const result = await service.searchProducts({ query: golden.query, limit: 40 });
     // Distinguishes "the provider was unreachable" from "the provider answered
@@ -217,6 +254,46 @@ for (const golden of queries) {
   }
 
   const elapsed = Date.now() - started;
+
+  if (withPool) {
+    // `keptAtCapture` is the filter's verdict on the day, and the metric never
+    // reads it — it re-runs the current matcher over the pool. It is written so
+    // a re-capture diff shows which products changed side, which is the one
+    // thing a reviewer of this file needs and cannot otherwise see.
+    const pool = [
+      ...matchDiagnostics.kept.map((s) => ({ ...s, keptAtCapture: true })),
+      ...matchDiagnostics.rejected.map((s) => ({ ...s, keptAtCapture: false })),
+    ].map((s) => ({
+      chain: s.chain,
+      name: s.name,
+      brand: s.brand ?? null,
+      category: s.category ?? null,
+      tags: s.tags ?? [],
+      price: s.price ?? null,
+      keptAtCapture: s.keptAtCapture,
+    }));
+
+    const keptCount = pool.filter((p) => p.keptAtCapture).length;
+    console.log(
+      error
+        ? `ERROR ${error}`
+        : `pool ${pool.length} (kept ${keptCount}, rejected ${pool.length - keptCount}) (${elapsed}ms)`
+    );
+
+    if (pool.length > 0) {
+      writeFileSync(
+        join(outDir, `${golden.id}.json`),
+        `${JSON.stringify(
+          { id: golden.id, query: golden.query, capturedAt: new Date().toISOString(), pool },
+          null,
+          2
+        )}\n`,
+        'utf8'
+      );
+    }
+    summary.push({ id: golden.id, count: pool.length, error, skipped: pool.length === 0 });
+    continue;
+  }
 
   // Whether augmentation actually contributed, recorded per fixture. Without
   // this the web tier degrades into a copy of the vendor tier the moment the

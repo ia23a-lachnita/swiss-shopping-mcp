@@ -146,9 +146,26 @@ export function metadataFrom(
  */
 export const matchDiagnostics = {
   enabled: false,
+  /**
+   * Keep the names behind the tallies, not just the counts.
+   *
+   * A rejection rate is not a verdict: throwing away loosely-related products
+   * is this predicate's job, so 45% is only a defect if the discarded products
+   * were answers. That question can only be settled by reading them, and the
+   * fixtures cannot answer it — they are captured *after* this filter, so the
+   * rejected products are already gone from the snapshot.
+   *
+   * Separate from `enabled` because a whole-golden-set run holds a few thousand
+   * product names in memory.
+   */
+  collectSamples: false,
   byChain: new Map<string, { seen: number; rejectedRelevance: number; rejectedPrice: number }>(),
+  rejected: [] as MatchSample[],
+  kept: [] as MatchSample[],
   reset(): void {
     this.byChain.clear();
+    this.rejected.length = 0;
+    this.kept.length = 0;
   },
   record(chain: string, field: 'seen' | 'rejectedRelevance' | 'rejectedPrice'): void {
     if (!this.enabled) return;
@@ -159,7 +176,35 @@ export const matchDiagnostics = {
     }
     row[field] += 1;
   },
+  sample(bucket: 'rejected' | 'kept', product: NormalizedProduct): void {
+    if (!this.enabled || !this.collectSamples) return;
+    this[bucket].push({
+      chain: product.chain,
+      name: product.name,
+      brand: product.brand,
+      category: product.category,
+      tags: product.tags,
+      price: product.price?.current,
+    });
+  },
 };
+
+/**
+ * Every field the matcher is allowed to read, so a captured sample can be
+ * re-judged offline and reach the same verdict. `tags` is included for that
+ * reason and no other: ingredient text arrives through it, so a replay without
+ * tags would quietly disagree with production about which products match.
+ * `price` is not read by the matcher but breaks ties in `sortProducts`, so a
+ * replay without it would rank near-ties differently from production.
+ */
+export interface MatchSample {
+  chain: string;
+  name: string;
+  brand?: string;
+  category?: string;
+  tags?: string[];
+  price?: number;
+}
 
 export function productMatches(
   product: NormalizedProduct,
@@ -170,8 +215,10 @@ export function productMatches(
   matchDiagnostics.record(product.chain, 'seen');
   if (calculateMatchStrength(product, query, matchMode) === 0) {
     matchDiagnostics.record(product.chain, 'rejectedRelevance');
+    matchDiagnostics.sample('rejected', product);
     return false;
   }
+  matchDiagnostics.sample('kept', product);
 
   if (product.price.current <= 0) {
     matchDiagnostics.record(product.chain, 'rejectedPrice');

@@ -1,7 +1,7 @@
 {
   "id": "glutenfreies-brot",
   "query": "glutenfreies Brot",
-  "capturedAt": "2026-08-01T11:01:54.471Z",
+  "capturedAt": "2026-08-05T21:43:59.461Z",
   "products": [
     {
       "chain": "coop",
@@ -109,6 +109,15 @@
       "category": "Frischback Brot",
       "tags": [],
       "price": 5.95,
+      "unit": null
+    },
+    {
+      "chain": "denner",
+      "name": "Leib und Gut Baguette Classic Bio - glutenfrei",
+      "brand": null,
+      "category": "1144362",
+      "tags": [],
+      "price": 3.4,
       "unit": null
     }
   ]

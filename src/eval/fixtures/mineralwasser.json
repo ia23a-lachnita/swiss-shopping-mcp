@@ -1,7 +1,7 @@
 {
   "id": "mineralwasser",
   "query": "Mineralwasser",
-  "capturedAt": "2026-08-01T09:00:15.067Z",
+  "capturedAt": "2026-08-05T21:43:36.012Z",
   "products": [
     {
       "chain": "migros",
@@ -10,6 +10,24 @@
       "category": "",
       "tags": [],
       "price": 0.25,
+      "unit": null
+    },
+    {
+      "chain": "lidl",
+      "name": "Mineralwasser",
+      "brand": null,
+      "category": "Food",
+      "tags": [],
+      "price": 0.25,
+      "unit": null
+    },
+    {
+      "chain": "lidl",
+      "name": "Mineralwasser",
+      "brand": null,
+      "category": "Food",
+      "tags": [],
+      "price": 0.65,
       "unit": null
     },
     {
@@ -186,6 +204,15 @@
       "unit": null
     },
     {
+      "chain": "lidl",
+      "name": "Mineralwasser",
+      "brand": null,
+      "category": "Food",
+      "tags": [],
+      "price": 3.45,
+      "unit": null
+    },
+    {
       "chain": "migros",
       "name": "Mineralwasser",
       "brand": "Rocchetta",
@@ -336,33 +363,6 @@
       "category": "",
       "tags": [],
       "price": 7.5,
-      "unit": null
-    },
-    {
-      "chain": "migros",
-      "name": "Mineralwasser",
-      "brand": "Appenzeller",
-      "category": "",
-      "tags": [],
-      "price": 7.9,
-      "unit": null
-    },
-    {
-      "chain": "migros",
-      "name": "Mineralwasser",
-      "brand": "Volvic",
-      "category": "",
-      "tags": [],
-      "price": 11.7,
-      "unit": null
-    },
-    {
-      "chain": "migros",
-      "name": "Mineralwasser",
-      "brand": "Volvic",
-      "category": "",
-      "tags": [],
-      "price": 11.7,
       "unit": null
     }
   ]

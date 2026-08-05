@@ -1,7 +1,7 @@
 {
   "id": "teigwaren",
   "query": "Teigwaren",
-  "capturedAt": "2026-08-01T09:02:27.314Z",
+  "capturedAt": "2026-08-05T21:44:14.523Z",
   "products": [
     {
       "chain": "aldi",
@@ -112,6 +112,267 @@
       "category": "Speziell geformte Teigwaren",
       "tags": [],
       "price": 5.6,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Hörnli",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 1,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie Hörnli",
+      "brand": "Prix Garantie",
+      "category": "Spiralen & Hörnli",
+      "tags": [],
+      "price": 1,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie Reisnudeln",
+      "brand": "Prix Garantie",
+      "category": "Nudeln",
+      "tags": [],
+      "price": 1,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Fusilli",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 1.2,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Penne",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 1.2,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie Fusilli",
+      "brand": "Prix Garantie",
+      "category": "Spiralen & Hörnli",
+      "tags": [],
+      "price": 1.2,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie Penne Rigate",
+      "brand": "Prix Garantie",
+      "category": "Penne & Röhren",
+      "tags": [],
+      "price": 1.2,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie Spaghetti",
+      "brand": "Prix Garantie",
+      "category": "Spaghetti",
+      "tags": [],
+      "price": 1.2,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Spaghetti",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 1.2,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Spaghetti",
+      "brand": "Alnatura",
+      "category": "",
+      "tags": [],
+      "price": 1.2,
+      "unit": null
+    },
+    {
+      "chain": "lidl",
+      "name": "Fusilli Pugliesi Tris",
+      "brand": null,
+      "category": "Food",
+      "tags": [],
+      "price": 1.49,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Gala 3-Eier Hörnli grob",
+      "brand": "Gala",
+      "category": "Spiralen & Hörnli",
+      "tags": [],
+      "price": 1.75,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Gala 3-Eier Hörnli mittel 500g",
+      "brand": "Gala",
+      "category": "Spiralen & Hörnli",
+      "tags": [],
+      "price": 1.75,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Hörnli",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 1.75,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Hörnli",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 1.75,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Hörnli",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 1.75,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Hausmachernudeln",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 1.85,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Hausmachernudeln",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 1.85,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Älplermagronen ",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 1.9,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Chinesische Nudeln",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 1.9,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Gala 3-Eier Nudeln breit",
+      "brand": "Gala",
+      "category": "Nudeln",
+      "tags": [],
+      "price": 1.9,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Gala 3-Eier Nudeln extra-breit",
+      "brand": "Gala",
+      "category": "Nudeln",
+      "tags": [],
+      "price": 1.9,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Krausnudeln",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 1.9,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Penne",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 1.9,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Spiralnudeln",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 1.9,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Wellenspätzli",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 1.9,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Mei Yang China Nudeln",
+      "brand": "Mei Yang",
+      "category": "Nudeln",
+      "tags": [],
+      "price": 1.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Hörnli",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 2.08,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Pasta ABC",
+      "brand": "M-Classic",
+      "category": "",
+      "tags": [],
+      "price": 2.2,
       "unit": null
     }
   ]

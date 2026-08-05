@@ -1,0 +1,500 @@
+{
+  "id": "hackfleisch",
+  "query": "Hackfleisch",
+  "capturedAt": "2026-08-05T21:40:41.467Z",
+  "pool": [
+    {
+      "chain": "migros",
+      "name": "Hackfleisch",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 1.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Hackfleisch",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 1.8,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Rindshackfleisch",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 1.55,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Rindshackfleisch",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 6.65,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Rindshackfleisch",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 2.1,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Hackfleisch ",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 2,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Hackfleisch",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 1.25,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Hackfleisch",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 1.25,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Rindshackfleisch light",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 3.05,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Rindshackfleisch",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 5.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Rindshackfleisch",
+      "brand": "Weiderind",
+      "category": "",
+      "tags": [],
+      "price": 2.3,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Rindshackfleisch",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 2.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Rindshackfleisch",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 2.1,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Poulethackfleisch",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 1.9,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "für Hackfleisch",
+      "brand": "Bon Chef",
+      "category": "",
+      "tags": [],
+      "price": 1.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Naturapan Bio Rindshackfleisch ca. 300g",
+      "brand": "Naturaplan",
+      "category": "Hackfleisch",
+      "tags": [],
+      "price": 6.8,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Rinds Hackfleisch 2x400g",
+      "brand": "Coop",
+      "category": "Hackfleisch",
+      "tags": [],
+      "price": 11.7,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Hackfleisch Rind ca. 500g",
+      "brand": "Coop",
+      "category": "Hackfleisch",
+      "tags": [],
+      "price": 9.75,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie Hackfleisch gemischt 500g",
+      "brand": "Prix Garantie",
+      "category": "Hackfleisch",
+      "tags": [],
+      "price": 7.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Naturafarm Rind/Schwein Hackfleisch gemischt ca. 400g",
+      "brand": "Naturafarm",
+      "category": "Hackfleisch",
+      "tags": [],
+      "price": 6.6,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie Rindshackfleisch low Fett ca. 600g",
+      "brand": "Prix Garantie",
+      "category": "Hackfleisch",
+      "tags": [],
+      "price": 12.45,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Naturafarm Rinds Hackfleisch Low ca. 300g",
+      "brand": "Naturafarm",
+      "category": "Hackfleisch",
+      "tags": [],
+      "price": 8.85,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie Rindshackfleisch ca. 500g",
+      "brand": "Prix Garantie",
+      "category": "Hackfleisch",
+      "tags": [],
+      "price": 7.8,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Naturafarm Freiland Poulet Hackfleisch ca. 300g",
+      "brand": "Naturafarm",
+      "category": "Hackfleisch",
+      "tags": [],
+      "price": 8.85,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Naturafarm Hackfleisch Schwein ca. 400g",
+      "brand": "Naturafarm",
+      "category": "Hackfleisch",
+      "tags": [],
+      "price": 7.6,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Bio Schweinshackfleisch ca. 300g",
+      "brand": "Naturaplan",
+      "category": "Hackfleisch",
+      "tags": [],
+      "price": 6.6,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Hackfleisch Lamm ca. 300g",
+      "brand": "Coop",
+      "category": "Hackfleisch",
+      "tags": [],
+      "price": 8.7,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Poulet Hackfleisch ca. 300g",
+      "brand": "Coop",
+      "category": "Geflügelfleisch abgepackt",
+      "tags": [],
+      "price": 5.85,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Betty Bossi Hackfleischbällchen mit Kartoffelstock",
+      "brand": "Betty Bossi",
+      "category": "Frische Fertiggerichte Tellerfertig",
+      "tags": [],
+      "price": 6.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "volg",
+      "name": "Hilcona Kartoffelstock mit Hackfleischbällchen",
+      "brand": null,
+      "category": "Fertiggerichte",
+      "tags": [],
+      "price": 7.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "aldi",
+      "name": "Hackfleisch, gemischt, light",
+      "brand": "SAVEURS SUISSES",
+      "category": "Fleisch",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 7.39,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "aldi",
+      "name": "Hackfleisch, gemischt",
+      "brand": "SAVEURS SUISSES",
+      "category": "Fleisch",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 7.49,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "aldi",
+      "name": "Rindshackfleisch, light",
+      "brand": "SAVEURS SUISSES",
+      "category": "Fleisch",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 8.89,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "aldi",
+      "name": "Rindshackfleisch, Halal",
+      "brand": "SAVEURS SUISSES",
+      "category": "Fleisch",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 8.99,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "aldi",
+      "name": "Rindshackfleisch",
+      "brand": "COUNTRY'S BEST",
+      "category": "Fleisch",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 7.79,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "aldi",
+      "name": "Hackfleisch vom Weiderind",
+      "brand": "RETOUR AUX SOURCES",
+      "category": "Fleisch",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 7.85,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "aldi",
+      "name": "Hackfleisch light vom Weiderind",
+      "brand": "RETOUR AUX SOURCES",
+      "category": "Fleisch",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 8.99,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "aldi",
+      "name": "Hackfleisch, gemischt",
+      "brand": "COUNTRY'S BEST",
+      "category": "Fleisch",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 9.49,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Quorn Gehacktes",
+      "brand": "Cornatur",
+      "category": "",
+      "tags": [],
+      "price": 4.2,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Plant-Based Gehacktes",
+      "brand": "M-Budget",
+      "category": "",
+      "tags": [],
+      "price": 1.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Hackballs",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 4.8,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Hackballs",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 5.2,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Hack Original",
+      "brand": "Beyond Meat",
+      "category": "",
+      "tags": [],
+      "price": 5.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Hack",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 4.5,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Gehacktes",
+      "brand": "V-Love",
+      "category": "",
+      "tags": [],
+      "price": 2.5,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Gehacktes mit Hörnli",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 2.2,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Gehacktes & Hörnli",
+      "brand": "V-Love",
+      "category": "",
+      "tags": [],
+      "price": 5.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Ghackets & Hörnli",
+      "brand": "Migros Daily",
+      "category": "",
+      "tags": [],
+      "price": 8.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Rind Hacksteak",
+      "brand": "M-Classic",
+      "category": "",
+      "tags": [],
+      "price": 3.2,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Rindshacksteak",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 3.25,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Hacktätschli",
+      "brand": "Anna's Best",
+      "category": "",
+      "tags": [],
+      "price": 7.8,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Hackbraten",
+      "brand": "Malbuner",
+      "category": "",
+      "tags": [],
+      "price": 1.8,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie Hörnli mit Gehacktes",
+      "brand": "Prix Garantie",
+      "category": "Pasta mit Sauce",
+      "tags": [],
+      "price": 2.2,
+      "keptAtCapture": false
+    }
+  ]
+}

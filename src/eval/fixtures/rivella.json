@@ -1,7 +1,7 @@
 {
   "id": "rivella",
   "query": "Rivella",
-  "capturedAt": "2026-08-01T09:01:59.164Z",
+  "capturedAt": "2026-08-05T21:44:05.662Z",
   "products": [
     {
       "chain": "coop",
@@ -179,15 +179,6 @@
       "unit": null
     },
     {
-      "chain": "migros",
-      "name": "Gelb",
-      "brand": "Rivella",
-      "category": "",
-      "tags": [],
-      "price": 9.3,
-      "unit": null
-    },
-    {
       "chain": "ottos",
       "name": "Rivella Blau",
       "brand": "Rivella",
@@ -237,15 +228,6 @@
       "name": "Rivella Rot 6x50cl",
       "brand": "Rivella",
       "category": "Soft Drink Multipacks mit Flaschen/Dosen unter 1 Liter",
-      "tags": [],
-      "price": 9.3,
-      "unit": null
-    },
-    {
-      "chain": "migros",
-      "name": "Rot",
-      "brand": "Rivella",
-      "category": "",
       "tags": [],
       "price": 9.3,
       "unit": null
@@ -361,6 +343,24 @@
     {
       "chain": "denner",
       "name": "Rivella Blau",
+      "brand": null,
+      "category": "1144372",
+      "tags": [],
+      "price": 6.5,
+      "unit": null
+    },
+    {
+      "chain": "denner",
+      "name": "Rivella Gelb",
+      "brand": null,
+      "category": "1144372",
+      "tags": [],
+      "price": 6.5,
+      "unit": null
+    },
+    {
+      "chain": "denner",
+      "name": "Rivella Rot",
       "brand": null,
       "category": "1144372",
       "tags": [],

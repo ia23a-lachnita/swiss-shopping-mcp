@@ -1,0 +1,985 @@
+{
+  "id": "mineralwasser",
+  "query": "Mineralwasser",
+  "capturedAt": "2026-08-05T21:40:53.070Z",
+  "pool": [
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Evian",
+      "category": "",
+      "tags": [],
+      "price": 6.6,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "S. Pellegrino",
+      "category": "",
+      "tags": [],
+      "price": 6.9,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Evian",
+      "category": "",
+      "tags": [],
+      "price": 6.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Rocchetta",
+      "category": "",
+      "tags": [],
+      "price": 4.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Evian",
+      "category": "",
+      "tags": [],
+      "price": 5.6,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Evian",
+      "category": "",
+      "tags": [],
+      "price": 6.3,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Valais",
+      "category": "",
+      "tags": [],
+      "price": 4.48,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Vittel",
+      "category": "",
+      "tags": [],
+      "price": 6.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Contrex",
+      "category": "",
+      "tags": [],
+      "price": 7.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Volvic",
+      "category": "",
+      "tags": [],
+      "price": 11.7,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Valais",
+      "category": "",
+      "tags": [],
+      "price": 4.48,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Volvic",
+      "category": "",
+      "tags": [],
+      "price": 11.7,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Volvic",
+      "category": "",
+      "tags": [],
+      "price": 11.7,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser Mini",
+      "brand": "Evian",
+      "category": "",
+      "tags": [],
+      "price": 9.2,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Vittel",
+      "category": "",
+      "tags": [],
+      "price": 1.15,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Valais",
+      "category": "",
+      "tags": [],
+      "price": 3.92,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Badoit",
+      "category": "",
+      "tags": [],
+      "price": 4.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Volvic",
+      "category": "",
+      "tags": [],
+      "price": 1.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Volvic",
+      "category": "",
+      "tags": [],
+      "price": 1.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Volvic",
+      "category": "",
+      "tags": [],
+      "price": 1.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 1.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Evian",
+      "category": "",
+      "tags": [],
+      "price": 0.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Evian",
+      "category": "",
+      "tags": [],
+      "price": 1.1,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Valais",
+      "category": "",
+      "tags": [],
+      "price": 1.1,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Rocchetta",
+      "category": "",
+      "tags": [],
+      "price": 0.85,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Evian",
+      "category": "",
+      "tags": [],
+      "price": 1.15,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Knutwiler",
+      "category": "",
+      "tags": [],
+      "price": 1.1,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "S. Benedetto",
+      "category": "",
+      "tags": [],
+      "price": 4.35,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Valais",
+      "category": "",
+      "tags": [],
+      "price": 1.1,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Knutwiler",
+      "category": "",
+      "tags": [],
+      "price": 6,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Contrex",
+      "category": "",
+      "tags": [],
+      "price": 1.3,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Eptinger",
+      "category": "",
+      "tags": [],
+      "price": 0.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Valais",
+      "category": "",
+      "tags": [],
+      "price": 0.9,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Evian",
+      "category": "",
+      "tags": [],
+      "price": 1.15,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 0.25,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Appenzeller",
+      "category": "",
+      "tags": [],
+      "price": 1.35,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Appenzeller",
+      "category": "",
+      "tags": [],
+      "price": 7.9,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Appenzeller",
+      "category": "",
+      "tags": [],
+      "price": 5.7,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Appenzeller",
+      "category": "",
+      "tags": [],
+      "price": 1,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Mineralwasser",
+      "brand": "Rocchetta",
+      "category": "",
+      "tags": [],
+      "price": 3.8,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "lidl",
+      "name": "Mineralwasser",
+      "brand": null,
+      "category": "Food",
+      "tags": [],
+      "price": 3.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "lidl",
+      "name": "Mineralwasser",
+      "brand": null,
+      "category": "Food",
+      "tags": [],
+      "price": 0.25,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "lidl",
+      "name": "Mineralwasser",
+      "brand": null,
+      "category": "Food",
+      "tags": [],
+      "price": 3.45,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "lidl",
+      "name": "Mineralwasser",
+      "brand": null,
+      "category": "Food",
+      "tags": [],
+      "price": 0.65,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "evian Mineralwasser ohne Kohlensäure 6x1,5l",
+      "brand": "Evian",
+      "category": "Mineralwasser Multipacks mit Flaschen ab 1 Liter",
+      "tags": [],
+      "price": 6.6,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie Mineralwasser mit Kohlensäure 6x1,5l",
+      "brand": "Prix Garantie",
+      "category": "Mineralwasser mit Kohlensäure",
+      "tags": [],
+      "price": 1.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie Mineralwasser ohne Kohlensäure 6x1,5l",
+      "brand": "Prix Garantie",
+      "category": "Mineralwasser ohne Kohlensäure",
+      "tags": [],
+      "price": 1.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Valser Prickelnd Mineralwasser mit Kohlensäure 6x1,5l",
+      "brand": "Valser",
+      "category": "Mineralwasser Multipacks mit Flaschen ab 1 Liter",
+      "tags": [],
+      "price": 6.9,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Swiss Alpina Blau Mineralwasser mit Kohlensäure 6x1,5l",
+      "brand": "Swiss Alpina",
+      "category": "Mineralwasser Multipacks mit Flaschen ab 1 Liter",
+      "tags": [],
+      "price": 6.4,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "evian Mineralwasser ohne Kohlensäure 6x50cl",
+      "brand": "Evian",
+      "category": "Mineralwasser Multipacks mit Flaschen unter 1 Liter",
+      "tags": [],
+      "price": 5.6,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Swiss Alpina Rot Mineralwasser ohne Kohlensäure 6x1,5l",
+      "brand": "Swiss Alpina",
+      "category": "Mineralwasser ohne Kohlensäure",
+      "tags": [],
+      "price": 6.4,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "San Pellegrino Mineralwasser mit Kohlensäure 6x50cl",
+      "brand": "San Pellegrino",
+      "category": "Mineralwasser Multipacks mit Flaschen unter 1 Liter",
+      "tags": [],
+      "price": 5.7,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Eptinger Mineralwasser mit Kohlensäure 6x1,5l",
+      "brand": "Eptinger",
+      "category": "Mineralwasser Multipacks mit Flaschen ab 1 Liter",
+      "tags": [],
+      "price": 2.9,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Swiss Alpina Grün Mineralwasser mit wenig Kohlensäure 6x1,5l",
+      "brand": "Swiss Alpina",
+      "category": "Mineralwasser Multipacks mit Flaschen ab 1 Liter",
+      "tags": [],
+      "price": 6.4,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "evian Mineralwasser ohne Kohlensäure 6x75cl",
+      "brand": "Evian",
+      "category": "Mineralwasser Multipacks mit Flaschen unter 1 Liter",
+      "tags": [],
+      "price": 6.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Swiss Alpina Blau Mineralwasser mit Kohlensäure 6x50cl",
+      "brand": "Swiss Alpina",
+      "category": "Mineralwasser Multipacks mit Flaschen unter 1 Liter",
+      "tags": [],
+      "price": 3.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Valser Silence Mineralwasser ohne Kohlensäure 6x1,5l",
+      "brand": "Valser",
+      "category": "Mineralwasser Multipacks mit Flaschen ab 1 Liter",
+      "tags": [],
+      "price": 6.9,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "evian Junior Mineralwasser ohne Kohlensäure 12x33cl",
+      "brand": "Evian",
+      "category": "Mineralwasser Multipacks mit Flaschen unter 1 Liter",
+      "tags": [],
+      "price": 9.2,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "evian Mineralwasser ohne Kohlensäure 6x1l",
+      "brand": "Evian",
+      "category": "Mineralwasser Multipacks mit Flaschen ab 1 Liter",
+      "tags": [],
+      "price": 6.3,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Swiss Alpina Rot Mineralwasser ohne Kohlensäure 6x50cl",
+      "brand": "Swiss Alpina",
+      "category": "Mineralwasser Multipacks mit Flaschen unter 1 Liter",
+      "tags": [],
+      "price": 3.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Vittel Mineralwasser ohne Kohlensäure 6x1,5l",
+      "brand": "Vittel",
+      "category": "Mineralwasser Multipacks mit Flaschen ab 1 Liter",
+      "tags": [],
+      "price": 6.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Valser Prickelnd Mineralwasser mit Kohlensäure 6x50cl",
+      "brand": "Valser",
+      "category": "Mineralwasser Multipacks mit Flaschen unter 1 Liter",
+      "tags": [],
+      "price": 5.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Contrex Mineralwasser ohne Kohlensäure 6x1,5l",
+      "brand": "Contrex",
+      "category": "Mineralwasser Multipacks mit Flaschen ab 1 Liter",
+      "tags": [],
+      "price": 7.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Swiss Alpina Grün Mineralwasser mit wenig Kohlensäure 6x50cl",
+      "brand": "Swiss Alpina",
+      "category": "Mineralwasser Multipacks mit Flaschen unter 1 Liter",
+      "tags": [],
+      "price": 3.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Acqua Panna Mineralwasser ohne Kohlensäure 6x1,5l",
+      "brand": "Acqua Panna",
+      "category": "Mineralwasser ohne Kohlensäure",
+      "tags": [],
+      "price": 5.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Swiss Alpina Blau Mineralwasser mit Kohlensäure 6x1l",
+      "brand": "Swiss Alpina",
+      "category": "Mineralwasser Multipacks mit Flaschen ab 1 Liter",
+      "tags": [],
+      "price": 4.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Badoit Mineralwasser mit Kohlensäure 6x1l",
+      "brand": "Badoit",
+      "category": "Mineralwasser Multipacks mit Flaschen ab 1 Liter",
+      "tags": [],
+      "price": 3.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Rhäzünser Mineralwasser mit Kohlensäure 6x1,5l",
+      "brand": "Rhäzünser",
+      "category": "Mineralwasser Multipacks mit Flaschen ab 1 Liter",
+      "tags": [],
+      "price": 4.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Valser Prickelnd Zitrone Mineralwasser mit Kohlensäure 6x1,5l",
+      "brand": "Valser",
+      "category": "Mineralwasser Multipacks mit Flaschen ab 1 Liter",
+      "tags": [],
+      "price": 10.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "evian Mineralwasser ohne Kohlensäure mit Glasflasche 12x  75cl",
+      "brand": "Evian",
+      "category": "Mineralwasser ohne Kohlensäure",
+      "tags": [],
+      "price": 23.4,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Swiss Alpina Rot Mineralwasser ohne Kohlensäure 6x75cl",
+      "brand": "Swiss Alpina",
+      "category": "Mineralwasser ohne Kohlensäure",
+      "tags": [],
+      "price": 5.7,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Knutwiler Blau Mineralwasser mit Kohlensäure 6x1,5l",
+      "brand": "Knutwiler",
+      "category": "Mineralwasser mit Kohlensäure",
+      "tags": [],
+      "price": 6.9,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Knutwiler Grün Mineralwasser ohne Kohlensäure 6x1,5l",
+      "brand": "Knutwiler",
+      "category": "Mineralwasser ohne Kohlensäure",
+      "tags": [],
+      "price": 6.9,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Valser Prickelnd Zitrone Mineralwasser mit Kohlensäure 6x50cl",
+      "brand": "Valser",
+      "category": "Mineralwasser Multipacks mit Flaschen unter 1 Liter",
+      "tags": [],
+      "price": 7.2,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Valser Silence Mineralwasser ohne Kohlensäure 6x50cl",
+      "brand": "Valser",
+      "category": "Mineralwasser ohne Kohlensäure",
+      "tags": [],
+      "price": 5.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Contrex Mineralwasser ohne Kohlensäure 6x50cl",
+      "brand": "Contrex",
+      "category": "Mineralwasser Multipacks mit Flaschen unter 1 Liter",
+      "tags": [],
+      "price": 5.7,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "San Pellegrino mit Kohlensäure 6x1.25l",
+      "brand": "San Pellegrino",
+      "category": "Mineralwasser Multipacks mit Flaschen ab 1 Liter",
+      "tags": [],
+      "price": 6.6,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Schnitzwasser 6x1l",
+      "brand": "Naturaplan",
+      "category": "Mineralwasser mit Aroma",
+      "tags": [],
+      "price": 8.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Evian mit Kohlensäure 12x50cl",
+      "brand": "Evian",
+      "category": "Mineralwasser Multipacks mit Flaschen unter 1 Liter",
+      "tags": [],
+      "price": 12.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Volvic Naturelle 6x1.5l",
+      "brand": "Volvic",
+      "category": "Mineralwasser Multipacks mit Flaschen ab 1 Liter",
+      "tags": [],
+      "price": 3.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Schnitzwasser 6x50cl",
+      "brand": "Naturaplan",
+      "category": "Mineralwasser mit Aroma",
+      "tags": [],
+      "price": 5.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "DASH WATER Prickelnd Limette",
+      "brand": "DASH WATER",
+      "category": "Mineralwasser mit Aroma",
+      "tags": [],
+      "price": 1.8,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "S. Pellegrino mit Kohlensäure 6x75cl",
+      "brand": "San Pellegrino",
+      "category": "Mineralwasser Multipacks mit Flaschen unter 1 Liter",
+      "tags": [],
+      "price": 5.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Dash Water Prickelnd Raspberry",
+      "brand": "DASH WATER",
+      "category": "Mineralwasser mit Aroma",
+      "tags": [],
+      "price": 1.8,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "aldi",
+      "name": "Italienisches Mineralwasser, leicht prickelnd",
+      "brand": "SAN BENEDETTO",
+      "category": "Alkoholfreie Getränke",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 0.79,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "aldi",
+      "name": "Italienisches Mineralwasser, ohne Kohlensäure",
+      "brand": "SAN BENEDETTO",
+      "category": "Alkoholfreie Getränke",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 0.79,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "aldi",
+      "name": "Mineralwasser, Medium",
+      "brand": "AQUATA",
+      "category": "Alkoholfreie Getränke",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 0.29,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "aldi",
+      "name": "Mineralwasser, Classique",
+      "brand": "AQUATA",
+      "category": "Alkoholfreie Getränke",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 0.25,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "aldi",
+      "name": "Mineralwasser, Naturelle",
+      "brand": "AQUATA",
+      "category": "Alkoholfreie Getränke",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 0.29,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "aldi",
+      "name": "Mineralwasser",
+      "brand": "EVIAN",
+      "category": "Alkoholfreie Getränke",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 1.15,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "aldi",
+      "name": "Mineralwasser, Naturelle",
+      "brand": "AQUATA",
+      "category": "Alkoholfreie Getränke",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 0.25,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "aldi",
+      "name": "Natürliches Mineralwasser, ohne Kohlensäure",
+      "brand": "EVIAN",
+      "category": "Alkoholfreie Getränke",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 1.15,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "aldi",
+      "name": "Mineralwasser, mit Kohlensäure",
+      "brand": "SAN PELLEGRINO",
+      "category": "Alkoholfreie Getränke",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 1.15,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "aldi",
+      "name": "Natürliches Mineralwasser, mit Kohlensäure",
+      "brand": "SAN PELLEGRINO",
+      "category": "Alkoholfreie Getränke",
+      "tags": [
+        "in-stock",
+        "special-buy"
+      ],
+      "price": 0.99,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "aldi",
+      "name": "Schweizer Mineralwasser, ohne Kohlensäure",
+      "brand": "SAVEURS SUISSES",
+      "category": "Alkoholfreie Getränke",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 0.65,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "aldi",
+      "name": "Schweizer Mineralwasser, mit Kohlensäure",
+      "brand": "SAVEURS SUISSES",
+      "category": "Alkoholfreie Getränke",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 0.65,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "aldi",
+      "name": "Mineralwasser, Classique",
+      "brand": "AQUATA",
+      "category": "Alkoholfreie Getränke",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 0.29,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "aldi",
+      "name": "Natürliches Mineralwasser, still",
+      "brand": "VALSER",
+      "category": "Alkoholfreie Getränke",
+      "tags": [
+        "in-stock",
+        "special-buy"
+      ],
+      "price": 0.49,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "aldi",
+      "name": "Natürliches Mineralwasser, sparkling",
+      "brand": "VALSER",
+      "category": "Alkoholfreie Getränke",
+      "tags": [
+        "in-stock",
+        "special-buy"
+      ],
+      "price": 0.49,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Evian Nature Wasser",
+      "brand": "Evian",
+      "category": "Root",
+      "tags": [],
+      "price": 11.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "San Pellegrino Wasser mit Kohlensäure",
+      "brand": "San Pellegrino",
+      "category": "Root",
+      "tags": [],
+      "price": 3.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "San Pellegrino Wasser mit Kohlensäure",
+      "brand": "San Pellegrino",
+      "category": "Root",
+      "tags": [],
+      "price": 10.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Valser Prickelnd",
+      "brand": "Valser",
+      "category": "Root",
+      "tags": [],
+      "price": 6.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Evian Nature 6 x 150 cl Pet",
+      "brand": "Evian",
+      "category": "Root",
+      "tags": [],
+      "price": 6.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Tin Destilliertes Wasser",
+      "brand": "Tin",
+      "category": "Root",
+      "tags": [],
+      "price": 2.95,
+      "keptAtCapture": false
+    }
+  ]
+}

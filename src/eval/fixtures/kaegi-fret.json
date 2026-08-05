@@ -1,7 +1,7 @@
 {
   "id": "kaegi-fret",
   "query": "Kägi fret",
-  "capturedAt": "2026-08-01T09:02:19.217Z",
+  "capturedAt": "2026-08-05T21:44:10.592Z",
   "products": [
     {
       "chain": "volg",
@@ -67,24 +67,6 @@
       "category": "1144362",
       "tags": [],
       "price": 5.95,
-      "unit": null
-    },
-    {
-      "chain": "coop",
-      "name": "Kägi fret Classic mini 3x128g",
-      "brand": "Kägi",
-      "category": "Hüppen, Waffeln & Läckerli",
-      "tags": [],
-      "price": 8.2,
-      "unit": null
-    },
-    {
-      "chain": "coop",
-      "name": "Kägi fret Dark mini 3x128g",
-      "brand": "Kägi",
-      "category": "Hüppen, Waffeln & Läckerli",
-      "tags": [],
-      "price": 8.2,
       "unit": null
     },
     {

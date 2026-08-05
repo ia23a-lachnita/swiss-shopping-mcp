@@ -1,7 +1,7 @@
 {
   "id": "reinigungsmittel",
   "query": "Reinigungsmittel",
-  "capturedAt": "2026-08-01T09:02:32.328Z",
+  "capturedAt": "2026-08-05T21:44:15.875Z",
   "products": [
     {
       "chain": "denner",
@@ -19,6 +19,348 @@
       "category": "Glasreiniger",
       "tags": [],
       "price": 24.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Glasreiniger",
+      "brand": "M-Budget",
+      "category": "",
+      "tags": [],
+      "price": 0.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Emmas Combi Allzweck- + Abwaschreiniger",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 1.1,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "WC-Reiniger",
+      "brand": "M-Budget",
+      "category": "",
+      "tags": [],
+      "price": 1.1,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Allzweckreiniger",
+      "brand": "M-Budget",
+      "category": "",
+      "tags": [],
+      "price": 1.9,
+      "unit": null
+    },
+    {
+      "chain": "ottos",
+      "name": "Felce Azzurra Bodenreiniger für alle Bodentypen Classic",
+      "brand": "Felce Azzurra",
+      "category": "Root",
+      "tags": [],
+      "price": 2.5,
+      "unit": null
+    },
+    {
+      "chain": "ottos",
+      "name": "Felce Azzurra Bodenreiniger für alle Bodentypen Lavendel",
+      "brand": "Felce Azzurra",
+      "category": "Root",
+      "tags": [],
+      "price": 2.5,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Allzweckreiniger",
+      "brand": "Potz",
+      "category": "",
+      "tags": [],
+      "price": 2.52,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Allzweckreiniger",
+      "brand": "Potz",
+      "category": "",
+      "tags": [],
+      "price": 2.6,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Allzweckreiniger",
+      "brand": "Potz",
+      "category": "",
+      "tags": [],
+      "price": 2.6,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Allzweckreiniger",
+      "brand": "Potz",
+      "category": "",
+      "tags": [],
+      "price": 2.6,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Allzweckreiniger",
+      "brand": "Potz",
+      "category": "",
+      "tags": [],
+      "price": 2.6,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "WC-Reiniger Refill",
+      "brand": "Nature Clean",
+      "category": "",
+      "tags": [],
+      "price": 2.8,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Essigreiniger",
+      "brand": "M-Budget",
+      "category": "",
+      "tags": [],
+      "price": 2.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "WC-Reiniger",
+      "brand": "Nature Clean",
+      "category": "",
+      "tags": [],
+      "price": 2.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Allzweckreiniger Konzentrat Refill",
+      "brand": "Nature Clean",
+      "category": "",
+      "tags": [],
+      "price": 3.4,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Allzweckreiniger",
+      "brand": "Nature Clean",
+      "category": "",
+      "tags": [],
+      "price": 3.5,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "WC-Reiniger",
+      "brand": "Hygo",
+      "category": "",
+      "tags": [],
+      "price": 3.5,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Allzweckreiniger",
+      "brand": "Nature Clean",
+      "category": "",
+      "tags": [],
+      "price": 3.6,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Backofen & Grillreiniger",
+      "brand": "Potz",
+      "category": "",
+      "tags": [],
+      "price": 3.6,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Fettreiniger",
+      "brand": "Chante Clair",
+      "category": "",
+      "tags": [],
+      "price": 3.95,
+      "unit": null
+    },
+    {
+      "chain": "ottos",
+      "name": "WC Ente Active Clean Citrus",
+      "brand": "WC Ente",
+      "category": "Root",
+      "tags": [],
+      "price": 3.95,
+      "unit": null
+    },
+    {
+      "chain": "ottos",
+      "name": "WC Ente Active Clean Marine",
+      "brand": "WC Ente",
+      "category": "Root",
+      "tags": [],
+      "price": 3.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Abflussreiniger",
+      "brand": "Potz",
+      "category": "",
+      "tags": [],
+      "price": 3.96,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Silber + Metall Reiniger",
+      "brand": "Potz",
+      "category": "",
+      "tags": [],
+      "price": 3.96,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Handgeschirrspülmittel",
+      "brand": "L'Arbre Vert",
+      "category": "",
+      "tags": [],
+      "price": 4.1,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Handgeschirrspülmittel",
+      "brand": "L'Arbre Vert",
+      "category": "",
+      "tags": [],
+      "price": 4.1,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Handgeschirrspülmittel",
+      "brand": "L'Arbre Vert",
+      "category": "",
+      "tags": [],
+      "price": 4.1,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Handgeschirrspülmittel",
+      "brand": "L'Arbre Vert",
+      "category": "",
+      "tags": [],
+      "price": 4.1,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Entkalker",
+      "brand": "Potz",
+      "category": "",
+      "tags": [],
+      "price": 4.64,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Allzweckreiniger",
+      "brand": "Potz",
+      "category": "",
+      "tags": [],
+      "price": 4.76,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Multi Javel Reiniger",
+      "brand": "Potz",
+      "category": "",
+      "tags": [],
+      "price": 4.76,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Allzweckreiniger",
+      "brand": "Dettol",
+      "category": "",
+      "tags": [],
+      "price": 4.95,
+      "unit": null
+    },
+    {
+      "chain": "ottos",
+      "name": "WC Frisch WC Reiniger Gel Kraft Aktiv Blütenfrische",
+      "brand": "WC Frisch",
+      "category": "Root",
+      "tags": [],
+      "price": 4.95,
+      "unit": null
+    },
+    {
+      "chain": "ottos",
+      "name": "WC Frisch WC Reiniger Gel Kraft Aktiv Lemon",
+      "brand": "WC Frisch",
+      "category": "Root",
+      "tags": [],
+      "price": 4.95,
+      "unit": null
+    },
+    {
+      "chain": "ottos",
+      "name": "WC Frisch WC Reiniger Gel Kraft Aktiv Ozeanfrische",
+      "brand": "WC Frisch",
+      "category": "Root",
+      "tags": [],
+      "price": 4.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "WC-Reiniger",
+      "brand": "Hygo",
+      "category": "",
+      "tags": [],
+      "price": 4.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Allzweckreiniger",
+      "brand": "Potz",
+      "category": "",
+      "tags": [],
+      "price": 5.2,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Allzweckreiniger",
+      "brand": "L'Arbre Vert",
+      "category": "",
+      "tags": [],
+      "price": 5.9,
       "unit": null
     }
   ]

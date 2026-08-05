@@ -69,16 +69,23 @@ describe('product matcher', () => {
   });
 
   it('still requires the noun, wherever the retailer put it', () => {
-    // "Le Gruyère gerieben" is grated cheese and a human would say so, but
-    // nothing in its name says "Käse". It qualifies through its category and
-    // would not qualify without one — recognising Gruyère as a cheese is a
-    // taxonomy problem, and pretending otherwise here would mean accepting
-    // any product that merely happens to be grated.
+    // "Le Gruyère gerieben" is grated cheese and a human would say so. It used
+    // to qualify only through its category, because the taxonomy did know
+    // Gruyère was a cheese but was keyed by the English word `cheese` and
+    // looked up by the shopper's German one — the entry existed and was
+    // unreachable. Keyed by `kase`, the uncategorised product now qualifies
+    // too, one rank below the categorised one.
     const named = product({ name: 'Le Gruyère gerieben', category: 'Käse' });
     const uncategorised = product({ name: 'Le Gruyère gerieben' });
 
-    expect(calculateMatchStrength(named, 'geriebener Käse', 'balanced')).toBeGreaterThan(0);
-    expect(calculateMatchStrength(uncategorised, 'geriebener Käse', 'balanced')).toBe(0);
+    expect(calculateMatchStrength(named, 'geriebener Käse', 'balanced')).toBeGreaterThan(
+      calculateMatchStrength(uncategorised, 'geriebener Käse', 'balanced')
+    );
+    expect(calculateMatchStrength(uncategorised, 'geriebener Käse', 'balanced')).toBeGreaterThan(0);
+
+    // What the noun requirement is actually protecting: being grated is not
+    // enough to answer a query for cheese.
+    expect(calculateMatchStrength(product({ name: 'Karotten gerieben' }), 'geriebener Käse', 'balanced')).toBe(0);
   });
 
   it('keeps a product that misses the modifier but ranks it below one that has it', () => {
@@ -165,6 +172,78 @@ describe('product matcher', () => {
 
     expect(calculateMatchStrength(grated, 'geriebener Käse', 'literal')).toBe(0);
     expect(calculateMatchStrength(milk, 'lait entier', 'literal')).toBe(0);
+  });
+
+  it('ranks a compound by its head, not by what it contains', () => {
+    // "Mischobst" is fruit; "Obstessig" is a vinegar and "Obstriegel" a snack
+    // bar. Plain containment scored all three the same, and the browser showed
+    // it: the top four results for "Obst" were baby purée, vinegar, mixed fruit
+    // and a stain remover.
+    const mixed = calculateMatchStrength(product({ name: 'Mischobst' }), 'Obst', 'balanced');
+    const vinegar = calculateMatchStrength(product({ name: 'Naturaplan Bio Demeter Obstessig' }), 'Obst', 'balanced');
+    const realFruit = calculateMatchStrength(product({ name: 'Granatapfel' }), 'Obst', 'balanced');
+
+    expect(mixed).toBeGreaterThan(realFruit);
+    expect(realFruit).toBeGreaterThan(vinegar);
+    // Demoted, not discarded: a fruit bar is a defensible thing to offer, just
+    // not ahead of fruit.
+    expect(vinegar).toBeGreaterThan(0);
+  });
+
+  it('does not mistake an inflection for a compound modifier', () => {
+    // The head rule has to survive a plural, or it would demote half a
+    // catalogue: "Karotten" is exactly what "Karotte" asked for.
+    const plural = calculateMatchStrength(product({ name: 'Karotten' }), 'Karotte', 'balanced');
+    const modifierPosition = calculateMatchStrength(
+      product({ name: 'Karottenkuchen' }),
+      'Karotte',
+      'balanced'
+    );
+
+    expect(plural).toBeGreaterThanOrEqual(90);
+    expect(plural).toBeGreaterThan(modifierPosition);
+  });
+
+  it('answers a category query with the products in that category', () => {
+    // The table used to be keyed by English concept names, so `TAXONOMY['obst']`
+    // and `TAXONOMY['teigwaren']` were both undefined — and since an
+    // unrecognised token is mandatory, every product that did not spell the
+    // category word out was discarded. Measured against the captured vendor
+    // pools, "Teigwaren" kept 10 of 87 relevant products and
+    // "Reinigungsmittel" kept none of 32.
+    expect(calculateMatchStrength(product({ name: 'Hörnli' }), 'Teigwaren', 'balanced')).toBeGreaterThan(0);
+    expect(calculateMatchStrength(product({ name: 'Granatapfel' }), 'Obst', 'balanced')).toBeGreaterThan(0);
+    expect(
+      calculateMatchStrength(product({ name: 'Allzweckreiniger Zitrone' }), 'Reinigungsmittel', 'balanced')
+    ).toBeGreaterThan(0);
+  });
+
+  it('does not expand a category member to its siblings', () => {
+    // Directional on purpose: expanding both ways would answer "Apfel" with a
+    // banana, trading the recall defect for a precision one.
+    expect(calculateMatchStrength(product({ name: 'Banane' }), 'Apfel', 'balanced')).toBe(0);
+    expect(calculateMatchStrength(product({ name: 'Spaghetti' }), 'Hörnli', 'balanced')).toBe(0);
+  });
+
+  it('matches a closed compound the retailer writes open', () => {
+    // Shoppers close up noun phrases and catalogues do not: "Freilandeier" is
+    // shelved as "Eier, Freiland" and "Basmatireis" as "Basmati Reis".
+    const eggs = product({ name: 'Eier, Freiland 6 Stück' });
+    const rice = product({ name: 'Basmati Reis' });
+
+    expect(calculateMatchStrength(eggs, 'Freilandeier', 'balanced')).toBeGreaterThan(0);
+    expect(calculateMatchStrength(rice, 'Basmatireis', 'balanced')).toBeGreaterThan(0);
+    // Below an exact spelling, so a product named as asked still outranks it.
+    expect(calculateMatchStrength(rice, 'Basmatireis', 'balanced')).toBeLessThan(
+      calculateMatchStrength(product({ name: 'Basmatireis' }), 'Basmatireis', 'balanced')
+    );
+  });
+
+  it('requires both halves of a split compound on the same product', () => {
+    // The guard that keeps compound splitting from becoming "any token matches
+    // something": a product carrying only one half is not an answer.
+    expect(calculateMatchStrength(product({ name: 'Eier, Boden 10 Stück' }), 'Freilandeier', 'balanced')).toBe(0);
+    expect(calculateMatchStrength(product({ name: 'Risotto Reis' }), 'Basmatireis', 'balanced')).toBe(0);
   });
 
   it('sortProducts uses dynamic taxonomy for ranking', () => {

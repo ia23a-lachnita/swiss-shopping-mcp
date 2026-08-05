@@ -1,7 +1,7 @@
 {
   "id": "basmatireis",
   "query": "Basmatireis",
-  "capturedAt": "2026-08-01T09:00:40.113Z",
+  "capturedAt": "2026-08-05T21:43:41.400Z",
   "products": [
     {
       "chain": "coop",
@@ -37,6 +37,15 @@
       "category": "Frische asiatische Fertigerichte",
       "tags": [],
       "price": 7.95,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Himalaya Basmati Reis",
+      "brand": "Alnatura",
+      "category": "",
+      "tags": [],
+      "price": 2,
       "unit": null
     }
   ]

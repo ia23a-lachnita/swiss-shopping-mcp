@@ -1,7 +1,7 @@
 {
   "id": "zwiebeln",
   "query": "Zwiebeln",
-  "capturedAt": "2026-08-01T09:00:04.592Z",
+  "capturedAt": "2026-08-05T21:43:32.397Z",
   "products": [
     {
       "chain": "migros",
@@ -27,7 +27,7 @@
       "brand": "Migros",
       "category": "",
       "tags": [],
-      "price": 1.8,
+      "price": 1.7,
       "unit": null
     },
     {
@@ -109,6 +109,15 @@
       "category": "Zwiebeln & Knoblauch",
       "tags": [],
       "price": 0.95,
+      "unit": null
+    },
+    {
+      "chain": "volg",
+      "name": "Agri Natura Zwiebeln",
+      "brand": null,
+      "category": "Früchte, Gemüse &amp; Salatsaucen",
+      "tags": [],
+      "price": 1.1,
       "unit": null
     },
     {
@@ -354,15 +363,6 @@
       "category": "Gemüse in Essig",
       "tags": [],
       "price": 3.2,
-      "unit": null
-    },
-    {
-      "chain": "denner",
-      "name": "IP-SUISSE Zwiebeln",
-      "brand": null,
-      "category": "1144362",
-      "tags": [],
-      "price": 3.4,
       "unit": null
     }
   ]

@@ -54,17 +54,50 @@ export type Judgement = 'relevant' | 'forbidden' | 'neutral';
  * label set where a product is both is a labelling bug, and resolving it
  * towards `forbidden` keeps the gate honest rather than quietly passing.
  */
+/**
+ * German inflectional endings a head noun may carry: "Banane"/"Bananen",
+ * "Traube"/"Trauben". Without these the head rule below would reject a plural,
+ * which is how half a grocery catalogue is written.
+ */
+const INFLECTION = '(?:e|en|er|n|s)?';
+
+/** Patterns the corpus wrote as a bare word rather than as a regex. */
+const PLAIN_WORD = /^[a-z0-9]+$/;
+
+/**
+ * In a German compound the **last** stem says what the thing is, and every
+ * earlier stem only qualifies it. `Vollmilch` is a milk; `Milchschokolade` is a
+ * chocolate. A substring test cannot tell those apart, and the corpus was being
+ * scored by one — so for the query "Obst" it certified `Obstessig` (vinegar),
+ * `Kernobstbranntwein` (schnapps) and a Dr. Beckmann *stain remover* as
+ * relevant, and reported P@5 1.0 for a result list containing no fruit above
+ * rank 3. The judge shared the matcher's substring assumption, which is exactly
+ * why it could never see the matcher's substring defect.
+ *
+ * So a `relevant` pattern must land on a head: standalone, or ending the word.
+ *
+ * `forbidden` deliberately keeps the old anywhere-match, and the asymmetry is
+ * the same piece of grammar read the other way round. "Is this a kind of X?"
+ * is answered by the head; "does this carry trait Y at all?" is answered
+ * anywhere in the compound — `Erdnussbutter` is forbidden for "Butter" *because
+ * of* its modifier, and a head rule applied here would clear it.
+ */
+function patternMatcher(pattern: string): RegExp {
+  const folded = foldForMatch(pattern);
+  return PLAIN_WORD.test(folded) ? new RegExp(`${folded}${INFLECTION}\\b`) : new RegExp(folded);
+}
+
 export function judgeProduct(product: ScoredProduct, query: GoldenQuery): Judgement {
   // Identity fields only. Brand is required, not optional: Migros and Aldi put
   // the brand in `brand` and only the variant in `name`, so a Toblerone bar is
   // literally named "Crunchy Almond" and judging on name alone would score
   // every brand query near zero against results that are in fact correct.
   const identity = foldForMatch(`${product.name} ${product.brand ?? ''}`);
-  const matches = (patterns: string[]): boolean =>
-    patterns.some((pattern) => new RegExp(foldForMatch(pattern)).test(identity));
 
-  if (matches(query.forbidden)) return 'forbidden';
-  if (matches(query.relevant)) return 'relevant';
+  if (query.forbidden.some((pattern) => new RegExp(foldForMatch(pattern)).test(identity))) {
+    return 'forbidden';
+  }
+  if (query.relevant.some((pattern) => patternMatcher(pattern).test(identity))) return 'relevant';
   return 'neutral';
 }
 

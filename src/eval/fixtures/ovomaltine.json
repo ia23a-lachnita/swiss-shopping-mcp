@@ -1,7 +1,7 @@
 {
   "id": "ovomaltine",
   "query": "Ovomaltine",
-  "capturedAt": "2026-08-01T09:01:54.156Z",
+  "capturedAt": "2026-08-05T21:44:04.272Z",
   "products": [
     {
       "chain": "coop",
@@ -10,6 +10,15 @@
       "category": "Guezli mit Schokoladenzutat",
       "tags": [],
       "price": 1.75,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Wander Ovo Joghurt Crisp Müsli",
+      "brand": "Ovomaltine",
+      "category": "Schokojogurt & Stracciatellajogurt",
+      "tags": [],
+      "price": 1.85,
       "unit": null
     },
     {
@@ -352,15 +361,6 @@
       "category": "Ovomaltine & Malt",
       "tags": [],
       "price": 6.5,
-      "unit": null
-    },
-    {
-      "chain": "coop",
-      "name": "Ovomaltine Branchli 10x22g",
-      "brand": "Ovomaltine",
-      "category": "Schokoladenriegel",
-      "tags": [],
-      "price": 6.95,
       "unit": null
     }
   ]

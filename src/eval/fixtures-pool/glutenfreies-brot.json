@@ -1,0 +1,929 @@
+{
+  "id": "glutenfreies-brot",
+  "query": "glutenfreies Brot",
+  "capturedAt": "2026-08-05T21:41:15.469Z",
+  "pool": [
+    {
+      "chain": "coop",
+      "name": "Schär Meisterbäcker Brot Vitalbrot glutenfrei",
+      "brand": "Schär",
+      "category": "Lang haltbare Brote",
+      "tags": [],
+      "price": 4.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Schär Kaiserbrötchen glutenfrei",
+      "brand": "Schär",
+      "category": "Frischback Brot",
+      "tags": [],
+      "price": 4.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Schär Vitaminbrot glutenfrei",
+      "brand": "Schär",
+      "category": "Lang haltbare Brote",
+      "tags": [],
+      "price": 5.3,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Schär Brot Campagnard glutenfrei",
+      "brand": "Schär",
+      "category": "Lang haltbare Brote",
+      "tags": [],
+      "price": 4.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Schär Brot-Mix glutenfrei",
+      "brand": "Schär",
+      "category": "Mehl",
+      "tags": [],
+      "price": 6.4,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Schär Meisterbäcker Brot Mehrkorn glutenfrei",
+      "brand": "Schär",
+      "category": "Lang haltbare Brote",
+      "tags": [],
+      "price": 4.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Schnitzer Bio Frischback-Brot Chia & Quinoa glutenfrei",
+      "brand": "Schnitzer",
+      "category": "Frischback Brot",
+      "tags": [],
+      "price": 7.2,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Schär Meisterbäckers Classic glutenfrei",
+      "brand": "Schär",
+      "category": "Lang haltbare Brote",
+      "tags": [],
+      "price": 4.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Old El Paso Tortilla glutenfrei 6 Stück",
+      "brand": "Old el Paso",
+      "category": "Fladenbrote & Tortillas",
+      "tags": [],
+      "price": 5.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Old El Paso Street Market Corn Tortillas glutenfrei 10 Stück",
+      "brand": "Old el Paso",
+      "category": "Fladenbrote & Tortillas",
+      "tags": [],
+      "price": 4.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Schär Frischback Ciabatta glutenfrei",
+      "brand": "Schär",
+      "category": "Frischback Brot",
+      "tags": [],
+      "price": 3.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Schnitzer Bio Baguette Rustic glutenfrei",
+      "brand": "Schnitzer",
+      "category": "Frischback Brot",
+      "tags": [],
+      "price": 5.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Toast",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 3.45,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Landbrot mit Mais",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 3.85,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Zöpfli",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 4.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Körnerbrötchen",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 2.85,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Rustikales Landbrot",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 4.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Bauernbrot",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 3.65,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Mehlmischung ",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 4.9,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Baguettini",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 2.85,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Silserbrötchen",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 3.45,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Brotaufstrich",
+      "brand": "Nocciolata",
+      "category": "",
+      "tags": [],
+      "price": 5.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Brotaufstrich",
+      "brand": "Nocciolata",
+      "category": "",
+      "tags": [],
+      "price": 5.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Chips",
+      "brand": "Zweifel",
+      "category": "",
+      "tags": [],
+      "price": 4.2,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Knäckebrot",
+      "brand": "Wasa",
+      "category": "",
+      "tags": [],
+      "price": 4.5,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Knusperbrot",
+      "brand": "Le Pain des Fleurs",
+      "category": "",
+      "tags": [],
+      "price": 2.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Knäckebrot",
+      "brand": "Wasa",
+      "category": "",
+      "tags": [],
+      "price": 4.5,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Brotaufstrich",
+      "brand": "Nocciolata",
+      "category": "",
+      "tags": [],
+      "price": 5.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Knusperbrot",
+      "brand": "Le Pain des Fleurs",
+      "category": "",
+      "tags": [],
+      "price": 3.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Haferschnitten",
+      "brand": "Le Pain des Fleurs",
+      "category": "",
+      "tags": [],
+      "price": 2.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "coop",
+      "name": "Bio Mais Tortillas",
+      "brand": "MASAMOR",
+      "category": "Fladenbrote & Tortillas",
+      "tags": [],
+      "price": 5.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "coop",
+      "name": "Old el Paso Tortilla XL Glutenfree 4 Stück",
+      "brand": "Old el Paso",
+      "category": "Fladenbrote & Tortillas",
+      "tags": [],
+      "price": 6.5,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "coop",
+      "name": "Schär Landbrot Mehrkorn",
+      "brand": "Schär",
+      "category": "Lang haltbare Brote",
+      "tags": [],
+      "price": 4.6,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "coop",
+      "name": "Free From Mehrkornbrötchen 6 Stück",
+      "brand": "Free From",
+      "category": "Tiefgekühlte Apérogebäck ",
+      "tags": [],
+      "price": 5.5,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "coop",
+      "name": "Betty Bossi Backmischung Landbrot",
+      "brand": "Betty Bossi",
+      "category": "Backmischungen",
+      "tags": [],
+      "price": 4.4,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "coop",
+      "name": "Betty Bossi Saatenbrötchen",
+      "brand": "Betty Bossi",
+      "category": "Mehl",
+      "tags": [],
+      "price": 3.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "coop",
+      "name": "Old el Paso Fajita mix Gluten Free",
+      "brand": "Old el Paso",
+      "category": "Fladenbrote & Tortillas",
+      "tags": [],
+      "price": 1.6,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "coop",
+      "name": "Old el Paso Taco Shells",
+      "brand": "Old el Paso",
+      "category": "Fladenbrote & Tortillas",
+      "tags": [],
+      "price": 3.5,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Roland Snack Pearls glutenfrei",
+      "brand": "Roland",
+      "category": "Root",
+      "tags": [],
+      "price": 1.75,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Barilla Glutenfrei Spaghetti",
+      "brand": "Barilla",
+      "category": "Root",
+      "tags": [],
+      "price": 2.6,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Barilla Glutenfrei Fusilli",
+      "brand": "Barilla",
+      "category": "Root",
+      "tags": [],
+      "price": 2.6,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Barilla Glutenfrei Penne Rigate",
+      "brand": "Barilla",
+      "category": "Root",
+      "tags": [],
+      "price": 2.6,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Barilla Glutenfrei Tagliatelle",
+      "brand": "Barilla",
+      "category": "Root",
+      "tags": [],
+      "price": 2.6,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Brotdose Super Mario",
+      "brand": "",
+      "category": "Root",
+      "tags": [],
+      "price": 9.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Nouvel Brotkorb Melchterli",
+      "brand": "Nouvel",
+      "category": "Root",
+      "tags": [],
+      "price": 19.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Ariete Brotbackautomat ARI-132",
+      "brand": "Ariete",
+      "category": "Root",
+      "tags": [],
+      "price": 94.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Berry Bros & Rudd No. 3 High Strength Gin",
+      "brand": "No. 3 High Strength",
+      "category": "Root",
+      "tags": [],
+      "price": 69,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Lunasol Brotbrett GAYA Wooden 43 x 23 x 3.5 cm",
+      "brand": "Lusol",
+      "category": "Root",
+      "tags": [],
+      "price": 59.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Barilla Glutenfrei Coquillettes",
+      "brand": "Barilla",
+      "category": "Root",
+      "tags": [],
+      "price": 3.3,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Brotbox Stitch",
+      "brand": "",
+      "category": "Root",
+      "tags": [],
+      "price": 5.5,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Brotdose Minecraft",
+      "brand": "",
+      "category": "Root",
+      "tags": [],
+      "price": 7.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Brotdose Pokémon",
+      "brand": "",
+      "category": "Root",
+      "tags": [],
+      "price": 7.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Brotdose Super Mario",
+      "brand": "",
+      "category": "Root",
+      "tags": [],
+      "price": 7.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Brotbox Paw Patrol Girl",
+      "brand": "",
+      "category": "Root",
+      "tags": [],
+      "price": 6.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Brotbox Paw Patrol blau",
+      "brand": "",
+      "category": "Root",
+      "tags": [],
+      "price": 6.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Brotbox mit Bambusdeckel",
+      "brand": "",
+      "category": "Root",
+      "tags": [],
+      "price": 10,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Brotbox aus Bambus",
+      "brand": "",
+      "category": "Root",
+      "tags": [],
+      "price": 17.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Snatt's Brotsnack Tomate & Oregano",
+      "brand": "Snatt's",
+      "category": "Root",
+      "tags": [],
+      "price": 1.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Nutella Brotaufstrich",
+      "brand": "Nutella",
+      "category": "Root",
+      "tags": [],
+      "price": 6.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Korlat Feigen & Johannisbrot",
+      "brand": "Korlat",
+      "category": "Root",
+      "tags": [],
+      "price": 32.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Snatt's Brotsnack Knoblauch & Petersilie",
+      "brand": "Snatt's",
+      "category": "Root",
+      "tags": [],
+      "price": 1.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Scooli Lunchbox Vaiana 2 mit Einsatz",
+      "brand": "",
+      "category": "Root",
+      "tags": [],
+      "price": 4.5,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Gran Pavesi Cracker Non Salati",
+      "brand": "Gran Pavesi",
+      "category": "Root",
+      "tags": [],
+      "price": 3.5,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Gran Pavesi Cracker Salati",
+      "brand": "Gran Pavesi",
+      "category": "Root",
+      "tags": [],
+      "price": 3.5,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Gran Pavesi Cracker Pomodoro",
+      "brand": "Gran Pavesi",
+      "category": "Root",
+      "tags": [],
+      "price": 2.5,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Lunch to Go Box SpongeBob",
+      "brand": "",
+      "category": "Root",
+      "tags": [],
+      "price": 6.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Lunch to Go Box Stitch",
+      "brand": "",
+      "category": "Root",
+      "tags": [],
+      "price": 6.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Oral-B Rotationszahnbürste Vitality Pro D103 Hangable Box",
+      "brand": "Oral-B",
+      "category": "Root",
+      "tags": [],
+      "price": 23.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Ariete 4-Scheiben Vint.Toast. ARI-156-GR",
+      "brand": "Ariete",
+      "category": "Root",
+      "tags": [],
+      "price": 89.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Brotdose Hello Kitty",
+      "brand": "",
+      "category": "Root",
+      "tags": [],
+      "price": 5.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Brotdose Biene Maya",
+      "brand": "",
+      "category": "Root",
+      "tags": [],
+      "price": 5.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Brotdose Gabby's Dollhouse",
+      "brand": "",
+      "category": "Root",
+      "tags": [],
+      "price": 7.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Nouvel Brotkorb Elegance",
+      "brand": "Nouvel",
+      "category": "Root",
+      "tags": [],
+      "price": 9.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Trisa Brotbäcker Le Bistro",
+      "brand": "Trisa",
+      "category": "Root",
+      "tags": [],
+      "price": 189.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Tuc Cracker Rosmarino & Erbe",
+      "brand": "TUC",
+      "category": "Root",
+      "tags": [],
+      "price": 2.5,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Tuc Cracker Classico",
+      "brand": "TUC",
+      "category": "Root",
+      "tags": [],
+      "price": 2.5,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Snackline Cracker Mix",
+      "brand": "Snackline",
+      "category": "Root",
+      "tags": [],
+      "price": 2.9,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Tuc Cracker Pomodoro & Grana Padano",
+      "brand": "TUC",
+      "category": "Root",
+      "tags": [],
+      "price": 2.5,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Toskanabrot",
+      "brand": "BACKBOX",
+      "category": "Brot & Backwaren",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 1.99,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Tessinerbrot",
+      "brand": "PANETTERIA",
+      "category": "Brot & Backwaren",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 1.99,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "UrDinkelbrot mit Kernen",
+      "brand": "PANETTERIA",
+      "category": "Brot & Backwaren",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 3.85,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Leinsamenbrot",
+      "brand": "PANETTERIA",
+      "category": "Brot & Backwaren",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 2.89,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Gnüsserbrot, hell",
+      "brand": "PANETTERIA",
+      "category": "Brot & Backwaren",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 2.99,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Gnüsserbrot, dunkel",
+      "brand": "PANETTERIA",
+      "category": "Brot & Backwaren",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 2.99,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Baumnuss-Kartoffelbrot",
+      "brand": "PANETTERIA",
+      "category": "Aktionen",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 3.29,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Gallus-Brot",
+      "brand": "PANETTERIA",
+      "category": "Brot & Backwaren",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 3.99,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Buurebrot",
+      "brand": "PANETTERIA",
+      "category": "Brot & Backwaren",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 2.59,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Halbweissbrot",
+      "brand": "PANETTERIA",
+      "category": "Brot & Backwaren",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 0.99,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Ruchbrot",
+      "brand": "PANETTERIA",
+      "category": "Brot & Backwaren",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 0.99,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Dinkel-Vollkornbrot",
+      "brand": "PANETTERIA",
+      "category": "Brot & Backwaren",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 2.99,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Baumnussbrot mit Buchweizen",
+      "brand": "PANETTERIA",
+      "category": "Brot & Backwaren",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 2.99,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Knäckebrot, Roggen",
+      "brand": "HAPPY HARVEST",
+      "category": "Brot & Backwaren",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 1.09,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Knäckebrot, Sesam",
+      "brand": "HAPPY HARVEST",
+      "category": "Brot & Backwaren",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 1.09,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Proteinbrot, nature",
+      "brand": "HAPPY HARVEST",
+      "category": "Brot & Backwaren",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 2.29,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Proteinbrot, Rüebli",
+      "brand": "HAPPY HARVEST",
+      "category": "Brot & Backwaren",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 2.29,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Proteinbrot, Walnuss",
+      "brand": "HAPPY HARVEST",
+      "category": "Brot & Backwaren",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 2.29,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Pitabrot, Tasche, rund",
+      "brand": "LYTTOS",
+      "category": "Brot & Backwaren",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 2.29,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Pitabrot, Tasche, oval",
+      "brand": "LYTTOS",
+      "category": "Brot & Backwaren",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 2.29,
+      "keptAtCapture": false
+    }
+  ]
+}

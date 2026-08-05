@@ -1,7 +1,7 @@
 {
   "id": "lait-entier",
   "query": "lait entier",
-  "capturedAt": "2026-08-01T10:56:05.106Z",
+  "capturedAt": "2026-08-05T21:44:19.708Z",
   "products": [
     {
       "chain": "migros",
@@ -27,7 +27,7 @@
       "brand": "Migros High Protein",
       "category": "",
       "tags": [],
-      "price": 2.2,
+      "price": 2.25,
       "unit": null
     },
     {
@@ -136,6 +136,15 @@
       "category": "Milch",
       "tags": [],
       "price": 1.15,
+      "unit": null
+    },
+    {
+      "chain": "lidl",
+      "name": "Magermilch 0,1%",
+      "brand": null,
+      "category": "Food",
+      "tags": [],
+      "price": 1.19,
       "unit": null
     },
     {
@@ -360,17 +369,6 @@
       "category": "",
       "tags": [],
       "price": 1.8,
-      "unit": null
-    },
-    {
-      "chain": "aldi",
-      "name": "BIO-Milch",
-      "brand": "RETOUR AUX SOURCES",
-      "category": "Retour aux sources (Bio)",
-      "tags": [
-        "in-stock"
-      ],
-      "price": 1.85,
       "unit": null
     }
   ]

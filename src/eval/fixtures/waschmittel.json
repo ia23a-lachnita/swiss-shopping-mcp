@@ -1,7 +1,7 @@
 {
   "id": "waschmittel",
   "query": "Waschmittel",
-  "capturedAt": "2026-08-01T09:00:25.087Z",
+  "capturedAt": "2026-08-05T21:43:38.013Z",
   "products": [
     {
       "chain": "coop",
@@ -105,6 +105,15 @@
       "unit": null
     },
     {
+      "chain": "ottos",
+      "name": "Felce Azzurra Flüssigwaschmittel Sappone Aleppo 40 Waschgänge",
+      "brand": "Felce Azzurra",
+      "category": "Root",
+      "tags": [],
+      "price": 4.95,
+      "unit": null
+    },
+    {
       "chain": "coop",
       "name": "Baby Weiss Bleich-Waschmittel",
       "brand": "Baby weiss",
@@ -175,15 +184,6 @@
       "name": "Cashmere Waschmittel 5 Waschgänge",
       "brand": "Cashmere",
       "category": "Farbfänger",
-      "tags": [],
-      "price": 9.95,
-      "unit": null
-    },
-    {
-      "chain": "denner",
-      "name": "ecoma Feinwaschmittel",
-      "brand": null,
-      "category": "1144377",
       "tags": [],
       "price": 9.95,
       "unit": null
@@ -324,6 +324,24 @@
       "unit": null
     },
     {
+      "chain": "ottos",
+      "name": "Chanteclair Flüssig Waschmittel Marseille 80 Waschgänge",
+      "brand": "Chanteclair",
+      "category": "Root",
+      "tags": [],
+      "price": 12.95,
+      "unit": null
+    },
+    {
+      "chain": "ottos",
+      "name": "Chanteclair Flüssig Waschmittel Tiefe Sauberkeit 80 Waschgänge",
+      "brand": "Chanteclair",
+      "category": "Root",
+      "tags": [],
+      "price": 12.95,
+      "unit": null
+    },
+    {
       "chain": "coop",
       "name": "Omo Color Waschmittel Flüssig 25 Waschgänge",
       "brand": "Omo",
@@ -346,24 +364,6 @@
       "name": "Flüssigwaschmittel",
       "brand": "Nature Clean",
       "category": "",
-      "tags": [],
-      "price": 13.5,
-      "unit": null
-    },
-    {
-      "chain": "coop",
-      "name": "Oecoplan Feinwaschmittel 40 Waschgänge",
-      "brand": "Oecoplan",
-      "category": "Sensitive- Waschmittel",
-      "tags": [],
-      "price": 13.5,
-      "unit": null
-    },
-    {
-      "chain": "coop",
-      "name": "Oecoplan Waschmittel 1 for all Sensitive 23 Waschgänge",
-      "brand": "Oecoplan",
-      "category": "Sensitive- Waschmittel",
       "tags": [],
       "price": 13.5,
       "unit": null

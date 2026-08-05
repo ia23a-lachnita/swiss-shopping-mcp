@@ -1,7 +1,7 @@
 {
   "id": "tiefkuehl-pizza",
   "query": "Tiefkühl Pizza",
-  "capturedAt": "2026-08-01T10:55:47.502Z",
+  "capturedAt": "2026-08-05T21:43:58.784Z",
   "products": [
     {
       "chain": "coop",
@@ -28,6 +28,15 @@
       "category": "Tiefkühlpizza",
       "tags": [],
       "price": 3.15,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Buitoni Airfryer Pizza Burger Style",
+      "brand": "Buitoni",
+      "category": "Tiefkühlpizza",
+      "tags": [],
+      "price": 3.95,
       "unit": null
     },
     {
@@ -312,15 +321,6 @@
     {
       "chain": "coop",
       "name": "Buitoni La Classica Pizza Salame",
-      "brand": "Buitoni",
-      "category": "Tiefkühlpizza",
-      "tags": [],
-      "price": 7.95,
-      "unit": null
-    },
-    {
-      "chain": "coop",
-      "name": "Buitoni Pizza La Classica Prosciutto",
       "brand": "Buitoni",
       "category": "Tiefkühlpizza",
       "tags": [],

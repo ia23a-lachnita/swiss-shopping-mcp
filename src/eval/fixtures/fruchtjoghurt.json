@@ -1,7 +1,7 @@
 {
   "id": "fruchtjoghurt",
   "query": "Fruchtjoghurt",
-  "capturedAt": "2026-08-01T09:00:45.120Z",
+  "capturedAt": "2026-08-05T21:43:43.410Z",
   "products": [
     {
       "chain": "aldi",
@@ -45,6 +45,78 @@
         "in-stock"
       ],
       "price": 3.15,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Früchteriegel Joghurt, Kirsche & Banane ",
+      "brand": "Hipp",
+      "category": "",
+      "tags": [],
+      "price": 1.25,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Fairtrade Joghurt Mango Passionsfrucht ohne Zuckerzusatz 2x150g",
+      "brand": "Naturaplan",
+      "category": "Jogurt Exotenfrüchte & Jogurt Zitrusfrüchte",
+      "tags": [],
+      "price": 1.9,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Nestlé Yaos High Protein Joghurt Pfirsich & Passionsfrucht",
+      "brand": "Nestlé YAOS",
+      "category": "Jogurt Exotenfrüchte & Jogurt Zitrusfrüchte",
+      "tags": [],
+      "price": 2,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Hipp Brei Früchte Duett mit Joghurt ab 7+ Monate",
+      "brand": "Hipp",
+      "category": "Früchte Babybrei",
+      "tags": [],
+      "price": 2.1,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "LC1 Joghurt Passionsfrucht 2x150g",
+      "brand": "Nestle LC1",
+      "category": "Jogurt Exotenfrüchte & Jogurt Zitrusfrüchte",
+      "tags": [],
+      "price": 2.2,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "alpro Soja-Joghurtalternative Protein Rote Früchte",
+      "brand": "alpro",
+      "category": "Beerenjogurt",
+      "tags": [],
+      "price": 2.25,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Joghurt rote Früchte 6x125g",
+      "brand": "Coop",
+      "category": "Beerenjogurt",
+      "tags": [],
+      "price": 2.45,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Activia probiotischer Joghurt Vorratspack Fruchtmix 8x115g",
+      "brand": "Danone Activia",
+      "category": "Jogurt mit Gartenfrüchten",
+      "tags": [],
+      "price": 6.95,
       "unit": null
     }
   ]

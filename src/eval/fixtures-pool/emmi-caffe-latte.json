@@ -1,0 +1,821 @@
+{
+  "id": "emmi-caffe-latte",
+  "query": "Emmi Caffè Latte",
+  "capturedAt": "2026-08-05T21:41:23.087Z",
+  "pool": [
+    {
+      "chain": "migros",
+      "name": "Kaffee",
+      "brand": "Emmi Caffè Latte",
+      "category": "",
+      "tags": [],
+      "price": 3.6,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Cappuccino",
+      "brand": "Emmi Caffè Latte",
+      "category": "",
+      "tags": [],
+      "price": 3.15,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Cappuccino",
+      "brand": "Emmi Caffè Latte",
+      "category": "",
+      "tags": [],
+      "price": 2.15,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Protein Cappuccino",
+      "brand": "Emmi Caffè Latte",
+      "category": "",
+      "tags": [],
+      "price": 3.3,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Macchiato",
+      "brand": "Emmi Caffè Latte",
+      "category": "",
+      "tags": [],
+      "price": 8.6,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Double Zero",
+      "brand": "Emmi Caffè Latte",
+      "category": "",
+      "tags": [],
+      "price": 9.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Balance",
+      "brand": "Emmi Caffè Latte",
+      "category": "",
+      "tags": [],
+      "price": 2.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Cappucino",
+      "brand": "Emmi Caffè Latte",
+      "category": "",
+      "tags": [],
+      "price": 8.6,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Vanilla",
+      "brand": "Emmi Caffè Latte",
+      "category": "",
+      "tags": [],
+      "price": 2.45,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Espresso",
+      "brand": "Emmi Caffè Latte",
+      "category": "",
+      "tags": [],
+      "price": 2.15,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Double Zero Macchiato",
+      "brand": "Emmi Caffè Latte",
+      "category": "",
+      "tags": [],
+      "price": 2.55,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Decaf",
+      "brand": "Emmi Caffè Latte",
+      "category": "",
+      "tags": [],
+      "price": 2.55,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Macchiato",
+      "brand": "Emmi Caffè Latte",
+      "category": "",
+      "tags": [],
+      "price": 3.15,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Protein Double Zero",
+      "brand": "Emmi Caffè Latte",
+      "category": "",
+      "tags": [],
+      "price": 3.3,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Double Zero",
+      "brand": "Emmi Caffè Latte",
+      "category": "",
+      "tags": [],
+      "price": 3.3,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Protein Macchiato",
+      "brand": "Emmi Caffè Latte",
+      "category": "",
+      "tags": [],
+      "price": 3.3,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Macchiato",
+      "brand": "Emmi Caffè Latte",
+      "category": "",
+      "tags": [],
+      "price": 5.35,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Double Zero",
+      "brand": "Emmi Caffè Latte",
+      "category": "",
+      "tags": [],
+      "price": 2.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Macchiato",
+      "brand": "Emmi Caffè Latte",
+      "category": "",
+      "tags": [],
+      "price": 2.15,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Double Zero",
+      "brand": "Emmi Caffè Latte",
+      "category": "",
+      "tags": [],
+      "price": 5.55,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Matcha",
+      "brand": "Emmi Caffè Latte",
+      "category": "",
+      "tags": [],
+      "price": 2.55,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Emmi Caffè Latte Double Zero 3x  230ml",
+      "brand": "Emmi Caffè Latte",
+      "category": "Kaffeegetränke & Chai-Latte",
+      "tags": [],
+      "price": 5.85,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Emmi Caffè Latte Macchiato 3x  230ml",
+      "brand": "Emmi Caffè Latte",
+      "category": "Kaffeegetränke & Chai-Latte",
+      "tags": [],
+      "price": 5.1,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Emmi Caffè Latte Balance 3x  230ml",
+      "brand": "Emmi Caffè Latte",
+      "category": "Kaffeegetränke & Chai-Latte",
+      "tags": [],
+      "price": 5.85,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Emmi Caffè Latte Cappuccino 3x  230ml",
+      "brand": "Emmi Caffè Latte",
+      "category": "Kaffeegetränke & Chai-Latte",
+      "tags": [],
+      "price": 5.1,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Emmi Caffè Latte Macchiato 4x230ml",
+      "brand": "Emmi Caffè Latte",
+      "category": "Kaffeegetränke & Chai-Latte",
+      "tags": [],
+      "price": 8.6,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Emmi Caffè Latte High Protein",
+      "brand": "Emmi Caffè Latte",
+      "category": "Kaffeegetränke & Chai-Latte",
+      "tags": [],
+      "price": 3.6,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Emmi Caffè Latte Espresso",
+      "brand": "Emmi Caffè Latte",
+      "category": "Kaffeegetränke & Chai-Latte",
+      "tags": [],
+      "price": 2.15,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Emmi Caffè Latte Vanilla",
+      "brand": "Emmi Caffè Latte",
+      "category": "Kaffeegetränke & Chai-Latte",
+      "tags": [],
+      "price": 2.45,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Emmi Caffè Latte Double Zero 4x230ml",
+      "brand": "Emmi Caffè Latte",
+      "category": "Kaffeegetränke & Chai-Latte",
+      "tags": [],
+      "price": 9.8,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Emmi Caffè Latte Protein Coffee Double Zero",
+      "brand": "Emmi Caffè Latte",
+      "category": "Kaffeegetränke & Chai-Latte",
+      "tags": [],
+      "price": 3.3,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Emmi Caffè Latte Mr. Big Macchiato",
+      "brand": "Emmi Caffè Latte",
+      "category": "Kaffeegetränke & Chai-Latte",
+      "tags": [],
+      "price": 3.15,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Emmi Caffè Latte Mr. Big Double Zero",
+      "brand": "Emmi Caffè Latte",
+      "category": "Kaffeegetränke & Chai-Latte",
+      "tags": [],
+      "price": 3.25,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Emmi Caffè Latte Protein Coffee Macchiato",
+      "brand": "Emmi Caffè Latte",
+      "category": "Kaffeegetränke & Chai-Latte",
+      "tags": [],
+      "price": 3.3,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Emmi Caffè Latte Double Zero Macchiato",
+      "brand": "Emmi Caffè Latte",
+      "category": "Kaffeegetränke & Chai-Latte",
+      "tags": [],
+      "price": 2.55,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Emmi Caffè Latte Decaf",
+      "brand": "Emmi Caffè Latte",
+      "category": "Kaffeegetränke & Chai-Latte",
+      "tags": [],
+      "price": 2.55,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Emmi Caffè Latte Mr. Big Cappuccino",
+      "brand": "Emmi Caffè Latte",
+      "category": "Kaffeegetränke & Chai-Latte",
+      "tags": [],
+      "price": 3.15,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Emmi Caffè Latte Mr. Big Balance",
+      "brand": "Emmi Caffè Latte",
+      "category": "Kaffeegetränke & Chai-Latte",
+      "tags": [],
+      "price": 3.25,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Emmi Caffè Latte Mr. Huge Double Zero",
+      "brand": "Emmi Caffè Latte",
+      "category": "Kaffeegetränke & Chai-Latte",
+      "tags": [],
+      "price": 5.55,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Emmi Caffè Latte Mr. Huge Macchiato",
+      "brand": "Emmi Caffè Latte",
+      "category": "Kaffeegetränke & Chai-Latte",
+      "tags": [],
+      "price": 5.35,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Emmi Caffè Latte Mr. Big Espresso",
+      "brand": "Emmi Caffè Latte",
+      "category": "Kaffeegetränke & Chai-Latte",
+      "tags": [],
+      "price": 3.25,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Emmi Matcha Latte",
+      "brand": "Emmi Caffè Latte",
+      "category": "Kaffeegetränke & Chai-Latte",
+      "tags": [],
+      "price": 2.55,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "lidl",
+      "name": "Zero",
+      "brand": null,
+      "category": "Food",
+      "tags": [],
+      "price": 7.99,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Caffè Borbone Crema Classica 30 Kapseln",
+      "brand": "Borbone",
+      "category": "Root",
+      "tags": [],
+      "price": 8.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Caffè Borbone Crema Superiore 30 Kapseln",
+      "brand": "Borbone",
+      "category": "Root",
+      "tags": [],
+      "price": 8.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Caffè Borbone Cafe Espresso Intenso",
+      "brand": "Borbone",
+      "category": "Root",
+      "tags": [],
+      "price": 14.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Elenia Lattenrost Duoflex",
+      "brand": "Elenia",
+      "category": "Root",
+      "tags": [],
+      "price": 199,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Roviva Lattenrost Sleepy Flex",
+      "brand": "Roviva",
+      "category": "Root",
+      "tags": [],
+      "price": 479,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Elenia Lattenrost Deluxe-Line 90 x 200 cm",
+      "brand": "Elenia",
+      "category": "Root",
+      "tags": [],
+      "price": 269,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Babybett Landwood mit Lattenrost",
+      "brand": "",
+      "category": "Root",
+      "tags": [],
+      "price": 229,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Salontisch Gisele Keramikplatte 120 x 40 x 80 cm",
+      "brand": "",
+      "category": "Root",
+      "tags": [],
+      "price": 269,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Salontisch Gisele Keramikplatte weiss 120 x 40 x 80 cm",
+      "brand": "",
+      "category": "Root",
+      "tags": [],
+      "price": 269,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Polsterbett Tivoli Stoff Chenille, ohne Lattenroste, ohne Bettinhalt",
+      "brand": "",
+      "category": "Root",
+      "tags": [],
+      "price": 599,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Caffè Chicco d'Oro Tradition Kaffeebohnen",
+      "brand": "Chicco D'Oro",
+      "category": "Root",
+      "tags": [],
+      "price": 19.9,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Caffè Borbone 100% Arabica 30 Kapseln",
+      "brand": "Borbone",
+      "category": "Root",
+      "tags": [],
+      "price": 8.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Caffè Borbone Nobile Bohnen",
+      "brand": "Borbone",
+      "category": "Root",
+      "tags": [],
+      "price": 15.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Caffè Borbone Cafe Crema Classica",
+      "brand": "Borbone",
+      "category": "Root",
+      "tags": [],
+      "price": 14.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Caffè Borbone Cafe Crema Superiore",
+      "brand": "Borbone",
+      "category": "Root",
+      "tags": [],
+      "price": 15.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Dolce Gusto Incarom Latte 2 x 30 Kapseln",
+      "brand": "NDG",
+      "category": "Root",
+      "tags": [],
+      "price": 14.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "DKNY Be Delicious Latte Matcha Eau de Parfum",
+      "brand": "Donna Karan",
+      "category": "Root",
+      "tags": [],
+      "price": 24.9,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "DKNY Be Delicious Latte Pistachio Eau de Parfum",
+      "brand": "Donna Karan",
+      "category": "Root",
+      "tags": [],
+      "price": 24.9,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Elenia Lattenrost Royal",
+      "brand": "Elenia",
+      "category": "Root",
+      "tags": [],
+      "price": 69.9,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Hasena Lattenrost Ultrafree U",
+      "brand": "Hasena",
+      "category": "Root",
+      "tags": [],
+      "price": 329,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Sockelplatten Multi, schwarz, 4-teilig",
+      "brand": "",
+      "category": "Root",
+      "tags": [],
+      "price": 59.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Kinderbett Shark weiss Lattenrost",
+      "brand": "",
+      "category": "Root",
+      "tags": [],
+      "price": 199,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Emaillierte Grillplatte, 34 x 24 cm, 1 Stück",
+      "brand": "Nouvel",
+      "category": "Root",
+      "tags": [],
+      "price": 6.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Caffè Borbone 100% Arabica Bohnen",
+      "brand": "Borbone",
+      "category": "Root",
+      "tags": [],
+      "price": 17.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Tassimo Caffè Crema Classico XL Big Pack",
+      "brand": "Tassimo",
+      "category": "Root",
+      "tags": [],
+      "price": 8.5,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Kommode Santo, Spanplatte Glas weiss, 90 x 99 x 40 cm",
+      "brand": "",
+      "category": "Root",
+      "tags": [],
+      "price": 299,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Kommode Santo, Spanplatte Glas weiss, 90 x 99 x 40 cm",
+      "brand": "",
+      "category": "Root",
+      "tags": [],
+      "price": 249,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Gymform Vibromax Pro Vibrationsplatte",
+      "brand": "Gymform",
+      "category": "Root",
+      "tags": [],
+      "price": 169,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Hasena Lattenrost Ultrafree-Tec",
+      "brand": "Hasena",
+      "category": "Root",
+      "tags": [],
+      "price": 899,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Tassimo Caffè Crema 16 Kapseln",
+      "brand": "Tassimo",
+      "category": "Root",
+      "tags": [],
+      "price": 7.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Sideboard Santo, Spanplatte Glas weiss, 180 x 99 x 40 cm",
+      "brand": "",
+      "category": "Root",
+      "tags": [],
+      "price": 399,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "TV-Möbel Santo, Spanplatte Glas weiss, 180,5 x 54,5 x 40 cm",
+      "brand": "",
+      "category": "Root",
+      "tags": [],
+      "price": 349,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Latte Macchiato-Set, 4-teilig",
+      "brand": "",
+      "category": "Root",
+      "tags": [],
+      "price": 5.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "DKNY Be Delicious Latte Vanilla Bodyspray 250ml",
+      "brand": "Donna Karan",
+      "category": "Root",
+      "tags": [],
+      "price": 9.9,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Elenia Lattenrost Nova",
+      "brand": "Elenia",
+      "category": "Root",
+      "tags": [],
+      "price": 159,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Elenia Lattenrost Deluxe-Line 140 x 200 cm",
+      "brand": "Elenia",
+      "category": "Root",
+      "tags": [],
+      "price": 449,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Elenia Lattenrost Juwel KF 120 x 200 cm",
+      "brand": "Elenia",
+      "category": "Root",
+      "tags": [],
+      "price": 199,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Hasena Lattenrost Flexo K12 140 x 200 cm",
+      "brand": "Hasena",
+      "category": "Root",
+      "tags": [],
+      "price": 239,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Hasena Lattenrost Flexo K12 120 x 200 cm",
+      "brand": "Hasena",
+      "category": "Root",
+      "tags": [],
+      "price": 219,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Hasena Lattenrost Flexo K12 90 x 200 cm",
+      "brand": "Hasena",
+      "category": "Root",
+      "tags": [],
+      "price": 199,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Caffè Gustoso, ganze Bohnen",
+      "brand": "BARISSIMO",
+      "category": "Alkoholfreie Getränke",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 10.99,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Caffè Crema & Aroma, ganze Bohnen",
+      "brand": "BARISSIMO",
+      "category": "Alkoholfreie Getränke",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 9.49,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Tessiner Platte",
+      "brand": "SAVEURS SUISSES",
+      "category": "Aktionen",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 3.69,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Cappuccino, Latte Macchiato",
+      "brand": "BARISSIMO",
+      "category": "Alkoholfreie Getränke",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 3.69,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Geflügel Aufschnitt, Kalte Platte",
+      "brand": "ALPINA",
+      "category": "Fleisch",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 2.09,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Italienische Aufschnittplatte",
+      "brand": "IL TAGLIERE DEL RE",
+      "category": "Fleisch",
+      "tags": [
+        "in-stock",
+        "special-buy"
+      ],
+      "price": 3.99,
+      "keptAtCapture": false
+    }
+  ]
+}

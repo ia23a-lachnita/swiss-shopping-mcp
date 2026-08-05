@@ -1,0 +1,229 @@
+{
+  "id": "weissmehl",
+  "query": "Weissmehl",
+  "capturedAt": "2026-08-05T21:40:56.470Z",
+  "pool": [
+    {
+      "chain": "migros",
+      "name": "Weissmehl",
+      "brand": "M-Classic",
+      "category": "",
+      "tags": [],
+      "price": 1.9,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Weissmehl",
+      "brand": "M-Classic",
+      "category": "",
+      "tags": [],
+      "price": 7.6,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Weissmehl",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 1,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Weissmehl",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 3,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Weissmehl",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 2.1,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Weissmehl",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 1.7,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Halbweissmehl",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 2.1,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Halbweissmehl",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 3.2,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Halbweissmehl",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 2.6,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie Weissmehl",
+      "brand": "Prix Garantie",
+      "category": "Mehle",
+      "tags": [],
+      "price": 1,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Weissmehl IP Suisse",
+      "brand": "Coop",
+      "category": "Mehle",
+      "tags": [],
+      "price": 1.9,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio CH Weissmehl",
+      "brand": "Naturaplan",
+      "category": "Mehle",
+      "tags": [],
+      "price": 3,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Halbweissmehl",
+      "brand": "Naturaplan",
+      "category": "Mehle",
+      "tags": [],
+      "price": 3.2,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio CH Weissmehl",
+      "brand": "Naturaplan",
+      "category": "Mehle",
+      "tags": [],
+      "price": 1.7,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Weissmehl Stadtmühle Zürich",
+      "brand": "Zürich Regio",
+      "category": "Mehle",
+      "tags": [],
+      "price": 2.3,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Weissmehl IP-Suisse",
+      "brand": "Coop",
+      "category": "Mehle",
+      "tags": [],
+      "price": 4.8,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "IP-Suisse Halbweissmehl",
+      "brand": "Coop",
+      "category": "Mehle",
+      "tags": [],
+      "price": 2.1,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "volg",
+      "name": "Volg Weissmehl",
+      "brand": null,
+      "category": "Backzutaten",
+      "tags": [],
+      "price": 2.3,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "aldi",
+      "name": "Weissmehl, revitaminisiert",
+      "brand": "HAPPY HARVEST",
+      "category": "Vorräte",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 1.29,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "aldi",
+      "name": "Weissmehl",
+      "brand": "HAPPY HARVEST",
+      "category": "Vorräte",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 0.99,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "aldi",
+      "name": "Mehl, Halbweissmehl",
+      "brand": "BIO",
+      "category": "Vorräte",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 2.79,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Pizzamehl",
+      "brand": "M-Classic",
+      "category": "",
+      "tags": [],
+      "price": 2.6,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Halbweissbrot",
+      "brand": "M-Budget",
+      "category": "",
+      "tags": [],
+      "price": 1,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "lidl",
+      "name": "Spaghetti Tricolore",
+      "brand": null,
+      "category": "Food",
+      "tags": [],
+      "price": 1.19,
+      "keptAtCapture": false
+    }
+  ]
+}

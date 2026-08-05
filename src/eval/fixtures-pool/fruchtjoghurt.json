@@ -1,0 +1,213 @@
+{
+  "id": "fruchtjoghurt",
+  "query": "Fruchtjoghurt",
+  "capturedAt": "2026-08-05T21:41:00.635Z",
+  "pool": [
+    {
+      "chain": "migros",
+      "name": "Früchteriegel Joghurt, Kirsche & Banane ",
+      "brand": "Hipp",
+      "category": "",
+      "tags": [],
+      "price": 1.25,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Joghurt rote Früchte 6x125g",
+      "brand": "Coop",
+      "category": "Beerenjogurt",
+      "tags": [],
+      "price": 2.45,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "LC1 Joghurt Passionsfrucht 2x150g",
+      "brand": "Nestle LC1",
+      "category": "Jogurt Exotenfrüchte & Jogurt Zitrusfrüchte",
+      "tags": [],
+      "price": 2.2,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Hipp Brei Früchte Duett mit Joghurt ab 7+ Monate",
+      "brand": "Hipp",
+      "category": "Früchte Babybrei",
+      "tags": [],
+      "price": 2.1,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Fairtrade Joghurt Mango Passionsfrucht ohne Zuckerzusatz 2x150g",
+      "brand": "Naturaplan",
+      "category": "Jogurt Exotenfrüchte & Jogurt Zitrusfrüchte",
+      "tags": [],
+      "price": 1.9,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Nestlé Yaos High Protein Joghurt Pfirsich & Passionsfrucht",
+      "brand": "Nestlé YAOS",
+      "category": "Jogurt Exotenfrüchte & Jogurt Zitrusfrüchte",
+      "tags": [],
+      "price": 2,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Activia probiotischer Joghurt Vorratspack Fruchtmix 8x115g",
+      "brand": "Danone Activia",
+      "category": "Jogurt mit Gartenfrüchten",
+      "tags": [],
+      "price": 6.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "alpro Soja-Joghurtalternative Protein Rote Früchte",
+      "brand": "alpro",
+      "category": "Beerenjogurt",
+      "tags": [],
+      "price": 2.25,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "aldi",
+      "name": "Fruchtjoghurt griechischer Art, Heidelbeere",
+      "brand": "LYTTOS",
+      "category": "Tiefpreisversprechen",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 3.15,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "aldi",
+      "name": "Fruchtjoghurt griechischer Art, Himbeer-Feige",
+      "brand": "LYTTOS",
+      "category": "Tiefpreisversprechen",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 3.15,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "aldi",
+      "name": "Fruchtjoghurt griechischer Art, Blutorange-Granatapfel",
+      "brand": "LYTTOS",
+      "category": "Tiefpreisversprechen",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 3.15,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "aldi",
+      "name": "Fruchtjoghurt griechischer Art, Kirsche",
+      "brand": "LYTTOS",
+      "category": "Tiefpreisversprechen",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 3.15,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Joghurt",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 0.7,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Joghurt",
+      "brand": "M-Classic",
+      "category": "",
+      "tags": [],
+      "price": 2.75,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Schafmilchjoghurt",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 5.2,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Vegurt",
+      "brand": "V-Love",
+      "category": "",
+      "tags": [],
+      "price": 1.35,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Drink",
+      "brand": "Bifidus",
+      "category": "",
+      "tags": [],
+      "price": 5.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Smoothie Berry",
+      "brand": "You",
+      "category": "",
+      "tags": [],
+      "price": 2.45,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Red Fruits Mini Rings",
+      "brand": "Trolli",
+      "category": "",
+      "tags": [],
+      "price": 2.3,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "lidl",
+      "name": "Drink Mango-Passionsfrucht",
+      "brand": null,
+      "category": "Food",
+      "tags": [],
+      "price": 5.79,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "coop",
+      "name": "Hipp Brei Guten Morgen Erdbeer & Jogurt ab 10+ Monate",
+      "brand": "Hipp",
+      "category": "Glasmahlzeiten 10 Monaten +",
+      "tags": [],
+      "price": 2.1,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "coop",
+      "name": "Activia Waldfrucht Cerealien 4x115g",
+      "brand": "Danone Activia",
+      "category": "Beerenjogurt",
+      "tags": [],
+      "price": 3.95,
+      "keptAtCapture": false
+    }
+  ]
+}

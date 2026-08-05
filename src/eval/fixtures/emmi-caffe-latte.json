@@ -1,7 +1,7 @@
 {
   "id": "emmi-caffe-latte",
   "query": "Emmi Caffè Latte",
-  "capturedAt": "2026-08-01T09:02:04.177Z",
+  "capturedAt": "2026-08-05T21:44:06.879Z",
   "products": [
     {
       "chain": "migros",
@@ -40,24 +40,6 @@
       "unit": null
     },
     {
-      "chain": "migros",
-      "name": "Balance",
-      "brand": "Emmi Caffè Latte",
-      "category": "",
-      "tags": [],
-      "price": 2.45,
-      "unit": null
-    },
-    {
-      "chain": "migros",
-      "name": "Double Zero",
-      "brand": "Emmi Caffè Latte",
-      "category": "",
-      "tags": [],
-      "price": 2.45,
-      "unit": null
-    },
-    {
       "chain": "coop",
       "name": "Emmi Caffè Latte Vanilla",
       "brand": "Emmi Caffè Latte",
@@ -73,6 +55,24 @@
       "category": "",
       "tags": [],
       "price": 2.45,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Balance",
+      "brand": "Emmi Caffè Latte",
+      "category": "",
+      "tags": [],
+      "price": 2.5,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Double Zero",
+      "brand": "Emmi Caffè Latte",
+      "category": "",
+      "tags": [],
+      "price": 2.5,
       "unit": null
     },
     {
@@ -166,15 +166,6 @@
       "unit": null
     },
     {
-      "chain": "migros",
-      "name": "Double Zero",
-      "brand": "Emmi Caffè Latte",
-      "category": "",
-      "tags": [],
-      "price": 3.25,
-      "unit": null
-    },
-    {
       "chain": "coop",
       "name": "Emmi Caffè Latte Mr. Big Balance",
       "brand": "Emmi Caffè Latte",
@@ -199,6 +190,15 @@
       "category": "Kaffeegetränke & Chai-Latte",
       "tags": [],
       "price": 3.25,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Double Zero",
+      "brand": "Emmi Caffè Latte",
+      "category": "",
+      "tags": [],
+      "price": 3.3,
       "unit": null
     },
     {

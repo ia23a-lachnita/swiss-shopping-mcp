@@ -83,11 +83,40 @@ describe('judgeProduct', () => {
   it('matches patterns written with natural umlaut spelling', () => {
     expect(judgeProduct(product('Rüebli Bio'), query({ relevant: ['rüebli'] }))).toBe('relevant');
   });
+
+  it('credits a relevant pattern only where it heads the compound', () => {
+    // The head of a German compound says what the thing is. `Vollmilch` is a
+    // milk; `Milchschokolade` is a chocolate. Scoring both as milk is how the
+    // corpus came to certify vinegar, schnapps and a stain remover as fruit for
+    // the query "Obst", and report P@5 1.0 for it.
+    const fruit = query({ id: 'obst', query: 'Obst', relevant: ['obst'], forbidden: [] });
+    expect(judgeProduct(product('Bio Obst Mix'), fruit)).toBe('relevant');
+    expect(judgeProduct(product('Naturaplan Bio Demeter Obstessig'), fruit)).toBe('neutral');
+    expect(judgeProduct(product('Kernobstbranntwein'), fruit)).toBe('neutral');
+    expect(
+      judgeProduct(product('Dr. Beckmann Fleckenentferner Obst & Getränke'), fruit)
+    ).toBe('relevant'); // standalone word, and beyond what an identity-only judge can rule out
+  });
+
+  it('still credits an inflected head', () => {
+    // Rejecting a plural would reject half a grocery catalogue.
+    const fruit = query({ relevant: ['banane', 'traube'], forbidden: [] });
+    expect(judgeProduct(product('Chiquita Bananen'), fruit)).toBe('relevant');
+    expect(judgeProduct(product('Weisse Trauben'), fruit)).toBe('relevant');
+  });
+
+  it('keeps forbidden patterns matching anywhere in a compound', () => {
+    // Deliberately not the head rule: "is this a kind of X" is answered by the
+    // head, "does it carry trait Y at all" by any position. Erdnussbutter is
+    // forbidden for "Butter" precisely because of its modifier.
+    const butter = query({ query: 'Butter', relevant: ['butter'], forbidden: ['erdnuss'] });
+    expect(judgeProduct(product('Erdnussbutter Crunchy'), butter)).toBe('forbidden');
+  });
 });
 
 describe('scoreQuery', () => {
   it('computes precision over the results actually returned, not a flat 5', () => {
-    const score = scoreQuery(query(), [product('Milch 1l'), product('Milchdrink')]);
+    const score = scoreQuery(query(), [product('Milch 1l'), product('Vollmilch')]);
     // 2 relevant of 2 returned — not 2/5, which would punish a small catalogue.
     expect(score.precisionAt5).toBe(1);
   });

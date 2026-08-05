@@ -1,0 +1,763 @@
+{
+  "id": "reinigungsmittel",
+  "query": "Reinigungsmittel",
+  "capturedAt": "2026-08-05T21:41:32.118Z",
+  "pool": [
+    {
+      "chain": "migros",
+      "name": "Allzweckreiniger",
+      "brand": "Potz",
+      "category": "",
+      "tags": [],
+      "price": 2.6,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Allzweckreiniger",
+      "brand": "Potz",
+      "category": "",
+      "tags": [],
+      "price": 2.6,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Allzweckreiniger",
+      "brand": "Potz",
+      "category": "",
+      "tags": [],
+      "price": 5.2,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Allzweckreiniger",
+      "brand": "Potz",
+      "category": "",
+      "tags": [],
+      "price": 2.52,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Allzweckreiniger",
+      "brand": "M-Budget",
+      "category": "",
+      "tags": [],
+      "price": 1.9,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Allzweckreiniger",
+      "brand": "Nature Clean",
+      "category": "",
+      "tags": [],
+      "price": 3.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Allzweckreiniger",
+      "brand": "Nature Clean",
+      "category": "",
+      "tags": [],
+      "price": 3.6,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Allzweckreiniger",
+      "brand": "Potz",
+      "category": "",
+      "tags": [],
+      "price": 4.76,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Allzweckreiniger",
+      "brand": "Dettol",
+      "category": "",
+      "tags": [],
+      "price": 4.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Allzweckreiniger Konzentrat Refill",
+      "brand": "Nature Clean",
+      "category": "",
+      "tags": [],
+      "price": 3.4,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Putzstein",
+      "brand": "Nature Clean",
+      "category": "",
+      "tags": [],
+      "price": 6.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Essigreiniger",
+      "brand": "M-Budget",
+      "category": "",
+      "tags": [],
+      "price": 2.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Emmas Combi Allzweck- + Abwaschreiniger",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 1.1,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Fettreiniger",
+      "brand": "Chante Clair",
+      "category": "",
+      "tags": [],
+      "price": 3.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Handgeschirrspülmittel",
+      "brand": "L'Arbre Vert",
+      "category": "",
+      "tags": [],
+      "price": 6.2,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Handgeschirrspülmittel",
+      "brand": "L'Arbre Vert",
+      "category": "",
+      "tags": [],
+      "price": 4.1,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Handgeschirrspülmittel",
+      "brand": "L'Arbre Vert",
+      "category": "",
+      "tags": [],
+      "price": 4.1,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Handgeschirrspülmittel",
+      "brand": "L'Arbre Vert",
+      "category": "",
+      "tags": [],
+      "price": 4.1,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Handgeschirrspülmittel",
+      "brand": "L'Arbre Vert",
+      "category": "",
+      "tags": [],
+      "price": 4.1,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Handgeschirrspülmittel",
+      "brand": "L'Arbre Vert",
+      "category": "",
+      "tags": [],
+      "price": 6.2,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Multi Javel Reiniger",
+      "brand": "Potz",
+      "category": "",
+      "tags": [],
+      "price": 4.76,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Allzweckreiniger",
+      "brand": "Potz",
+      "category": "",
+      "tags": [],
+      "price": 2.6,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Allzweckreiniger",
+      "brand": "Potz",
+      "category": "",
+      "tags": [],
+      "price": 2.6,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Allzweckreiniger",
+      "brand": "L'Arbre Vert",
+      "category": "",
+      "tags": [],
+      "price": 5.9,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "WC-Reiniger",
+      "brand": "Hygo",
+      "category": "",
+      "tags": [],
+      "price": 3.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "WC-Reiniger",
+      "brand": "Hygo",
+      "category": "",
+      "tags": [],
+      "price": 4.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "WC-Reiniger",
+      "brand": "M-Budget",
+      "category": "",
+      "tags": [],
+      "price": 1.1,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Abflussreiniger",
+      "brand": "Potz",
+      "category": "",
+      "tags": [],
+      "price": 3.96,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Silber + Metall Reiniger",
+      "brand": "Potz",
+      "category": "",
+      "tags": [],
+      "price": 3.96,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Backofen & Grillreiniger",
+      "brand": "Potz",
+      "category": "",
+      "tags": [],
+      "price": 3.6,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Glasreiniger",
+      "brand": "M-Budget",
+      "category": "",
+      "tags": [],
+      "price": 0.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "WC-Reiniger",
+      "brand": "Nature Clean",
+      "category": "",
+      "tags": [],
+      "price": 2.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Entkalker",
+      "brand": "Potz",
+      "category": "",
+      "tags": [],
+      "price": 4.64,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "WC-Reiniger Refill",
+      "brand": "Nature Clean",
+      "category": "",
+      "tags": [],
+      "price": 2.8,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Elmex Intensivreinigung Mittel Zahnbürste",
+      "brand": "Elmex",
+      "category": "Zahnbürsten für Erwachsene",
+      "tags": [],
+      "price": 6.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Dreame Reinigungsmittel 1 L für C1",
+      "brand": "DREAME",
+      "category": "Glasreiniger",
+      "tags": [],
+      "price": 24.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "WC Ente Gel Küstenwald",
+      "brand": "WC Ente",
+      "category": "Root",
+      "tags": [],
+      "price": 7.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "WC Frisch WC Reiniger Gel Kraft Aktiv Ozeanfrische",
+      "brand": "WC Frisch",
+      "category": "Root",
+      "tags": [],
+      "price": 4.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "WC Frisch WC Reiniger Gel Kraft Aktiv Lemon",
+      "brand": "WC Frisch",
+      "category": "Root",
+      "tags": [],
+      "price": 4.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "WC Frisch WC Reiniger Gel Kraft Aktiv Blütenfrische",
+      "brand": "WC Frisch",
+      "category": "Root",
+      "tags": [],
+      "price": 4.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "WC Frisch Einhänger Kraft Aktiv Blüten-Frische",
+      "brand": "WC Frisch",
+      "category": "Root",
+      "tags": [],
+      "price": 7.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "WC Frisch Einhänger Blau Kraft Aktiv Chlor",
+      "brand": "WC Frisch",
+      "category": "Root",
+      "tags": [],
+      "price": 7.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "WC Ente Gel Lavender Bloom",
+      "brand": "WC Ente",
+      "category": "Root",
+      "tags": [],
+      "price": 7.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "WC Ente Gel Alpenluft",
+      "brand": "WC Ente",
+      "category": "Root",
+      "tags": [],
+      "price": 7.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "WC Ente Gel Bergzitrone",
+      "brand": "WC Ente",
+      "category": "Root",
+      "tags": [],
+      "price": 7.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "WC Ente Active Clean Marine",
+      "brand": "WC Ente",
+      "category": "Root",
+      "tags": [],
+      "price": 3.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "WC Ente Active Clean Citrus",
+      "brand": "WC Ente",
+      "category": "Root",
+      "tags": [],
+      "price": 3.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Cillit Bang WC Kraft Gel Hygiene & Schmutz",
+      "brand": "Cillit Bang",
+      "category": "Root",
+      "tags": [],
+      "price": 5.9,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Felce Azzurra Bodenreiniger für alle Bodentypen Lavendel",
+      "brand": "Felce Azzurra",
+      "category": "Root",
+      "tags": [],
+      "price": 2.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Felce Azzurra Bodenreiniger für alle Bodentypen Classic",
+      "brand": "Felce Azzurra",
+      "category": "Root",
+      "tags": [],
+      "price": 2.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Allzwecktücher",
+      "brand": "Potz",
+      "category": "",
+      "tags": [],
+      "price": 2.24,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Natriumbicarbonat",
+      "brand": "Potz",
+      "category": "",
+      "tags": [],
+      "price": 4.76,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Schmierseife",
+      "brand": "Nature Clean",
+      "category": "",
+      "tags": [],
+      "price": 3.5,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Sensitive",
+      "brand": "Nature Clean",
+      "category": "",
+      "tags": [],
+      "price": 2.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Desinfektionstücher",
+      "brand": "Potz",
+      "category": "",
+      "tags": [],
+      "price": 3.16,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Teppichschaum",
+      "brand": "Potz",
+      "category": "",
+      "tags": [],
+      "price": 7.16,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "lidl",
+      "name": "Peanut Butter Cup",
+      "brand": null,
+      "category": "Food",
+      "tags": [],
+      "price": 7.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "lidl",
+      "name": "Butterzopf",
+      "brand": null,
+      "category": "Food",
+      "tags": [],
+      "price": 2.29,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Cillit Bang Power Cleaner Spray Kalk & Schmutz",
+      "brand": "Cillit Bang",
+      "category": "Root",
+      "tags": [],
+      "price": 6.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Cillit Bang Power Cleaner Spray Multifett",
+      "brand": "Cillit Bang",
+      "category": "Root",
+      "tags": [],
+      "price": 6.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Cillit Bang Aktivschaum",
+      "brand": "Cillit Bang",
+      "category": "Root",
+      "tags": [],
+      "price": 6.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Filetti Flüssigmittel Sensitive",
+      "brand": "Filetti",
+      "category": "Root",
+      "tags": [],
+      "price": 19.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "X-Tra Caps Universal Aromatherapie Lotus & Mandelöl, 80 Waschgänge",
+      "brand": "X-Tra",
+      "category": "Root",
+      "tags": [],
+      "price": 14.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Filetti Weichspüler 2 x 37 Waschgänge",
+      "brand": "Filetti",
+      "category": "Root",
+      "tags": [],
+      "price": 7.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Filetti Pulver Sensitive",
+      "brand": "Filetti",
+      "category": "Root",
+      "tags": [],
+      "price": 19.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Air Wick Pure Automatisches Duftspray Freshmatic Max Nachfüller Cotton & Weisser Flieder",
+      "brand": "Air Wick",
+      "category": "Root",
+      "tags": [],
+      "price": 7.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Dettol Allzwecktücher Limette + Minze 2 x 60 Tücher",
+      "brand": "Dettol",
+      "category": "Root",
+      "tags": [],
+      "price": 6.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Magic-Schwamm Quick Clean, 12 Stück",
+      "brand": "Ebnat",
+      "category": "Root",
+      "tags": [],
+      "price": 6.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Finish Geschirrspültabs Quantum Citrus 94 Tabs",
+      "brand": "Finish",
+      "category": "Root",
+      "tags": [],
+      "price": 16.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Finish Maschinenpfleger Regular",
+      "brand": "Finish",
+      "category": "Root",
+      "tags": [],
+      "price": 7.5,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "X-Tra Pulver Universal 90 Waschgänge",
+      "brand": "X-Tra",
+      "category": "Root",
+      "tags": [],
+      "price": 16.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "X-Tra Gel Color 100 Waschgänge",
+      "brand": "X-Tra",
+      "category": "Root",
+      "tags": [],
+      "price": 14.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Allzweckschrank Kreta 2 Dekor weiss 75 x 184 x 35 cm",
+      "brand": "",
+      "category": "Root",
+      "tags": [],
+      "price": 119,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Chanteclair Universaler Fettlöser Marseille",
+      "brand": "Chanteclair",
+      "category": "Root",
+      "tags": [],
+      "price": 5.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Sipuro Bad Hygiene",
+      "brand": "Sipuro",
+      "category": "Root",
+      "tags": [],
+      "price": 5.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Calgon Hygiene Gel 75 Waschgänge",
+      "brand": "Calgon",
+      "category": "Root",
+      "tags": [],
+      "price": 23.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Finish Klarspüler Citrus",
+      "brand": "Finish",
+      "category": "Root",
+      "tags": [],
+      "price": 4.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Sun Klarspüler Classic",
+      "brand": "Sun",
+      "category": "Root",
+      "tags": [],
+      "price": 9.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Finish Deo Ambientador Zitrone & Limette Duo-Pack",
+      "brand": "Finish",
+      "category": "Root",
+      "tags": [],
+      "price": 4.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Finish Geschirrspültabs Quantum Fresh 94 Tabs",
+      "brand": "Finish",
+      "category": "Root",
+      "tags": [],
+      "price": 16.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Finish Quantum Professional 125 Geschirrspültabs",
+      "brand": "Finish",
+      "category": "Root",
+      "tags": [],
+      "price": 15.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Finish Geschirrspültabs Power All In Fresh 98 Tabs",
+      "brand": "Finish",
+      "category": "Root",
+      "tags": [],
+      "price": 16.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Felce Azzurra Fettlöser Spray",
+      "brand": "Felce Azzurra",
+      "category": "Root",
+      "tags": [],
+      "price": 2.75,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Felce Azzurra Anti-Kalk Spray",
+      "brand": "Felce Azzurra",
+      "category": "Root",
+      "tags": [],
+      "price": 2.75,
+      "keptAtCapture": false
+    }
+  ]
+}

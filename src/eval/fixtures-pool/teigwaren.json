@@ -1,0 +1,1225 @@
+{
+  "id": "teigwaren",
+  "query": "Teigwaren",
+  "capturedAt": "2026-08-05T21:41:30.786Z",
+  "pool": [
+    {
+      "chain": "migros",
+      "name": "Chinesische Nudeln",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 1.9,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Pasta Fettuccine",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 3.75,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Pasta ABC",
+      "brand": "M-Classic",
+      "category": "",
+      "tags": [],
+      "price": 2.2,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Chinesische Nudeln",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 2.6,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Hörnli",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 1.75,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Älplermagronen ",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 1.9,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Penne",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 1.9,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Spiralnudeln",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 1.9,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Hörnli",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 1.75,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Spaghetti",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 1.2,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Spaghetti",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 2.45,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Hörnli",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 1,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Trivelli",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 2.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Wellenspätzli",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 1.9,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Penne",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 1.2,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Hausmachernudeln",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 1.85,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Krausnudeln",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 1.9,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Rigatoni",
+      "brand": "Garofalo",
+      "category": "",
+      "tags": [],
+      "price": 2.8,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Spaghettini",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 2.45,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Hörnli",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 1.75,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Orecchiette",
+      "brand": "Garofalo",
+      "category": "",
+      "tags": [],
+      "price": 2.8,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Spaghetti",
+      "brand": "Garofalo",
+      "category": "",
+      "tags": [],
+      "price": 2.8,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Farfalle",
+      "brand": "Garofalo",
+      "category": "",
+      "tags": [],
+      "price": 2.8,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Fusilli",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 1.2,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Penne Rigate",
+      "brand": "Garofalo",
+      "category": "",
+      "tags": [],
+      "price": 2.8,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Hausmachernudeln",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 1.85,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Lasagneblätter",
+      "brand": "Garofalo",
+      "category": "",
+      "tags": [],
+      "price": 3.8,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Hörnli",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 2.08,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Lasagne all'uovo",
+      "brand": "Agnesi",
+      "category": "",
+      "tags": [],
+      "price": 3.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Spaghetti",
+      "brand": "Alnatura",
+      "category": "",
+      "tags": [],
+      "price": 1.2,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "lidl",
+      "name": "La Collezione Lasagne",
+      "brand": null,
+      "category": "Food",
+      "tags": [],
+      "price": 2.49,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "lidl",
+      "name": "La Collezione Orecchiette",
+      "brand": null,
+      "category": "Food",
+      "tags": [],
+      "price": 2.49,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "lidl",
+      "name": "La Collezione Lasagne Verdi",
+      "brand": null,
+      "category": "Food",
+      "tags": [],
+      "price": 2.49,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "lidl",
+      "name": "La Collezione Tagliatelle",
+      "brand": null,
+      "category": "Food",
+      "tags": [],
+      "price": 2.49,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "lidl",
+      "name": "Fusilli Pugliesi Tris",
+      "brand": null,
+      "category": "Food",
+      "tags": [],
+      "price": 1.49,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Thai Kitchen Reisnudeln",
+      "brand": "Thai Kitchen",
+      "category": "Nudeln",
+      "tags": [],
+      "price": 2.75,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Gala 3-Eier Nudeln extra-breit",
+      "brand": "Gala",
+      "category": "Nudeln",
+      "tags": [],
+      "price": 1.9,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "JaMaDu Zoo Pasta",
+      "brand": "JaMaDu",
+      "category": "Speziell geformte Teigwaren",
+      "tags": [],
+      "price": 2.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Gala 3-Eier Nudeln breit",
+      "brand": "Gala",
+      "category": "Nudeln",
+      "tags": [],
+      "price": 1.9,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Mei Yang China Nudeln",
+      "brand": "Mei Yang",
+      "category": "Nudeln",
+      "tags": [],
+      "price": 1.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Mei Yang Reisnudeln",
+      "brand": "Mei Yang",
+      "category": "Nudeln",
+      "tags": [],
+      "price": 3.1,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Zenbu Bio Shirataki Nudeln",
+      "brand": "ZENBU",
+      "category": "Nudeln",
+      "tags": [],
+      "price": 2.7,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie Reisnudeln",
+      "brand": "Prix Garantie",
+      "category": "Nudeln",
+      "tags": [],
+      "price": 1,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Kernser Pasta UrDinkel Amori",
+      "brand": "Kernser",
+      "category": "Speziell geformte Teigwaren",
+      "tags": [],
+      "price": 4.2,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Mei Yang Bio Mie Nudeln",
+      "brand": "Mei Yang",
+      "category": "Nudeln",
+      "tags": [],
+      "price": 2.75,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Karma Rote Linsen & Süsskartoffel Nudeln",
+      "brand": "Karma",
+      "category": "Nudeln",
+      "tags": [],
+      "price": 3.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Thai Kitchen Nest Nudeln",
+      "brand": "Thai Kitchen",
+      "category": "Nudeln",
+      "tags": [],
+      "price": 3.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Saitaku Ramen Nudeln",
+      "brand": "SAITAKU",
+      "category": "Nudeln",
+      "tags": [],
+      "price": 2.45,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Gala 3-Eier Nudeln extra-breit 4x500g",
+      "brand": "Gala",
+      "category": "Nudeln",
+      "tags": [],
+      "price": 5.7,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Zenbu Udon Nudeln",
+      "brand": "ZENBU",
+      "category": "Nudeln",
+      "tags": [],
+      "price": 4.3,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Arte&Pasta Fusilli col Buco",
+      "brand": "Arte&Pasta",
+      "category": "Spiralen & Hörnli",
+      "tags": [],
+      "price": 4.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Arte&Pasta Treccioni",
+      "brand": "Arte&Pasta",
+      "category": "Spiralen & Hörnli",
+      "tags": [],
+      "price": 4.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Arte&Pasta Trofie",
+      "brand": "Arte&Pasta",
+      "category": "Spiralen & Hörnli",
+      "tags": [],
+      "price": 4.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Arte&Pasta Fusilli Avellinesi",
+      "brand": "Arte&Pasta",
+      "category": "Spiralen & Hörnli",
+      "tags": [],
+      "price": 4.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Arte&Pasta Creste di Gallo",
+      "brand": "Arte&Pasta",
+      "category": "Spiralen & Hörnli",
+      "tags": [],
+      "price": 4.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Arte&Pasta Cappelli da Chef",
+      "brand": "Arte&Pasta",
+      "category": "Spiralen & Hörnli",
+      "tags": [],
+      "price": 4.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Arte&Pasta Lumaconi",
+      "brand": "Arte&Pasta",
+      "category": "Speziell geformte Teigwaren",
+      "tags": [],
+      "price": 4.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Echt Entlebucher Pasta Urdinkel vo Härze",
+      "brand": "Echt Entlebuch",
+      "category": "Speziell geformte Teigwaren",
+      "tags": [],
+      "price": 5.6,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Barilla Spaghetti No. 5",
+      "brand": "Barilla",
+      "category": "Spaghetti",
+      "tags": [],
+      "price": 2.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Rummo Fusilli No.48",
+      "brand": "Rummo",
+      "category": "Spiralen & Hörnli",
+      "tags": [],
+      "price": 2.8,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Gala 3-Eier Hörnli mittel 500g",
+      "brand": "Gala",
+      "category": "Spiralen & Hörnli",
+      "tags": [],
+      "price": 1.75,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie Spaghetti",
+      "brand": "Prix Garantie",
+      "category": "Spaghetti",
+      "tags": [],
+      "price": 1.2,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Barilla Collezione Farfalle n. 65",
+      "brand": "Barilla",
+      "category": "Speziell geformte Teigwaren",
+      "tags": [],
+      "price": 2.7,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Barilla Penne Rigate No. 73",
+      "brand": "Barilla",
+      "category": "Penne & Röhren",
+      "tags": [],
+      "price": 2.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Gala 3-Eier Hörnli grob",
+      "brand": "Gala",
+      "category": "Spiralen & Hörnli",
+      "tags": [],
+      "price": 1.75,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie Hörnli",
+      "brand": "Prix Garantie",
+      "category": "Spiralen & Hörnli",
+      "tags": [],
+      "price": 1,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Barilla Fusilli No. 98",
+      "brand": "Barilla",
+      "category": "Spiralen & Hörnli",
+      "tags": [],
+      "price": 2.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Rummo Penne Rigate No.66",
+      "brand": "Rummo",
+      "category": "Penne & Röhren",
+      "tags": [],
+      "price": 2.8,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Gala 3-Eier Spiralen",
+      "brand": "Gala",
+      "category": "Spiralen & Hörnli",
+      "tags": [],
+      "price": 1.9,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Rummo Spaghetti No.3",
+      "brand": "Rummo",
+      "category": "Spaghetti",
+      "tags": [],
+      "price": 2.8,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Rummo Mezzi Rigatoni No.51",
+      "brand": "Rummo",
+      "category": "Penne & Röhren",
+      "tags": [],
+      "price": 2.8,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie Fusilli",
+      "brand": "Prix Garantie",
+      "category": "Spiralen & Hörnli",
+      "tags": [],
+      "price": 1.2,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Barilla Spaghettini No. 3",
+      "brand": "Barilla",
+      "category": "Spaghetti",
+      "tags": [],
+      "price": 2.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie Penne Rigate",
+      "brand": "Prix Garantie",
+      "category": "Penne & Röhren",
+      "tags": [],
+      "price": 1.2,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Gala 3-Eier Älpler Magronen",
+      "brand": "Gala",
+      "category": "Spiralen & Hörnli",
+      "tags": [],
+      "price": 1.9,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "De Cecco Penne Rigate",
+      "brand": "De Cecco",
+      "category": "Root",
+      "tags": [],
+      "price": 3.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "De Cecco Farfalle",
+      "brand": "De Cecco",
+      "category": "Root",
+      "tags": [],
+      "price": 3.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "De Cecco Spaghetti",
+      "brand": "De Cecco",
+      "category": "Root",
+      "tags": [],
+      "price": 3.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Barilla Penne Rigate",
+      "brand": "Barilla",
+      "category": "Root",
+      "tags": [],
+      "price": 6.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Barilla Spaghetti Nr. 5 Pack",
+      "brand": "Barilla",
+      "category": "Root",
+      "tags": [],
+      "price": 6.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Barilla Fusilli Nr. 98",
+      "brand": "Barilla",
+      "category": "Root",
+      "tags": [],
+      "price": 2.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Barilla Spaghettini Nr. 3",
+      "brand": "Barilla",
+      "category": "Root",
+      "tags": [],
+      "price": 6.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Barilla Penne Rigate Nr. 73",
+      "brand": "Barilla",
+      "category": "Root",
+      "tags": [],
+      "price": 2.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Barilla Spaghetti Nr. 5",
+      "brand": "Barilla",
+      "category": "Root",
+      "tags": [],
+      "price": 2.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Pasta di Martino Spaghetti D&G",
+      "brand": "Di Martino",
+      "category": "Root",
+      "tags": [],
+      "price": 2.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Pasta di Martino Tofette D&G",
+      "brand": "Di Martino",
+      "category": "Root",
+      "tags": [],
+      "price": 2.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Pasta di Martino Gnocchi Sardi D&G",
+      "brand": "Di Martino",
+      "category": "Root",
+      "tags": [],
+      "price": 2.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Pasta di Martino Fusillata D&G",
+      "brand": "Di Martino",
+      "category": "Root",
+      "tags": [],
+      "price": 2.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Pasta di Martino Penne Mezani Rigate D&G",
+      "brand": "Di Martino",
+      "category": "Root",
+      "tags": [],
+      "price": 2.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Barilla Spaghettini Nr. 3",
+      "brand": "Barilla",
+      "category": "Root",
+      "tags": [],
+      "price": 2.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Barilla Glutenfrei Tagliatelle",
+      "brand": "Barilla",
+      "category": "Root",
+      "tags": [],
+      "price": 2.6,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Barilla Glutenfrei Spaghetti",
+      "brand": "Barilla",
+      "category": "Root",
+      "tags": [],
+      "price": 2.6,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Barilla Glutenfrei Fusilli",
+      "brand": "Barilla",
+      "category": "Root",
+      "tags": [],
+      "price": 2.6,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Barilla Glutenfrei Penne Rigate",
+      "brand": "Barilla",
+      "category": "Root",
+      "tags": [],
+      "price": 2.6,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Di Bari Pasta 3 x 250 g / Sughi 3 x 180 g Tris V.",
+      "brand": "Di Bari",
+      "category": "Root",
+      "tags": [],
+      "price": 14.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Rummo Penne Rigate Maxima 21",
+      "brand": "Rummo",
+      "category": "Root",
+      "tags": [],
+      "price": 2.75,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Rummo Fusilli Maxima 21",
+      "brand": "Rummo",
+      "category": "Root",
+      "tags": [],
+      "price": 2.75,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Rummo Spaghetti Maxima 21",
+      "brand": "Rummo",
+      "category": "Root",
+      "tags": [],
+      "price": 2.75,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Di Bari Pasta Fantasia 1/2 Metro",
+      "brand": "Di Bari",
+      "category": "Root",
+      "tags": [],
+      "price": 12.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Di Bari Pasta Ricette d'Italia 4 x 250 g Pasta / 4 x 180 g Saucen",
+      "brand": "Di Bari",
+      "category": "Root",
+      "tags": [],
+      "price": 19.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Di Bari Pasta Regionale Italia",
+      "brand": "Di Bari",
+      "category": "Root",
+      "tags": [],
+      "price": 19.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "La Molisana Mezzi Rigatoni,",
+      "brand": "La Molisana",
+      "category": "Root",
+      "tags": [],
+      "price": 7.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "La Molisana Fusilli,",
+      "brand": "La Molisana",
+      "category": "Root",
+      "tags": [],
+      "price": 7.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "La Molisana Mezze Penne Rigate,",
+      "brand": "La Molisana",
+      "category": "Root",
+      "tags": [],
+      "price": 7.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Pasta di Martino Paccheri D&G",
+      "brand": "Di Martino",
+      "category": "Root",
+      "tags": [],
+      "price": 3.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "aldi",
+      "name": "Teigwaren, Spätzli",
+      "brand": "AMI",
+      "category": "Grillen",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 3.19,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "aldi",
+      "name": "Teigwaren, Hörnli",
+      "brand": "AMI",
+      "category": "Grillen",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 3.19,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "aldi",
+      "name": "Teigwaren, Spiralen",
+      "brand": "AMI",
+      "category": "Grillen",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 3.19,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "aldi",
+      "name": "Glutenfreie Teigwaren, Penne",
+      "brand": "MY VAY",
+      "category": "Vegetarisch & Vegan",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 2.29,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "aldi",
+      "name": "Glutenfreie Teigwaren, Fusilli",
+      "brand": "MY VAY",
+      "category": "Vegetarisch & Vegan",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 2.29,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "aldi",
+      "name": "Glutenfreie Teigwaren, Spaghetti",
+      "brand": "MY VAY",
+      "category": "Vegetarisch & Vegan",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 2.29,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Krawättli",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 1.75,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Schnäggli ",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 1.9,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Spiraloni",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 2.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Lumaca Rigata",
+      "brand": "Garofalo",
+      "category": "",
+      "tags": [],
+      "price": 2.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Gnocchi patate",
+      "brand": "Garofalo",
+      "category": "",
+      "tags": [],
+      "price": 2.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Tortellini",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 2.5,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Trofie",
+      "brand": "Garofalo",
+      "category": "",
+      "tags": [],
+      "price": 4.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Linguine",
+      "brand": "Garofalo",
+      "category": "",
+      "tags": [],
+      "price": 2.8,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Linguine",
+      "brand": "Agnesi",
+      "category": "",
+      "tags": [],
+      "price": 2.4,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Fregola Sarda",
+      "brand": "Da Emilio",
+      "category": "",
+      "tags": [],
+      "price": 3.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "lidl",
+      "name": "La Collezione Castellane",
+      "brand": null,
+      "category": "Food",
+      "tags": [],
+      "price": 2.49,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "lidl",
+      "name": "La Collezione Cellentani",
+      "brand": null,
+      "category": "Food",
+      "tags": [],
+      "price": 2.49,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "lidl",
+      "name": "La Collezione Bucatini",
+      "brand": null,
+      "category": "Food",
+      "tags": [],
+      "price": 2.49,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Knorr Asia Quick Noodles Chicken",
+      "brand": "Knorr",
+      "category": "Root",
+      "tags": [],
+      "price": 6.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Barilla Bavette Nr. 13",
+      "brand": "Barilla",
+      "category": "Root",
+      "tags": [],
+      "price": 6.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Samyang Buldak Hot Chicken Ramen Cheese",
+      "brand": "Samyang Buldak",
+      "category": "Root",
+      "tags": [],
+      "price": 9.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Samyang Buldak Hot Chicken Ramen Carbonara",
+      "brand": "Samyang Buldak",
+      "category": "Root",
+      "tags": [],
+      "price": 9.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Knorr Asia Quick Noodles Beef",
+      "brand": "Knorr",
+      "category": "Root",
+      "tags": [],
+      "price": 6.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Knorr Asia Quick Noodles Vegetable",
+      "brand": "Knorr",
+      "category": "Root",
+      "tags": [],
+      "price": 6.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Knorr Asia Quick Noodles Curry",
+      "brand": "Knorr",
+      "category": "Root",
+      "tags": [],
+      "price": 6.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Barilla Tortiglioni",
+      "brand": "Barilla",
+      "category": "Root",
+      "tags": [],
+      "price": 2.5,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Barilla Spaghettoni N. 7",
+      "brand": "Barilla",
+      "category": "Root",
+      "tags": [],
+      "price": 2.5,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "La Molisana Linguine",
+      "brand": "La Molisana",
+      "category": "Root",
+      "tags": [],
+      "price": 7.95,
+      "keptAtCapture": false
+    }
+  ]
+}

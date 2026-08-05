@@ -1,0 +1,214 @@
+{
+  "id": "sonnenblumenoel",
+  "query": "Sonnenblumenöl",
+  "capturedAt": "2026-08-05T21:40:46.857Z",
+  "pool": [
+    {
+      "chain": "migros",
+      "name": "Sonnenblumenöl ",
+      "brand": "M-Classic",
+      "category": "",
+      "tags": [],
+      "price": 4,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Sonnenblumenöl ",
+      "brand": "M-Classic",
+      "category": "",
+      "tags": [],
+      "price": 2.7,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Sonnenblumenöl ",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 4.52,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Sonnenblumenöl ",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 10.8,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Sonnenblumenöl",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 13.8,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Sonnenblumenöl",
+      "brand": "Alnatura",
+      "category": "",
+      "tags": [],
+      "price": 6.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Schweizer Sonnenblumenöl",
+      "brand": "Coop",
+      "category": "Sonnenblumenöl & Pflanzenöl",
+      "tags": [],
+      "price": 4.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Qualité & Prix Thon rosé in Sonnenblumenöl 6x155g",
+      "brand": "Coop",
+      "category": "Thunfisch mit Öl",
+      "tags": [],
+      "price": 7.8,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie Sonnenblumenöl",
+      "brand": "Prix Garantie",
+      "category": "Sonnenblumenöl & Pflanzenöl",
+      "tags": [],
+      "price": 4,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Sonnenblumenöl kaltgepresst",
+      "brand": "Naturaplan",
+      "category": "Sonnenblumenöl & Pflanzenöl",
+      "tags": [],
+      "price": 5.65,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Bratöl aus Schweizer High Oeic Sonnenblumenöl",
+      "brand": "Naturaplan",
+      "category": "Sonnenblumenöl & Pflanzenöl",
+      "tags": [],
+      "price": 12.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Sabo Sonnenblumenöl",
+      "brand": "Sabo",
+      "category": "Sonnenblumenöl & Pflanzenöl",
+      "tags": [],
+      "price": 6.6,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie MSC Thon rosé Sonnenblumenöl",
+      "brand": "Prix Garantie",
+      "category": "Thunfisch mit Öl",
+      "tags": [],
+      "price": 1.35,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "IP-Suisse Sonnenblumenöl",
+      "brand": "Coop",
+      "category": "Sonnenblumenöl & Pflanzenöl",
+      "tags": [],
+      "price": 3.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Sabo Schweizer Sonnenblumenöl H.O. 2L",
+      "brand": "Sabo",
+      "category": "Sonnenblumenöl & Pflanzenöl",
+      "tags": [],
+      "price": 12.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Dagim Thon in Sonnenblumenöl Koscher",
+      "brand": "King of Ocean",
+      "category": "Thunfisch mit Öl",
+      "tags": [],
+      "price": 3.3,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "volg",
+      "name": "Volg Sonnenblumenöl",
+      "brand": null,
+      "category": "Öl &amp; Fett",
+      "tags": [],
+      "price": 5.6,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "volg",
+      "name": "Msc Thon Rose In Sonnenblumenöl",
+      "brand": null,
+      "category": "Konserven",
+      "tags": [],
+      "price": 2.1,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Thon",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 3.2,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Sardinen",
+      "brand": "Bom Petisco",
+      "category": "",
+      "tags": [],
+      "price": 1.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Muhammara",
+      "brand": "Neni",
+      "category": "",
+      "tags": [],
+      "price": 3.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Oil",
+      "brand": "Milette",
+      "category": "",
+      "tags": [],
+      "price": 3.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "lidl",
+      "name": "Getrocknete Tomaten",
+      "brand": null,
+      "category": "Food",
+      "tags": [],
+      "price": 1.35,
+      "keptAtCapture": false
+    }
+  ]
+}

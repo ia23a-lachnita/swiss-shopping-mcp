@@ -1,7 +1,7 @@
 {
   "id": "hackfleisch",
   "query": "Hackfleisch",
-  "capturedAt": "2026-08-01T08:59:31.517Z",
+  "capturedAt": "2026-08-05T21:43:23.517Z",
   "products": [
     {
       "chain": "migros",
@@ -292,15 +292,6 @@
     },
     {
       "chain": "coop",
-      "name": "Naturafarm Rindshackfleisch ca. 400g",
-      "brand": "Naturafarm",
-      "category": "Hackfleisch",
-      "tags": [],
-      "price": 8.8,
-      "unit": null
-    },
-    {
-      "chain": "coop",
       "name": "Naturafarm Freiland Poulet Hackfleisch ca. 300g",
       "brand": "Naturafarm",
       "category": "Hackfleisch",
@@ -377,6 +368,15 @@
       "category": "Hackfleisch",
       "tags": [],
       "price": 9.75,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Rinds Hackfleisch 2x400g",
+      "brand": "Coop",
+      "category": "Hackfleisch",
+      "tags": [],
+      "price": 11.7,
       "unit": null
     }
   ]

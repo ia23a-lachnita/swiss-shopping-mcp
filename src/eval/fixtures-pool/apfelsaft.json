@@ -1,0 +1,684 @@
+{
+  "id": "apfelsaft",
+  "query": "Apfelsaft",
+  "capturedAt": "2026-08-05T21:40:42.832Z",
+  "pool": [
+    {
+      "chain": "migros",
+      "name": "Apfelsaft",
+      "brand": "M-Classic",
+      "category": "",
+      "tags": [],
+      "price": 2.7,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Apfelsaft",
+      "brand": "M-Classic",
+      "category": "",
+      "tags": [],
+      "price": 12.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Apfelsaft",
+      "brand": "Ramseier",
+      "category": "",
+      "tags": [],
+      "price": 1.2,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Apfelsaft",
+      "brand": "M-Classic",
+      "category": "",
+      "tags": [],
+      "price": 5.2,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Apfelsaft",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 15.9,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Apfelsaft",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 14.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Apfelsaft",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 10.9,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Apfelsaft",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 4.9,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Apfelsaft",
+      "brand": "M-Classic",
+      "category": "",
+      "tags": [],
+      "price": 0.45,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Apfelsaft",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 3.3,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Apfelsaft",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 1,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Apfelsaft",
+      "brand": "M-Classic",
+      "category": "",
+      "tags": [],
+      "price": 1.3,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Apfelsaft",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 2.6,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Apfelsaft",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 2.9,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Apfelsaft",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 2.9,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Apfelsaft",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 2.9,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Apfelsaft",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 1.8,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Apfelsaft",
+      "brand": "Alnatura",
+      "category": "",
+      "tags": [],
+      "price": 2.4,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Apfelsaft",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 19.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Apfelsaft",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 10.75,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Naturreiner Apfelsaft",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 12.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Naturreiner Apfelsaft",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 19.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Milder Apfelsaft",
+      "brand": "Alnatura",
+      "category": "",
+      "tags": [],
+      "price": 2.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Möhl Apfelsaft",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 3.1,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Möhl Apfelsaft",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 9.6,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Möhl Apfelsaft",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 1.75,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Möhl Apfelsaft",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 17.85,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Apfelsaft naturtrüb",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 15.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Cassis- und Apfelsaft",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 2.65,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Antarès Apfelsaft",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 2.05,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Himbeer- und Apfelsaft",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 2.65,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Zürcher Apfelsaft ",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 2.6,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Apfelsaft naturtrüb",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 2.7,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Naturtrüb Apfelsaft",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 2.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Naturtrüb Apfelsaft",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 15,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Gold Apfelsaft Klar ",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 1.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Gold Apfelsaft Klar ",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 8.7,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Apfel Mangosaft",
+      "brand": "Alnatura",
+      "category": "",
+      "tags": [],
+      "price": 1.6,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "JaMaDu Apfelsaft 4x20cl",
+      "brand": "JaMaDu",
+      "category": "Apfelgetränke & Most",
+      "tags": [],
+      "price": 2.4,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Schweizer Apfelsaft 4x1l",
+      "brand": "Coop",
+      "category": "Apfelgetränke & Most",
+      "tags": [],
+      "price": 5.2,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie Apfelsaft",
+      "brand": "Prix Garantie",
+      "category": "Apfelgetränke & Most",
+      "tags": [],
+      "price": 1.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Apfelsaft klar 4x25cl",
+      "brand": "Coop",
+      "category": "Apfelgetränke & Most",
+      "tags": [],
+      "price": 2.2,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Ramseier Apfelsaft klar 6x1,5l",
+      "brand": "Ramseier",
+      "category": "Apfelgetränke & Most",
+      "tags": [],
+      "price": 12.35,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Ramseier Apfelsaft 6x50cl",
+      "brand": "Ramseier",
+      "category": "Apfelgetränke & Most",
+      "tags": [],
+      "price": 6.45,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Demeter Bio Apfelsaft 6x1l",
+      "brand": "Naturaplan",
+      "category": "Frischer Orangensaft",
+      "tags": [],
+      "price": 22.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Apfelsaft",
+      "brand": "Naturaplan",
+      "category": "Apfelgetränke & Most",
+      "tags": [],
+      "price": 2.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Ramseier Bio Apfelsaft trüb 6x1.5l",
+      "brand": "Ramseier",
+      "category": "Soft Drink Multipacks mit Flaschen/Tetra ab 1 Liter",
+      "tags": [],
+      "price": 13.25,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Granatapfelsaft",
+      "brand": "Naturaplan",
+      "category": "Übrige Fruchtsäfte",
+      "tags": [],
+      "price": 3.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Granatapfelsaft",
+      "brand": "Naturaplan",
+      "category": "Übrige Frischsäfte",
+      "tags": [],
+      "price": 6.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie Apfelsaft 6x1.5L",
+      "brand": "Prix Garantie",
+      "category": "Apfelgetränke & Most",
+      "tags": [],
+      "price": 10.75,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Andros Granatapfelsaft",
+      "brand": "Andros",
+      "category": "Übrige Fruchtsäfte",
+      "tags": [],
+      "price": 3.2,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Züribieter Hochstamm Apfelsaft 6x1l",
+      "brand": "Züribieter",
+      "category": "Apfelgetränke & Most",
+      "tags": [],
+      "price": 17.7,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Apfeldirektsaft trüb 6x1.5l",
+      "brand": "Coop",
+      "category": "Apfelgetränke & Most",
+      "tags": [],
+      "price": 16.8,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Apfeldirektsaft trüb mit Kohlensäure 6x1.5l",
+      "brand": "Coop",
+      "category": "Apfelgetränke & Most",
+      "tags": [],
+      "price": 16.8,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "innocent Fruchtsaft Apfel & Mango",
+      "brand": "innocent",
+      "category": "Übrige Frischsäfte",
+      "tags": [],
+      "price": 3.6,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Andros Fruchtsaft Granatapfel",
+      "brand": "Andros",
+      "category": "Übrige Frischsäfte",
+      "tags": [],
+      "price": 6.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Hipp Bio Direktsaft Milder Apfel ab 5+ Monate",
+      "brand": "Hipp",
+      "category": "Kinder Getränke",
+      "tags": [],
+      "price": 3.2,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Biotta Saft Granatapfel 2x  50cl",
+      "brand": "Biotta",
+      "category": "Übrige Fruchtsäfte",
+      "tags": [],
+      "price": 9.9,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "aldi",
+      "name": "Apfelsaft",
+      "brand": "RIO D' ORO",
+      "category": "Alkoholfreie Getränke",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 1.79,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Apfelschorle ",
+      "brand": "Ramseier",
+      "category": "",
+      "tags": [],
+      "price": 9.6,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Apfel-Minze",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 12.8,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "coop",
+      "name": "Ramseier Suure Moscht alkoholfrei 6x1,5l",
+      "brand": "Ramseier",
+      "category": "Apfelgetränke & Most",
+      "tags": [],
+      "price": 12.35,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "coop",
+      "name": "Ramseier Suure Moscht 6x1,5l",
+      "brand": "Ramseier",
+      "category": "Apfelgetränke & Most",
+      "tags": [],
+      "price": 12.35,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "coop",
+      "name": "Ramseier Naturaplan Bio Apfelschorle 6x1,5l",
+      "brand": "Ramseier",
+      "category": "Apfelgetränke & Most",
+      "tags": [],
+      "price": 11.75,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie Apfelschorle 6x50 cl",
+      "brand": "Prix Garantie",
+      "category": "Apfelgetränke & Most",
+      "tags": [],
+      "price": 3.3,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie Apfelschorle 6x1.5l",
+      "brand": "Prix Garantie",
+      "category": "Apfelgetränke & Most",
+      "tags": [],
+      "price": 8.35,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Shorley Apfelschorle 6x50cl",
+      "brand": "Shorley",
+      "category": "Apfelgetränke & Most",
+      "tags": [],
+      "price": 9.9,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "coop",
+      "name": "Ramseier Hochstämmer 6x1,5l",
+      "brand": "Ramseier",
+      "category": "Apfelgetränke & Most",
+      "tags": [],
+      "price": 12.35,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "coop",
+      "name": "Bio Apfelschorle trüb 6x50cl",
+      "brand": "Naturaplan",
+      "category": "Apfelgetränke & Most",
+      "tags": [],
+      "price": 8.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "coop",
+      "name": "Ramseier Schorle naturtrüb vom Hochstamm 6x50cl",
+      "brand": "Ramseier",
+      "category": "Apfelgetränke & Most",
+      "tags": [],
+      "price": 6.45,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "coop",
+      "name": "Ramseier Hochstämmer 6x50cl",
+      "brand": "Ramseier",
+      "category": "Apfelgetränke & Most",
+      "tags": [],
+      "price": 6.45,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "coop",
+      "name": "Ramseier Naturaplan Bio Apfelschorle 6x50cl",
+      "brand": "Ramseier",
+      "category": "Soft Drink Multipacks mit Flaschen/Dosen unter 1 Liter",
+      "tags": [],
+      "price": 6.7,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "coop",
+      "name": "Ramseier Naturaplan Bio Schorle Fresh 6x50cl",
+      "brand": "Ramseier",
+      "category": "Soft Drink Multipacks mit Flaschen/Dosen unter 1 Liter",
+      "tags": [],
+      "price": 6.45,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "coop",
+      "name": "Ramseier Naturaplan Bio Schorle Fresh 6x1,5l",
+      "brand": "Ramseier",
+      "category": "Soft Drink Multipacks mit Flaschen/Tetra ab 1 Liter",
+      "tags": [],
+      "price": 11.3,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Shorley Apfelschorle 6x1,5l",
+      "brand": "Shorley",
+      "category": "Soft Drink Multipacks mit Flaschen/Tetra ab 1 Liter",
+      "tags": [],
+      "price": 16.2,
+      "keptAtCapture": false
+    }
+  ]
+}

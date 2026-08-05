@@ -1,0 +1,445 @@
+{
+  "id": "geriebener-kaese",
+  "query": "geriebener Käse",
+  "capturedAt": "2026-08-05T21:41:12.077Z",
+  "pool": [
+    {
+      "chain": "migros",
+      "name": "Mozzarella",
+      "brand": "M-Classic",
+      "category": "",
+      "tags": [],
+      "price": 2.7,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Käsekuchenmischung",
+      "brand": "M-Classic",
+      "category": "",
+      "tags": [],
+      "price": 3.15,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Ziegenkäse",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 4.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Emmi Luzerner Pastarahmkäse gerieben",
+      "brand": "Emmi Luzerner",
+      "category": "Reibkäse",
+      "tags": [],
+      "price": 3.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Galbani Mozzarella Cucina gerieben",
+      "brand": "Galbani",
+      "category": "Mozzarella & Ricotta",
+      "tags": [],
+      "price": 3.7,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Pizza-Mozzarella gerieben",
+      "brand": "Naturaplan",
+      "category": "Mozzarella & Ricotta",
+      "tags": [],
+      "price": 3.7,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie Grana Padano gerieben",
+      "brand": "Prix Garantie",
+      "category": "Reibkäse",
+      "tags": [],
+      "price": 3.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Bio Gruyère AOP gerieben",
+      "brand": "Naturaplan",
+      "category": "Reibkäse",
+      "tags": [],
+      "price": 3.35,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Le Gruyère & Vacherin Fribourgeois gerieben",
+      "brand": "Coop",
+      "category": "Reibkäse",
+      "tags": [],
+      "price": 2.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Cheddar gerieben",
+      "brand": "Coop",
+      "category": "Reibkäse",
+      "tags": [],
+      "price": 2.8,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Sapori d'Italia Pecorino Romano gerieben",
+      "brand": "Sapori d'Italia",
+      "category": "Sbrinz, Parmesan & Gruyère",
+      "tags": [],
+      "price": 3.4,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Simply V Gerieben Pizza",
+      "brand": "Simply V",
+      "category": "Vegane Alternative zu Käse",
+      "tags": [],
+      "price": 3.55,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Sbrinz AOP gerieben",
+      "brand": "Coop Sbrinz",
+      "category": "Reibkäse",
+      "tags": [],
+      "price": 4.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Züger Fresca Mozzarella gerieben",
+      "brand": "Züger",
+      "category": "Reibkäse",
+      "tags": [],
+      "price": 13.7,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Mollini IP-Suisse Mozzarella gerieben",
+      "brand": "Mollini",
+      "category": "Mozzarella & Ricotta",
+      "tags": [],
+      "price": 3.6,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Züger Fresca Mozzarella gerieben",
+      "brand": "Züger",
+      "category": "Mozzarella & Ricotta",
+      "tags": [],
+      "price": 13.7,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "lidl",
+      "name": "Italienischer Extra-Hartkäse Mix (Aktion nur im Tessin gültig)",
+      "brand": null,
+      "category": "Food",
+      "tags": [],
+      "price": 1.05,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Snackline XXL Maisbällchen mit Käsegeschmack",
+      "brand": "Snackline",
+      "category": "Root",
+      "tags": [],
+      "price": 1.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Dreamies Käse",
+      "brand": "Dreamies",
+      "category": "Root",
+      "tags": [],
+      "price": 3.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Felix Knabber Mix Dreikäsehoch",
+      "brand": "Felix",
+      "category": "Root",
+      "tags": [],
+      "price": 6.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Käsefondue-Set Wiese",
+      "brand": "Nouvel",
+      "category": "Root",
+      "tags": [],
+      "price": 49.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Käsefondue Gabeln Teleskop 2er-Set",
+      "brand": "Nouvel",
+      "category": "Root",
+      "tags": [],
+      "price": 14.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Käsefondue-Set Alpage 9-teilig",
+      "brand": "Nouvel",
+      "category": "Root",
+      "tags": [],
+      "price": 45,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Käsefondue-Set Swiss Fondue 9-tlg",
+      "brand": "Nouvel",
+      "category": "Root",
+      "tags": [],
+      "price": 39.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Käsefondue Tabacco 9-teilig",
+      "brand": "Nouvel",
+      "category": "Root",
+      "tags": [],
+      "price": 34.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Snatt's Natuchips Tomaten, Käse, Oregano",
+      "brand": "Snatt's",
+      "category": "Root",
+      "tags": [],
+      "price": 1.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Nacho'N Dip Käse Sauce",
+      "brand": "",
+      "category": "Root",
+      "tags": [],
+      "price": 1.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Snackline Käsewaffeln Zwiebel",
+      "brand": "Snackline",
+      "category": "Root",
+      "tags": [],
+      "price": 1,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Snackline Käsewaffeln Classic",
+      "brand": "Snackline",
+      "category": "Root",
+      "tags": [],
+      "price": 1,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Snatt's Linsen Chips Käse und Kräuter",
+      "brand": "Snatt's",
+      "category": "Root",
+      "tags": [],
+      "price": 1.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Nouvel Käsefondue-Set, Schlitten Matterhorn",
+      "brand": "",
+      "category": "Root",
+      "tags": [],
+      "price": 89.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Käseglocke auf Bambusbrett 30 x 15.5 cm",
+      "brand": "",
+      "category": "Root",
+      "tags": [],
+      "price": 14.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Nouvel Käsefondue Edelweiss 9-teilig",
+      "brand": "Nouvel",
+      "category": "Root",
+      "tags": [],
+      "price": 39.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Käsefondue Uni 9-teilig",
+      "brand": "Nouvel",
+      "category": "Root",
+      "tags": [],
+      "price": 39.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Nouvel Käsefondue Set Formaggio 9tlg",
+      "brand": "Nouvel",
+      "category": "Root",
+      "tags": [],
+      "price": 59.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Platte für Fonduefleisch/Raclettkäse",
+      "brand": "Nouvel",
+      "category": "Root",
+      "tags": [],
+      "price": 14.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Platte für Fonduefleisch/Raclettekäse",
+      "brand": "Nouvel",
+      "category": "Root",
+      "tags": [],
+      "price": 14.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Nouvel Käsefondue-Set Sion 9-teilig",
+      "brand": "Nouvel",
+      "category": "Root",
+      "tags": [],
+      "price": 89.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Nouvel Käsefondue Set Parmino 9-teilig",
+      "brand": "Nouvel",
+      "category": "Root",
+      "tags": [],
+      "price": 66,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Nouvel Käsefondue-Set Alpkühe, 9-teilig",
+      "brand": "Nouvel",
+      "category": "Root",
+      "tags": [],
+      "price": 79.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Nouvel Käsefondue Set Tradition 7-teilig",
+      "brand": "Nouvel",
+      "category": "Root",
+      "tags": [],
+      "price": 69.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Ariete Käsereibe ARI-440",
+      "brand": "Ariete",
+      "category": "Root",
+      "tags": [],
+      "price": 39.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "aldi",
+      "name": "Mozzarella, gerieben",
+      "brand": "MILSANI",
+      "category": "Milchprodukte & Eier",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 2.69,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Grana Padano DOP",
+      "brand": "Da Emilio",
+      "category": "",
+      "tags": [],
+      "price": 4.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Parmino gerieben",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 2.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "lidl",
+      "name": "Parmigiano Reggiano DOP",
+      "brand": null,
+      "category": "Food",
+      "tags": [],
+      "price": 1.99,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Grana Padano, gerieben",
+      "brand": "CUCINA",
+      "category": "Milchprodukte & Eier",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 3.29,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Sbrinz AOP, gerieben",
+      "brand": "SAVEURS SUISSES",
+      "category": "Saveurs Suisses",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 2.59,
+      "keptAtCapture": false
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 {
   "id": "spaghetti",
   "query": "Spaghetti",
-  "capturedAt": "2026-08-01T09:00:35.105Z",
+  "capturedAt": "2026-08-05T21:43:39.924Z",
   "products": [
     {
       "chain": "aldi",
@@ -177,6 +177,15 @@
       "unit": null
     },
     {
+      "chain": "lidl",
+      "name": "Spaghetti Tricolore",
+      "brand": null,
+      "category": "Food",
+      "tags": [],
+      "price": 1.19,
+      "unit": null
+    },
+    {
       "chain": "aldi",
       "name": "Spaghetti,  Hartweizen",
       "brand": "BIO",
@@ -241,6 +250,17 @@
       "category": "",
       "tags": [],
       "price": 1.2,
+      "unit": null
+    },
+    {
+      "chain": "aldi",
+      "name": "Long Bronze Pasta, Spaghetti",
+      "brand": "GOURMET FINEST CUISINE",
+      "category": "Gourmet",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 1.25,
       "unit": null
     },
     {
@@ -353,24 +373,6 @@
       "category": "",
       "tags": [],
       "price": 2.45,
-      "unit": null
-    },
-    {
-      "chain": "migros",
-      "name": "Spaghettini",
-      "brand": "Migros",
-      "category": "",
-      "tags": [],
-      "price": 2.45,
-      "unit": null
-    },
-    {
-      "chain": "coop",
-      "name": "Barilla Spaghetti No. 5",
-      "brand": "Barilla",
-      "category": "Spaghetti",
-      "tags": [],
-      "price": 2.5,
       "unit": null
     }
   ]

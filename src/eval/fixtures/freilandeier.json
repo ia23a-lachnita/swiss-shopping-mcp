@@ -1,7 +1,7 @@
 {
   "id": "freilandeier",
   "query": "Freilandeier",
-  "capturedAt": "2026-08-01T09:00:09.602Z",
+  "capturedAt": "2026-08-05T21:43:33.356Z",
   "products": [
     {
       "chain": "aldi",
@@ -68,6 +68,123 @@
       "category": "Eier roh",
       "tags": [],
       "price": 5.5,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Aus der Region Schweizer Eier Freiland 63g+",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 0.75,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturafarm Eier aus Freilandhaltung 63g+ 4 Stück",
+      "brand": "Naturafarm",
+      "category": "Eier roh",
+      "tags": [],
+      "price": 2.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Eier Freiland CH 6 Stück 53g+",
+      "brand": "Coop",
+      "category": "Eier roh",
+      "tags": [],
+      "price": 3.3,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Eier aus Freilandhaltung 53g+ 4 Stück",
+      "brand": "Naturaplan",
+      "category": "Eier roh",
+      "tags": [],
+      "price": 3.3,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturafarm Eier aus Freilandhaltung 53g+ 6 Stück",
+      "brand": "Naturafarm",
+      "category": "Eier roh",
+      "tags": [],
+      "price": 3.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Eier Freiland Nordwestschweiz 53g+ 6 Stück",
+      "brand": "Coop",
+      "category": "Eier roh",
+      "tags": [],
+      "price": 4.2,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Eier Freiland Zürich 53g+ 6 Stück",
+      "brand": "Coop",
+      "category": "Eier roh",
+      "tags": [],
+      "price": 4.2,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Eier Freiland Extra gross 6 Stück 70g+",
+      "brand": "Coop",
+      "category": "Eier roh",
+      "tags": [],
+      "price": 4.75,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturafarm Eier aus Freilandhaltung 70g+ 6 Stück",
+      "brand": "Naturafarm",
+      "category": "Eier roh",
+      "tags": [],
+      "price": 4.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Eier aus Freilandhaltung 60g+ 6 Stück",
+      "brand": "Naturaplan",
+      "category": "Eier roh",
+      "tags": [],
+      "price": 5.6,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturafarm Eier aus Freilandhaltung 53g+ 10 Stück",
+      "brand": "Naturafarm",
+      "category": "Eier roh",
+      "tags": [],
+      "price": 6.3,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Eier Freilandhaltung Schweiz Demeter 6 Stück 53g+",
+      "brand": "Naturaplan",
+      "category": "Eier roh",
+      "tags": [],
+      "price": 6.95,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Eier Schweiz aus Freilandhaltung 10 Stück 53g+",
+      "brand": "Naturaplan",
+      "category": "Eier roh",
+      "tags": [],
+      "price": 8.2,
       "unit": null
     }
   ]

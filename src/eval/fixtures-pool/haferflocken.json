@@ -1,0 +1,319 @@
+{
+  "id": "haferflocken",
+  "query": "Haferflocken",
+  "capturedAt": "2026-08-05T21:40:45.644Z",
+  "pool": [
+    {
+      "chain": "migros",
+      "name": "Haferflocken",
+      "brand": "Alnatura",
+      "category": "",
+      "tags": [],
+      "price": 1.2,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Haferflocken",
+      "brand": "Alnatura",
+      "category": "",
+      "tags": [],
+      "price": 1.3,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Vollkorn-Haferflocken",
+      "brand": "M-Classic",
+      "category": "",
+      "tags": [],
+      "price": 1.4,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Hafervollkornflocken",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 2.36,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Hasen Haferflocken",
+      "brand": "Gantrisch Goldkorn",
+      "category": "",
+      "tags": [],
+      "price": 4.45,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Burger Buns mit Haferflocken ",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 3.2,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Blaubeere, Johannisbeere in Apfel mit Haferflocken Brei",
+      "brand": "Hipp",
+      "category": "",
+      "tags": [],
+      "price": 2.1,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Vollkorn Haferflocken fein",
+      "brand": "Naturaplan",
+      "category": "Getreideflocken",
+      "tags": [],
+      "price": 1.3,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie Vollkorn Haferflöckli fein",
+      "brand": "Prix Garantie",
+      "category": "Getreideflocken",
+      "tags": [],
+      "price": 0.7,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Campiuns Schweizer Haferflöckli",
+      "brand": "Naturaplan",
+      "category": "Getreideflocken",
+      "tags": [],
+      "price": 2.25,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Haferflöckli glutenfrei",
+      "brand": "Naturaplan",
+      "category": "Getreideflocken",
+      "tags": [],
+      "price": 2.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Vollkorn Haferflocken",
+      "brand": "Naturaplan",
+      "category": "Getreideflocken",
+      "tags": [],
+      "price": 1.7,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Knorr Knorritsch Haferflocken",
+      "brand": "Knorr",
+      "category": "Getreideflocken",
+      "tags": [],
+      "price": 2.45,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie Haferflocken grob",
+      "brand": "Prix Garantie",
+      "category": "Flakes",
+      "tags": [],
+      "price": 0.7,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Bio 365 Haferflöckli fein",
+      "brand": "Bio 365",
+      "category": "Getreideflocken",
+      "tags": [],
+      "price": 1.2,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Holle Babykeks Datteln Haferflocken ab 10+ Monate",
+      "brand": "Holle",
+      "category": "Babynahrung Snacks ab 10 Monate +",
+      "tags": [],
+      "price": 3.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "aldi",
+      "name": "Haferflocken",
+      "brand": "BIO",
+      "category": "Aktionen",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 1.19,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "aldi",
+      "name": "Haferflocken, zart",
+      "brand": "GOLDEN BRIDGE",
+      "category": "Frühstück",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 0.69,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "aldi",
+      "name": "Haferflocken, kernig",
+      "brand": "GOLDEN BRIDGE",
+      "category": "Frühstück",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 0.69,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Vollkorn-Haferflöckli",
+      "brand": "M-Classic",
+      "category": "",
+      "tags": [],
+      "price": 1.4,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Schweizer Haferflöckli",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 1.44,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Dinkel Flocken",
+      "brand": "Alnatura",
+      "category": "",
+      "tags": [],
+      "price": 1.8,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Schweizer Hirseflocken",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 3.96,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "5-Kornflocken",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 2.24,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Buchweizenflocken",
+      "brand": "Alnatura",
+      "category": "",
+      "tags": [],
+      "price": 3.8,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Sojaflocken",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 3.6,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Protein Flakes",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 4.4,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Soft-Flocks",
+      "brand": "Glorex",
+      "category": "",
+      "tags": [],
+      "price": 9.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Hefe Flocken",
+      "brand": "Alnatura",
+      "category": "",
+      "tags": [],
+      "price": 4.8,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Hafer Dinkel Kekse",
+      "brand": "Alnatura",
+      "category": "",
+      "tags": [],
+      "price": 2.2,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Bierhefeflocken",
+      "brand": "Actilife",
+      "category": "",
+      "tags": [],
+      "price": 3.5,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Reisflocken",
+      "brand": "Alnatura",
+      "category": "",
+      "tags": [],
+      "price": 4.2,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "lidl",
+      "name": "Peanut Butter Cup",
+      "brand": null,
+      "category": "Food",
+      "tags": [],
+      "price": 7.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "lidl",
+      "name": "Butterzopf",
+      "brand": null,
+      "category": "Food",
+      "tags": [],
+      "price": 2.29,
+      "keptAtCapture": false
+    }
+  ]
+}

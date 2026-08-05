@@ -7,8 +7,10 @@ results changed".
 ## Running it
 
 ```bash
-npm run eval:relevance     # score the frozen fixtures (offline, ~1s)
-npm run eval:capture       # re-capture fixtures from live vendors (~8 min)
+npm run eval:relevance          # score the frozen fixtures (offline, ~1s)
+npm run eval:capture            # re-capture fixtures from live vendors (~8 min)
+npm run eval:capture -- --pool  # re-capture the PRE-filter pools (~2 min)
+node scripts/reportPoolRecall.mjs [--write-baseline] [--dropped <id>]
 ```
 
 `eval:relevance` runs as part of `npm test` and therefore in CI. It never hits
@@ -23,6 +25,33 @@ the network.
 | `relevanceScoring.ts` | Folding, relevance judgement, P@5 / MRR / coverage |
 | `baseline.json` | Committed metrics + the known-violation allowlist |
 | `relevance.golden.test.ts` | The gate |
+| `fixtures-pool/*.json` | The same pools captured **before** our own relevance filter |
+| `poolRecall.ts` + `poolBaseline.json` | Recall of that filter, per query |
+| `poolRecall.test.ts` | The recall gate |
+
+## Why there are two gates
+
+Precision and recall need pools captured at different points, and for a long
+time only one of them existed.
+
+`fixtures/` is captured *after* `productMatches` has run, so every product the
+filter wrongly discards is already missing from it. That gate reported P@5 0.98
+on a system throwing away 45.4% of everything the vendors returned — including
+every Migros pasta for the query "Teigwaren". It was not a bad gate; it was
+being asked a question its input could not answer.
+
+The fix was not a different kind of metric but an earlier snapshot.
+`fixtures-pool/` records both sides of the filter's verdict, so recall is scored
+offline and deterministically — **no live vendor call in CI**, which is why the
+floors can be gated at all. `poolRecall.test.ts` ratchets the mean, holds a
+per-query floor so an easy query cannot pay for a destroyed one, and hard-fails
+any query whose relevant products are *all* discarded.
+
+Some floors are low because the **labels** are generous rather than because the
+filter is wrong: `ruebli` counts Purina cat food containing carrots as relevant,
+`freilandeier` counts any plain egg. Those are label defects to fix in
+`goldenSet.ts`. Raising the matcher to chase them would be optimising to a bad
+label.
 
 The suite ranks a **frozen candidate pool** with the production ranking
 (`sortProducts`) and scores the top 5. That is deliberate: the score then moves
@@ -33,6 +62,16 @@ when the ranker moves, and not when a vendor has a bad afternoon.
 **Labels are patterns, not product IDs.** Vendor IDs are per-chain and churn
 whenever a catalogue is rewritten, so an ID-keyed corpus rots within weeks and
 silently stops asserting anything. Names move far more slowly.
+
+**A relevant label must land on the head of a German compound.** The last stem
+of a compound says what the thing is: `Vollmilch` is a milk, `Milchschokolade`
+is a chocolate, `Obstessig` is a vinegar. Judging by bare substring made the
+corpus certify vinegar, schnapps and a Dr. Beckmann *stain remover* as fruit for
+the query "Obst" and score it P@5 1.0 — the judge shared the matcher's substring
+assumption, which is exactly why it could never see the matcher's substring
+defect. `forbidden` deliberately still matches anywhere: "is this a kind of X"
+is answered by the head, "does it carry trait Y at all" by any position, and
+`Erdnussbutter` is forbidden for "Butter" through its modifier.
 
 **Judgement sees name + brand, never category or tags.** Migros and Aldi put the
 brand in `brand` and only the variant in `name` — a Toblerone bar is literally
@@ -46,8 +85,9 @@ field entirely so no future edit can quietly start reading it.
 that returned something and are the ranking signal. `overallPrecisionAt5`/
 `overallMrr` count every query, scoring an empty result set 0, because from the
 user's side "no results" is a failed search and not an absent measurement. The
-gap between them is currently large (0.991 vs 0.894) and that gap is the point:
-a single headline number would flatter the system.
+gap between them is the point: a single headline number would flatter the
+system. They are identical today only because coverage is 1.0 — the pair still
+has to stay reported, since the gap reopens the moment a query stops answering.
 
 **Coverage is gated in its own right.** Otherwise a query-understanding change
 that stops matching a hard class of queries would *raise* the ranking metrics by

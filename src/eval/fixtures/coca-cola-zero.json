@@ -1,7 +1,7 @@
 {
   "id": "coca-cola-zero",
   "query": "Coca Cola Zero",
-  "capturedAt": "2026-08-01T09:02:09.186Z",
+  "capturedAt": "2026-08-05T21:44:08.142Z",
   "products": [
     {
       "chain": "aldi",
@@ -20,7 +20,43 @@
       "brand": null,
       "category": "1144372",
       "tags": [],
+      "price": 7.15,
+      "unit": null
+    },
+    {
+      "chain": "ottos",
+      "name": "Coca-Cola Zero",
+      "brand": "Coca Cola",
+      "category": "Root",
+      "tags": [],
+      "price": 9.3,
+      "unit": null
+    },
+    {
+      "chain": "denner",
+      "name": "Coca-Cola Zero",
+      "brand": null,
+      "category": "1144372",
+      "tags": [],
       "price": 12.95,
+      "unit": null
+    },
+    {
+      "chain": "ottos",
+      "name": "Coca-Cola Zero",
+      "brand": "Coca Cola",
+      "category": "Root",
+      "tags": [],
+      "price": 12.95,
+      "unit": null
+    },
+    {
+      "chain": "ottos",
+      "name": "Coca-Cola Zero",
+      "brand": "Coca Cola",
+      "category": "Root",
+      "tags": [],
+      "price": 14.35,
       "unit": null
     },
     {
@@ -39,6 +75,15 @@
       "category": "Soft Drink Multipacks mit Flaschen/Dosen unter 1 Liter",
       "tags": [],
       "price": 6.5,
+      "unit": null
+    },
+    {
+      "chain": "denner",
+      "name": "Coca-Cola Zero Koffein",
+      "brand": null,
+      "category": "1144372",
+      "tags": [],
+      "price": 7.15,
       "unit": null
     },
     {

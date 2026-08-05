@@ -1,0 +1,585 @@
+{
+  "id": "roter-thai-curry",
+  "query": "rotes Thai Curry",
+  "capturedAt": "2026-08-05T21:41:17.554Z",
+  "pool": [
+    {
+      "chain": "coop",
+      "name": "Thai Kitchen Curry Paste rot",
+      "brand": "Thai Kitchen",
+      "category": "Curry Saucen",
+      "tags": [],
+      "price": 4.9,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Mitsuba SFM Thai Green Curry",
+      "brand": "Mitsuba",
+      "category": "Root",
+      "tags": [],
+      "price": 2.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "12 e mezzo Primitivo Puglia Biologico IGP",
+      "brand": "12 e mezzo",
+      "category": "Root",
+      "tags": [],
+      "price": 9.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Wohnlandschaft Jena Stoff curry, Ottomane links",
+      "brand": "Polipol",
+      "category": "Root",
+      "tags": [],
+      "price": 1999,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Sensodyne Zahnpasta Repair & Protect Whitening",
+      "brand": "Sensodyne",
+      "category": "Root",
+      "tags": [],
+      "price": 2.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Chiefs Milkdrink Vanille 3 x 300 ml 30 g Protein",
+      "brand": "Chiefs",
+      "category": "Root",
+      "tags": [],
+      "price": 5.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Chiefs Protein Milk Coffee Caramel",
+      "brand": "Chiefs",
+      "category": "Root",
+      "tags": [],
+      "price": 5.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Moove Miniscooter rot",
+      "brand": "Moove",
+      "category": "Root",
+      "tags": [],
+      "price": 39.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Finish Protector 2 x 1 Stk.",
+      "brand": "Finish",
+      "category": "Root",
+      "tags": [],
+      "price": 7.5,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Teppich Floor 136 Isfahn rot 160 x 230 cm",
+      "brand": "",
+      "category": "Root",
+      "tags": [],
+      "price": 89.9,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Teppich FLOOR 136 Isfahn rot 120 x 170 cm",
+      "brand": "",
+      "category": "Root",
+      "tags": [],
+      "price": 44.9,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Woolite Color Protection 3 x 12 Stück",
+      "brand": "Woolite",
+      "category": "Root",
+      "tags": [],
+      "price": 9.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Chiefs Milkdrink Choco",
+      "brand": "Chiefs",
+      "category": "Root",
+      "tags": [],
+      "price": 5.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Airwick Duftstecker Rote Beeren & Pfirsich",
+      "brand": "Air Wick",
+      "category": "Root",
+      "tags": [],
+      "price": 6.6,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Thomy Sauce Curry",
+      "brand": "Thomy",
+      "category": "Root",
+      "tags": [],
+      "price": 5.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Knorr Asia Quick Noodles Curry",
+      "brand": "Knorr",
+      "category": "Root",
+      "tags": [],
+      "price": 6.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Armlehnstuhl Sara, Stoff, curry, 60 x 56 x 88 cm",
+      "brand": "",
+      "category": "Root",
+      "tags": [],
+      "price": 55,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Febreze 3Volution Refill Thai Orchidee",
+      "brand": "Febreze",
+      "category": "Root",
+      "tags": [],
+      "price": 7.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Dettol Allzwecktücher Limette + Minze 2 x 60 Tücher",
+      "brand": "Dettol",
+      "category": "Root",
+      "tags": [],
+      "price": 6.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Moove Scooter 125 mm, blau",
+      "brand": "Moove",
+      "category": "Root",
+      "tags": [],
+      "price": 39.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Borotalco Invisible Deo Spray",
+      "brand": "Borotalco",
+      "category": "Root",
+      "tags": [],
+      "price": 7.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Borotalco Original Deo Spray",
+      "brand": "Borotalco",
+      "category": "Root",
+      "tags": [],
+      "price": 7.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Dettol Badreiniger",
+      "brand": "Dettol",
+      "category": "Root",
+      "tags": [],
+      "price": 7.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Dettol Allzweckreiniger Limette + Zitrone",
+      "brand": "Dettol",
+      "category": "Root",
+      "tags": [],
+      "price": 7.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Ravensburger Lotti Karotti Funny Bunny Disney Edition",
+      "brand": "Ravensburger",
+      "category": "Root",
+      "tags": [],
+      "price": 22.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Sonnenkönig Infrarotsauna OHIO 1750 W, 2 Sitzplätze",
+      "brand": "Sonnenkönig",
+      "category": "Root",
+      "tags": [],
+      "price": 2999,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Schreibtisch Lasse Dekor Sonoma, 133 x 92 x 40 cm",
+      "brand": "",
+      "category": "Root",
+      "tags": [],
+      "price": 49.9,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Kopfstütze Jena Stoff curry",
+      "brand": "Polipol",
+      "category": "Root",
+      "tags": [],
+      "price": 99,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Armlehnstuhl Flashy Stoff curry, drehbar",
+      "brand": "",
+      "category": "Root",
+      "tags": [],
+      "price": 69.9,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Wohnlandschaft Jena Stoff curry, Ottomane links",
+      "brand": "Polipol",
+      "category": "Root",
+      "tags": [],
+      "price": 2999,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Ecksofa Trier Leder Torro curry, Anstellhocker rechts",
+      "brand": "Polipol",
+      "category": "Root",
+      "tags": [],
+      "price": 2299,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Ecksofa Trier Leder Torro curry, Anstellhocker rechts, mit Funktionen",
+      "brand": "Polipol",
+      "category": "Root",
+      "tags": [],
+      "price": 3299,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Borotalco Aero Unique Scent of Borotalco Deospray",
+      "brand": "Borotalco",
+      "category": "Root",
+      "tags": [],
+      "price": 7.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Chiefs Protein Riegel Fudge Brownie",
+      "brand": "Chiefs",
+      "category": "Root",
+      "tags": [],
+      "price": 29.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Chiefs Protein Riegel Double Chocolate",
+      "brand": "Chiefs",
+      "category": "Root",
+      "tags": [],
+      "price": 24.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Chiefs Protein Riegel Salty Caramel",
+      "brand": "Chiefs",
+      "category": "Root",
+      "tags": [],
+      "price": 24.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Chiefs Protein Riegel Crispy Cookie",
+      "brand": "Chiefs",
+      "category": "Root",
+      "tags": [],
+      "price": 24.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Chiefs Whey Protein Vanille",
+      "brand": "Chiefs",
+      "category": "Root",
+      "tags": [],
+      "price": 19.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Chiefs Whey Protein Cacao",
+      "brand": "Chiefs",
+      "category": "Root",
+      "tags": [],
+      "price": 19.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Chiefs Whey Protein Salted Caramel",
+      "brand": "Chiefs",
+      "category": "Root",
+      "tags": [],
+      "price": 19.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Pierre Cardin Frotteewäsche rosa",
+      "brand": "Pierre Cardin  ",
+      "category": "Root",
+      "tags": [],
+      "price": 9.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Toskanabrot",
+      "brand": "BACKBOX",
+      "category": "Brot & Backwaren",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 1.99,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "UrDinkelbrot mit Kernen",
+      "brand": "PANETTERIA",
+      "category": "Brot & Backwaren",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 3.85,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Tessinerbrot",
+      "brand": "PANETTERIA",
+      "category": "Brot & Backwaren",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 1.99,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Leinsamenbrot",
+      "brand": "PANETTERIA",
+      "category": "Brot & Backwaren",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 2.89,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Gnüsserbrot, hell",
+      "brand": "PANETTERIA",
+      "category": "Brot & Backwaren",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 2.99,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Gnüsserbrot, dunkel",
+      "brand": "PANETTERIA",
+      "category": "Brot & Backwaren",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 2.99,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Baumnuss-Kartoffelbrot",
+      "brand": "PANETTERIA",
+      "category": "Aktionen",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 3.29,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Gallus-Brot",
+      "brand": "PANETTERIA",
+      "category": "Brot & Backwaren",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 3.99,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Rot",
+      "brand": "RIVELLA",
+      "category": "Alkoholfreie Getränke",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 1.59,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Buurebrot",
+      "brand": "PANETTERIA",
+      "category": "Brot & Backwaren",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 2.59,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Halbweissbrot",
+      "brand": "PANETTERIA",
+      "category": "Brot & Backwaren",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 0.99,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Ruchbrot",
+      "brand": "PANETTERIA",
+      "category": "Brot & Backwaren",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 0.99,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Rote Kidney-Bohnen",
+      "brand": "KING'S CROWN",
+      "category": "Vorräte",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 0.79,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "BIO-Protein-Vollkornbrötli",
+      "brand": "RETOUR AUX SOURCES",
+      "category": "Brot & Backwaren",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 0.89,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Pouletbrüstli, Curry-Mohn",
+      "brand": "BBQ",
+      "category": "Fleisch",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 5.99,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Baumnussbrot mit Buchweizen",
+      "brand": "PANETTERIA",
+      "category": "Brot & Backwaren",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 2.99,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Knäckebrot, Sesam",
+      "brand": "HAPPY HARVEST",
+      "category": "Brot & Backwaren",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 1.09,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Knäckebrot, Roggen",
+      "brand": "HAPPY HARVEST",
+      "category": "Brot & Backwaren",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 1.09,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Dinkel-Vollkornbrot",
+      "brand": "PANETTERIA",
+      "category": "Brot & Backwaren",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 2.99,
+      "keptAtCapture": false
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 {
   "id": "griechischer-joghurt",
   "query": "griechischer Joghurt",
-  "capturedAt": "2026-08-01T10:55:39.796Z",
+  "capturedAt": "2026-08-05T21:43:54.214Z",
   "products": [
     {
       "chain": "coop",
@@ -320,15 +320,6 @@
       "unit": null
     },
     {
-      "chain": "ottos",
-      "name": "Haribo Tropifrutti Joghurt",
-      "brand": "Haribo",
-      "category": "Root",
-      "tags": [],
-      "price": 1.5,
-      "unit": null
-    },
-    {
       "chain": "aldi",
       "name": "Naturejoghurt, 1.5% Fett",
       "brand": "SAVEURS SUISSES",
@@ -393,6 +384,15 @@
         "in-stock"
       ],
       "price": 2.69,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Joghurt",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 2.8,
       "unit": null
     }
   ]

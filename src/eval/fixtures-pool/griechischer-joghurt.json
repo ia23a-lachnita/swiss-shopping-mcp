@@ -1,0 +1,533 @@
+{
+  "id": "griechischer-joghurt",
+  "query": "griechischer Joghurt",
+  "capturedAt": "2026-08-05T21:41:10.717Z",
+  "pool": [
+    {
+      "chain": "migros",
+      "name": "Joghurt",
+      "brand": "Yogos",
+      "category": "",
+      "tags": [],
+      "price": 2.15,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Joghurt",
+      "brand": "Yogos",
+      "category": "",
+      "tags": [],
+      "price": 1.05,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Joghurt",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 2.8,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Joghurt",
+      "brand": "Yogos",
+      "category": "",
+      "tags": [],
+      "price": 1.05,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Joghurt",
+      "brand": "Yogos",
+      "category": "",
+      "tags": [],
+      "price": 1.05,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Fage Total Griechischer Joghurt 5% Fett",
+      "brand": "Fage",
+      "category": "Joghurt Nature",
+      "tags": [],
+      "price": 5.8,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Fage Total Griechischer Joghurt 0% Fett",
+      "brand": "Fage",
+      "category": "Joghurt Nature",
+      "tags": [],
+      "price": 5.8,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Fage Total Griechischer Joghurt 0% Fett",
+      "brand": "Fage",
+      "category": "Joghurt Nature",
+      "tags": [],
+      "price": 2.1,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Fage Total Griechischer Joghurt 5% Fett",
+      "brand": "Fage",
+      "category": "Joghurt Nature",
+      "tags": [],
+      "price": 2.1,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Fage Total Griechischer Joghurt 2% Fett",
+      "brand": "Fage",
+      "category": "Joghurt Nature",
+      "tags": [],
+      "price": 2.1,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Total griechischer Joghurt 0% mit Honig",
+      "brand": "Fage",
+      "category": "Vanillejogurt, Carameljogurt & Honigjogurt",
+      "tags": [],
+      "price": 1.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie Joghurt griechischer Art",
+      "brand": "Prix Garantie",
+      "category": "Joghurt Nature",
+      "tags": [],
+      "price": 4.15,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Joghurt à la grecque nature 2x150g",
+      "brand": "Naturaplan",
+      "category": "Joghurt Nature",
+      "tags": [],
+      "price": 2,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Joghurt à la Grecque Natur",
+      "brand": "Naturaplan",
+      "category": "Joghurt Nature",
+      "tags": [],
+      "price": 2.8,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Yaos Joghurt Nature nach Griechischer Art, ungesüsst 2x150g",
+      "brand": "Nestlé YAOS",
+      "category": "Joghurt Nature",
+      "tags": [],
+      "price": 2.6,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Yaos Joghurt Honig nach Griechischer Art 2x150g",
+      "brand": "Nestlé YAOS",
+      "category": "Vanillejogurt, Carameljogurt & Honigjogurt",
+      "tags": [],
+      "price": 2.6,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Yaos Joghurt Nature nach Griechischer Art 2x150g",
+      "brand": "Nestlé YAOS",
+      "category": "Joghurt Nature",
+      "tags": [],
+      "price": 2.6,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Yaos Joghurt Nature nach Griechischer Art ungesüsst",
+      "brand": "Nestlé YAOS",
+      "category": "Joghurt Nature",
+      "tags": [],
+      "price": 3,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Joghurt à la grecque Honig 2x150g",
+      "brand": "Naturaplan",
+      "category": "Joghurt Nature",
+      "tags": [],
+      "price": 2,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Joghurt à la grecque Nature Low Fat",
+      "brand": "Naturaplan",
+      "category": "Joghurt Nature",
+      "tags": [],
+      "price": 3.15,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Joghurt à la grecque Feigen 2x150g",
+      "brand": "Naturaplan",
+      "category": "Jogurt mit Gartenfrüchten",
+      "tags": [],
+      "price": 2,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Fairtrade Joghurt à la grecque Mango 2x150g",
+      "brand": "Naturaplan",
+      "category": "Jogurt Exotenfrüchte & Jogurt Zitrusfrüchte",
+      "tags": [],
+      "price": 2,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Yaos Joghurt Feigen nach Griechischer Art 2x150g",
+      "brand": "Nestlé YAOS",
+      "category": "Jogurt Exotenfrüchte & Jogurt Zitrusfrüchte",
+      "tags": [],
+      "price": 2.6,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Yaos Joghurt Nature nach Griechischer Art 2x150g",
+      "brand": "Nestlé YAOS",
+      "category": "Joghurt Nature",
+      "tags": [],
+      "price": 2.6,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Jogurt à la grecque 0% Fett Erdbeere-Banane",
+      "brand": "Naturaplan",
+      "category": "Erdbeerjogurt",
+      "tags": [],
+      "price": 1.25,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio FSI Jogurt à la grecque 0% Fett Mokka",
+      "brand": "Naturaplan",
+      "category": "Mokkajogurt & Nussjogurt",
+      "tags": [],
+      "price": 1.25,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Yaos Joghurt Nature 0% nach Griechischer Art",
+      "brand": "Nestlé YAOS",
+      "category": "Joghurt Nature",
+      "tags": [],
+      "price": 3.3,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Yaos Joghurt 0% Fett Nature nach Griechischer Art 2x150g",
+      "brand": "Nestlé YAOS",
+      "category": "Joghurt Nature",
+      "tags": [],
+      "price": 2.6,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "The Real Greek Nature 0%",
+      "brand": "The Real Greek",
+      "category": "Joghurt Nature",
+      "tags": [],
+      "price": 1.75,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "The Real Greek Nature 5%",
+      "brand": "The Real Greek",
+      "category": "Joghurt Nature",
+      "tags": [],
+      "price": 1.75,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Andros So Good So Veggie Greek",
+      "brand": "Andros",
+      "category": "Joghurt Nature",
+      "tags": [],
+      "price": 3.1,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Knoppers Joghurt",
+      "brand": "Knoppers",
+      "category": "Root",
+      "tags": [],
+      "price": 6.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "aldi",
+      "name": "BIO-Naturejoghurt 1.5% Fett",
+      "brand": "RETOUR AUX SOURCES",
+      "category": "Retour aux sources (Bio)",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 1.29,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "aldi",
+      "name": "BIO-Naturejoghurt 3.5% Fett",
+      "brand": "RETOUR AUX SOURCES",
+      "category": "Retour aux sources (Bio)",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 1.29,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "aldi",
+      "name": "Joghurt Vanille",
+      "brand": "RETOUR AUX SOURCES",
+      "category": "Retour aux sources (Bio)",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 0.79,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "aldi",
+      "name": "Joghurt Nature Bifidus",
+      "brand": "RETOUR AUX SOURCES",
+      "category": "Retour aux sources (Bio)",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 0.89,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "aldi",
+      "name": "BIO-Joghurt, nature, griechischer Art",
+      "brand": "RETOUR AUX SOURCES",
+      "category": "Retour aux sources (Bio)",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 1.19,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "aldi",
+      "name": "Naturejoghurt, 1.5% Fett",
+      "brand": "SAVEURS SUISSES",
+      "category": "Saveurs Suisses",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 1.58,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "aldi",
+      "name": "Naturejoghurt, griechischer Art",
+      "brand": "SAVEURS SUISSES",
+      "category": "Saveurs Suisses",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 2.15,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "aldi",
+      "name": "BIO-Joghurt, griechische Art",
+      "brand": "RETOUR AUX SOURCES",
+      "category": "Retour aux sources (Bio)",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 4.59,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "aldi",
+      "name": "Vegetarischer Fruchtgummi, Joghurt-Früchtchen",
+      "brand": "SWEET LAND",
+      "category": "Süssigkeiten & Snacks",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 1.49,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "aldi",
+      "name": "Fruchtjoghurt griechischer Art, Heidelbeere",
+      "brand": "LYTTOS",
+      "category": "Tiefpreisversprechen",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 3.15,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "aldi",
+      "name": "Mini Waffelhörnchen, Joghurt-Erdbeer-Aprikose",
+      "brand": "MUCCI",
+      "category": "Tiefgekühlte Produkte",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 3.99,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "aldi",
+      "name": "Fruchtjoghurt griechischer Art, Himbeer-Feige",
+      "brand": "LYTTOS",
+      "category": "Tiefpreisversprechen",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 3.15,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "aldi",
+      "name": "Fruchtjoghurt griechischer Art, Blutorange-Granatapfel",
+      "brand": "LYTTOS",
+      "category": "Tiefpreisversprechen",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 3.15,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "aldi",
+      "name": "Fruchtjoghurt griechischer Art, Kirsche",
+      "brand": "LYTTOS",
+      "category": "Tiefpreisversprechen",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 3.15,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "aldi",
+      "name": "Ciambella, Joghurt",
+      "brand": "CUCINA NOBILE",
+      "category": "Brot & Backwaren",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 2.69,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "aldi",
+      "name": "Joghurt Erdbeere",
+      "brand": "RETOUR AUX SOURCES",
+      "category": "Retour aux sources (Bio)",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 0.79,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "aldi",
+      "name": "Joghurt Heidelbeere",
+      "brand": "RETOUR AUX SOURCES",
+      "category": "Retour aux sources (Bio)",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 0.79,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "lidl",
+      "name": "Parmigiano Reggiano DOP",
+      "brand": null,
+      "category": "Food",
+      "tags": [],
+      "price": 1.99,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "lidl",
+      "name": "Italienischer Extra-Hartkäse Mix (Aktion nur im Tessin gültig)",
+      "brand": null,
+      "category": "Food",
+      "tags": [],
+      "price": 1.05,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Griechisches Olivenöl, Extra Nativ",
+      "brand": "LYTTOS",
+      "category": "Vorräte",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 5.49,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Griechische Oliven, grüne Oliven mit Stein",
+      "brand": "LYTTOS",
+      "category": "Vorräte",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 1.25,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Griechische Oliven, Kalamata Oliven",
+      "brand": "LYTTOS",
+      "category": "Vorräte",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 1.25,
+      "keptAtCapture": false
+    }
+  ]
+}

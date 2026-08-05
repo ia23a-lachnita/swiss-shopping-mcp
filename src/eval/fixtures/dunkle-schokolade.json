@@ -1,7 +1,7 @@
 {
   "id": "dunkle-schokolade",
   "query": "dunkle Schokolade",
-  "capturedAt": "2026-08-01T10:55:57.549Z",
+  "capturedAt": "2026-08-05T21:44:00.549Z",
   "products": [
     {
       "chain": "migros",
@@ -278,7 +278,7 @@
     {
       "chain": "coop",
       "name": "Trüfrü® gefrorene Himbeeren mit weisser und dunkler Schokolade",
-      "brand": "Mars",
+      "brand": null,
       "category": "Glace Desserts",
       "tags": [],
       "price": 7.95,
@@ -294,30 +294,39 @@
       "unit": null
     },
     {
+      "chain": "denner",
+      "name": "Lindt Excellence Tafelschokolade Dunkel",
+      "brand": null,
+      "category": "1144362",
+      "tags": [],
+      "price": 9.6,
+      "unit": null
+    },
+    {
+      "chain": "denner",
+      "name": "Lindt Excellence Tafelschokolade Dunkel Orange Intense",
+      "brand": null,
+      "category": "1144362",
+      "tags": [],
+      "price": 9.6,
+      "unit": null
+    },
+    {
+      "chain": "denner",
+      "name": "Lindt Excellence Tafelschokolade Dunkel Prodigieux",
+      "brand": null,
+      "category": "1144362",
+      "tags": [],
+      "price": 9.6,
+      "unit": null
+    },
+    {
       "chain": "coop",
       "name": "Läckerli Huus Basler Läckerli mit Schokolade dunkel",
       "brand": "Läckerli-Huus",
       "category": "Hüppen, Waffeln & Läckerli",
       "tags": [],
       "price": 9.9,
-      "unit": null
-    },
-    {
-      "chain": "denner",
-      "name": "Lindt Tafelschokolade Dunkel Crémant 49%",
-      "brand": null,
-      "category": "1144362",
-      "tags": [],
-      "price": 11.95,
-      "unit": null
-    },
-    {
-      "chain": "denner",
-      "name": "Lindt Lindor Tafelschokolade Extra Dunkel 70% Cacao",
-      "brand": null,
-      "category": "1144362",
-      "tags": [],
-      "price": 14.95,
       "unit": null
     },
     {
@@ -354,15 +363,6 @@
       "category": "Schokoladentafeln dunkel",
       "tags": [],
       "price": 2.2,
-      "unit": null
-    },
-    {
-      "chain": "coop",
-      "name": "Halba Tafelschokolade Noir Pistaches",
-      "brand": "Halba",
-      "category": "Schokoladentafeln dunkel",
-      "tags": [],
-      "price": 2.8,
       "unit": null
     }
   ]

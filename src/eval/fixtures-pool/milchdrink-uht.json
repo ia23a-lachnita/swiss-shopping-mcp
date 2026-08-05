@@ -1,0 +1,310 @@
+{
+  "id": "milchdrink-uht",
+  "query": "Milchdrink UHT",
+  "capturedAt": "2026-08-05T21:40:33.828Z",
+  "pool": [
+    {
+      "chain": "migros",
+      "name": "Milchdrink",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 1.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Milchdrink",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 1.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Milchdrink",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 1.6,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Milchdrink",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 11.7,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Good day Milch Drink",
+      "brand": "Emmi",
+      "category": "",
+      "tags": [],
+      "price": 2.4,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Milchdrink UHT 1.5% IP-Suisse 6x1l 2x  6l",
+      "brand": "Coop",
+      "category": "UHT Milch",
+      "tags": [],
+      "price": 15.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Milchdrink UHT 1.5% IP-Suisse 6x1l 2x  6l",
+      "brand": "Coop",
+      "category": "UHT Milch",
+      "tags": [],
+      "price": 15.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Milchdrink UHT 1.5% IP-Suisse",
+      "brand": "Coop",
+      "category": "UHT Milch",
+      "tags": [],
+      "price": 0.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Milchdrink UHT 1.5% IP-Suisse",
+      "brand": "Coop",
+      "category": "UHT Milch",
+      "tags": [],
+      "price": 1.6,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Milchdrink UHT 1.5% Edge IP-Suisse",
+      "brand": "Coop",
+      "category": "UHT Milch",
+      "tags": [],
+      "price": 1.6,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Milchdrink UHT 1.5% IP-Suisse 6x1.5l",
+      "brand": "Coop",
+      "category": "UHT Milch",
+      "tags": [],
+      "price": 15.6,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Milchdrink UHT 1.5% IP-Suisse",
+      "brand": "Coop",
+      "category": "UHT Milch",
+      "tags": [],
+      "price": 0.75,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Free From Bio Milchdrink UHT 1L",
+      "brand": "Free From",
+      "category": "Spezialmilch",
+      "tags": [],
+      "price": 2.45,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Free From Milchdrink UHT",
+      "brand": "Free From",
+      "category": "Spezialmilch",
+      "tags": [],
+      "price": 1.35,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Qualité & Prix Milchdrink UHT IP-Suisse 6x1.5l",
+      "brand": "Coop",
+      "category": "UHT Milch",
+      "tags": [],
+      "price": 15.6,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie Milchdrink 1.5% UHT",
+      "brand": "Prix Garantie",
+      "category": "Frische Milch",
+      "tags": [],
+      "price": 1.7,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Free From Milch Drink 1,5% Milchfett UHT lactosefrei",
+      "brand": "Free From",
+      "category": "UHT Milch",
+      "tags": [],
+      "price": 1.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Milch Drink 2,7% Milchfett UHT 6x1l",
+      "brand": "Naturaplan",
+      "category": "Spezialmilch",
+      "tags": [],
+      "price": 11.7,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Emmi good day Milk Drink UHT",
+      "brand": "Emmi good day",
+      "category": "Spezialmilch",
+      "tags": [],
+      "price": 2.4,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Fairtrade Chocato Drink UHT 2x  250ml",
+      "brand": "Chocato",
+      "category": "Schoko-Milch",
+      "tags": [],
+      "price": 1.2,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Ovo Drink UHT 3x  250ml",
+      "brand": "Ovomaltine",
+      "category": "Schoko-Milch",
+      "tags": [],
+      "price": 4.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Ovo Drink UHT 3x  500ml",
+      "brand": "Ovomaltine",
+      "category": "Schoko-Milch",
+      "tags": [],
+      "price": 8.1,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Fairtrade Chocato Drink UHT",
+      "brand": "Chocato",
+      "category": "Schoko-Milch",
+      "tags": [],
+      "price": 0.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Comella Schokoladen-Drink UHT",
+      "brand": "Emmi Comella",
+      "category": "Schoko-Milch",
+      "tags": [],
+      "price": 2.2,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Comella Schokoladen-Drink UHT",
+      "brand": "Emmi Comella",
+      "category": "Schoko-Milch",
+      "tags": [],
+      "price": 2.85,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Oatly Haferdrink Barista Edition UHT",
+      "brand": "OATLY",
+      "category": "Milchalternativen Vegan",
+      "tags": [],
+      "price": 3.4,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "lidl",
+      "name": "Milchdrink 1,5% UHT/Multipack",
+      "brand": null,
+      "category": "Food",
+      "tags": [],
+      "price": 6.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "volg",
+      "name": "Milchdrink UHT",
+      "brand": null,
+      "category": "Milch",
+      "tags": [],
+      "price": 1.15,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "aldi",
+      "name": "Milch-Drink, UHT",
+      "brand": "RETOUR AUX SOURCES",
+      "category": "Retour aux sources (Bio)",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 1.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Aroy-D Kokosnussmilch UHT",
+      "brand": "Aroy-D",
+      "category": "Root",
+      "tags": [],
+      "price": 4.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Aroy-D Kokosnussmilch UHT",
+      "brand": "Aroy-D",
+      "category": "Root",
+      "tags": [],
+      "price": 2.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Laktosefreie Milch UHT 1.5 % Fett",
+      "brand": "MILSANI",
+      "category": "Aktionen",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 1.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Vollmilch, UHT",
+      "brand": "RETOUR AUX SOURCES",
+      "category": "Retour aux sources (Bio)",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 1.95,
+      "keptAtCapture": false
+    }
+  ]
+}

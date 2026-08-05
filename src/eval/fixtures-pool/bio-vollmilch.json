@@ -1,0 +1,986 @@
+{
+  "id": "bio-vollmilch",
+  "query": "Bio Vollmilch",
+  "capturedAt": "2026-08-05T21:41:07.266Z",
+  "pool": [
+    {
+      "chain": "migros",
+      "name": "Vollmilch Migros Bio",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 1.35,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Aus der Region Bio Vollmilch",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 2.1,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Vollmilch 3,9% Milchfett UHT 6x1l",
+      "brand": "Naturaplan",
+      "category": "Multipacks ab 1l",
+      "tags": [],
+      "price": 11.7,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Vollmilch 3,9% Milchfett Past",
+      "brand": "Naturaplan",
+      "category": "Frische Milch",
+      "tags": [],
+      "price": 1.9,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Vollmilch pasteurisiert 3.9% Milchfett",
+      "brand": "Naturaplan",
+      "category": "Frische Milch",
+      "tags": [],
+      "price": 3.2,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Vollmilch 3,9% Milchfett UHT",
+      "brand": "Naturaplan",
+      "category": "UHT Milch",
+      "tags": [],
+      "price": 1.4,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Demeter Bio Vollmilch 3,9% Milchfett Past",
+      "brand": "Naturaplan",
+      "category": "Frische Milch",
+      "tags": [],
+      "price": 2.25,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Vollmilch 3,9% Milchfett Past",
+      "brand": "Naturaplan",
+      "category": "Frische Milch",
+      "tags": [],
+      "price": 1.2,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Free From Bio Vollmilch pasteurisiert",
+      "brand": "Free From",
+      "category": "Frische Milch",
+      "tags": [],
+      "price": 1.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Regio Vollmilch 3,9% Milchfett Past Züribiet",
+      "brand": "Naturaplan",
+      "category": "Frische Milch",
+      "tags": [],
+      "price": 2.05,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Regio Vollmilch 3,9% Milchfett Past Aargau",
+      "brand": "Naturaplan",
+      "category": "Frische Milch",
+      "tags": [],
+      "price": 2.05,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Bio Regio Gruyère Vollmilch past PET",
+      "brand": "Naturaplan",
+      "category": "Frische Milch",
+      "tags": [],
+      "price": 2.05,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Bio Regio Gruyère Vollmilch past PET",
+      "brand": "Naturaplan",
+      "category": "Frische Milch",
+      "tags": [],
+      "price": 1.35,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "aldi",
+      "name": "Vollmilch, UHT",
+      "brand": "RETOUR AUX SOURCES",
+      "category": "Retour aux sources (Bio)",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 1.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "aldi",
+      "name": "Vollmilch, Pasteurisiert",
+      "brand": "RETOUR AUX SOURCES",
+      "category": "Retour aux sources (Bio)",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 1.85,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Vollmilch",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 1.85,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Vollmilch",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 1.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Vollmilch",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 3.2,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Vollmilch",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 3.2,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Vollmilch",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 11.7,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Vollmilch",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 2,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Vollmilch",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 1.85,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Vollmilch",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 1.2,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Vollmilch",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 2.25,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Vollmilch",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 2.25,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Züribieter Vollmilch",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 2,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Kokos Milch",
+      "brand": "Alnatura",
+      "category": "",
+      "tags": [],
+      "price": 2.5,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Kokos Milch",
+      "brand": "Alnatura",
+      "category": "",
+      "tags": [],
+      "price": 1.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Milchdrink",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 1.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Milchdrink",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 11.7,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Greyerzer Milchdrink",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 1.5,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "M-Drink",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 1.85,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Züribieter M-Drink",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 2,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "M-Drink",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 2.1,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Schoko-Reiswaffeln",
+      "brand": "Alnatura",
+      "category": "",
+      "tags": [],
+      "price": 2,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Schoko-Reiswaffeln",
+      "brand": "Alnatura",
+      "category": "",
+      "tags": [],
+      "price": 2,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Riegel",
+      "brand": "Alnatura",
+      "category": "",
+      "tags": [],
+      "price": 1.25,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Riegel",
+      "brand": "Alnatura",
+      "category": "",
+      "tags": [],
+      "price": 1.25,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Riegel",
+      "brand": "Alnatura",
+      "category": "",
+      "tags": [],
+      "price": 1.25,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Brotaufstrich",
+      "brand": "Nocciolata",
+      "category": "",
+      "tags": [],
+      "price": 5.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Milchdrink",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 1.85,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Schoko Müsli",
+      "brand": "Alnatura",
+      "category": "",
+      "tags": [],
+      "price": 5.5,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Haferdrink",
+      "brand": "Alnatura",
+      "category": "",
+      "tags": [],
+      "price": 1.75,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Haferbiscuits",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 3.6,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Optima 1 Anfangsmilch",
+      "brand": "babybio",
+      "category": "",
+      "tags": [],
+      "price": 24.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Optima 3 Folgemilch",
+      "brand": "babybio",
+      "category": "",
+      "tags": [],
+      "price": 24.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Caprea 2 Folgemilch",
+      "brand": "babybio",
+      "category": "",
+      "tags": [],
+      "price": 24.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Optima 2 Folgemilch",
+      "brand": "babybio",
+      "category": "",
+      "tags": [],
+      "price": 24.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Anfangsmilch 1",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 13.5,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Folgemilch 2",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 13.5,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Folgemilch 3",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 13.5,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "12 e mezzo Bianco Puglia Biologico IGP",
+      "brand": "12 e mezzo",
+      "category": "Root",
+      "tags": [],
+      "price": 9.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "12 e mezzo Primitivo Puglia Biologico IGP",
+      "brand": "12 e mezzo",
+      "category": "Root",
+      "tags": [],
+      "price": 9.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Biotrue ONEday 90",
+      "brand": "Biotrue",
+      "category": "Root",
+      "tags": [],
+      "price": 56.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Biofinity 3 Monats-Kontaktlinsen",
+      "brand": "Biofinity",
+      "category": "Root",
+      "tags": [],
+      "price": 19.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Biofinity 6 Monats-Kontaktlinsen",
+      "brand": "Biofinity",
+      "category": "Root",
+      "tags": [],
+      "price": 31.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Biotrue ONEday 30 Tages-Kontaktlinsen",
+      "brand": "Biotrue",
+      "category": "Root",
+      "tags": [],
+      "price": 19.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Biofinity Multifocal 6 Monats-Kontaktlinsen",
+      "brand": "Biofinity",
+      "category": "Root",
+      "tags": [],
+      "price": 64.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Biotrue -",
+      "brand": "",
+      "category": "Root",
+      "tags": [],
+      "price": 24.5,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Familia Choc'X + Bits",
+      "brand": "Bio Familia",
+      "category": "Root",
+      "tags": [],
+      "price": 10.45,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Familia C.M. Plus Waldbeeren",
+      "brand": "Bio Familia",
+      "category": "Root",
+      "tags": [],
+      "price": 11.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Familia Müesli pure balance Mandeln & Honig",
+      "brand": "Bio Familia",
+      "category": "Root",
+      "tags": [],
+      "price": 10.45,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Familia Müesli c.m.plus Original",
+      "brand": "Bio Familia",
+      "category": "Root",
+      "tags": [],
+      "price": 8.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Biotrue ONEday for Presbyopia 30",
+      "brand": "Biotrue",
+      "category": "Root",
+      "tags": [],
+      "price": 34.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Biotin Biomed plus, 60 Kapseln",
+      "brand": "Biotin",
+      "category": "Root",
+      "tags": [],
+      "price": 56.9,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Biodance Bio Collagen Real Deep Mask 4 Stück",
+      "brand": "Biodance",
+      "category": "Root",
+      "tags": [],
+      "price": 16.9,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Biofinity Energys 6 Monats-Kontaktlinsen",
+      "brand": "Biofinity",
+      "category": "Root",
+      "tags": [],
+      "price": 44.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Biofinity Energys 3 Monats-Kontaktlinsen",
+      "brand": "Biofinity",
+      "category": "Root",
+      "tags": [],
+      "price": 22.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Biofinity Toric 3 Monats-Kontaktlinsen",
+      "brand": "Biofinity",
+      "category": "Root",
+      "tags": [],
+      "price": 22.4,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Biofinity Toric 6 Monats-Kontaktlinsen",
+      "brand": "Biofinity",
+      "category": "Root",
+      "tags": [],
+      "price": 43.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Bioderma Sensibio H2O Beruhigendes Mizellen-Reinigungswasser",
+      "brand": "Bioderma",
+      "category": "Root",
+      "tags": [],
+      "price": 13.9,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Biomedics 1 day Extra 90",
+      "brand": "Biomedics",
+      "category": "Root",
+      "tags": [],
+      "price": 34.5,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Biomedics 55 Evolution 6",
+      "brand": "Biomedics",
+      "category": "Root",
+      "tags": [],
+      "price": 16.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Biotulin Supreme Skin Gel",
+      "brand": "Biotulin",
+      "category": "Root",
+      "tags": [],
+      "price": 39.9,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Snowlife Damen-Handschuhe BIOS Moover",
+      "brand": "Snowlife",
+      "category": "Root",
+      "tags": [],
+      "price": 32.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Biotherm Homme Basic Line Cleanser",
+      "brand": "Biotherm",
+      "category": "Root",
+      "tags": [],
+      "price": 24.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Heba Morellino di Scansano DOCG Bio",
+      "brand": "",
+      "category": "Root",
+      "tags": [],
+      "price": 13.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Biotherm Homme Mousse de Rasage",
+      "brand": "Biotherm",
+      "category": "Root",
+      "tags": [],
+      "price": 22.9,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Biotherm Homme Aquapower Advance",
+      "brand": "Biotherm",
+      "category": "Root",
+      "tags": [],
+      "price": 37.9,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Snowlife Damen-Handschuhe BIOS Rock Star",
+      "brand": "Snowlife",
+      "category": "Root",
+      "tags": [],
+      "price": 29.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Tischleuchte Fabio, Metall",
+      "brand": "",
+      "category": "Root",
+      "tags": [],
+      "price": 19.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Biodance Hydro Cera Real Deep Mask 4 Stück",
+      "brand": "Biodance",
+      "category": "Root",
+      "tags": [],
+      "price": 16.9,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Biotherm Homme Roll-On Deodorant",
+      "brand": "Biotherm",
+      "category": "Root",
+      "tags": [],
+      "price": 23.9,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Biotherm Lait Corporel Körpermilch",
+      "brand": "Biotherm",
+      "category": "Root",
+      "tags": [],
+      "price": 25.9,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Sassoalloro Biondi Santi",
+      "brand": "Sassoalloro",
+      "category": "Root",
+      "tags": [],
+      "price": 13.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Biodance Refreshing Sea Kelp Real Deep Mask 4 Stück",
+      "brand": "Biodance",
+      "category": "Root",
+      "tags": [],
+      "price": 16.9,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Oatly Haferdrink Classic Bio 1 Liter",
+      "brand": "Oatly",
+      "category": "Root",
+      "tags": [],
+      "price": 2.75,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Biodance Radiant Vita Real Deep Mask 4 Stück",
+      "brand": "Biodance",
+      "category": "Root",
+      "tags": [],
+      "price": 16.9,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Biotherm Deo Pure Femme Antiperspirant Roll-On",
+      "brand": "Biotherm",
+      "category": "Root",
+      "tags": [],
+      "price": 23.9,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "ottos",
+      "name": "Burgerstein Biotics-O, 30 Lutschtabletten",
+      "brand": "Burgerstein",
+      "category": "Root",
+      "tags": [],
+      "price": 21.9,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Pistazien",
+      "brand": "BIO",
+      "category": "Süssigkeiten & Snacks",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 2.45,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Maroni",
+      "brand": "BIO",
+      "category": "Süssigkeiten & Snacks",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 1.75,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Cornichons",
+      "brand": "BIO NATURA",
+      "category": "Grillen",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 3.29,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Black BIO",
+      "brand": "GRANDE ALBERONE",
+      "category": "Alkohol & Tabakwaren",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 8.99,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "MONDO BIOLOGICO Prosecco Spumante Bio DOC",
+      "brand": "ALDI",
+      "category": "Alkohol & Tabakwaren",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 9.39,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "BIO-Weiderind-Bündnerfleisch",
+      "brand": "RETOUR AUX SOURCES",
+      "category": "Fleisch",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 8.99,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "MONDO BIOLOGICO Prosecco Spumante Rosé Bio DOC",
+      "brand": "ALDI",
+      "category": "Alkohol & Tabakwaren",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 9.39,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "BIO-Naturejoghurt 3.5% Fett",
+      "brand": "RETOUR AUX SOURCES",
+      "category": "Retour aux sources (Bio)",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 1.29,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "BIO-Naturejoghurt 1.5% Fett",
+      "brand": "RETOUR AUX SOURCES",
+      "category": "Retour aux sources (Bio)",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 1.29,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "BIO-Butter",
+      "brand": "RETOUR AUX SOURCES",
+      "category": "Retour aux sources (Bio)",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 4.35,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "BIO-Pic-Nic-Freilandeier",
+      "brand": "RETOUR AUX SOURCES",
+      "category": "Ostern",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 3.99,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Bio-Poulet-Brustfilet",
+      "brand": "BIO",
+      "category": "Fleisch",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 10.76,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Fairtrade-BIO-Espresso, ganze Bohnen",
+      "brand": "BARISSIMO",
+      "category": "Alkoholfreie Getränke",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 12.49,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "CASA MOROSINA Vino Rosso Bio IGT",
+      "brand": "ALDI",
+      "category": "Aktionen",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 3.55,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "aldi",
+      "name": "Oliven im Doypack",
+      "brand": "BIO",
+      "category": "Grillen",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 2.99,
+      "keptAtCapture": false
+    }
+  ]
+}

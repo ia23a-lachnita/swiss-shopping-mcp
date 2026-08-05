@@ -1,7 +1,7 @@
 {
   "id": "butter",
   "query": "Butter",
-  "capturedAt": "2026-08-01T09:00:12.172Z",
+  "capturedAt": "2026-08-05T21:43:34.608Z",
   "products": [
     {
       "chain": "migros",
@@ -199,6 +199,15 @@
       "unit": null
     },
     {
+      "chain": "coop",
+      "name": "Hipp Elefanten Riegel Butterkeks ab 12+ Monate",
+      "brand": "Hipp",
+      "category": "Babynahrung Snacks ab 12 Monate +",
+      "tags": [],
+      "price": 1.25,
+      "unit": null
+    },
+    {
       "chain": "denner",
       "name": "Denner Flûtes mit Butter und Salz 150",
       "brand": null,
@@ -359,20 +368,11 @@
     },
     {
       "chain": "coop",
-      "name": "Free From Bio Vorzugsbutter",
-      "brand": "Free From",
-      "category": "Butter",
-      "tags": [],
-      "price": 2.9,
-      "unit": null
-    },
-    {
-      "chain": "denner",
-      "name": "Guschlbauer Butter mini Stangerl",
+      "name": "Zibu Zigerbutter",
       "brand": null,
-      "category": "1144362",
+      "category": "Ziger",
       "tags": [],
-      "price": 2.95,
+      "price": 2.85,
       "unit": null
     }
   ]

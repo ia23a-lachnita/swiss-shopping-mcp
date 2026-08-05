@@ -1,0 +1,835 @@
+{
+  "id": "olivenoel",
+  "query": "Olivenöl",
+  "capturedAt": "2026-08-05T21:40:47.554Z",
+  "pool": [
+    {
+      "chain": "migros",
+      "name": "Olivenöl ",
+      "brand": "Don Pablo",
+      "category": "",
+      "tags": [],
+      "price": 9.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Olivenöl ",
+      "brand": "M-Budget",
+      "category": "",
+      "tags": [],
+      "price": 7.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Olivenöl ",
+      "brand": "Alnatura",
+      "category": "",
+      "tags": [],
+      "price": 8.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Olivenöl",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 8.76,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Olivenöl ",
+      "brand": "Vitto",
+      "category": "",
+      "tags": [],
+      "price": 9.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Olivenöl",
+      "brand": "Monini",
+      "category": "",
+      "tags": [],
+      "price": 19.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Olivenöl",
+      "brand": "Sapigni",
+      "category": "",
+      "tags": [],
+      "price": 16.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Olivenöl ",
+      "brand": "Don Pablo",
+      "category": "",
+      "tags": [],
+      "price": 5.6,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Olivenöl",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 8.76,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Griechisches Olivenöl",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 9.12,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Olivenöl",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 7,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Brat Olivenöl",
+      "brand": "Alnatura",
+      "category": "",
+      "tags": [],
+      "price": 11.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Koroneiki griechisches Olivenöl",
+      "brand": "Alexis",
+      "category": "",
+      "tags": [],
+      "price": 10.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Manaki griechisches Olivenöl",
+      "brand": "Alexis",
+      "category": "",
+      "tags": [],
+      "price": 7.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Pasta Gusto Olivenöl & Basilikum",
+      "brand": "Bon Chef",
+      "category": "",
+      "tags": [],
+      "price": 3.6,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "volg",
+      "name": "Bertolli Olivenöl Extra Vergine",
+      "brand": null,
+      "category": "Öl &amp; Fett",
+      "tags": [],
+      "price": 9.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "volg",
+      "name": "Rio Mare Thon Im Olivenöl",
+      "brand": null,
+      "category": "Konserven",
+      "tags": [],
+      "price": 7.55,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Filippo Berio Olivenöl extra vergine",
+      "brand": "Filippo Berio",
+      "category": "Olivenöl",
+      "tags": [],
+      "price": 15.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Olivenöl extra vergine",
+      "brand": "Naturaplan",
+      "category": "Olivenöl",
+      "tags": [],
+      "price": 11.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie Olivenöl extra vergine",
+      "brand": "Prix Garantie",
+      "category": "Olivenöl",
+      "tags": [],
+      "price": 7.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Iliada Olivenöl extra vergine Kalamata PDO",
+      "brand": "Iliada",
+      "category": "Olivenöl",
+      "tags": [],
+      "price": 18.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Bio Olivenöl extra vergine Kreta",
+      "brand": "Naturaplan",
+      "category": "Olivenöl",
+      "tags": [],
+      "price": 11.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Demeter Bio Olivenöl extra vergine",
+      "brand": "Naturaplan",
+      "category": "Olivenöl",
+      "tags": [],
+      "price": 12.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Olivenöl extra vergine IGP Lakonia",
+      "brand": "Naturaplan",
+      "category": "Olivenöl",
+      "tags": [],
+      "price": 15.35,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Don Felipe Olivenöl extra vergine",
+      "brand": "Don Felipe",
+      "category": "Olivenöl",
+      "tags": [],
+      "price": 12.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "San Giuliano Olivenöl extra vergine L'Originale",
+      "brand": "San Giuliano",
+      "category": "Olivenöl",
+      "tags": [],
+      "price": 18.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Filippo Berio Olivenöl Cucinare",
+      "brand": "Filippo Berio",
+      "category": "Olivenöl",
+      "tags": [],
+      "price": 12.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Filippo Berio Olivenöl extra vergine",
+      "brand": "Filippo Berio",
+      "category": "Olivenöl",
+      "tags": [],
+      "price": 8.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie Olivenöl zum Braten",
+      "brand": "Prix Garantie",
+      "category": "Olivenöl",
+      "tags": [],
+      "price": 7,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Filippo Berio Olivenöl extra vergine",
+      "brand": "Filippo Berio",
+      "category": "Olivenöl",
+      "tags": [],
+      "price": 23,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Demeter Olivenöl extra vergine mit Zitrone",
+      "brand": "Naturaplan",
+      "category": "Olivenöl",
+      "tags": [],
+      "price": 7.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Bio 365 Olivenöl extra vergine",
+      "brand": "Bio 365",
+      "category": "Olivenöl",
+      "tags": [],
+      "price": 9.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Filippo Berio Olivenöl extra vergine Spray",
+      "brand": "Filippo Berio",
+      "category": "Olivenöl",
+      "tags": [],
+      "price": 6.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Filippo Berio Olivenöl Airfryer Spray",
+      "brand": "Filippo Berio",
+      "category": "Olivenöl",
+      "tags": [],
+      "price": 5.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Iliada Bio Olivenöl extra vergine PDO Kalamata",
+      "brand": "Iliada",
+      "category": "Olivenöl",
+      "tags": [],
+      "price": 12.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Frantoiano Olivenöl extra vergine Fruttato",
+      "brand": "Benza",
+      "category": "Olivenöl",
+      "tags": [],
+      "price": 19.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Demeter Olivenöl extra vergine mit Basilikum",
+      "brand": "Naturaplan",
+      "category": "Olivenöl",
+      "tags": [],
+      "price": 7.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Olivenöl extra vergine",
+      "brand": "Coop",
+      "category": "Olivenöl",
+      "tags": [],
+      "price": 11.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Merano Olivenöl extra vergine",
+      "brand": "Merano",
+      "category": "Olivenöl",
+      "tags": [],
+      "price": 23.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Iliada Premium Olivenöl extra vergine",
+      "brand": "Iliada",
+      "category": "Olivenöl",
+      "tags": [],
+      "price": 12.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Olivenöl extra vergine",
+      "brand": "Coop",
+      "category": "Olivenöl",
+      "tags": [],
+      "price": 19.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Slow Food Presidio Bio Olivenoel centonze",
+      "brand": "Slow Food",
+      "category": "Olivenöl",
+      "tags": [],
+      "price": 15.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Demeter Olivenöl mit Chili",
+      "brand": "Naturaplan",
+      "category": "Olivenöl",
+      "tags": [],
+      "price": 7.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Fine Food Olivenöl extra vergine mit Trüffel",
+      "brand": "Fine Food",
+      "category": "Olivenöl",
+      "tags": [],
+      "price": 12.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Cavanna Olivenöl extra vergine",
+      "brand": "CAVANNA",
+      "category": "Olivenöl",
+      "tags": [],
+      "price": 11.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Filippo Berio Olivenöl extra vergine",
+      "brand": "Filippo Berio",
+      "category": "Olivenöl",
+      "tags": [],
+      "price": 4.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Sapori d'Italia Olivenöl Sicilia extra vergine",
+      "brand": "Sapori d'Italia",
+      "category": "Olivenöl",
+      "tags": [],
+      "price": 14.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Oliveira da Serra Olivenöl extra vergine",
+      "brand": "Oliveira da Serra",
+      "category": "Olivenöl",
+      "tags": [],
+      "price": 11.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Sapori d'Italia Olivenöl unfiltriert extra vergine",
+      "brand": "Sapori d'Italia",
+      "category": "Olivenöl",
+      "tags": [],
+      "price": 14.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Iliada Olivenöl PDO Kalamata extra vergine",
+      "brand": "Iliada",
+      "category": "Olivenöl",
+      "tags": [],
+      "price": 11.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Rincón Subbética Olivenöl extra vergine",
+      "brand": "Rincón Subbética",
+      "category": "Olivenöl",
+      "tags": [],
+      "price": 21.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Son Naava Olivenöl extra vergine",
+      "brand": "Son Naava",
+      "category": "Olivenöl",
+      "tags": [],
+      "price": 17.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Filippo Berio Olivenöl extra vergine Squeeze",
+      "brand": "Filippo Berio",
+      "category": "Olivenöl",
+      "tags": [],
+      "price": 8.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Filippo Berio Olivenöl extra vergine Collection",
+      "brand": "Filippo Berio",
+      "category": "Olivenöl",
+      "tags": [],
+      "price": 9.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Olivenöl extra vergine",
+      "brand": "Coop",
+      "category": "Olivenöl",
+      "tags": [],
+      "price": 6.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "San Giuliano Olivenöl extra vergine",
+      "brand": "San Giuliano",
+      "category": "Olivenöl",
+      "tags": [],
+      "price": 3.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "San Giuliano Olivenöl extra vergine Fruttato",
+      "brand": "San Giuliano",
+      "category": "Olivenöl",
+      "tags": [],
+      "price": 12.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Monini Olivenöl extra vergine Classico",
+      "brand": "Monini",
+      "category": "Root",
+      "tags": [],
+      "price": 9.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Rio Mare Thunfisch Olivenöl 2 x",
+      "brand": "Rio Mare",
+      "category": "Root",
+      "tags": [],
+      "price": 12.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Rio Mare Thunfisch Olivenöl 2 x",
+      "brand": "Rio Mare",
+      "category": "Root",
+      "tags": [],
+      "price": 12.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Sabo Olivenöl EV Mittelmeer 1 Liter",
+      "brand": "Sabo",
+      "category": "Root",
+      "tags": [],
+      "price": 7.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Rio Mare Thunfisch Piccante Olivenöl 2x",
+      "brand": "Rio Mare",
+      "category": "Root",
+      "tags": [],
+      "price": 9.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Sabo Olivenöl Extra Vergine Mittelmeer, 2 Liter",
+      "brand": "Sabo",
+      "category": "Root",
+      "tags": [],
+      "price": 15.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Olive Oils Land Olivenöl EV Türkei 1 Liter",
+      "brand": "",
+      "category": "Root",
+      "tags": [],
+      "price": 9.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "ottos",
+      "name": "Dr. Sacher's Olivenöl Gesichts- und Körpercreme",
+      "brand": "Dr. Sacher's",
+      "category": "Root",
+      "tags": [],
+      "price": 6.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Classico",
+      "brand": "Monini",
+      "category": "",
+      "tags": [],
+      "price": 16,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Classico",
+      "brand": "Monini",
+      "category": "",
+      "tags": [],
+      "price": 8.5,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Delicato",
+      "brand": "Monini",
+      "category": "",
+      "tags": [],
+      "price": 16,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Classico",
+      "brand": "Monini",
+      "category": "",
+      "tags": [],
+      "price": 6.5,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Classico",
+      "brand": "Monini",
+      "category": "",
+      "tags": [],
+      "price": 9.5,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Gran Fruttato",
+      "brand": "Monini",
+      "category": "",
+      "tags": [],
+      "price": 12.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Classico",
+      "brand": "Monini",
+      "category": "",
+      "tags": [],
+      "price": 2.5,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Toscano IGP",
+      "brand": "Monini",
+      "category": "",
+      "tags": [],
+      "price": 16.5,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Limone",
+      "brand": "Monini",
+      "category": "",
+      "tags": [],
+      "price": 6.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Basilico",
+      "brand": "Monini",
+      "category": "",
+      "tags": [],
+      "price": 6.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Olio Tartufo Bianco",
+      "brand": "Da Emilio",
+      "category": "",
+      "tags": [],
+      "price": 6.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Aglio e Peperoncino",
+      "brand": "Monini",
+      "category": "",
+      "tags": [],
+      "price": 6.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Thunfisch",
+      "brand": "Rio Mare",
+      "category": "",
+      "tags": [],
+      "price": 6.7,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Sardinen",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 1.75,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Pizzateig",
+      "brand": "Anna's Best",
+      "category": "",
+      "tags": [],
+      "price": 3.7,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Thunfisch",
+      "brand": "Rio Mare",
+      "category": "",
+      "tags": [],
+      "price": 8,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Taboulé Salat",
+      "brand": "Al Fez",
+      "category": "",
+      "tags": [],
+      "price": 7.2,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Baby Oil",
+      "brand": "Milette",
+      "category": "",
+      "tags": [],
+      "price": 2.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Pinsateig",
+      "brand": "Anna's Best",
+      "category": "",
+      "tags": [],
+      "price": 3.4,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Weisser Thunfisch",
+      "brand": "Albo",
+      "category": "",
+      "tags": [],
+      "price": 3.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Weisser Thunfisch",
+      "brand": "Albo",
+      "category": "",
+      "tags": [],
+      "price": 3.3,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Tintenfisch",
+      "brand": "Migros",
+      "category": "",
+      "tags": [],
+      "price": 2.8,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Pizzateig",
+      "brand": "Anna's Best",
+      "category": "",
+      "tags": [],
+      "price": 1.95,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Weisse Thunfischfilets",
+      "brand": "Albo",
+      "category": "",
+      "tags": [],
+      "price": 8.6,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "migros",
+      "name": "Thunfisch",
+      "brand": "Rio Mare",
+      "category": "",
+      "tags": [],
+      "price": 4.6,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "lidl",
+      "name": "Thunfisch Duo",
+      "brand": null,
+      "category": "Food",
+      "tags": [],
+      "price": 9.75,
+      "keptAtCapture": false
+    },
+    {
+      "chain": "lidl",
+      "name": "Thunfisch MSC Duo",
+      "brand": null,
+      "category": "Food",
+      "tags": [],
+      "price": 7.99,
+      "keptAtCapture": false
+    }
+  ]
+}

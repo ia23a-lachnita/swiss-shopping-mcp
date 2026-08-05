@@ -1,7 +1,7 @@
 {
   "id": "haferflocken",
   "query": "Haferflocken",
-  "capturedAt": "2026-08-01T08:59:46.552Z",
+  "capturedAt": "2026-08-05T21:43:27.924Z",
   "products": [
     {
       "chain": "aldi",
@@ -142,6 +142,51 @@
       "category": "",
       "tags": [],
       "price": 4.45,
+      "unit": null
+    },
+    {
+      "chain": "migros",
+      "name": "Hafervollkornflocken",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 2.36,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie Vollkorn Haferflöckli fein",
+      "brand": "Prix Garantie",
+      "category": "Getreideflocken",
+      "tags": [],
+      "price": 0.7,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Bio 365 Haferflöckli fein",
+      "brand": "Bio 365",
+      "category": "Getreideflocken",
+      "tags": [],
+      "price": 1.2,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Campiuns Schweizer Haferflöckli",
+      "brand": "Naturaplan",
+      "category": "Getreideflocken",
+      "tags": [],
+      "price": 2.25,
+      "unit": null
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Haferflöckli glutenfrei",
+      "brand": "Naturaplan",
+      "category": "Getreideflocken",
+      "tags": [],
+      "price": 2.95,
       "unit": null
     }
   ]

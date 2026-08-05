@@ -1,0 +1,155 @@
+{
+  "id": "magerquark",
+  "query": "Magerquark",
+  "capturedAt": "2026-08-05T21:40:39.025Z",
+  "pool": [
+    {
+      "chain": "migros",
+      "name": "Magerquark",
+      "brand": "M-Budget",
+      "category": "",
+      "tags": [],
+      "price": 1.25,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Magerquark",
+      "brand": "M-Classic",
+      "category": "",
+      "tags": [],
+      "price": 0.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Magerquark",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 2.2,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Magerquark",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 1.05,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Magerquark",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 1.4,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Magerquark",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 1.45,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "migros",
+      "name": "Magerquark",
+      "brand": "",
+      "category": "",
+      "tags": [],
+      "price": 1.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Prix Garantie Magerquark",
+      "brand": "Prix Garantie",
+      "category": "Quark Nature",
+      "tags": [],
+      "price": 1.25,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Magerquark Nature IP-Suisse",
+      "brand": "Coop",
+      "category": "Quark Nature",
+      "tags": [],
+      "price": 0.95,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Magerquark Nature",
+      "brand": "Naturaplan",
+      "category": "Quark Nature",
+      "tags": [],
+      "price": 2.2,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Free From Magerquark Nature lactosefrei",
+      "brand": "Free From",
+      "category": "Quark Nature",
+      "tags": [],
+      "price": 1.2,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Demeter Magerquark",
+      "brand": "Naturaplan",
+      "category": "Quark Nature",
+      "tags": [],
+      "price": 1.45,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "coop",
+      "name": "Naturaplan Bio Regio Magerquark Nature",
+      "brand": "Naturaplan",
+      "category": "Quark Nature",
+      "tags": [],
+      "price": 2.5,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "volg",
+      "name": "Emmi Magerquark",
+      "brand": null,
+      "category": "Jogurt &amp; Quark",
+      "tags": [],
+      "price": 1.35,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "aldi",
+      "name": "Magerquark",
+      "brand": "RETOUR AUX SOURCES",
+      "category": "Retour aux sources (Bio)",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 0.99,
+      "keptAtCapture": true
+    },
+    {
+      "chain": "aldi",
+      "name": "Magerquark, laktosefrei",
+      "brand": "SAVEURS SUISSES",
+      "category": "Aktionen",
+      "tags": [
+        "in-stock"
+      ],
+      "price": 1.19,
+      "keptAtCapture": true
+    }
+  ]
+}
