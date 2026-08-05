@@ -1125,6 +1125,11 @@ export class CompositeWebSearchProvider implements WebSearchProvider {
     limit?: number,
   ): Promise<WebSearchResult[]> {
     let lastFailedProvider: WebSearchProviderName | undefined;
+    // An exhausted chain used to be indistinguishable from an empty web, so
+    // these two are tracked to tell "nobody was asked" from "everybody
+    // refused". See the throw at the end of this function.
+    let attempted = 0;
+    let lastError: unknown;
 
     // Try each provider in the chain with aggregated multi-site query
     for (const entry of this.chain) {
@@ -1132,6 +1137,7 @@ export class CompositeWebSearchProvider implements WebSearchProvider {
 
       if (!this.canUseProvider(entry, sites)) continue;
 
+      attempted += 1;
       this.metrics?.recordProviderRequest(providerName);
 
       // Neither DDG endpoint supports site: OR — serialize individual queries
@@ -1150,6 +1156,7 @@ export class CompositeWebSearchProvider implements WebSearchProvider {
               throw error;
             }
             lastFailedProvider = providerName;
+            lastError = error;
             anyFailed = true;
           }
         }
@@ -1181,9 +1188,35 @@ export class CompositeWebSearchProvider implements WebSearchProvider {
           throw error;
         }
         lastFailedProvider = providerName;
+        lastError = error;
       }
     }
 
+    // Every provider refused, and each refusal was retryable, so none of them
+    // rethrew on the way out. This used to `return []`, which the caller could
+    // not tell apart from "the web genuinely had nothing to add" — so a fully
+    // dead search chain surfaced as a normal, slightly emptier result set with
+    // no warning anywhere.
+    //
+    // That is not hypothetical. Both DuckDuckGo endpoints answer this project's
+    // egress with an HTTP 202 bot challenge, which is constructed retryable, so
+    // on a host without a Google CSE key the entire chain ends here. It looked
+    // healthy for exactly as long as nobody checked. Worse, augmentation only
+    // runs for chains whose vendor results are already weak — so the queries
+    // that most need it are the ones where its death is least visible.
+    if (attempted > 0 && lastError !== undefined) {
+      throw lastError;
+    }
+    // Nothing was even asked: every provider was skipped by budget or breaker.
+    // Still not an empty web, and still worth saying out loud.
+    if (attempted === 0 && this.chain.length > 0) {
+      throw new TypedWebSearchError({
+        message:
+          'No web-search provider was available (all skipped by budget or open circuit breaker).',
+        provider: this.chain[0].provider.name,
+        retryable: true,
+      });
+    }
     return [];
   }
 

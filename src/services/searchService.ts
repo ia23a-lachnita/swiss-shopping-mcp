@@ -17,6 +17,7 @@ import {
   StoreSearchFilters,
   StoreWithProductAvailability,
 } from '../adapters/types.js';
+import { SourceWarningCode } from '../adapters/types.js';
 import { sourceWarningFromError } from '../sources/warnings.js';
 import { buildTaxonomy } from '../util/taxonomyBuilder.js';
 import { resolveLocationAsync, distanceBetween } from '../util/geo.js';
@@ -398,6 +399,10 @@ export class SearchService {
 
     // Step 3: Run web search only if vendor results are weak, or only for weak chains
     let webResult: WebProductSearchResult | undefined;
+    // Kept so a failed augmentation can still be reported. It used to be
+    // discarded by a bare `.catch(() => undefined)`, which made a dead search
+    // chain indistinguishable from a web that simply had nothing to add.
+    let webError: unknown;
     if (this.webProductSearch && webSearchChains.length > 0) {
       if (this.metrics) {
         this.metrics.recordWebSearch();
@@ -409,17 +414,35 @@ export class SearchService {
           () =>
             webProductSearch
               .searchProducts({ ...filters, query, matchMode }, webSearchChains)
-              .catch(() => undefined),
+              .catch((error: unknown) => {
+                webError = error;
+                return undefined;
+              }),
           WEB_SEARCH_SOFT_TIMEOUT_MS,
           () => undefined
         );
-      } catch {
-        // Web search errors never fail the overall search
+      } catch (error) {
+        // Web search errors never fail the overall search — but they are still
+        // reported, below, rather than dropped on the floor.
+        webError = error;
       }
     }
 
     if (webResult) {
       sourceWarnings.push(...webResult.warnings);
+    } else if (webError !== undefined) {
+      // The whole augmentation step failed. Silence here is what let a fully
+      // dead provider chain look like a healthy search: augmentation only runs
+      // for chains whose vendor results are already weak, so the queries that
+      // most need it are exactly the ones where its absence is least visible.
+      sourceWarnings.push({
+        provider: 'WebSearch',
+        code: SourceWarningCode.SourceUnavailable,
+        message: `Web search augmentation failed for ${webSearchChains.join(', ')}: ${
+          webError instanceof Error ? webError.message : String(webError)
+        }`,
+        observedAt: new Date().toISOString(),
+      });
     }
 
     const webProducts = webResult ? interleaveWebProducts(webResult.productsByChain, requestedChainList) : [];
