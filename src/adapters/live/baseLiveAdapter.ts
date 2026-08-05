@@ -132,17 +132,49 @@ export function metadataFrom(
   };
 }
 
+/**
+ * Opt-in tally of what this filter throws away, per chain.
+ *
+ * "Vendor search is bad" and "our matcher discards good vendor results" look
+ * identical from outside — both end as a thin result list. They want opposite
+ * responses, and we already know the distinction is not academic: for
+ * "Milchdrink UHT" Migros returned twelve correct products and this predicate
+ * rejected all twelve, because `uht` was missing from the modifier table.
+ *
+ * Off by default and never read in production; it exists so the question can
+ * be measured instead of argued.
+ */
+export const matchDiagnostics = {
+  enabled: false,
+  byChain: new Map<string, { seen: number; rejectedRelevance: number; rejectedPrice: number }>(),
+  reset(): void {
+    this.byChain.clear();
+  },
+  record(chain: string, field: 'seen' | 'rejectedRelevance' | 'rejectedPrice'): void {
+    if (!this.enabled) return;
+    let row = this.byChain.get(chain);
+    if (!row) {
+      row = { seen: 0, rejectedRelevance: 0, rejectedPrice: 0 };
+      this.byChain.set(chain, row);
+    }
+    row[field] += 1;
+  },
+};
+
 export function productMatches(
   product: NormalizedProduct,
   query: string,
   filters: ProductSearchFilters
 ): boolean {
   const matchMode = filters.matchMode ?? 'balanced';
+  matchDiagnostics.record(product.chain, 'seen');
   if (calculateMatchStrength(product, query, matchMode) === 0) {
+    matchDiagnostics.record(product.chain, 'rejectedRelevance');
     return false;
   }
 
   if (product.price.current <= 0) {
+    matchDiagnostics.record(product.chain, 'rejectedPrice');
     return false;
   }
 
