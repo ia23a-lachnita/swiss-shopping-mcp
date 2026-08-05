@@ -70,7 +70,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
               same slot at a higher alpha, which is what makes every travelling
               segment fade from its own centre outward. The layering (and why a
               gradient cannot do this) is documented on the CSS side. */}
-          {[1, 2, 3, 4, 5].map((layer) => (
+          {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((layer) => (
             <rect
               key={layer}
               width="100%"

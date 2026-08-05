@@ -333,28 +333,64 @@ body {
    stroke-linecap stays round only on the outermost layer: a round cap adds half
    a stroke-width at each end, which on a 3-unit dash dominates the dash itself
    and blooms the bright core into a blob. The inner layers use butt caps and
-   are hidden inside the outer one's soft ends anyway. */
+   are hidden inside the outer one's soft ends anyway.
+
+   Reported still banding on a real phone after that balancing, and the cause
+   was the step COUNT, not the step values: five zones meant ~0.2 of accumulated
+   alpha appearing across each ~4px boundary, which the eye reads as a switch no
+   matter how evenly the five are spaced. So this is nine layers, and the ramp is
+   solved backwards from the composite rather than chosen by eye — target a
+   perfectly linear accumulation Aₖ = k/9, then invert to get what each layer
+   must carry: aₖ = 1 - (1-Aₖ)/(1-Aₖ₋₁), which collapses to the series
+   1/9, 1/8, 1/7 … 1/2, 1. Each boundary now moves ~0.11 instead of ~0.2, across
+   half the distance.
+
+   Dashes are right-aligned: every layer's dash ENDS at 15, so all nine
+   accumulate at the leading edge and fall away behind it, which is what reads as
+   a comet rather than a bar with soft ends. Each layer's dash is 15·(10-k)/9
+   long, and all four-value arrays still sum to 50 so every layer keeps the base
+   layer's 15/35 period and the stack stays phase-locked to one animation. */
 .button-loading-border--taper-2 {
-  stroke-dasharray: 0 1.5 12 36.5;
+  stroke-dasharray: 0 1.667 13.333 35;
   stroke-linecap: butt;
-  opacity: 0.24;
+  opacity: 0.125;
 }
 .button-loading-border--taper-3 {
-  stroke-dasharray: 0 3 9 38;
+  stroke-dasharray: 0 3.333 11.667 35;
   stroke-linecap: butt;
-  opacity: 0.38;
+  opacity: 0.1429;
 }
 .button-loading-border--taper-4 {
-  stroke-dasharray: 0 4.5 6 39.5;
+  stroke-dasharray: 0 5 10 35;
   stroke-linecap: butt;
-  opacity: 0.55;
+  opacity: 0.1667;
 }
 .button-loading-border--taper-5 {
-  stroke-dasharray: 0 6 3 41;
+  stroke-dasharray: 0 6.667 8.333 35;
+  stroke-linecap: butt;
+  opacity: 0.2;
+}
+.button-loading-border--taper-6 {
+  stroke-dasharray: 0 8.333 6.667 35;
+  stroke-linecap: butt;
+  opacity: 0.25;
+}
+.button-loading-border--taper-7 {
+  stroke-dasharray: 0 10 5 35;
+  stroke-linecap: butt;
+  opacity: 0.3333;
+}
+.button-loading-border--taper-8 {
+  stroke-dasharray: 0 11.667 3.333 35;
+  stroke-linecap: butt;
+  opacity: 0.5;
+}
+.button-loading-border--taper-9 {
+  stroke-dasharray: 0 13.333 1.667 35;
   stroke-linecap: butt;
   opacity: 1;
 }
 /* The full-length base layer carries the softest alpha and the round ends. */
 .button-loading-border--taper-1 {
-  opacity: 0.15;
+  opacity: 0.1111;
 }
