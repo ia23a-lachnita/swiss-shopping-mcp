@@ -1,0 +1,68 @@
+name: Capture web-tier eval fixtures
+
+# Manual only. Fixtures are a snapshot of a live catalogue and must be reviewed
+# as a diff before they land — the relevance suite's entire value is that its
+# baseline moved deliberately. Nothing here commits: it uploads an artifact for
+# a human to inspect and commit locally.
+#
+# It runs on the Pi because the web tier cannot be captured from the dev
+# machine at all. The auto provider chain is ddg-html -> ddg-lite -> google-cse;
+# both DuckDuckGo endpoints answer the dev egress with an HTTP 202 bot
+# challenge, and google CSE has been closed to new customers since 2026-07-13.
+# The Pi is a residential egress DDG does serve.
+on:
+  workflow_dispatch:
+    inputs:
+      only:
+        description: "Comma-separated golden query ids to re-capture (blank = all web-tier ids)"
+        required: false
+        default: ""
+
+concurrency:
+  # Deliberately not the deploy group. This never swaps a container, so it is
+  # safe alongside a deploy — but two captures at once would race on the same
+  # working tree and interleave their requests to a provider that rate-limits
+  # by IP, which is the one thing this job cannot afford.
+  group: eval-capture-web
+  cancel-in-progress: false
+
+jobs:
+  capture:
+    runs-on: [self-hosted, linux, arm64, pi]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Capture web tier
+        id: capture
+        # Exits non-zero when any query came back unaugmented, so a partial
+        # tier cannot look green. The artifact still needs uploading in that
+        # case — the per-query provider warnings in the log are the diagnosis.
+        continue-on-error: true
+        run: npm run eval:capture -- --web ${{ inputs.only && format('--only {0}', inputs.only) || '' }}
+
+      - name: Upload fixtures for review
+        uses: actions/upload-artifact@v4
+        with:
+          name: fixtures-web
+          path: src/eval/fixtures-web/
+          # Absent when every query came back unaugmented, which is a real
+          # result worth seeing rather than a broken job.
+          if-no-files-found: warn
+          retention-days: 7
+
+      - name: Fail if the capture was partial
+        if: steps.capture.outcome == 'failure'
+        run: |
+          echo "Capture did not augment every web-tier query — see the step log above."
+          echo "Fixtures that DID augment were still uploaded and are safe to commit."
+          exit 1
