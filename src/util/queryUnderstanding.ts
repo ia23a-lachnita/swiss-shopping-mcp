@@ -81,6 +81,14 @@ export const MODIFIERS: readonly ModifierEntry[] = [
   { forms: ['gefroren'], kind: 'preference' },
   { forms: ['haltbar'], kind: 'preference' },
   { forms: ['pasteurisiert'], kind: 'preference' },
+  // The sibling of pasteurisiert, and its absence here was a recall defect
+  // rather than an omission of vocabulary. An unrecognised token is mandatory,
+  // so "Milchdrink UHT" disqualified every product not carrying "UHT" in its
+  // name — which is all twelve of Migros's Milchdrinks, since Migros names them
+  // "Milchdrink" and prints the heat treatment nowhere in the title. Coop and
+  // Volg do include it, so the query still answered and the golden set scored
+  // it 1.0 while the largest chain contributed nothing.
+  { forms: ['uht', 'ultrahocherhitzt'], kind: 'preference' },
   { forms: ['gesalzen'], kind: 'preference' },
   { forms: ['ungesalzen'], kind: 'preference' },
   { forms: ['gesusst', 'ungesusst'], kind: 'preference' },
