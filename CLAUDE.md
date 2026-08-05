@@ -43,6 +43,62 @@ When using `antigravity-mcp` for code review or brainstorming, prefer models in 
 
 Always pass `model` explicitly starting from the top of this list — antigravity-mcp's own default (currently `gemini-3.5-flash` via its `sdk` backend) does not follow this order on its own. Only drop to the next model on an actual failure/exhaustion signal, not preemptively.
 
+### When to consult antigravity (SECOND-OPINION CONTRACT)
+
+**Consult antigravity-mcp before committing to any idea, plan, or design
+decision — not only for code review.** It is the project's designated second
+opinion, and the agent is expected to reach for it whenever a choice has real
+alternatives, not just when asked to.
+
+Mandatory before implementing:
+- Any **plan** or multi-step approach (`brainstorm` for open-ended options,
+  `ask-ai` when a concrete implementation-ready recommendation is wanted).
+- Any **technique with real trade-offs** — animation/easing, layout, algorithm
+  choice, data-flow or state design, protocol/error-handling strategy.
+- Any **architecture or dependency decision**, including "should this live in
+  the adapter, the service, or the UI".
+- Any time a first attempt did not look right and the fix is not obvious.
+
+Expected afterwards: say what antigravity recommended, and where the
+implementation departed from it and why. A consult that produced a correction
+worth keeping belongs in the code comment or the plan doc — this is how
+`.button-loading-border`'s alpha-compositing and linecap rules got recorded.
+
+Skip it only for mechanical work with one obvious form (a rename, a typo, a
+test that mirrors an existing one). If unsure whether a decision qualifies,
+consult — it is cheap, and the model priority above keeps it free.
+
+## Live-model testing contract (DETERMINISTIC FIRST)
+
+Anything that spends OpenRouter quota — `npm run test:eval`, `test:live`,
+driving the real chat in a browser — runs **only after the deterministic
+suite is fully green**. Order, every time:
+
+1. `npm run build` — types must compile.
+2. `npm test -- --run` — the whole suite passes, not "passes except".
+3. `npm run lint` — 0 errors.
+4. **Only then** run the live-model tests.
+
+**Why:** a red live run has two possible causes — our code is wrong, or the
+model behaved badly — and they are indistinguishable in the output. Clearing
+the deterministic layer first collapses that ambiguity: once the code is known
+correct, a live failure is a statement about model behaviour, which is the
+only thing those runs are for. It also stops us paying real quota to discover
+a type error.
+
+**Rate limits are ours to respect, not the vendor's to enforce.** Free-tier
+model calls go through `src/agent/openRouterRateLimit.ts`, which paces below
+the published cap and honors `Retry-After`. Never bypass it with a bare
+provider client, and never "fix" a 429 by retrying harder. See
+`docs/active/PWA_UX_FIX_PLAN_2026-08-04.md` §5 for what that cost once.
+
+**Budget awareness:** the account is credit-verified, so the daily free-model
+allowance is 1000 requests/day (the 50/day figure applies only to accounts
+that never purchased credits). The binding constraint in practice is the
+per-minute cap, which the limiter already handles — so a live eval run is
+cheap and there is no reason to avoid one when the deterministic gate is
+green.
+
 ## Execution workflow (MANDATORY MANUAL TESTING CONTRACT)
 
 **Automated tests are self-written and do not guarantee correctness. Manual SPA testing is required.**
@@ -76,6 +132,9 @@ Proceeding without browser verification is a contract violation.
 12. Add/adjust automated tests (if coverage is lacking)
 13. Run full test suite (`npm test -- --run`)
 14. Lint (`npm run lint`)
+14a. If the change touches the chat agent, its tools, prompts, or model
+    configuration: run `npm run test:eval` — but only once 13 and 14 are green
+    (see the live-model testing contract above)
 15. Update tracker
 16. **Commit AND push** (`git push origin main`) — committing without pushing is a contract violation. Verify with `git status` that the branch is not ahead of origin before ending the task.
 

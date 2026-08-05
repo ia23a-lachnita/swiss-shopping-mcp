@@ -19,16 +19,53 @@ import { repairToolCall } from './toolCallRepair.js';
 
 // Re-verify this lineup against `GET https://openrouter.ai/api/v1/models`
 // before relying on it long-term — OpenRouter's free-tier catalog rotates.
-// Snapshot verified live 2026-07-29.
-export const PRIMARY_MODEL_ID = 'google/gemma-4-31b-it:free';
-export const FALLBACK_MODEL_IDS = [
-  PRIMARY_MODEL_ID,
-  'nvidia/nemotron-3-super-120b-a12b:free',
-  'openai/gpt-oss-20b:free',
-] as const;
+// Catalog snapshot verified live 2026-08-04; all three ids still list `tools`
+// support (only 13 free models do).
+//
+// Order set by measurement, not reputation — `npm run test:eval` pinned to one
+// model at a time via SWISS_SHOPPING_CHAT_MODEL, 2026-08-05:
+//
+//   openai/gpt-oss-20b:free                 5/10
+//   nvidia/nemotron-3-super-120b-a12b:free  3/10  (incl. a 7-step tool loop)
+//   google/gemma-4-31b-it:free              0/10  — its provider pool refused
+//                                                  every request, twice, 30
+//                                                  minutes apart
+//
+// Gemma was primary until then. Nothing looked broken from outside because
+// OpenRouter's `models` chain quietly routed around the dead pool — every turn
+// simply paid a failed attempt first.
+//
+// The chain is now two entries, not three, and that is also a measurement: the
+// shipped config (chain enabled) scored 3/10 while pinned gpt-oss scored 5/10,
+// because a chain routes to *whichever member answers*, so every weak member
+// drags the shipped result toward itself. Resilience still argues for having
+// one fallback; it does not argue for keeping a model whose pool is currently
+// refusing us. Restore gemma when its pool recovers and a pinned run earns it
+// back — the text-form tool-call salvage was built for that model and still
+// covers it.
+export const PRIMARY_MODEL_ID = 'openai/gpt-oss-20b:free';
+export const FALLBACK_MODEL_IDS = [PRIMARY_MODEL_ID, 'nvidia/nemotron-3-super-120b-a12b:free'] as const;
+
+/**
+ * Pins the agent to one model id, with no fallback chain. Exists so the
+ * golden-eval can attribute a result to a specific model: with the normal
+ * `models` chain, OpenRouter may serve any of the three and the run measures
+ * "whichever answered", which is useless for deciding which to promote.
+ *
+ * Eval/diagnostic use only — production leaves it unset and keeps the chain.
+ */
+const MODEL_OVERRIDE_ENV = 'SWISS_SHOPPING_CHAT_MODEL';
 
 const MAX_STEPS = 12;
 const REQUEST_TIMEOUT_MS = 30_000;
+/**
+ * How long a turn may wait *in line* for a rate-limit slot, which is a
+ * different budget from how long the model may take to answer. A shopper
+ * watching a chat bubble will not wait a minute for a queue slot; a batch eval
+ * happily will, and passes its own. Conflating the two made every queued eval
+ * case fail instantly instead of waiting.
+ */
+const DEFAULT_QUEUE_WAIT_MS = 12_000;
 
 const SYSTEM_PROMPT = `You are the Swiss Shopping assistant, embedded in a PWA that compares
 groceries across Swiss retail chains (Migros, Coop, Aldi, Denner, Lidl, Volg, Otto's).
@@ -77,9 +114,16 @@ export interface ChatAgentRequest {
   activeLocation?: string;
   /** Test-only override — production callers always get the real OpenRouter model. */
   model?: LanguageModel;
+  /**
+   * How long this caller may wait for a free-tier rate-limit slot. Batch
+   * callers (the golden-eval) pass a large value; the interactive chat keeps
+   * the short default so a shopper gets an answer or an honest error, not a
+   * silent minute in a queue.
+   */
+  maxQueueWaitMs?: number;
 }
 
-function resolveModel(deadline: number): LanguageModel {
+function resolveModel(queueDeadline: number): LanguageModel {
   const apiKey = process.env.OPENROUTER_API_KEY;
   if (!apiKey) {
     throw new Error(
@@ -91,7 +135,12 @@ function resolveModel(deadline: number): LanguageModel {
   // 20 requests/minute across the whole account, which is also why the
   // `models` chain below cannot rescue a rate limit: every id in it is
   // `:free` and shares that one counter.
-  const openrouter = createOpenRouter({ apiKey, fetch: createRateLimitedFetch({ deadline }) });
+  const openrouter = createOpenRouter({ apiKey, fetch: createRateLimitedFetch({ queueDeadline }) });
+
+  const pinned = process.env[MODEL_OVERRIDE_ENV]?.trim();
+  if (pinned) {
+    return openrouter(pinned); // no `models` chain — one model, attributable result
+  }
   // Primary model id drives the request's top-level `model`; `models` is
   // OpenRouter's own server-side fallback chain (walked in order on
   // downtime/rate-limit/context-length/moderation failures), so a single
@@ -118,17 +167,18 @@ export async function runChatAgent({
   dependencies,
   activeLocation,
   model,
+  maxQueueWaitMs = DEFAULT_QUEUE_WAIT_MS,
 }: ChatAgentRequest): Promise<ReturnType<typeof streamText>> {
   const system = activeLocation
     ? `${SYSTEM_PROMPT}\n\nThe user's current chat location is "${activeLocation}". Use it for location-based tools unless they just gave a different one in this message.`
     : SYSTEM_PROMPT;
 
-  // One budget, shared by the abort signal and the rate limiter: the limiter
-  // refuses to sleep past this instead of stalling into an opaque timeout.
-  const deadline = Date.now() + REQUEST_TIMEOUT_MS;
+  // Queue budget, not the request budget: how long this turn may wait for a
+  // rate-limit slot before we tell the caller so, rather than stalling.
+  const queueDeadline = Date.now() + maxQueueWaitMs;
 
   return streamText({
-    model: withToolCallSalvage(model ?? resolveModel(deadline)),
+    model: withToolCallSalvage(model ?? resolveModel(queueDeadline)),
     system,
     messages: await convertToModelMessages(messages),
     tools: createAgentTools(dependencies),

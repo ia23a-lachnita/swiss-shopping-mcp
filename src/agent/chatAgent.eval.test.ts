@@ -106,21 +106,50 @@ describe.skipIf(process.env.RUN_AGENT_EVAL !== '1')('chat agent golden-eval (rea
     const result = await runChatAgent({
       messages: [{ id: '1', role: 'user', parts: [{ type: 'text', text: prompt }] }],
       dependencies: dependencies(),
+      // A batch run waits in line; it is not a shopper watching a bubble. Without
+      // this, cases queued behind a rate-limit window fail instantly and the run
+      // reports rate limiting as if it were bad tool selection.
+      maxQueueWaitMs: 100_000,
     });
 
     const steps = await result.steps;
-    const firstStepToolCalls = steps[0]?.toolCalls ?? [];
+
+    // A bare "expected 0 to be greater than 0" cannot distinguish "called the
+    // wrong tool", "called the right tool one step late" (reasoning models
+    // often spend step 1 thinking) and "called nothing at all" — and those
+    // lead to three different decisions. Say which it was.
+    const trace = steps
+      .map((step, index) => {
+        const names = step.toolCalls.map((call) => call.toolName);
+        return `step ${index + 1}: ${names.length > 0 ? names.join(', ') : '(no tool call)'}`;
+      })
+      .join(' | ');
+
+    const allToolCalls = steps.flatMap((step) => step.toolCalls);
 
     if (expectedTool === null) {
-      expect(firstStepToolCalls).toHaveLength(0);
+      // "Answer without tools" must hold for the whole turn, not just its start.
+      expect(allToolCalls, `expected no tool call at all — ${trace}`).toHaveLength(0);
       return;
     }
 
-    expect(firstStepToolCalls.length).toBeGreaterThan(0);
-    expect(firstStepToolCalls.some((call) => call.toolName === expectedTool)).toBe(true);
+    // Asserted across the turn, not on step 1 alone. Step 1 was the original
+    // criterion and it was wrong: our own system prompt tells the model to call
+    // set_chat_location *before* a location-dependent tool, so a model that
+    // obeyed ("step 1: set_chat_location | step 2: find_stores") was scored as
+    // a failure. Scores from before 2026-08-05 are not comparable to later
+    // ones. What this still catches is the regression it was built for — the
+    // model quietly answering from general knowledge with no tool at all.
+    expect(allToolCalls.length, `expected ${expectedTool} somewhere in the turn — ${trace}`).toBeGreaterThan(
+      0
+    );
+    expect(
+      allToolCalls.some((call) => call.toolName === expectedTool),
+      `expected ${expectedTool} somewhere in the turn — ${trace}`
+    ).toBe(true);
 
     if (expectedInputContains) {
-      const matchingCall = firstStepToolCalls.find((call) => call.toolName === expectedTool);
+      const matchingCall = allToolCalls.find((call) => call.toolName === expectedTool);
       const inputJson = JSON.stringify(matchingCall?.input ?? {}).toLowerCase();
       expect(inputJson).toContain(expectedInputContains.toLowerCase());
     }

@@ -245,12 +245,48 @@ finished. From the user's side that is indistinguishable from a crash — hence
    promoting a model with reliable structured tool calling to primary — layers
    1–3 are still needed regardless, since free models will keep doing this.
 
-   **Re-verified 2026-08-04 against the live catalog:** all three configured
-   ids are still listed and all three still declare `tools` support. Only 13
-   free models declare tools at all today, so the lineup is not stale. **No
-   model change made**, deliberately: the obvious candidate to promote
-   (`openai/gpt-oss-20b:free`) would be a swap on reputation, not evidence,
-   and the instrument that could decide it is the golden-eval
+   **Measured 2026-08-05 — model promoted on evidence.** With the rate-limit
+   handling fixed and `SWISS_SHOPPING_CHAT_MODEL` added to pin one model at a
+   time (no `models` chain, so a result is attributable), each candidate ran
+   the full golden set:
+
+   | model | score | how it failed |
+   |---|---|---|
+   | `openai/gpt-oss-20b:free` | **5/10** | 3× no tool call at all, 1× wrong tool |
+   | `nvidia/nemotron-3-super-120b-a12b:free` | 3/10 | wrong tool; one 7-step `lookup_store_product_availability` loop |
+   | `google/gemma-4-31b-it:free` *(then primary)* | **0/10** | provider pool refused every request, twice, 30 minutes apart |
+
+   So `gpt-oss-20b` is primary now and gemma is out of the chain. Nothing had
+   looked broken from outside, because OpenRouter's `models` chain quietly
+   routed around gemma's dead pool — every turn simply paid a failed attempt
+   first.
+
+   The chain length is a measurement too: with all three, the *shipped* config
+   scored 3/10 while pinned `gpt-oss` scored 5/10, since a chain routes to
+   whichever member answers and every weak member drags the result toward
+   itself. Pruned to two, the shipped config measures 5/10 — the same as its
+   best member. Restore gemma when its pool recovers and a pinned run earns it
+   back.
+
+   **The eval itself was wrong, and the measurement exposed it.** It asserted
+   the expected tool appeared in **step 1**, but our own system prompt tells
+   the model to call `set_chat_location` *before* a location-dependent tool —
+   so `step 1: set_chat_location | step 2: find_stores` was scored a failure
+   for obeying instructions. It now asserts across the whole turn, and prints
+   the per-step tool trace on failure so "wrong tool", "right tool one step
+   late" and "no tool at all" are distinguishable. **Scores from before
+   2026-08-05 are not comparable to later ones.**
+
+   **Still open, now quantified:** the best free model calls no tool at all on
+   ~3 of 10 grounded prompts, which is the exact grounding-discipline
+   regression this eval exists to catch. Worth trying `toolChoice: 'required'`
+   on the first step, or a re-ask when a data question ends with no tool call.
+
+   *(Earlier note, superseded: "no model change made" — the swap then looked
+   like reputation over evidence, which was right until the evidence existed.)*
+   All three ids were re-verified against the live catalog on 2026-08-04 and
+   still declare `tools` support; only 13 free models do. The instrument that
+   decided it is the golden-eval
    (`npm run test:eval`), which asserts tool *selection* against the real
    model. Promote only on a run that shows the current primary losing.
 
@@ -292,10 +328,50 @@ finished. From the user's side that is indistinguishable from a crash — hence
    mean the model picked the wrong tool — never that we out-ran a published
    limit.
 
+   **Second pass, 2026-08-05 — the first fix repeated the mistake it fixed.**
+   Running it proved that: it classified *every* 429 as account-level, so one
+   busy provider pool blocked the whole process for 60s and failed nine eval
+   cases that never reached the network. There are at least two 429s and they
+   want opposite responses:
+
+   - **account** (`free-models-per-min` / `-per-day`): applies to everything we
+     send, so pace and wait — and a `:free` fallback chain cannot help.
+   - **upstream** (`limit_source: upstream_provider_shared_pool`): one
+     provider's pool, right now. A different model *would* answer, so this must
+     never stop unrelated traffic.
+
+   Now classified on `metadata.limit_source` first, the account wording second,
+   the platform's rate-limit headers third — and an unclassifiable 429 defaults
+   to **upstream**, because guessing "account" stops every request in the
+   process and that blast radius is not something to take on a guess. Upstream
+   gets two short jittered retries then a cooldown on that model alone; a
+   headerless account limit backs off from 2s rather than assuming a whole
+   window. Reviewed with antigravity-mcp/gemini-3.6-flash, which supplied the
+   default-to-upstream rule and the point below.
+
+   **Queue budget ≠ request budget.** The first version bounded "how long may I
+   wait for a slot" with the *request* deadline, so any queued caller failed
+   instantly. They are now separate: `maxQueueWaitMs` defaults to 12s for an
+   interactive turn (a shopper will not wait a minute in a queue) and the eval
+   passes 100s, because a batch run happily waits.
+
 **Also visible in the same screenshot:** the store-card results render *after*
 the user's later "Hello?" message, so a slow turn's output can land below a
 newer user message and read as a reply to it. Worth confirming whether the
 transcript orders by arrival rather than by turn.
+
+**Resolved 2026-08-05 — there is no ordering bug.** The transcript renders
+`messages` in array order with no sort, and history is persisted as one array
+record, so arrival time never reorders anything. The state the artefact would
+need — a newer user message existing while an older turn still streams — is
+unreachable: verified in the browser that mid-flight the send button is
+`disabled` and *both* submit paths (Enter and the button) produce no second
+request. What actually happened is simpler: the turn before had failed
+silently (the defect above), the shopper typed "Hello?", and the model — which
+receives the whole history on every request — ran the availability lookup the
+failed turn never did. The store cards were the reply **to** "Hello?". With
+that turn now failing visibly, the confusing sequence cannot present the same
+way.
 
 ## Verification for all five
 

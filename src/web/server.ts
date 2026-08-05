@@ -458,16 +458,15 @@ async function handleChat(res: ServerResponse, raw: string): Promise<void> {
       if (err instanceof RateLimitedError) {
         const retryAfterSeconds = Math.ceil(err.retryAfterMs / 1000);
         res.setHeader('Retry-After', String(retryAfterSeconds));
-        sendJson(res, 429, {
-          ok: false,
-          error: {
-            code: err.scope === 'per-day' ? 'RATE_LIMITED_DAILY' : 'RATE_LIMITED',
-            message:
-              err.scope === 'per-day'
-                ? 'Das Tageslimit des kostenlosen Modell-Kontingents ist erreicht. Morgen wieder verfügbar.'
-                : `Zu viele Anfragen an das Modell. In ${retryAfterSeconds}s wieder versuchen.`,
-          },
-        });
+        // Our quota vs the provider's: a shopper can act on the difference —
+        // one is worth retrying in a moment, one is not worth retrying today.
+        const [status, code, message] =
+          err.scope === 'account-per-day'
+            ? ([429, 'RATE_LIMITED_DAILY', 'Das Tageslimit des kostenlosen Modell-Kontingents ist erreicht. Morgen wieder verfügbar.'] as const)
+            : err.scope === 'upstream'
+              ? ([503, 'MODEL_PROVIDER_BUSY', `Das Modell ist gerade überlastet. In ${retryAfterSeconds}s nochmal versuchen.`] as const)
+              : ([429, 'RATE_LIMITED', `Zu viele Anfragen an das Modell. In ${retryAfterSeconds}s wieder versuchen.`] as const);
+        sendJson(res, status, { ok: false, error: { code, message } });
         return;
       }
       sendJson(res, 500, {
