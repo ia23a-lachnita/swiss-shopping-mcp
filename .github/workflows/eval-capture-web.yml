@@ -42,6 +42,15 @@ jobs:
       - name: Install
         run: npm ci
 
+      # Runs before the capture and never fails it. A capture that augments
+      # nothing is ambiguous on its own — refused endpoint, served-but-
+      # unparsed, or genuinely no results — and only the first is fixed by
+      # running on a different machine. This says which, from this egress, in
+      # four lines.
+      - name: Probe what this egress sees
+        continue-on-error: true
+        run: npm run build && node scripts/probeWebSearch.mjs
+
       - name: Capture web tier
         id: capture
         # Exits non-zero when any query came back unaugmented, so a partial
