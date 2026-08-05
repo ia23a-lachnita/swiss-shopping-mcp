@@ -19,8 +19,10 @@ name: Capture web-tier eval fixtures
 # harder than residential ones. This job is therefore systematically MORE likely
 # to succeed than production is. It answers "can we capture fixtures from
 # somewhere", which is a real question about test data. It does not answer "does
-# web augmentation work in production" -- for that, probe from inside the
-# gluetun namespace. See tracker item 8.
+# web augmentation work in production" -- for that, read GET /api/metrics
+# (webSearch counters, from real traffic) or probe from inside the gluetun
+# namespace, as PWA_REALDEVICE_FEEDBACK_2026-07-25.md item 23 did. See tracker
+# item 8.
 on:
   workflow_dispatch:
     inputs:
