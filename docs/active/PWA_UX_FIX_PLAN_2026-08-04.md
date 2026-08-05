@@ -277,10 +277,48 @@ finished. From the user's side that is indistinguishable from a crash — hence
    late" and "no tool at all" are distinguishable. **Scores from before
    2026-08-05 are not comparable to later ones.**
 
-   **Still open, now quantified:** the best free model calls no tool at all on
-   ~3 of 10 grounded prompts, which is the exact grounding-discipline
-   regression this eval exists to catch. Worth trying `toolChoice: 'required'`
-   on the first step, or a re-ask when a data question ends with no tool call.
+   **Superseded within the day — the catalog had moved and we had not looked.**
+   The models above were the *configured* lineup, not the *available* one. A
+   full sweep of `GET /api/v1/models` on 2026-08-05 found 13 free models
+   declaring `tools`, six of them released after this lineup was written, and
+   the incumbent (`gpt-oss-20b`, 2025-08-05) was the oldest of them. One cheap
+   probe each — one request, does it answer, how fast, is the tool call
+   structured — then the full golden set on the survivors:
+
+   | model | golden set | median turn |
+   |---|---|---|
+   | `poolside/laguna-s-2.1:free` | **10/10** | 10.8s |
+   | `inclusionai/ling-3.0-flash:free` | 9/10 | 9.6s |
+   | `nvidia/nemotron-3-ultra-550b-a55b:free` | 9/10 | 16.3s |
+   | `cohere/north-mini-code:free` | 9/10 | 19.7s |
+   | `poolside/laguna-xs-2.1:free` | 5/10 | 5.1s (3 cases errored) |
+   | `openai/gpt-oss-20b:free` | 5/10 | — |
+   | `nvidia/nemotron-3-super-120b-a12b:free` | 3/10 | — |
+   | `google/gemma-4-31b-it:free` | 0/10 | pool refuses us |
+
+   Lineup is now laguna-s-2.1 → ling-3.0-flash → nemotron-3-ultra. Shipped
+   (chain enabled) measures **8/10 at a 9.0s median**, against 5/10 before.
+   Every member scores ≥9/10, which is what makes a three-model chain safe
+   again: the "weak member drags the shipped score down" hazard only exists
+   when weak members are in it, and pool resilience is worth having — `laguna`
+   and `gpt-oss` were both seen returning `upstream_provider_shared_pool` 429s
+   during the sweep.
+
+   **The "no tool call at all" defect was largely the model.** It was
+   `gpt-oss`'s weakness (3 of its 5 failures); laguna-s does not exhibit it.
+   `toolChoice: 'required'` remains available if it returns.
+
+   **Latency is now measured, not assumed.** The eval prints the median and
+   slowest turn per model, because "picks the right tool eventually" is not a
+   usable model — the reported symptom was free models being slow, and one
+   candidate (`nvidia/nemotron-nano-12b-v2-vl:free`) simply hung for 90s on a
+   one-line probe.
+
+   **And the dashboard question is answered:** gemma-4-31b never appeared in
+   OpenRouter's dashboard not because of a misconfiguration but because a raw
+   curl — no SDK, no middleware — returns `429 ... temporarily rate-limited
+   upstream` from Google AI Studio. Rejected requests never become
+   generations, so they are never logged.
 
    *(Earlier note, superseded: "no model change made" — the swap then looked
    like reputation over evidence, which was right until the evidence existed.)*

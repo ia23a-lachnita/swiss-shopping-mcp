@@ -8,7 +8,7 @@
 //
 // Run with: RUN_AGENT_EVAL=1 npm test -- --run chatAgent.eval.test.ts
 // (or `npm run test:eval` once OPENROUTER_API_KEY is set in the shell)
-import { describe, expect, it } from 'vitest';
+import { afterAll, describe, expect, it } from 'vitest';
 
 import { Chain, ChainAdapter, NormalizedProduct, ProductSearchFilters, Result } from '../adapters/types.js';
 import { PriceComparisonService } from '../services/priceComparisonService.js';
@@ -102,7 +102,22 @@ const FIXTURES: Fixture[] = [
 ];
 
 describe.skipIf(process.env.RUN_AGENT_EVAL !== '1')('chat agent golden-eval (real model, stubbed tool backend)', () => {
+  const latencies: Array<{ prompt: string; elapsedMs: number }> = [];
+
+  afterAll(() => {
+    if (latencies.length === 0) return;
+    const sorted = [...latencies].sort((a, b) => a.elapsedMs - b.elapsedMs);
+    const median = sorted[Math.floor(sorted.length / 2)].elapsedMs;
+    const slowest = sorted[sorted.length - 1];
+    console.log(
+      `\n[eval latency] model=${process.env.SWISS_SHOPPING_CHAT_MODEL ?? '(shipped chain)'} ` +
+        `n=${latencies.length} median=${(median / 1000).toFixed(1)}s ` +
+        `slowest=${(slowest.elapsedMs / 1000).toFixed(1)}s ("${slowest.prompt.slice(0, 40)}")`
+    );
+  });
+
   it.each(FIXTURES)('"$prompt" -> $expectedTool', async ({ prompt, expectedTool, expectedInputContains }) => {
+    const startedAt = performance.now();
     const result = await runChatAgent({
       messages: [{ id: '1', role: 'user', parts: [{ type: 'text', text: prompt }] }],
       dependencies: dependencies(),
@@ -112,7 +127,14 @@ describe.skipIf(process.env.RUN_AGENT_EVAL !== '1')('chat agent golden-eval (rea
       maxQueueWaitMs: 100_000,
     });
 
+    // Latency is part of whether a model is usable, not a footnote: a free
+    // model that picks the right tool two minutes later is not a better
+    // choice than one that answers wrong quickly — both are unshippable, and
+    // only measuring correctness hides that. Reported from real use:
+    // nemotron was "really bad" on time to response.
     const steps = await result.steps;
+    const elapsedMs = Math.round(performance.now() - startedAt);
+    latencies.push({ prompt, elapsedMs });
 
     // A bare "expected 0 to be greater than 0" cannot distinguish "called the
     // wrong tool", "called the right tool one step late" (reasoning models

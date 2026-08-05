@@ -17,34 +17,47 @@ import { textToolCallSalvageMiddleware } from './textToolCallMiddleware.js';
 import { createAgentTools } from './tools.js';
 import { repairToolCall } from './toolCallRepair.js';
 
-// Re-verify this lineup against `GET https://openrouter.ai/api/v1/models`
-// before relying on it long-term — OpenRouter's free-tier catalog rotates.
-// Catalog snapshot verified live 2026-08-04; all three ids still list `tools`
-// support (only 13 free models do).
+// Order set by measurement, not reputation. `npm run test:eval` pinned to one
+// model at a time via SWISS_SHOPPING_CHAT_MODEL, whole catalog swept
+// 2026-08-05 (only 13 free models declare `tools` at all; each row is the
+// golden set's 10 cases plus the median turn latency the eval now prints):
 //
-// Order set by measurement, not reputation — `npm run test:eval` pinned to one
-// model at a time via SWISS_SHOPPING_CHAT_MODEL, 2026-08-05:
+//   poolside/laguna-s-2.1:free              10/10   10.8s   <- primary
+//   inclusionai/ling-3.0-flash:free          9/10    9.6s
+//   nvidia/nemotron-3-ultra-550b-a55b:free   9/10   16.3s
+//   cohere/north-mini-code:free              9/10   19.7s
+//   poolside/laguna-xs-2.1:free              5/10    5.1s  (fastest, but 3
+//                                                          cases errored out)
+//   openai/gpt-oss-20b:free                  5/10          (previous primary)
+//   nvidia/nemotron-3-super-120b-a12b:free   3/10
+//   google/gemma-4-31b-it:free               0/10          (pool refuses us)
 //
-//   openai/gpt-oss-20b:free                 5/10
-//   nvidia/nemotron-3-super-120b-a12b:free  3/10  (incl. a 7-step tool loop)
-//   google/gemma-4-31b-it:free              0/10  — its provider pool refused
-//                                                  every request, twice, 30
-//                                                  minutes apart
+// The three kept here are the only ones that both score ≥9/10 and answer in a
+// reasonable time — which matters because a chain routes to *whichever member
+// answers*, so every weak member drags the shipped result toward itself (three
+// weak members measured 3/10 shipped against 5/10 pinned). With every member
+// at 9–10/10 that hazard is gone, so a three-model chain is now worth its
+// resilience: laguna and gpt-oss have both been seen returning
+// `upstream_provider_shared_pool` 429s, and pool availability is the failure
+// this chain actually protects against.
 //
-// Gemma was primary until then. Nothing looked broken from outside because
-// OpenRouter's `models` chain quietly routed around the dead pool — every turn
-// simply paid a failed attempt first.
+// Two models to keep away from, both found by the same sweep:
+// `nvidia/nemotron-nano-12b-v2-vl:free` hung for 90s on a one-line probe (the
+// `chunkMs` stall detector below exists for exactly that), and
+// `google/gemma-4-31b-it:free` — the primary until this morning — has a
+// provider pool that refuses every request. Nothing looked broken from outside
+// while it was primary, because the `models` chain quietly routed around it;
+// every turn simply paid a failed attempt first.
 //
-// The chain is now two entries, not three, and that is also a measurement: the
-// shipped config (chain enabled) scored 3/10 while pinned gpt-oss scored 5/10,
-// because a chain routes to *whichever member answers*, so every weak member
-// drags the shipped result toward itself. Resilience still argues for having
-// one fallback; it does not argue for keeping a model whose pool is currently
-// refusing us. Restore gemma when its pool recovers and a pinned run earns it
-// back — the text-form tool-call salvage was built for that model and still
-// covers it.
-export const PRIMARY_MODEL_ID = 'openai/gpt-oss-20b:free';
-export const FALLBACK_MODEL_IDS = [PRIMARY_MODEL_ID, 'nvidia/nemotron-3-super-120b-a12b:free'] as const;
+// Re-verify against `GET https://openrouter.ai/api/v1/models` before relying
+// on this long-term — the free catalog rotates, and today's sweep found six
+// tool-capable models that did not exist when this lineup was first written.
+export const PRIMARY_MODEL_ID = 'poolside/laguna-s-2.1:free';
+export const FALLBACK_MODEL_IDS = [
+  PRIMARY_MODEL_ID,
+  'inclusionai/ling-3.0-flash:free',
+  'nvidia/nemotron-3-ultra-550b-a55b:free',
+] as const;
 
 /**
  * Pins the agent to one model id, with no fallback chain. Exists so the
@@ -58,6 +71,29 @@ const MODEL_OVERRIDE_ENV = 'SWISS_SHOPPING_CHAT_MODEL';
 
 const MAX_STEPS = 12;
 const REQUEST_TIMEOUT_MS = 30_000;
+/**
+ * Free-tier models are not just occasionally wrong, they are occasionally
+ * *slow in specific ways*, and a single overall timeout cannot tell those
+ * apart from a model that is simply thinking:
+ *
+ * - `stepMs` bounds one model call, so a step that stalls cannot eat the whole
+ *   turn's budget and leave the remaining steps with nothing.
+ * - `chunkMs` is the stall detector that matters most here: a stream that has
+ *   opened but stopped producing tokens looks identical to a working one until
+ *   the total budget expires. This ends it as soon as the gap is longer than a
+ *   real model ever pauses.
+ *
+ * Reported symptom this addresses: "high latency, loooong responses" on free
+ * models, and nemotron in particular being slow to first token.
+ */
+const STEP_TIMEOUT_MS = 20_000;
+const STREAM_STALL_TIMEOUT_MS = 15_000;
+/**
+ * Bounds the "loooong responses" half of the same complaint. Generous enough
+ * for a reasoning model's thinking plus a product list, which is why it is not
+ * tighter — these models spend real tokens before the answer starts.
+ */
+const MAX_OUTPUT_TOKENS = 2_000;
 /**
  * How long a turn may wait *in line* for a rate-limit slot, which is a
  * different budget from how long the model may take to answer. A shopper
@@ -183,7 +219,12 @@ export async function runChatAgent({
     messages: await convertToModelMessages(messages),
     tools: createAgentTools(dependencies),
     stopWhen: stepCountIs(MAX_STEPS),
-    abortSignal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+    timeout: {
+      totalMs: REQUEST_TIMEOUT_MS,
+      stepMs: STEP_TIMEOUT_MS,
+      chunkMs: STREAM_STALL_TIMEOUT_MS,
+    },
+    maxOutputTokens: MAX_OUTPUT_TOKENS,
     experimental_repairToolCall: repairToolCall,
     // One, not the default two. A 429 is already handled below us by a
     // rate-limit-aware wait; retrying it up here just fires more requests at
