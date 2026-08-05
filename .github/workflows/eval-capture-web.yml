@@ -9,7 +9,18 @@ name: Capture web-tier eval fixtures
 # machine at all. The auto provider chain is ddg-html -> ddg-lite -> google-cse;
 # both DuckDuckGo endpoints answer the dev egress with an HTTP 202 bot
 # challenge, and google CSE has been closed to new customers since 2026-07-13.
-# The Pi is a residential egress DDG does serve.
+#
+# READ THIS BEFORE TREATING A GREEN RUN AS EVIDENCE ABOUT PRODUCTION (2026-08-06).
+# An earlier version of this comment claimed "the Pi is a residential egress DDG
+# does serve". That is true of this runner and false of the app. The runner
+# executes on the Pi *host*; the app container runs with
+# `network_mode: "service:gluetun"` (deploy/docker-compose.pi.yml), so its
+# requests leave through a commercial VPN exit, and DDG challenges VPN ranges
+# harder than residential ones. This job is therefore systematically MORE likely
+# to succeed than production is. It answers "can we capture fixtures from
+# somewhere", which is a real question about test data. It does not answer "does
+# web augmentation work in production" -- for that, probe from inside the
+# gluetun namespace. See tracker item 8.
 on:
   workflow_dispatch:
     inputs:
