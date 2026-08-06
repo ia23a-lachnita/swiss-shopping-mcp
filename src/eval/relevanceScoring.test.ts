@@ -93,9 +93,15 @@ describe('judgeProduct', () => {
     expect(judgeProduct(product('Bio Obst Mix'), fruit)).toBe('relevant');
     expect(judgeProduct(product('Naturaplan Bio Demeter Obstessig'), fruit)).toBe('neutral');
     expect(judgeProduct(product('Kernobstbranntwein'), fruit)).toBe('neutral');
+    // This line used to assert 'relevant', with the comment "standalone word,
+    // and beyond what an identity-only judge can rule out". That was an honest
+    // record of a limitation, and the limitation is now gone: the head rule
+    // genuinely cannot see this one, because "Obst" is a standalone word here
+    // rather than a modifier — but a *macro-domain* rule can, since the thing
+    // is a stain remover and says so in its own name.
     expect(
       judgeProduct(product('Dr. Beckmann Fleckenentferner Obst & Getränke'), fruit)
-    ).toBe('relevant'); // standalone word, and beyond what an identity-only judge can rule out
+    ).toBe('neutral');
   });
 
   it('still credits an inflected head', () => {

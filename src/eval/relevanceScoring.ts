@@ -1,4 +1,5 @@
 import { GoldenQuery, QueryBucket } from './goldenSet.js';
+import { crossesFoodBoundary } from '../util/productDomain.js';
 
 /**
  * Scoring for the search-relevance golden set.
@@ -93,6 +94,22 @@ export function judgeProduct(product: ScoredProduct, query: GoldenQuery): Judgem
   // literally named "Crunchy Almond" and judging on name alone would score
   // every brand query near zero against results that are in fact correct.
   const identity = foldForMatch(`${product.name} ${product.brand ?? ''}`);
+
+  // The judge was certifying a stain remover as relevant for "Obst", because
+  // the word is genuinely in its name — the published P@5 of 0.98 was partly
+  // this. Judging relevance means judging what the shopper asked for, and
+  // nobody asking for fruit is answered by `Fleckenentferner … Obst &
+  // Getränke`. Fixing a wrong ground truth, not importing the ranker's opinion:
+  // the judge still decides from its own labels, and `crossesFoodBoundary`
+  // reads only names.
+  //
+  // This does share one vocabulary with the matcher, so a stem missing from
+  // NON_FOOD_STEMS is missed by both. That is today's behaviour rather than a
+  // new blind spot, and duplicating the list would guarantee drift instead. The
+  // check that stays independent is recall: `poolRecall` scores against these
+  // labels, so a stem that wrongly disqualifies real food shows up as a floor
+  // breach there.
+  if (crossesFoodBoundary(query.query, product)) return 'neutral';
 
   if (query.forbidden.some((pattern) => new RegExp(foldForMatch(pattern)).test(identity))) {
     return 'forbidden';

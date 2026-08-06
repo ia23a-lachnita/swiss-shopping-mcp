@@ -1,6 +1,7 @@
 import { MatchMode, NormalizedProduct } from '../adapters/types.js';
 import { normalize, tokenize } from './normalize.js';
 import { CROSS_LANGUAGE_TERMS, modifierOf, vendorQueryFor } from './queryUnderstanding.js';
+import { crossesFoodBoundary } from './productDomain.js';
 
 export { normalize } from './normalize.js';
 
@@ -356,6 +357,14 @@ export function calculateMatchStrength(
 ): number {
   const normalizedQuery = normalize(query);
   if (!normalizedQuery) return 0;
+
+  // A non-food article never answers a food query, however well its name
+  // scores. `Fleckenentferner … Obst & Getränke` is a stain remover and
+  // `Flüssigseife Milch+Honig` is soap; both were reaching the top 5. Checked
+  // before scoring rather than as a penalty afterwards, because the score is
+  // exactly what is wrong about them — the name really does contain the word.
+  // Literal mode is exempt: it exists to take the shopper at their word.
+  if (matchMode !== 'literal' && crossesFoodBoundary(normalizedQuery, product)) return 0;
 
   const fields = productFields(product);
   const direct = strengthForQuery(fields, normalizedQuery, matchMode, dynamicTaxonomy);
