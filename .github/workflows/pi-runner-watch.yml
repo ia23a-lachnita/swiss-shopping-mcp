@@ -1,31 +1,44 @@
 name: Pi runner watch
 
 # Why this exists: on 2026-08-05 a power cut took the Pi down at 18:03 and it
-# stayed down for 17h42m. Nothing said so. A deploy queued at 23:23 UTC and sat
+# stayed down for 17h42m. Nothing said so. A deploy queued at 23:23 UTC sat
 # there until someone happened to power the Pi on by hand the next morning --
 # a queued job on a dead self-hosted runner produces no failure, no email, and
-# no red anywhere. The only outside signal available was "the deploy is taking
-# a while", which looks identical to a slow build.
+# no red anywhere. The only outside signal was "the deploy is taking a while",
+# which looks identical to a slow build.
 #
-# This watches the one fact that distinguishes those: whether GitHub can see
-# the runner at all.
+# TWO CHECKS, because the obvious one needs a credential we do not have:
 #
-# Deliberately edge-triggered, not level-triggered. It opens ONE issue when the
-# runner goes offline and fails that run; while the issue stays open it reports
-# and exits 0, so an outage produces one notification rather than one per hour.
-# When the runner comes back it closes the issue with the downtime noted.
+#   1. Stuck queue (always runs, no setup). Any workflow run still `queued`
+#      past MAX_QUEUE_MINUTES means nothing picked it up. This detects the
+#      damage directly and needs only `actions: read`, which the built-in token
+#      grants. Blind spot: it says nothing when the Pi is down and nobody has
+#      pushed -- there is no queue to be stuck.
+#
+#   2. Runner liveness (only if you add a token). `GET /actions/runners` is the
+#      authoritative check and covers that blind spot, but the built-in
+#      GITHUB_TOKEN cannot reach it: `administration: read` is what the REST
+#      docs name, and it is not a grantable key in a workflow permissions block
+#      -- GitHub rejects the file at parse time with "Unexpected value
+#      'administration'". Falling back to `actions: read` gets HTTP 403
+#      "Resource not accessible by integration". Both verified by dispatch on
+#      2026-08-06, not assumed. To enable: create a fine-grained PAT scoped to
+#      this repo with Administration: Read, save it as the repo secret
+#      RUNNER_STATUS_TOKEN, and this step starts working with no other change.
+#
+# Deliberately edge-triggered. It opens ONE issue when things go bad and fails
+# that run; while the issue is open it reports and exits 0, so an outage costs
+# one notification rather than one per hour. It closes the issue on recovery.
 #
 # Departure from advice, recorded on purpose: antigravity recommended dropping
-# this in favour of a push-based dead man's switch (a Pi cron pinging
-# healthchecks.io), on two fair objections -- GitHub's scheduled queue is
-# best-effort and can slip 15+ minutes, and a level-triggered check spams. The
-# second is answered by the edge-triggering above. The first is accepted: the
-# failure this watches lasted 17 hours, so hourly-with-slip is ample. We did not
-# take the SaaS route because it adds an external account and a second place to
-# look for the truth, and because a heartbeat from the Pi cannot report the case
-# that actually bit us -- the Pi UP but its runner dead, which is exactly what
-# happened at 11:46 on 2026-08-06 when the service exited 0 after a clock skew.
-# GitHub's own view of the runner covers both failure modes with one check.
+# this for a push-based dead man's switch (a Pi cron pinging healthchecks.io),
+# on two fair objections -- GitHub's scheduled queue is best-effort and can slip
+# 15+ minutes, and a level-triggered check spams. The second is answered by the
+# edge-triggering. The first is accepted and irrelevant: the failure this
+# watches lasted 17 hours. Not taken because it adds an external account and a
+# second place to look for the truth, and because a heartbeat from the Pi cannot
+# report the fault that actually bit us second -- Pi UP, runner dead, which is
+# what happened at 11:46 on 2026-08-06 when the service exited 0 on a clock skew.
 
 on:
   schedule:
@@ -34,12 +47,6 @@ on:
   workflow_dispatch:
 
 permissions:
-  # `administration: read` is what the REST docs name for listing repository
-  # runners, but it is not a valid key in a workflow permissions block -- GitHub
-  # rejects the file with "Unexpected value 'administration'" at parse time, so
-  # the workflow never runs at all. `actions: read` is the closest grantable
-  # scope; whether it actually authorises GET /actions/runners is verified by
-  # dispatching this workflow, not assumed.
   actions: read
   issues: write
 
@@ -47,57 +54,88 @@ concurrency:
   group: pi-runner-watch
   cancel-in-progress: false
 
+env:
+  # A Pi deploy is npm ci + suite + arm64 image build, so it is legitimately
+  # slow -- but that is time spent RUNNING, not queued. A run that has not been
+  # picked up at all in this long means no runner is listening.
+  MAX_QUEUE_MINUTES: "45"
+
 jobs:
   watch:
     runs-on: ubuntu-latest
     steps:
-      - name: Check the runner and alert only on a change of state
+      - name: Check for a stuck queue and, if a token allows, the runner itself
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUNNER_TOKEN: ${{ secrets.RUNNER_STATUS_TOKEN }}
           REPO: ${{ github.repository }}
           LABEL: pi-offline
         run: |
           set -euo pipefail
 
-          # "missing" is a real and different outcome from "offline": it means
-          # the registration is gone, which needs re-registering on the Pi
-          # rather than just power.
-          status="$(gh api "repos/$REPO/actions/runners" \
-            --jq '[.runners[] | select(any(.labels[]; .name == "pi"))] | .[0].status // "missing"')"
-          echo "pi runner status: $status"
+          problem=""
+          threshold=$(( MAX_QUEUE_MINUTES * 60 ))
 
+          # --- Check 1: is anything stuck waiting for a runner? ---------------
+          stuck="$(gh api "repos/$REPO/actions/runs?status=queued&per_page=50" \
+            --jq "[.workflow_runs[]
+                   | select((now - (.created_at | fromdateiso8601)) > $threshold)
+                   | \"#\(.run_number) \(.name) — queued \(((now - (.created_at | fromdateiso8601)) / 60) | floor)m\"]
+                  | join(\"; \")")"
+          if [ -n "$stuck" ]; then
+            problem="Runs stuck in the queue past ${MAX_QUEUE_MINUTES}m: $stuck"
+          fi
+          echo "stuck queue: ${stuck:-none}"
+
+          # --- Check 2: authoritative runner status, if we were given a token -
+          if [ -n "${RUNNER_TOKEN:-}" ]; then
+            status="$(GH_TOKEN="$RUNNER_TOKEN" gh api "repos/$REPO/actions/runners" \
+              --jq '[.runners[] | select(any(.labels[]; .name == "pi"))] | .[0].status // "missing"')"
+            echo "pi runner status: $status"
+            # "missing" differs from "offline": the registration is gone and has
+            # to be re-created on the Pi, which power alone will not fix.
+            if [ "$status" != "online" ]; then
+              problem="${problem:+$problem
+}The \`pi\` runner reports **$status**."
+            fi
+          else
+            echo "RUNNER_STATUS_TOKEN not set — skipping the direct runner check (see header)."
+          fi
+
+          # --- Alert, edge-triggered ------------------------------------------
           existing="$(gh issue list --repo "$REPO" --label "$LABEL" --state open \
             --json number --jq '.[0].number // empty')"
 
-          if [ "$status" = "online" ]; then
+          if [ -z "$problem" ]; then
             if [ -n "$existing" ]; then
               gh issue comment "$existing" --repo "$REPO" \
-                --body "Runner is back online as of $(date -u '+%Y-%m-%d %H:%M UTC'). Closing."
+                --body "Clear as of $(date -u '+%Y-%m-%d %H:%M UTC') — nothing stuck in the queue. Closing."
               gh issue close "$existing" --repo "$REPO"
               echo "Recovered — closed #$existing."
             fi
+            echo "OK"
             exit 0
           fi
 
           if [ -n "$existing" ]; then
-            echo "Still $status, already tracked in #$existing — not re-alerting."
+            echo "Still degraded, already tracked in #$existing — not re-alerting."
             exit 0
           fi
 
           gh issue create --repo "$REPO" --label "$LABEL" \
-            --title "Pi runner is $status" \
+            --title "Pi runner appears unavailable" \
             --body "$(printf '%s\n' \
-              "\`GET /actions/runners\` reports the \`pi\` runner as **$status** (checked $(date -u '+%Y-%m-%d %H:%M UTC'))." \
+              "$problem" \
               "" \
-              "Any deploy pushed while this is true will queue silently rather than fail." \
+              "_Checked $(date -u '+%Y-%m-%d %H:%M UTC')._ Any deploy pushed while this holds will queue silently rather than fail." \
               "" \
               "Two known causes, in the order worth checking:" \
               "1. **The Pi is off.** It does not power on by itself after a mains cut — the Argon ONE V2 jumper has to be on pins 2+3 (\"Always ON\"). Tracker item 12." \
-              "2. **The Pi is on but the runner died.** No RTC, so a stale clock at boot makes the runner exit 0 with a misleading \"registration has been deleted\" message. The \`10-wait-for-clock.conf\` drop-in should prevent this; if it recurs, check \`journalctl -u actions.runner.*\`." \
+              "2. **The Pi is on but the runner died.** No RTC, so a stale clock at boot made the runner exit 0 with a misleading \"registration has been deleted\" message. The \`10-wait-for-clock.conf\` drop-in should prevent this; if it recurs, check \`journalctl -u actions.runner.*\` on the Pi." \
               "" \
-              "This issue closes itself when the runner reappears.")"
+              "This issue closes itself when the queue drains.")"
 
           # Fail the run as well as opening the issue: the issue is the durable
           # record, the red run is what actually reaches an inbox.
-          echo "::error::pi runner is $status"
+          echo "::error::$problem"
           exit 1
