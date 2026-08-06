@@ -1,0 +1,101 @@
+name: Pi runner watch
+
+# Why this exists: on 2026-08-05 a power cut took the Pi down at 18:03 and it
+# stayed down for 17h42m. Nothing said so. A deploy queued at 23:23 UTC and sat
+# there until someone happened to power the Pi on by hand the next morning --
+# a queued job on a dead self-hosted runner produces no failure, no email, and
+# no red anywhere. The only outside signal available was "the deploy is taking
+# a while", which looks identical to a slow build.
+#
+# This watches the one fact that distinguishes those: whether GitHub can see
+# the runner at all.
+#
+# Deliberately edge-triggered, not level-triggered. It opens ONE issue when the
+# runner goes offline and fails that run; while the issue stays open it reports
+# and exits 0, so an outage produces one notification rather than one per hour.
+# When the runner comes back it closes the issue with the downtime noted.
+#
+# Departure from advice, recorded on purpose: antigravity recommended dropping
+# this in favour of a push-based dead man's switch (a Pi cron pinging
+# healthchecks.io), on two fair objections -- GitHub's scheduled queue is
+# best-effort and can slip 15+ minutes, and a level-triggered check spams. The
+# second is answered by the edge-triggering above. The first is accepted: the
+# failure this watches lasted 17 hours, so hourly-with-slip is ample. We did not
+# take the SaaS route because it adds an external account and a second place to
+# look for the truth, and because a heartbeat from the Pi cannot report the case
+# that actually bit us -- the Pi UP but its runner dead, which is exactly what
+# happened at 11:46 on 2026-08-06 when the service exited 0 after a clock skew.
+# GitHub's own view of the runner covers both failure modes with one check.
+
+on:
+  schedule:
+    # Offset off the hour; the queue is shared and :00 is the worst minute to ask for.
+    - cron: "17 * * * *"
+  workflow_dispatch:
+
+permissions:
+  # Listing repository runners is an Administration read. `actions: read` is
+  # requested too because the two have been documented inconsistently for the
+  # built-in token and the extra scope costs nothing.
+  administration: read
+  actions: read
+  issues: write
+
+concurrency:
+  group: pi-runner-watch
+  cancel-in-progress: false
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check the runner and alert only on a change of state
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          LABEL: pi-offline
+        run: |
+          set -euo pipefail
+
+          # "missing" is a real and different outcome from "offline": it means
+          # the registration is gone, which needs re-registering on the Pi
+          # rather than just power.
+          status="$(gh api "repos/$REPO/actions/runners" \
+            --jq '[.runners[] | select(any(.labels[]; .name == "pi"))] | .[0].status // "missing"')"
+          echo "pi runner status: $status"
+
+          existing="$(gh issue list --repo "$REPO" --label "$LABEL" --state open \
+            --json number --jq '.[0].number // empty')"
+
+          if [ "$status" = "online" ]; then
+            if [ -n "$existing" ]; then
+              gh issue comment "$existing" --repo "$REPO" \
+                --body "Runner is back online as of $(date -u '+%Y-%m-%d %H:%M UTC'). Closing."
+              gh issue close "$existing" --repo "$REPO"
+              echo "Recovered — closed #$existing."
+            fi
+            exit 0
+          fi
+
+          if [ -n "$existing" ]; then
+            echo "Still $status, already tracked in #$existing — not re-alerting."
+            exit 0
+          fi
+
+          gh issue create --repo "$REPO" --label "$LABEL" \
+            --title "Pi runner is $status" \
+            --body "$(printf '%s\n' \
+              "\`GET /actions/runners\` reports the \`pi\` runner as **$status** (checked $(date -u '+%Y-%m-%d %H:%M UTC'))." \
+              "" \
+              "Any deploy pushed while this is true will queue silently rather than fail." \
+              "" \
+              "Two known causes, in the order worth checking:" \
+              "1. **The Pi is off.** It does not power on by itself after a mains cut — the Argon ONE V2 jumper has to be on pins 2+3 (\"Always ON\"). Tracker item 12." \
+              "2. **The Pi is on but the runner died.** No RTC, so a stale clock at boot makes the runner exit 0 with a misleading \"registration has been deleted\" message. The \`10-wait-for-clock.conf\` drop-in should prevent this; if it recurs, check \`journalctl -u actions.runner.*\`." \
+              "" \
+              "This issue closes itself when the runner reappears.")"
+
+          # Fail the run as well as opening the issue: the issue is the durable
+          # record, the red run is what actually reaches an inbox.
+          echo "::error::pi runner is $status"
+          exit 1
