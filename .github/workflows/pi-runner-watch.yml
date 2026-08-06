@@ -34,10 +34,12 @@ on:
   workflow_dispatch:
 
 permissions:
-  # Listing repository runners is an Administration read. `actions: read` is
-  # requested too because the two have been documented inconsistently for the
-  # built-in token and the extra scope costs nothing.
-  administration: read
+  # `administration: read` is what the REST docs name for listing repository
+  # runners, but it is not a valid key in a workflow permissions block -- GitHub
+  # rejects the file with "Unexpected value 'administration'" at parse time, so
+  # the workflow never runs at all. `actions: read` is the closest grantable
+  # scope; whether it actually authorises GET /actions/runners is verified by
+  # dispatching this workflow, not assumed.
   actions: read
   issues: write
 
