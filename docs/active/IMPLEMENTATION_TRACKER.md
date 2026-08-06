@@ -1,10 +1,30 @@
 # swiss-shopping-mcp Implementation Tracker
 
-## Open items — START HERE (updated 2026-07-31)
+## Open items — START HERE (updated 2026-08-06)
 
 Everything below this section is history. `## Next tasks` further down is an
 older list that is now almost entirely struck through — do not mistake it for
 the current backlog. These are the only things actually open:
+
+**Where 2026-08-06 left off.** Closed that day: **11** (filter recall 0.768 →
+0.871, now gated offline against a pre-filter pool), **8** (production's web
+tier measured *alive* — `ddg` 43 requests, 0 challenges, 0 breaker opens, read
+from `GET /api/metrics` on the Pi), and the software half of **12**. Baseline is
+green: 932 tests, lint 0 errors, pool recall 0.871, pool P@5 0.965, 0 wipeouts.
+
+**Read before touching relevance:** `CLAUDE.md`'s new *research contract*. The
+last session burned an afternoon re-deriving what e-commerce IR calls
+**product-type matching**, graded on the **ESCI** scale, having consulted only
+antigravity and never the literature. Do the search first.
+
+**The next concrete step in item 2 is not a matcher change.** It is fixing the
+labels in `src/eval/goldenSet.ts` — `obst` counts only obst/apfel/banane/birne/
+orange/beere/traube/fruit as relevant, so `Aprikosen` and `Datteln` score
+*neutral* while being exactly what the query asked for. Any P@5 on that query is
+partly measuring a bad label, and the band experiment that already failed there
+(written up in item 2) cannot be judged honestly until this is done.
+
+**Waiting on the owner, not on code:** the Argon ONE V2 jumper in item 12.
 
 | # | Item | Where |
 |---|------|-------|
