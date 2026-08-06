@@ -43,6 +43,30 @@ When using `antigravity-mcp` for code review or brainstorming, prefer models in 
 
 Always pass `model` explicitly starting from the top of this list — antigravity-mcp's own default (currently `gemini-3.5-flash` via its `sdk` backend) does not follow this order on its own. Only drop to the next model on an actual failure/exhaustion signal, not preemptively.
 
+### Research the prior art BEFORE either model starts reasoning (RESEARCH CONTRACT)
+
+**Most problems here are already solved somewhere, and two models talking to
+each other will not discover that.** Before designing anything non-trivial, do
+actual internet research — `WebSearch`/`WebFetch`, `context7` for library docs,
+vendor documentation, papers, standard practice. Then design.
+
+**And require the same of antigravity.** Every `brainstorm` or `ask-ai` prompt
+for a design question must explicitly ask it to ground its answer in existing
+practice and name the technique's standard name, dataset, or paper — not just
+reason from first principles. A recommendation with no prior art attached
+should be treated as a hypothesis, not an answer.
+
+**Why:** on 2026-08-06 a whole afternoon went into re-deriving, badly, what
+e-commerce IR calls **product-type matching**, with the standard relevance
+taxonomy (**ESCI** — Exact / Substitute / Complement / Irrelevant) sitting
+unread the entire time. The agent and antigravity passed a token-count
+heuristic back and forth as if it were novel. The failure was not either
+model's reasoning; it was that neither looked outside the conversation.
+
+Symptom to watch for in yourself: several exchanges with antigravity and no
+external source cited. That means you are triangulating between two models, and
+the answer is probably a search away.
+
 ### When to consult antigravity (SECOND-OPINION CONTRACT)
 
 **Consult antigravity-mcp before committing to any idea, plan, or design
