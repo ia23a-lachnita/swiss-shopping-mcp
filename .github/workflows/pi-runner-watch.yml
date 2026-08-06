@@ -45,6 +45,11 @@ on:
     # Offset off the hour; the queue is shared and :00 is the worst minute to ask for.
     - cron: "17 * * * *"
   workflow_dispatch:
+    inputs:
+      simulate:
+        description: "Force a fake problem, to exercise the alert path end to end"
+        type: boolean
+        default: false
 
 permissions:
   actions: read
@@ -70,6 +75,7 @@ jobs:
           RUNNER_TOKEN: ${{ secrets.RUNNER_STATUS_TOKEN }}
           REPO: ${{ github.repository }}
           LABEL: pi-offline
+          SIMULATE: ${{ inputs.simulate }}
         run: |
           set -euo pipefail
 
@@ -103,6 +109,14 @@ jobs:
             fi
           else
             echo "RUNNER_STATUS_TOKEN not set — skipping the direct runner check (see header)."
+          fi
+
+          # An alarm nobody has ever seen fire is not known to work. Dispatching
+          # with simulate=true opens the issue and reddens the run; dispatching
+          # again without it closes the issue and goes green, which exercises
+          # both edges without waiting for the Pi to actually die.
+          if [ "${SIMULATE:-false}" = "true" ]; then
+            problem="Simulated problem from a manual dispatch — this is a test of the alert path, not a real outage."
           fi
 
           # --- Alert, edge-triggered ------------------------------------------
