@@ -95,8 +95,11 @@ jobs:
             # "missing" differs from "offline": the registration is gone and has
             # to be re-created on the Pi, which power alone will not fix.
             if [ "$status" != "online" ]; then
-              problem="${problem:+$problem
-}The \`pi\` runner reports **$status**."
+              # No literal newline here: a continuation line at column 0 would be
+              # less indented than this block scalar and would end it, which
+              # GitHub reports only as "workflow does not have a
+              # workflow_dispatch trigger" while it keeps serving stale metadata.
+              problem="${problem:+$problem — }The \`pi\` runner reports **$status**."
             fi
           else
             echo "RUNNER_STATUS_TOKEN not set — skipping the direct runner check (see header)."
