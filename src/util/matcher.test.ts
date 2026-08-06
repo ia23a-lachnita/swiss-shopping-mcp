@@ -205,6 +205,47 @@ describe('product matcher', () => {
     );
   });
 
+  it('ranks a multi-word name by its type, not by a flavour mention', () => {
+    // The compound case was already right — "Rüeblitorte" scores 20 by the
+    // Right-hand Head Rule. German retail titles write the same thing with a
+    // space, and there the whole-name bonus fired at 90 and put every cake and
+    // biscuit above the actual carrots. Pool P@5 for "Rüebli" was 0.00.
+    const carrots = product({ name: 'Baby Karotten' });
+    for (const name of [
+      'Cake Rüebli',
+      'Rüebli Kuchenstück',
+      'Betty Bossi Marzipan Rüebli',
+      'Betty Bossi Suppe Rüebli & Kokos',
+    ]) {
+      expect(
+        calculateMatchStrength(product({ name }), 'Rüebli', 'balanced'),
+        `${name} must not outrank a carrot`
+      ).toBeLessThan(calculateMatchStrength(carrots, 'Rüebli', 'balanced'));
+    }
+  });
+
+  it('demotes a mention rather than dropping it', () => {
+    // Candidate generation keeps recall, ranking pays for precision: a carrot
+    // cake is a defensible thing to show when the carrots run out, so it stays
+    // above zero and the filter still admits it.
+    expect(calculateMatchStrength(product({ name: 'Cake Rüebli' }), 'Rüebli', 'balanced')).toBeGreaterThan(0);
+  });
+
+  it('does not demote the prepared form when that is what was asked for', () => {
+    // The guard that keeps the rule honest. Someone searching "Rüeblitorte" or
+    // "griechischer Joghurt" wants the prepared good.
+    const cake = product({ name: 'Rüebli Torte' });
+    const yoghurt = product({ name: 'Joghurt griechisch', category: 'Joghurt' });
+    expect(calculateMatchStrength(cake, 'Rüeblitorte', 'balanced')).toBeGreaterThan(20);
+    expect(calculateMatchStrength(yoghurt, 'griechischer Joghurt', 'balanced')).toBeGreaterThan(20);
+  });
+
+  it('keeps a real vegetable out of the prepared-type rule', () => {
+    // `salat` is deliberately not a prepared-type stem: Kopfsalat is a genuine
+    // answer to "Gemüse", and demoting it would be this rule misfiring.
+    expect(calculateMatchStrength(product({ name: 'Kopfsalat' }), 'Gemüse', 'balanced')).toBeGreaterThan(20);
+  });
+
   it('keeps every synonym in normalise() form', () => {
     // An entry carrying an umlaut is looked up against normalised text and
     // therefore never matches anything. That is how the modifier table lost

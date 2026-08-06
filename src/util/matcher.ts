@@ -154,6 +154,66 @@ function synonymTokenStrength(
 }
 
 /**
+ * Nouns that name a *prepared good*, used to tell a product's type from a
+ * mention of the query word.
+ *
+ * The compound case is already right: `Rüeblitorte` scores 20, because the
+ * Right-hand Head Rule makes `torte` the head and `rüebli` a modifier. German
+ * retail titles write the same thing with a space — `Cake Rüebli`,
+ * `Rüebli Kuchenstück`, `Betty Bossi Suppe Rüebli & Kokos` — and there the
+ * whole-name bonus fired at 90 and put every one of them above the actual
+ * `Karotten` at 80. Measured 2026-08-06: pool P@5 for "Rüebli" was **0.00**
+ * with recall 1.000. Every slot was a cake, a biscuit or a marzipan carrot.
+ *
+ * This is what e-commerce IR calls **product-type matching** — decide the type
+ * and match *that*, rather than proxying it with token overlap. The industry
+ * answer at scale is a title tagger (BiLSTM-CRF or a fine-tuned transformer
+ * labelling `[Brand] [Type] [Flavour]`) plus query-to-category mapping; a
+ * curated lexicon is the early-stage approximation of the same signal, and it
+ * is what fits a 51-query corpus that has to stay reviewable in a diff.
+ *
+ * **`salat` is deliberately absent.** `Kopfsalat` is a real vegetable and a
+ * correct answer to "Gemüse", so listing it would demote a right answer — the
+ * failure mode this table exists to prevent, pointing the other way.
+ *
+ * **`saft` is present, and was the one entry worth measuring rather than
+ * arguing about.** The risk is the romance bucket: "jus d'orange" does not
+ * contain the string `saft`, so the guard below cannot see that the shopper
+ * asked for juice, and every `Fruchtsaft` should in theory have been demoted.
+ * It was not: the romance bucket held at P@5 0.95 across the change, because
+ * the whole pool for that query is juice and demoting all of it uniformly does
+ * not reorder it. Kept on that evidence, and flagged here because a future
+ * romance query whose pool is *mixed* would expose it.
+ *
+ * **Known false positive, not currently reachable:** `Suppengemüse` is raw soup
+ * vegetables, and `suppe` demotes it for the query "Gemüse". No pool contains
+ * one today. The fix if it ever bites is a head-position check, not a longer
+ * list.
+ */
+const PREPARED_TYPE_STEMS = [
+  'kuchen', 'torte', 'keks', 'guetzli', 'cake', 'biscuit', 'riegel', 'suppe',
+  'sauce', 'sugo', 'marzipan', 'glace', 'quark', 'joghurt', 'brei', 'smoothie',
+  'sirup', 'essig', 'konfiture', 'marmelade', 'dessert', 'gummi', 'schokolade',
+  'bouillon', 'extrakt', 'rortli', 'branntwein', 'saft', 'cocktail',
+];
+
+/**
+ * True when the name announces a prepared type the shopper did not ask for.
+ *
+ * The "and the query does not" clause is what keeps the rule honest: someone
+ * searching "Rüeblitorte", "griechischer Joghurt" or "Apfelsaft" *wants* the
+ * prepared form, and demoting it would be the same mistake in reverse.
+ */
+function carriesUnaskedPreparedType(
+  fields: ReturnType<typeof productFields>,
+  normalizedQuery: string,
+): boolean {
+  return PREPARED_TYPE_STEMS.some(
+    (stem) => fields.name.includes(stem) && !normalizedQuery.includes(stem)
+  );
+}
+
+/**
  * The curated table and the co-occurrence one, merged rather than swapped.
  *
  * `dynamicTaxonomy` used to *replace* this table wherever it was supplied,
@@ -483,11 +543,23 @@ function strengthForQuery(
   dynamicTaxonomy?: Record<string, string[]>,
 ): number {
   if (fields.name === normalizedQuery || fields.brand === normalizedQuery) return 100;
+
+  // A name that announces a different prepared type is a *mention* of the query
+  // word, not an instance of it. Demoted rather than dropped, and that is the
+  // two-stage split the whole design rests on: candidate generation keeps
+  // recall (a carrot cake is a defensible thing to show when the carrots run
+  // out), ranking pays for precision. Capping at the compound-modifier band
+  // leaves it above zero, so nothing here changes what the filter admits.
+  const mentionOnly = carriesUnaskedPreparedType(fields, normalizedQuery);
+
   // Head-position, for the same reason as `directTokenStrength`: without it
   // "Obstessig" collects the whole-query bonus of 90 for the query "Obst" and
   // is out of reach of every real piece of fruit before token scoring even
   // starts.
-  if (fieldHeadsWord(fields.name, normalizedQuery) || fieldHeadsWord(fields.brand, normalizedQuery)) {
+  if (
+    !mentionOnly &&
+    (fieldHeadsWord(fields.name, normalizedQuery) || fieldHeadsWord(fields.brand, normalizedQuery))
+  ) {
     return 90;
   }
 
@@ -527,12 +599,16 @@ function strengthForQuery(
   // product answers the query.
   if (matched === 0) return 0;
 
-  return Math.max(
+  const strength = Math.max(
     1,
     weakest +
       matchedAttributes * MATCHED_ATTRIBUTE_BONUS -
       missingAttributes * MISSING_ATTRIBUTE_PENALTY,
   );
+
+  // Same demotion applied to token scoring, so a synonym cannot smuggle the
+  // score back: "Karotten Suppe" is a soup however the shopper spelled carrot.
+  return mentionOnly ? Math.min(strength, COMPOUND_MODIFIER_STRENGTH) : strength;
 }
 
 export function isExactProductMatch(
