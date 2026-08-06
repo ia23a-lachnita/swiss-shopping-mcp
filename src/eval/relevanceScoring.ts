@@ -45,7 +45,30 @@ export interface ScoredProduct {
   brand?: string | null;
 }
 
-export type Judgement = 'relevant' | 'forbidden' | 'neutral';
+/**
+ * Four verdicts, on the ESCI scale e-commerce IR actually uses (Reddy et al.,
+ * *Shopping Queries Dataset*, arXiv:2206.06588 §1).
+ *
+ * - `relevant` — ESCI **Exact**: "relevant for the query, and satisfies all the
+ *   query specifications". For a bare category query the only specification is
+ *   the category, so `Aprikosen` is Exact for "Obst".
+ * - `related` — judged, and *not* what was asked for: ESCI **Substitute** and
+ *   **Complement**, plus the Irrelevant cases we do not treat as defects. A
+ *   `Früchtequark` is a quark that mentions fruit; recording it here says we
+ *   looked and decided, which is different from never having looked.
+ * - `forbidden` — a defect we gate on. Deliberately *not* the same as "not
+ *   Exact": ESCI grades a fruit bar as Complement, and failing a build over one
+ *   would make the gate mean "unusual" rather than "wrong".
+ * - `unjudged` — no label matched. **Not** a synonym for irrelevant.
+ *
+ * S and C are collapsed into one verdict on the paper's own reliability
+ * finding: annotator agreement is 91% across the full four-way taxonomy but
+ * >96% once reduced to Exact vs not-Exact (§2.2), and ~50% of the disagreement
+ * is judges arguing Substitute against Irrelevant. We score strict Exact
+ * precision and never use the S/C split, so buying it would cost maintenance
+ * and return nothing.
+ */
+export type Judgement = 'relevant' | 'related' | 'forbidden' | 'unjudged';
 
 /**
  * Judge one product against a query's labels.
@@ -109,13 +132,25 @@ export function judgeProduct(product: ScoredProduct, query: GoldenQuery): Judgem
   // check that stays independent is recall: `poolRecall` scores against these
   // labels, so a stem that wrongly disqualifies real food shows up as a floor
   // breach there.
-  if (crossesFoodBoundary(query.query, product)) return 'neutral';
+  if (crossesFoodBoundary(query.query, product)) return 'related';
 
   if (query.forbidden.some((pattern) => new RegExp(foldForMatch(pattern)).test(identity))) {
     return 'forbidden';
   }
+  // `related` outranks `relevant`, and that precedence is the whole point of the
+  // list. German multi-word retail names put the product type *first* and the
+  // flavour after it — `Früchtequark Aprikose` is a quark — while the head rule
+  // below reads a single compound right-to-left. Both readings are correct
+  // grammar (Williams' Right-hand Head Rule governs the compound `Him|beere`;
+  // title syntax governs the phrase), and a lemma list alone cannot separate
+  // them: `aprikose` legitimately matches a quark's flavour slot. So the type is
+  // named explicitly instead of inferred, which also keeps this judge from
+  // growing a second parser to disagree with the ranker's.
+  if (query.related?.some((pattern) => new RegExp(foldForMatch(pattern)).test(identity))) {
+    return 'related';
+  }
   if (query.relevant.some((pattern) => patternMatcher(pattern).test(identity))) return 'relevant';
-  return 'neutral';
+  return 'unjudged';
 }
 
 export interface QueryScore {
@@ -128,6 +163,23 @@ export interface QueryScore {
   reciprocalRank: number;
   /** Forbidden products that reached the top 5 — the gate condition. */
   violations: Array<{ rank: number; chain: string; name: string }>;
+  /**
+   * Share of the top 5 carrying any label at all — TREC's `judged@k`.
+   *
+   * P@5 counts an unjudged product as non-relevant, which is the standard
+   * pooling assumption (a document outside the pool is scored not-relevant).
+   * That assumption holds only where the labels cover what is actually
+   * retrieved, and nothing in the metric announces when they stop doing so.
+   * Reading P@5 without this number is how a query gets a good score for
+   * ranking products the corpus never had an opinion about — and, worse, how a
+   * ranking *improvement* that surfaces unlabelled correct products is recorded
+   * as a regression. See Buckley & Voorhees, *Retrieval Evaluation with
+   * Incomplete Information* (SIGIR '04), which introduced bpref for this, and
+   * Sakai's condensed-list alternatives.
+   */
+  judgedAt5: number;
+  /** Named so a reviewer can turn a low `judgedAt5` straight into labels. */
+  unjudgedAt5: string[];
   returned: number;
   /**
    * True when the query returned nothing at all. Kept separate from a score of
@@ -162,6 +214,14 @@ export function scoreQuery(query: GoldenQuery, results: ScoredProduct[]): QueryS
     precisionAt5: top.length === 0 ? 0 : relevantInTop / top.length,
     reciprocalRank: firstRelevant === -1 ? 0 : 1 / (firstRelevant + 1),
     violations,
+    // An empty result set is fully judged in the only sense that matters here:
+    // there is no unlabelled product distorting the score. Scoring it 0 would
+    // blame label coverage for what `empty` already reports as a coverage miss.
+    judgedAt5: top.length === 0 ? 1 : top.filter((j) => j !== 'unjudged').length / top.length,
+    unjudgedAt5: results
+      .slice(0, TOP_K)
+      .filter((_, index) => top[index] === 'unjudged')
+      .map((product) => `${product.chain}|${product.name}`),
     returned: results.length,
     empty: results.length === 0,
   };
@@ -187,6 +247,18 @@ export interface RelevanceReport {
   overallMrr: number;
   /** Share of queries that returned at least one result. */
   coverage: number;
+  /**
+   * Mean `judged@5` — how much of what we score is actually labelled.
+   *
+   * Reported and ratcheted, never a hard gate on `> 0` unjudged. The pools are
+   * recaptured from live vendors, so new products arrive on their own schedule;
+   * failing the build for that would make a red suite mean "the catalogue
+   * changed", and a suite that goes red for non-defects is one everybody learns
+   * to ignore.
+   */
+  judgedAt5: number;
+  /** Queries whose top 5 holds a product no label speaks to, worst first. */
+  underjudged: Array<{ id: string; judgedAt5: number; unjudged: string[] }>;
   /** Per-bucket means, so easy buckets cannot mask hard ones. */
   byBucket: Record<string, { precisionAt5: number; mrr: number; queries: number }>;
   /** Every gate-severity violation, which is what fails a build. */
@@ -230,6 +302,11 @@ export function buildReport(scores: QueryScore[]): RelevanceReport {
     overallPrecisionAt5: round(mean(scores.map((s) => s.precisionAt5))),
     overallMrr: round(mean(scores.map((s) => s.reciprocalRank))),
     coverage: scores.length === 0 ? 0 : round(nonEmpty.length / scores.length),
+    judgedAt5: round(mean(nonEmpty.map((s) => s.judgedAt5))),
+    underjudged: nonEmpty
+      .filter((score) => score.judgedAt5 < 1)
+      .sort((a, b) => a.judgedAt5 - b.judgedAt5)
+      .map((score) => ({ id: score.id, judgedAt5: score.judgedAt5, unjudged: score.unjudgedAt5 })),
     byBucket,
     gateViolations: violationsOf('gate'),
     measureViolations: violationsOf('measure'),
@@ -252,6 +329,16 @@ export interface Baseline {
    * the ranking metrics, by removing the hard queries from the average.
    */
   coverage: number;
+  /**
+   * Label coverage of the scored top 5. Ratcheted like the rest: a change that
+   * makes the ranker surface products the corpus has no opinion on has not
+   * necessarily got worse, but it has made the other numbers mean less, and
+   * that should be visible in the diff rather than discovered later.
+   *
+   * Optional so an older baseline file still loads instead of failing every
+   * query at once.
+   */
+  judgedAt5?: number;
   /**
    * How far a metric may fall below the baseline before the build fails.
    * Non-zero because the fixtures carry a handful of near-ties whose order is
@@ -280,6 +367,21 @@ export function compareToBaseline(report: RelevanceReport, baseline: Baseline): 
   if (report.coverage < baseline.coverage - baseline.tolerance) {
     failures.push(
       `Coverage regressed: ${report.coverage} < ${baseline.coverage} - ${baseline.tolerance}`
+    );
+  }
+  if (
+    baseline.judgedAt5 !== undefined &&
+    report.judgedAt5 < baseline.judgedAt5 - baseline.tolerance
+  ) {
+    failures.push(
+      `judged@5 regressed: ${report.judgedAt5} < ${baseline.judgedAt5} - ${baseline.tolerance}` +
+        ` — label the new products, do not lower this` +
+        (report.underjudged.length
+          ? `: ${report.underjudged
+              .slice(0, 3)
+              .map((q) => `${q.id}→${q.unjudged.join(', ')}`)
+              .join('; ')}`
+          : '')
     );
   }
 

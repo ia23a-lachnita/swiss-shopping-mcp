@@ -51,8 +51,10 @@ describe('judgeProduct', () => {
     expect(judgeProduct(product('Vollmilch UHT'), query())).toBe('relevant');
   });
 
-  it('marks a product matching no pattern as neutral', () => {
-    expect(judgeProduct(product('Rüebli'), query())).toBe('neutral');
+  it('marks a product matching no pattern as unjudged', () => {
+    // Distinct from `related`, which records a decision. P@5 scores both as
+    // non-relevant, but only this one means the corpus never looked.
+    expect(judgeProduct(product('Rüebli'), query())).toBe('unjudged');
   });
 
   it('lets forbidden win over relevant', () => {
@@ -91,17 +93,50 @@ describe('judgeProduct', () => {
     // the query "Obst", and report P@5 1.0 for it.
     const fruit = query({ id: 'obst', query: 'Obst', relevant: ['obst'], forbidden: [] });
     expect(judgeProduct(product('Bio Obst Mix'), fruit)).toBe('relevant');
-    expect(judgeProduct(product('Naturaplan Bio Demeter Obstessig'), fruit)).toBe('neutral');
-    expect(judgeProduct(product('Kernobstbranntwein'), fruit)).toBe('neutral');
+    expect(judgeProduct(product('Naturaplan Bio Demeter Obstessig'), fruit)).toBe('unjudged');
+    expect(judgeProduct(product('Kernobstbranntwein'), fruit)).toBe('unjudged');
     // This line used to assert 'relevant', with the comment "standalone word,
     // and beyond what an identity-only judge can rule out". That was an honest
     // record of a limitation, and the limitation is now gone: the head rule
     // genuinely cannot see this one, because "Obst" is a standalone word here
     // rather than a modifier — but a *macro-domain* rule can, since the thing
     // is a stain remover and says so in its own name.
+    // `related`, not `unjudged`: the macro-domain rule is a decision we made
+    // about this product, and folding it in with "never looked at" would let a
+    // real judgement inflate the unjudged count it is supposed to measure.
     expect(
       judgeProduct(product('Dr. Beckmann Fleckenentferner Obst & Getränke'), fruit)
-    ).toBe('neutral');
+    ).toBe('related');
+  });
+
+  it('lets a related pattern outrank a relevant one', () => {
+    // German multi-word names lead with the product type and trail with the
+    // flavour, so `aprikose` matches a quark's flavour slot and says nothing
+    // about what the product is. Naming the type is what separates them.
+    const fruit = query({
+      id: 'obst',
+      query: 'Obst',
+      relevant: ['obst', 'aprikose'],
+      related: ['quark'],
+      forbidden: [],
+    });
+    expect(judgeProduct(product('Aprikosen'), fruit)).toBe('relevant');
+    expect(judgeProduct(product('Früchtequark Aprikose 2x125g'), fruit)).toBe('related');
+  });
+
+  it('keeps related out of the build-failing gate', () => {
+    // ESCI grades a fruit bar Complement, not Irrelevant. Gating on it would
+    // make `forbidden` mean "unusual" instead of "wrong".
+    const fruit = query({
+      id: 'obst',
+      query: 'Obst',
+      relevant: ['obst'],
+      related: ['riegel'],
+      forbidden: [],
+    });
+    const score = scoreQuery(fruit, [product('Obstriegel Waldfrucht')]);
+    expect(score.violations).toEqual([]);
+    expect(score.precisionAt5).toBe(0);
   });
 
   it('still credits an inflected head', () => {
@@ -139,6 +174,30 @@ describe('scoreQuery', () => {
   it('reports zero reciprocal rank when nothing relevant is found', () => {
     const score = scoreQuery(query(), [product('Rüebli'), product('Zwiebeln')]);
     expect(score.reciprocalRank).toBe(0);
+  });
+
+  it('reports how much of the top 5 is actually labelled', () => {
+    // P@5 alone cannot distinguish "ranked the wrong thing" from "ranked
+    // something the corpus has no opinion about", and both score 0. Without
+    // this number a ranking change that surfaces correct-but-unlabelled
+    // products reads as a regression.
+    const score = scoreQuery(query(), [product('Vollmilch'), product('Pitahaya', 'coop')]);
+    expect(score.precisionAt5).toBe(0.5);
+    expect(score.judgedAt5).toBe(0.5);
+    expect(score.unjudgedAt5).toEqual(['coop|Pitahaya']);
+  });
+
+  it('counts a judged non-match as judged, not as a label gap', () => {
+    const milk = query({ related: ['schokolade'], forbidden: [] });
+    const score = scoreQuery(milk, [product('Vollmilch'), product('Milchschokolade')]);
+    expect(score.precisionAt5).toBe(0.5);
+    expect(score.judgedAt5).toBe(1);
+  });
+
+  it('treats an empty result set as fully judged', () => {
+    // Nothing unlabelled is distorting the score; `empty` already reports the
+    // real problem, and scoring judged@5 as 0 here would double-count it.
+    expect(scoreQuery(query(), []).judgedAt5).toBe(1);
   });
 
   it('records forbidden products that reach the top 5', () => {

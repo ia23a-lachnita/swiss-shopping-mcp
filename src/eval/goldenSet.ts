@@ -37,9 +37,34 @@ export interface GoldenQuery {
   id: string;
   query: string;
   bucket: QueryBucket;
-  /** Folded-name regexes; a matching product counts as relevant. */
+  /**
+   * Folded-name regexes; a matching product counts as relevant — ESCI **Exact**.
+   * Matched against the *head*, so `Mischobst` qualifies for "Obst" and
+   * `Obstessig` does not.
+   */
   relevant: string[];
-  /** Folded-name regexes; a matching product is wrong for this query. */
+  /**
+   * Folded-name regexes for products that are judged and **not Exact** — ESCI
+   * Substitute/Complement, and the Irrelevant cases that are not defects.
+   *
+   * Matched anywhere in the name, and outranking `relevant`, because this names
+   * the product's *type* where the name's grammar hides it. German multi-word
+   * retail names lead with the type and trail with the flavour
+   * (`Früchtequark Aprikose` is a quark), so the fruit lemma matches a slot
+   * that says nothing about what the product is. Naming the type explicitly
+   * lets `relevant` list fruit generously without re-admitting every dessert
+   * flavoured with one.
+   *
+   * The alternative — teaching the judge to parse title syntax — was rejected:
+   * this corpus exists to catch the ranker guessing, and it cannot do that with
+   * a second guesser inside it.
+   */
+  related?: string[];
+  /**
+   * Folded-name regexes; a matching product is wrong for this query, and on a
+   * `gate` query that fails the build. Reserved for observed defects — not for
+   * everything that merely fails to be Exact, which is what `related` is for.
+   */
   forbidden: string[];
   severity: GoldenSeverity;
   /** Why this query is in the set — especially for `gate` entries. */
@@ -73,7 +98,7 @@ export const GOLDEN_QUERIES: GoldenQuery[] = [
   { id: 'halbrahm', query: 'Halbrahm', bucket: 'compound', relevant: ['halbrahm', 'rahm'], forbidden: ['schokolade', 'glace', 'brot'], severity: 'measure' },
   { id: 'vollrahm', query: 'Vollrahm', bucket: 'compound', relevant: ['vollrahm', 'rahm'], forbidden: ['schokolade', 'glace'], severity: 'measure' },
   { id: 'magerquark', query: 'Magerquark', bucket: 'compound', relevant: ['magerquark', 'quark'], forbidden: ['joghurt.*frucht', 'schokolade'], severity: 'measure' },
-  { id: 'ruebli', query: 'Rüebli', bucket: 'compound', relevant: ['rueebli', 'karotte', 'ruebli'], forbidden: ['kuchen', 'torte', 'saft'], severity: 'measure', note: 'Swiss-German for carrots; "Rüeblitorte" is the obvious false positive.' },
+  { id: 'ruebli', query: 'Rüebli', bucket: 'compound', relevant: ['rueebli', 'karotte', 'ruebli'], related: ['keks', 'guetzli', 'cake', 'roertli', 'suppe', 'marzipan', 'ingwer', 'riegel'], forbidden: ['kuchen', 'torte', 'saft'], severity: 'measure', note: 'Swiss-German for carrots; "Rüeblitorte" is the obvious false positive. `related` added 2026-08-06 — the corpus was also counting Rüebli biscuits, a Rüebli cake, a carrot-orange-ginger juice, a Rüebli-and-coconut soup and Betty Bossi marzipan carrots as the vegetable itself. Left labelled and knowingly imperfect: "Rüebli-Kürbis" (a Blévita cracker), which cannot be told from a carrot-and-pumpkin vegetable pack by its identity alone.' },
   { id: 'hackfleisch', query: 'Hackfleisch', bucket: 'compound', relevant: ['hackfleisch', 'hack', 'gehackt'], forbidden: ['vegan', 'vegi', 'planted'], severity: 'measure' },
   { id: 'apfelsaft', query: 'Apfelsaft', bucket: 'compound', relevant: ['apfelsaft', 'apfel.*saft'], forbidden: ['essig', 'mus', 'schorle.*trauben'], severity: 'measure' },
   { id: 'orangensaft', query: 'Orangensaft', bucket: 'compound', relevant: ['orangensaft', 'orange.*saft', 'jus.*orange'], forbidden: ['konfituere', 'marmelade', 'schokolade'], severity: 'measure' },
@@ -99,7 +124,10 @@ export const GOLDEN_QUERIES: GoldenQuery[] = [
     id: 'protein-milch',
     query: 'Protein Milch',
     bucket: 'multiword',
-    relevant: ['protein.*milch', 'milch.*protein', 'protein.*drink'],
+    // `milk` as well as `milch`: Emmi and Coop ship "Protein Milk UHT" in
+    // English, and a gate query that cannot see the correct answer measures the
+    // spelling of the catalogue rather than the ranking.
+    relevant: ['protein.*milch', 'milch.*protein', 'protein.*drink', 'protein.*milk'],
     forbidden: ['brot', 'brioche', 'riegel', 'pulver'],
     severity: 'gate',
     note: 'Reported by the owner: Aldi returned bread. Both tokens appear in bread ingredient text.',
@@ -125,16 +153,42 @@ export const GOLDEN_QUERIES: GoldenQuery[] = [
   { id: 'kaegi-fret', query: 'Kägi fret', bucket: 'brand', relevant: ['kaegi'], forbidden: [], severity: 'measure' },
 
   // ── Category: broad head nouns, recall-oriented ──────────────────────────
-  { id: 'gemuese', query: 'Gemüse', bucket: 'category', relevant: ['gemuese', 'salat', 'karotte', 'rueebli', 'tomate', 'gurke', 'zwiebel', 'broccoli', 'legume'], forbidden: ['bouillon', 'chips'], severity: 'measure' },
-  { id: 'obst', query: 'Obst', bucket: 'category', relevant: ['obst', 'apfel', 'banane', 'birne', 'orange', 'beere', 'traube', 'fruit'], forbidden: ['saft', 'konfituere', 'joghurt'], severity: 'measure' },
+  {
+    id: 'gemuese',
+    query: 'Gemüse',
+    bucket: 'category',
+    relevant: ['gemuese', 'salat', 'karotte', 'rueebli', 'tomate', 'gurke', 'zwiebel', 'broccoli', 'legume', 'erbse', 'lauch', 'kohl', 'spinat', 'peperoni', 'zucchetti', 'aubergine', 'randen', 'fenchel', 'sellerie', 'spargel', 'papaya'],
+    // Everything here was scoring Exact off the word "Gemüse" in a name whose
+    // product type is something else entirely.
+    related: ['sauce', 'cocktail', 'springroll', 'alternative zu', 'in gel'],
+    forbidden: ['bouillon', 'chips', 'extrakt'],
+    severity: 'measure',
+    note: 'Relabelled 2026-08-06. A vegetable juice ("Gemüse-Cocktail"), a sweet-and-sour sauce, a vegan meat alternative and Felix cat food ("Gemüse in Gel") were all labelled relevant, giving this query a perfect P@5 on a top 5 holding two actual vegetables. `extrakt` joins `bouillon` in forbidden because the corpus was forbidding Gemüsebouillon while certifying Knorr Gemüse-Extrakt — the same product in two spellings.',
+  },
+  {
+    id: 'obst',
+    query: 'Obst',
+    bucket: 'category',
+    // Fruit is named by species and effectively never by its category, so a
+    // hypernym query only matches through an enumeration. This is the shape
+    // that made "Obst" look answered while no fresh fruit was in the top 5.
+    relevant: ['obst', 'apfel', 'banane', 'birne', 'orange', 'beere', 'traube', 'aprikose', 'dattel', 'feige', 'nektarine', 'pfirsich', 'pflaume', 'zwetschge', 'physalis', 'passionsfrucht', 'pitahaya', 'mango', 'ananas', 'kokosnuss', 'kirsche', 'melone', 'zitrone', 'mandarine', 'grapefruit', 'kiwi', 'papaya', 'sultanine', 'rosine'],
+    // `monate`/`jahre` are the Swiss baby-food marker ("ab 6+ Monate") and
+    // catch a whole shelf of purées and toddler bars in one pattern rather than
+    // one brand at a time.
+    related: ['quark', 'riegel', 'riege\\b', 'brei\\b', 'smoothie', 'monate', 'jahre', 'fruit me up', 'tee\\b', 'sirup', 'essig', 'gummi', 'marzipan', 'dessert', 'cocktail'],
+    forbidden: ['saft', 'konfituere', 'joghurt'],
+    severity: 'measure',
+    note: 'Relabelled 2026-08-06, in both directions. Aprikosen, Datteln, Feigen, Nektarine, Pfirsich, Pflaumen, Physalis, Passionsfrucht and Pitahaya sat unjudged in the pool while `Hipp Bio Brei Obst & Vollkorn` (baby cereal), two Früchtequarks, three fruit bars and two smoothies were labelled relevant — so the corpus rewarded ranking a purée at #1 and would have scored a fix as a regression.',
+  },
   { id: 'teigwaren', query: 'Teigwaren', bucket: 'category', relevant: ['teigwaren', 'pasta', 'spaghetti', 'penne', 'hoernli', 'fusilli', 'nudel'], forbidden: ['sauce', 'sugo'], severity: 'measure' },
-  { id: 'reinigungsmittel', query: 'Reinigungsmittel', bucket: 'category', relevant: ['reiniger', 'reinigung', 'putz', 'nettoyant'], forbidden: ['hand.*creme', 'shampoo'], severity: 'measure' },
+  { id: 'reinigungsmittel', query: 'Reinigungsmittel', bucket: 'category', relevant: ['reiniger', 'reinigung', 'reinigungsmittel', 'putz', 'nettoyant'], related: ['zahnbuerste'], forbidden: ['hand.*creme', 'shampoo'], severity: 'measure', note: '`related` covers Elmex "Intensivreinigung Mittel Zahnbürste" — a toothbrush scoring Exact off "Reinigung".' },
 
   // ── Romance-language labels: Switzerland is multilingual ────────────────
   { id: 'beurre', query: 'beurre', bucket: 'romance', relevant: ['beurre', 'butter'], forbidden: ['cacahuete', 'erdnuss'], severity: 'measure' },
   { id: 'lait-entier', query: 'lait entier', bucket: 'romance', relevant: ['lait', 'milch'], forbidden: ['chocolat', 'schokolade'], severity: 'measure' },
   { id: 'pomodori-pelati', query: 'pomodori pelati', bucket: 'romance', relevant: ['pelati', 'pomodor', 'tomaten'], forbidden: ['ketchup', 'sugo'], severity: 'measure' },
-  { id: 'jus-orange', query: "jus d'orange", bucket: 'romance', relevant: ['jus.*orange', 'orangensaft', 'orange.*saft'], forbidden: ['confiture', 'konfituere'], severity: 'measure' },
+  { id: 'jus-orange', query: "jus d'orange", bucket: 'romance', relevant: ['jus.*orange', 'orangensaft', 'orange.*saft', 'saft.*orange'], related: ['rueebli', 'ingwer'], forbidden: ['confiture', 'konfituere'], severity: 'measure', note: '`saft.*orange` catches "Fruchtsaft, Orange", which the orange-first patterns missed; `related` then demotes the orange/carrot/ginger blend, which is a substitute rather than the juice asked for.' },
 ];
 
 export const GOLDEN_QUERIES_BY_ID = new Map(GOLDEN_QUERIES.map((q) => [q.id, q]));

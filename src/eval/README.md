@@ -73,6 +73,47 @@ defect. `forbidden` deliberately still matches anywhere: "is this a kind of X"
 is answered by the head, "does it carry trait Y at all" by any position, and
 `Erdnussbutter` is forbidden for "Butter" through its modifier.
 
+**Four verdicts on the ESCI scale, and `related` is the load-bearing one.**
+E-commerce IR grades a query/product pair Exact / Substitute / Complement /
+Irrelevant ([Reddy et al. 2022](https://arxiv.org/abs/2206.06588)). `relevant`
+is Exact; `forbidden` is a defect we gate on; `related` is everything judged and
+*not* Exact; `unjudged` means no label matched, which is **not** a synonym for
+irrelevant.
+
+`related` exists because the compound-head rule above is the *wrong* grammar for
+a multi-word name. German compounds put the head last (`Him|beere` is a berry),
+but retail titles put the product type **first** and the flavour after it —
+`Früchtequark Aprikose` is a quark. So a fruit lemma legitimately matches a slot
+that says nothing about what the product is, and a lemma list alone cannot tell
+the two readings apart. Measured on 2026-08-06, that one confusion had "Gemüse"
+scoring a **perfect P@5** on a top 5 holding a sweet-and-sour sauce, a vegan meat
+alternative and a vegetable juice, with Felix *cat food* also labelled relevant;
+"Obst" counted baby cereal, two quarks and three fruit bars as fruit while
+leaving `Aprikosen`, `Datteln`, `Feigen` and `Pitahaya` unjudged. Naming the type
+in `related` fixes both directions without teaching this judge to parse title
+syntax — a corpus that exists to catch the ranker guessing must not contain a
+second guesser.
+
+S and C are collapsed into one verdict on the paper's own numbers: annotator
+agreement is 91% on the full four-way taxonomy but >96% on Exact vs not-Exact
+(§2.2). We score strict Exact precision and never use the split.
+
+**`related` is not `forbidden`.** ESCI grades a fruit bar a Complement, and
+failing a build over one would make the gate mean "unusual" rather than "wrong".
+`forbidden` stays reserved for observed defects.
+
+**`judged@5` is reported next to P@5, and ratcheted rather than gated.** P@5
+scores an unlabelled product as non-relevant — the standard TREC pooling
+assumption — and that holds only while the labels cover what is retrieved, which
+nothing in P@5 announces. Reading precision without coverage is how a query
+earns a good score for ranking products the corpus never had an opinion about,
+and how a ranking *improvement* that surfaces correct-but-unlabelled products
+gets recorded as a regression (see Buckley & Voorhees, SIGIR '04, which
+introduced bpref for exactly this). It is deliberately **not** a hard gate on
+"zero unjudged": pools are recaptured from live vendors, so new products arrive
+on their own schedule, and failing the build for that would make red mean "the
+catalogue changed" — which is how a suite gets ignored.
+
 **Judgement sees name + brand, never category or tags.** Migros and Aldi put the
 brand in `brand` and only the variant in `name` — a Toblerone bar is literally
 named "Crunchy Almond", and judging on name alone scored the whole brand bucket

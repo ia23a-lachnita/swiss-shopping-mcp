@@ -183,6 +183,15 @@ describe.each(presentTiers)('search relevance golden set — $name tier', ({ nam
     console.log(
       `\n[${name}] Ranking (answered queries): P@5 ${report.precisionAt5} · MRR ${report.mrr} · n=${report.scored}` +
         `\n[${name}] End to end (all queries):  P@5 ${report.overallPrecisionAt5} · MRR ${report.overallMrr} · coverage ${report.coverage}` +
+        // Printed next to P@5 on purpose: P@5 scores an unlabelled product as
+        // wrong, so the two numbers have to be read together or the first one
+        // silently reports label coverage as if it were ranking quality.
+        `\n[${name}] Label coverage:            judged@5 ${report.judgedAt5}` +
+        (report.underjudged.length
+          ? ` · unlabelled in a top 5: ${report.underjudged
+              .map((q) => `${q.id}→${q.unjudged.join(', ')}`)
+              .join('; ')}`
+          : '') +
         `\nBy bucket: ${Object.entries(report.byBucket)
           .map(([bucket, m]) => `${bucket} P@5 ${m.precisionAt5}/MRR ${m.mrr} (n=${m.queries})`)
           .join(' · ')}` +
