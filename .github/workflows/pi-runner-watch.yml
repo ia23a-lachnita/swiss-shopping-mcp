@@ -95,8 +95,15 @@ jobs:
 
           # --- Check 2: authoritative runner status, if we were given a token -
           if [ -n "${RUNNER_TOKEN:-}" ]; then
-            status="$(GH_TOKEN="$RUNNER_TOKEN" gh api "repos/$REPO/actions/runners" \
-              --jq '[.runners[] | select(any(.labels[]; .name == "pi"))] | .[0].status // "missing"')"
+            # A PAT expires, and an expired one must not turn this into an
+            # hourly red run about a credential rather than about the Pi. If the
+            # call fails for any reason, warn and fall back to the queue check --
+            # degraded monitoring beats an alarm that cries about itself.
+            if ! status="$(GH_TOKEN="$RUNNER_TOKEN" gh api "repos/$REPO/actions/runners" \
+              --jq '[.runners[] | select(any(.labels[]; .name == "pi"))] | .[0].status // "missing"' 2>&1)"; then
+              echo "::warning::RUNNER_STATUS_TOKEN could not read the runner list ($status). It has probably expired or lost Administration: Read. Falling back to the queue check only."
+              status="online"
+            fi
             echo "pi runner status: $status"
             # "missing" differs from "offline": the registration is gone and has
             # to be re-created on the Pi, which power alone will not fix.
