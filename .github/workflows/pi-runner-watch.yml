@@ -80,6 +80,7 @@ jobs:
           set -euo pipefail
 
           problem=""
+          degraded=""
           threshold=$(( MAX_QUEUE_MINUTES * 60 ))
 
           # --- Check 1: is anything stuck waiting for a runner? ---------------
@@ -95,13 +96,18 @@ jobs:
 
           # --- Check 2: authoritative runner status, if we were given a token -
           if [ -n "${RUNNER_TOKEN:-}" ]; then
-            # A PAT expires, and an expired one must not turn this into an
-            # hourly red run about a credential rather than about the Pi. If the
-            # call fails for any reason, warn and fall back to the queue check --
-            # degraded monitoring beats an alarm that cries about itself.
+            # The PAT in use expires 2026-11-04 (90 days from 2026-08-06). An
+            # expired one must not turn this into an hourly red run about a
+            # credential rather than about the Pi -- but it must not vanish into
+            # a warning nobody reads either, because the failure mode is that
+            # monitoring quietly drops to queue-only and stays there. So: fall
+            # back, keep working, and say so once through the same
+            # edge-triggered issue.
             if ! status="$(GH_TOKEN="$RUNNER_TOKEN" gh api "repos/$REPO/actions/runners" \
               --jq '[.runners[] | select(any(.labels[]; .name == "pi"))] | .[0].status // "missing"' 2>&1)"; then
-              echo "::warning::RUNNER_STATUS_TOKEN could not read the runner list ($status). It has probably expired or lost Administration: Read. Falling back to the queue check only."
+              echo "::warning::RUNNER_STATUS_TOKEN could not read the runner list ($status)."
+              degraded="yes"
+              problem="${problem:+$problem — }\`RUNNER_STATUS_TOKEN\` could not read the runner list. It was issued 2026-08-06 with a 90-day expiry (**2026-11-04**), so it has most likely lapsed; the other possibility is that it lost Administration: Read. The queue check is still running — the direct runner check is not."
               status="online"
             fi
             echo "pi runner status: $status"
@@ -146,18 +152,29 @@ jobs:
             exit 0
           fi
 
+          # A lapsed token and a dead Pi are different jobs for the reader, so
+          # they must not share a title.
+          if [ -n "$degraded" ]; then
+            title="Pi runner watch is degraded — token needs renewing"
+            causes="Renew the fine-grained PAT (this repo only, Administration: Read-only) and re-save it as the \`RUNNER_STATUS_TOKEN\` repo secret."
+          else
+            title="Pi runner appears unavailable"
+            causes="$(printf '%s\n' \
+              "Two known causes, in the order worth checking:" \
+              "1. **The Pi is off.** It does not power on by itself after a mains cut — the Argon ONE V2 jumper has to be on pins 2+3 (\"Always ON\"). Tracker item 12." \
+              "2. **The Pi is on but the runner died.** No RTC, so a stale clock at boot made the runner exit 0 with a misleading \"registration has been deleted\" message. The \`10-wait-for-clock.conf\` drop-in should prevent this; if it recurs, check \`journalctl -u actions.runner.*\` on the Pi.")"
+          fi
+
           gh issue create --repo "$REPO" --label "$LABEL" \
-            --title "Pi runner appears unavailable" \
+            --title "$title" \
             --body "$(printf '%s\n' \
               "$problem" \
               "" \
               "_Checked $(date -u '+%Y-%m-%d %H:%M UTC')._ Any deploy pushed while this holds will queue silently rather than fail." \
               "" \
-              "Two known causes, in the order worth checking:" \
-              "1. **The Pi is off.** It does not power on by itself after a mains cut — the Argon ONE V2 jumper has to be on pins 2+3 (\"Always ON\"). Tracker item 12." \
-              "2. **The Pi is on but the runner died.** No RTC, so a stale clock at boot made the runner exit 0 with a misleading \"registration has been deleted\" message. The \`10-wait-for-clock.conf\` drop-in should prevent this; if it recurs, check \`journalctl -u actions.runner.*\` on the Pi." \
+              "$causes" \
               "" \
-              "This issue closes itself when the queue drains.")"
+              "This issue closes itself once the check comes back clean.")"
 
           # Fail the run as well as opening the issue: the issue is the durable
           # record, the red run is what actually reaches an inbox.
