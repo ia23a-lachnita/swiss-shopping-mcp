@@ -36,7 +36,7 @@ export const HYPERNYMS: Record<string, string[]> = {
   brot: ['baguette', 'zopf', 'panini', 'semmel', 'gipfeli', 'ruchbrot', 'knackebrot'],
   reis: ['basmati', 'risotto', 'jasmin', 'langkorn', 'parboiled'],
   // Fresh produce
-  obst: ['frucht', 'fruchte', 'apfel', 'apfeln', 'banane', 'bananen', 'birne', 'birnen', 'orange', 'orangen', 'mandarine', 'clementine', 'zitrone', 'limette', 'grapefruit', 'traube', 'trauben', 'beere', 'beeren', 'erdbeere', 'himbeere', 'heidelbeere', 'kirsche', 'kirschen', 'pfirsich', 'nektarine', 'aprikose', 'pflaume', 'zwetschge', 'feige', 'feigen', 'dattel', 'datteln', 'granatapfel', 'ananas', 'mango', 'kiwi', 'melone', 'physalis', 'passionsfrucht', 'kokosnuss', 'pitahaya'],
+  obst: ['frucht', 'fruchte', 'apfel', 'apfeln', 'banane', 'bananen', 'birne', 'birnen', 'orange', 'orangen', 'mandarine', 'clementine', 'zitrone', 'limette', 'grapefruit', 'traube', 'trauben', 'beere', 'beeren', 'erdbeere', 'himbeere', 'heidelbeere', 'kirsche', 'kirschen', 'pfirsich', 'nektarine', 'aprikose', 'pflaume', 'zwetschge', 'feige', 'feigen', 'dattel', 'datteln', 'granatapfel', 'ananas', 'mango', 'kiwi', 'melone', 'physalis', 'passionsfrucht', 'kokosnuss', 'pitahaya', 'sultaninen', 'sultanine', 'rosinen', 'rosine', 'dorrobst', 'trockenfruchte'],
   fruchte: ['obst', 'apfel', 'banane', 'birne', 'orange', 'traube', 'beere', 'erdbeere', 'himbeere', 'kirsche', 'pfirsich', 'nektarine', 'aprikose', 'feige', 'dattel', 'ananas', 'mango', 'kiwi', 'melone'],
   gemuse: ['karotte', 'karotten', 'ruebli', 'rueebli', 'tomate', 'tomaten', 'gurke', 'zwiebel', 'zwiebeln', 'broccoli', 'brokkoli', 'blumenkohl', 'salat', 'lauch', 'sellerie', 'kohl', 'zucchetti', 'zucchini', 'peperoni', 'spinat', 'bohnen', 'erbsen', 'fenchel', 'rande', 'radieschen', 'aubergine'],
   // Dairy and protein
@@ -57,6 +57,101 @@ export const HYPERNYMS: Record<string, string[]> = {
   putzmittel: ['reiniger', 'reinigung', 'putz', 'allzweckreiniger', 'badreiniger', 'glasreiniger', 'scheuermilch', 'nettoyant'],
   waschmittel: ['waschpulver', 'lessive', 'flussigwaschmittel', 'colorwaschmittel'],
 };
+
+/**
+ * Words for the *same thing*, as opposed to `HYPERNYMS`' broader-and-narrower.
+ *
+ * Kept in its own table because the two relations behave differently, which is
+ * not a stylistic preference but the distinction every retrieval thesaurus
+ * draws: ISO 25964-1 separates the **equivalence** relationship (USE/UF) from
+ * the **hierarchical** one (BT/NT), WordNet separates a synset from the
+ * hypernym links between synsets, and Lucene has a `SynonymQuery` distinct from
+ * any taxonomy rewrite. Voorhees (1994) is the standard warning about what
+ * happens when a query expander ignores the difference.
+ *
+ * **Symmetric, and safely so.** `HYPERNYMS` is directional to stop "Apfel"
+ * matching a banana — correct, because those are *siblings*, and each is a
+ * different fruit. `Rüebli` and `Karotte` are not siblings; they are the same
+ * vegetable in Swiss German and standard German, so equivalence holds in both
+ * directions by definition and expanding it cannot reach a different product.
+ *
+ * The cost of not having this was not a ranking wobble. An unrecognised token
+ * is mandatory (see `strengthForQuery`), and `rueebli` appeared only as a
+ * *value* under `gemuse`, never as a key — so it expanded to nothing and
+ * disqualified every product that did not spell it out. Measured over the
+ * frozen pools on 2026-08-06, the query "Rüebli" kept Rüebli *Keks*, a Rüebli
+ * *Cake* and Betty Bossi *marzipan* carrots while discarding Migros `Karotten`,
+ * `Snack Karotten`, `Baby Karotten` and `Erbsen und Karotten` — recall 0.150.
+ * The filter was not weak on that query; it was inverted.
+ *
+ * **Deliberately not merged into `CROSS_LANGUAGE_TERMS`**, which is the obvious
+ * home since a dialect word is a translation of a sort. That table also drives
+ * `vendorQueryFor`, so an entry there rewrites the query *before dispatch* — and
+ * Migros shelves its own products as "Rüebli", so translating it to "Karotte"
+ * would lose the very products the entry exists to find. This table is read by
+ * scoring only.
+ *
+ * Written in `normalize()` form and asserted by a test, like `HYPERNYMS`.
+ */
+export const SYNONYM_GROUPS: string[][] = [
+  ['ruebli', 'karotte', 'karotten', 'ruben', 'mohre'],
+  ['zucchetti', 'zucchini', 'courgette'],
+  ['broccoli', 'brokkoli'],
+  ['peperoni', 'paprika'],
+  ['rande', 'randen'],
+  ['aubergine', 'melanzani'],
+  ['kartoffel', 'kartoffeln', 'herdopfel'],
+  ['poulet', 'huhn', 'hahnchen'],
+  ['rahm', 'sahne'],
+  ['thon', 'thunfisch'],
+  ['crevetten', 'garnelen'],
+  ['konfiture', 'marmelade'],
+  ['blumenkohl', 'karfiol'],
+];
+
+/**
+ * Every member mapped to its whole group. Built once: the symmetry is derived
+ * rather than hand-written, so a pair cannot be added in one direction only —
+ * which is exactly how `rueebli`/`karotte` came to be missing.
+ */
+const SYNONYMS: Record<string, string[]> = Object.fromEntries(
+  SYNONYM_GROUPS.flatMap((group) => group.map((term) => [term, group.filter((other) => other !== term)]))
+);
+
+/**
+ * Scored at the *direct* bands (80 name/brand, 60 category) rather than the
+ * taxonomy's 40/30.
+ *
+ * That is the Lucene `SynonymQuery` rule and it follows from what synonymy
+ * means: if A and B name the same thing, a product called B answers a shopper
+ * who typed A exactly as well as one called A. A hypernym member is discounted
+ * because it only *partially* satisfies the intent — "Gemüse" asked for a
+ * category and got one of its members — whereas nothing about `Karotten` is a
+ * weaker answer to "Rüebli" than `Rüebli` is. The literal spelling still wins
+ * ties through the whole-query bonuses of 100/90 above.
+ */
+function synonymTokenStrength(
+  token: string,
+  fields: ReturnType<typeof productFields>,
+  matchMode: MatchMode,
+): number | undefined {
+  if (matchMode === 'literal') return undefined;
+  const equivalents = SYNONYMS[token];
+  if (!equivalents) return undefined;
+
+  for (const equivalent of equivalents) {
+    if (fieldHeadsWord(fields.name, equivalent) || fieldHeadsWord(fields.brand, equivalent)) return 80;
+  }
+  for (const equivalent of equivalents) {
+    if (
+      fieldHeadsWord(fields.category, equivalent) ||
+      fields.tags.some((tag) => fieldHeadsWord(tag, equivalent))
+    ) {
+      return 60;
+    }
+  }
+  return undefined;
+}
 
 /**
  * The curated table and the co-occurrence one, merged rather than swapped.
@@ -311,6 +406,7 @@ function tokenStrength(
 ): number | undefined {
   const direct =
     directTokenStrength(token, fields) ??
+    synonymTokenStrength(token, fields, matchMode) ??
     crossLanguageTokenStrength(token, fields, matchMode) ??
     attributeTokenStrength(token, fields, matchMode) ??
     compoundTokenStrength(token, fields, matchMode);

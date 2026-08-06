@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { calculateMatchStrength, normalize, sortProducts } from './matcher.js';
+import { SYNONYM_GROUPS, calculateMatchStrength, normalize, sortProducts } from './matcher.js';
 import { NormalizedProduct } from '../adapters/types.js';
 
 function product(overrides: Partial<NormalizedProduct>): NormalizedProduct {
@@ -164,6 +164,61 @@ describe('product matcher', () => {
     expect(calculateMatchStrength(milk, 'lait entier', 'balanced')).toBeGreaterThanOrEqual(
       calculateMatchStrength(lotion, 'lait entier', 'balanced')
     );
+  });
+
+  it('answers a Swiss-German query with the standard-German word for the same thing', () => {
+    // "Rüebli" appeared only as a VALUE under `gemuse`, never as a key, so it
+    // expanded to nothing — and since an unrecognised token is mandatory, that
+    // disqualified every carrot. Measured over the frozen pool: the query kept
+    // Rüebli biscuits and a Rüebli cake and dropped Migros Karotten, Snack
+    // Karotten and Baby Karotten. Recall 0.150.
+    const carrots = product({ name: 'Karotten', brand: 'M-Budget' });
+    expect(calculateMatchStrength(carrots, 'Rüebli', 'balanced')).toBeGreaterThan(0);
+  });
+
+  it('expands a synonym in both directions', () => {
+    // Synonymy is symmetric by definition, unlike the hypernym table. Deriving
+    // both directions from one group is what stops a pair being added one way
+    // round, which is how rueebli/karotte came to be missing.
+    const carrots = product({ name: 'Karotten' });
+    const ruebli = product({ name: 'Rüebli' });
+    expect(calculateMatchStrength(carrots, 'Rüebli', 'balanced')).toBeGreaterThan(0);
+    expect(calculateMatchStrength(ruebli, 'Karotten', 'balanced')).toBeGreaterThan(0);
+  });
+
+  it('still refuses to expand a hypernym member to its siblings', () => {
+    // The reason the taxonomy is directional, and the thing symmetric synonym
+    // expansion must not quietly undo: an apple and a banana are two different
+    // fruits, where Rüebli and Karotte are one vegetable.
+    const banana = product({ name: 'Bananen', category: 'Obst' });
+    expect(calculateMatchStrength(banana, 'Apfel', 'balanced')).toBe(0);
+  });
+
+  it('scores a synonym below the shopper\'s own spelling', () => {
+    // Equal at the retrieval layer per Lucene's SynonymQuery — a carrot answers
+    // "Rüebli" as well as a Rüebli does — but the literal spelling still takes
+    // the tie through the whole-name bonus.
+    const ruebli = product({ name: 'Rüebli' });
+    const carrots = product({ name: 'Karotten' });
+    expect(calculateMatchStrength(ruebli, 'Rüebli', 'balanced')).toBeGreaterThan(
+      calculateMatchStrength(carrots, 'Rüebli', 'balanced')
+    );
+  });
+
+  it('keeps every synonym in normalise() form', () => {
+    // An entry carrying an umlaut is looked up against normalised text and
+    // therefore never matches anything. That is how the modifier table lost
+    // `uht` for a month — silently, with no test able to notice.
+    for (const group of SYNONYM_GROUPS) {
+      for (const term of group) expect(normalize(term)).toBe(term);
+    }
+  });
+
+  it('counts dried fruit as fruit', () => {
+    // Sultaninen are dried grapes. The filter dropped them for "Obst", and the
+    // golden labels did not name them either, so nothing could see it.
+    const raisins = product({ name: 'Sultaninen', brand: 'Migros' });
+    expect(calculateMatchStrength(raisins, 'Obst', 'balanced')).toBeGreaterThan(0);
   });
 
   it('applies neither modifier tolerance nor translation in literal mode', () => {
