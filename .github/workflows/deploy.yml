@@ -88,3 +88,14 @@ jobs:
         run: |
           docker rmi swiss-shopping-mcp:build-${{ github.sha }} >/dev/null 2>&1 || true
           docker rmi swiss-shopping-mcp:pi-slim-candidate >/dev/null 2>&1 || true
+
+      # "Promote candidate image" only ever adds tags, never removes one -- each
+      # deploy re-points pi-slim-previous, which untags whatever it pointed to
+      # before and leaves it dangling. Without this, every green deploy leaves
+      # behind one orphaned ~3GB image forever (found 27 of them, 94GB, after
+      # two weeks of deploys -- see incident 2026-08-07).
+      - name: Prune dangling images and stale build cache
+        if: always()
+        run: |
+          docker image prune -f
+          docker builder prune -f --keep-storage 5GB
