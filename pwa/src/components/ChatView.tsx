@@ -1,15 +1,33 @@
-import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
 import { useChat } from '@ai-sdk/react';
 import { DefaultChatTransport, getToolName, isToolUIPart, type UIMessage } from 'ai';
-import { AlertTriangle, MapPin, RefreshCw, Scale, Search, Send, Sparkles } from 'lucide-react';
+import { Drawer } from 'vaul';
+import {
+  AlertTriangle,
+  History,
+  MapPin,
+  Plus,
+  RefreshCw,
+  Scale,
+  Search,
+  Send,
+  Sparkles,
+  Trash2,
+} from 'lucide-react';
 
 import { CHAIN_LABELS, type Chain, type Product } from '../api';
 import {
-  clearChatHistory,
+  deleteConversation,
+  listConversations,
   loadActiveLocation,
-  loadChatHistory,
+  loadConversation,
+  newConversationId,
+  requestPersistentStorage,
   saveActiveLocation,
-  saveChatHistory,
+  saveConversation,
+  titleFromMessages,
+  type Conversation,
+  type ConversationSummary,
 } from '../lib/chatHistory';
 import { cn } from '../lib/utils';
 import { ProductSheet } from './ProductSheet';
@@ -288,24 +306,175 @@ const SUGGESTIONS = [
   'Migros Filiale in Zürich',
 ];
 
+/** Debounced like `queryPersist.ts`'s cache mirror, and for the same reason. */
+const WRITE_DEBOUNCE_MS = 1_000;
+
+/**
+ * The active conversation is mirrored into `?c=` — the same place, and for the
+ * same reasons, `useTabState` keeps the active tab: a reload resumes the thread
+ * the user was in, and Android's back button walks back through conversations
+ * instead of closing an installed PWA. It is tab-scoped by construction, where
+ * a pointer record in IndexedDB would make two windows fight over one "active"
+ * id and would force a second async read before the first paint.
+ */
+function conversationIdFromUrl(): string | undefined {
+  return new URLSearchParams(window.location.search).get('c') ?? undefined;
+}
+
+function pushConversationIdToUrl(id: string): void {
+  const url = new URL(window.location.href);
+  if (url.searchParams.get('c') === id) return;
+  url.searchParams.set('c', id);
+  window.history.pushState(null, '', url);
+}
+
+function formatConversationDate(timestamp: number): string {
+  const date = new Date(timestamp);
+  if (date.toDateString() === new Date().toDateString()) {
+    return date.toLocaleTimeString('de-CH', { hour: '2-digit', minute: '2-digit' });
+  }
+  return date.toLocaleDateString('de-CH', { day: '2-digit', month: '2-digit', year: '2-digit' });
+}
+
+function ConversationHistorySheet({
+  open,
+  onOpenChange,
+  summaries,
+  activeId,
+  onSelect,
+  onDelete,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  summaries: ConversationSummary[];
+  activeId: string;
+  onSelect: (id: string) => void;
+  onDelete: (id: string) => void;
+}): React.JSX.Element {
+  return (
+    <Drawer.Root open={open} onOpenChange={onOpenChange}>
+      <Drawer.Portal>
+        <Drawer.Overlay className="fixed inset-0 z-40 bg-black/40" />
+        <Drawer.Content className="fixed inset-x-0 bottom-0 z-50 mx-auto flex max-h-[85dvh] max-w-2xl flex-col rounded-t-3xl bg-surface outline-none">
+          <div className="mx-auto mt-3 h-1.5 w-10 shrink-0 rounded-full bg-line" />
+          <div
+            className="min-h-0 flex-1 overflow-y-auto p-5 pb-[calc(env(safe-area-inset-bottom)+1.5rem)]"
+            data-testid="chat-history-sheet"
+          >
+            <Drawer.Title className="text-lg font-semibold">Verlauf</Drawer.Title>
+            {summaries.length === 0 ? (
+              <p className="mt-3 text-sm text-muted">Noch keine gespeicherten Unterhaltungen.</p>
+            ) : (
+              <ul className="mt-3 space-y-1">
+                {summaries.map((summary) => (
+                  <li
+                    key={summary.id}
+                    data-testid="chat-history-item"
+                    className={cn(
+                      'flex items-center gap-1 rounded-card px-1',
+                      summary.id === activeId && 'bg-surface-sunken'
+                    )}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => onSelect(summary.id)}
+                      className="min-w-0 flex-1 py-2.5 text-left"
+                    >
+                      <span className="block truncate text-sm text-ink">{summary.title}</span>
+                      <span className="block text-xs text-faint">
+                        {formatConversationDate(summary.updatedAt)} · {summary.messageCount} Nachrichten
+                      </span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onDelete(summary.id)}
+                      aria-label={`${summary.title} löschen`}
+                      className="shrink-0 rounded-lg p-2 text-faint active:bg-surface-sunken"
+                    >
+                      <Trash2 className="size-4" />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </Drawer.Content>
+      </Drawer.Portal>
+    </Drawer.Root>
+  );
+}
+
 export function ChatView(): React.JSX.Element {
   const [historyLoaded, setHistoryLoaded] = useState(false);
-  const [initialMessages, setInitialMessages] = useState<UIMessage[]>([]);
+  const [conversationId, setConversationId] = useState('');
+  const [conversation, setConversation] = useState<Conversation | undefined>();
+  const [summaries, setSummaries] = useState<ConversationSummary[]>([]);
   const [initialActiveLocation, setInitialActiveLocation] = useState<string | undefined>();
+
+  const refreshSummaries = useCallback(async (): Promise<void> => {
+    setSummaries(await listConversations());
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
-    void Promise.all([loadChatHistory(), loadActiveLocation()]).then(([messages, location]) => {
-      if (!cancelled) {
-        setInitialMessages(messages);
-        setInitialActiveLocation(location);
-        setHistoryLoaded(true);
-      }
-    });
+    async function boot(): Promise<void> {
+      void requestPersistentStorage();
+      const [list, location] = await Promise.all([listConversations(), loadActiveLocation()]);
+      // `?c=` wins when it names a conversation that still exists; otherwise
+      // resume the most recently updated one, which is what a cold launch of an
+      // installed PWA (no query string at all) always hits.
+      const requested = conversationIdFromUrl();
+      const targetId = requested && list.some((s) => s.id === requested) ? requested : list[0]?.id;
+      const target = targetId ? await loadConversation(targetId) : undefined;
+      if (cancelled) return;
+      setSummaries(list);
+      setInitialActiveLocation(location);
+      setConversation(target);
+      setConversationId(target?.id ?? newConversationId());
+      setHistoryLoaded(true);
+    }
+    void boot();
     return () => {
       cancelled = true;
     };
   }, []);
+
+  const openConversation = useCallback(
+    async (id: string | undefined): Promise<void> => {
+      const target = id ? await loadConversation(id) : undefined;
+      const nextId = target?.id ?? newConversationId();
+      setConversation(target);
+      setConversationId(nextId);
+      pushConversationIdToUrl(nextId);
+      await refreshSummaries();
+    },
+    [refreshSummaries]
+  );
+
+  useEffect(() => {
+    function handlePopState(): void {
+      const id = conversationIdFromUrl();
+      if (!id || id === conversationId) return;
+      void loadConversation(id).then((target) => {
+        setConversation(target);
+        setConversationId(target?.id ?? id);
+      });
+    }
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [conversationId]);
+
+  const removeConversation = useCallback(
+    async (id: string): Promise<void> => {
+      await deleteConversation(id);
+      const list = await listConversations();
+      setSummaries(list);
+      if (id === conversationId) {
+        await openConversation(list[0]?.id);
+      }
+    },
+    [conversationId, openConversation]
+  );
 
   if (!historyLoaded) {
     return (
@@ -316,23 +485,49 @@ export function ChatView(): React.JSX.Element {
     );
   }
 
-  return <ChatConversation initialMessages={initialMessages} initialActiveLocation={initialActiveLocation} />;
+  return (
+    // Remounting on `conversationId` is what swaps the thread: `useChat` seeds
+    // its state from `messages` once, so switching without a new key would keep
+    // the previous conversation's messages on screen.
+    <ChatConversation
+      key={conversationId}
+      conversationId={conversationId}
+      conversation={conversation}
+      initialActiveLocation={initialActiveLocation}
+      summaries={summaries}
+      onRefreshSummaries={refreshSummaries}
+      onOpenConversation={openConversation}
+      onDeleteConversation={removeConversation}
+    />
+  );
 }
 
 function ChatConversation({
-  initialMessages,
+  conversationId,
+  conversation,
   initialActiveLocation,
+  summaries,
+  onRefreshSummaries,
+  onOpenConversation,
+  onDeleteConversation,
 }: {
-  initialMessages: UIMessage[];
+  conversationId: string;
+  conversation: Conversation | undefined;
   initialActiveLocation: string | undefined;
+  summaries: ConversationSummary[];
+  onRefreshSummaries: () => Promise<void>;
+  onOpenConversation: (id: string | undefined) => Promise<void>;
+  onDeleteConversation: (id: string) => Promise<void>;
 }): React.JSX.Element {
   const [input, setInput] = useState('');
   const [selected, setSelected] = useState<Product | undefined>();
   const [activeLocation, setActiveLocation] = useState<string | undefined>(initialActiveLocation);
+  const [historyOpen, setHistoryOpen] = useState(false);
   const listEndRef = useRef<HTMLDivElement>(null);
 
   const [turnFailed, setTurnFailed] = useState(false);
-  const { messages, sendMessage, regenerate, status, error, setMessages } = useChat({
+  const initialMessages = conversation?.messages ?? [];
+  const { messages, sendMessage, regenerate, status, error, stop } = useChat({
     messages: initialMessages,
     transport: new DefaultChatTransport({
       api: '/api/chat',
@@ -340,9 +535,100 @@ function ChatConversation({
     }),
   });
 
+  // Identity of the array already on disk. `useChat` hands back a new array on
+  // every change, so identity is a sound "has anything changed" test — and it
+  // is what stops merely *opening* an old conversation from bumping its
+  // `updatedAt` and reshuffling the history list.
+  const persistedRef = useRef<UIMessage[]>(initialMessages);
+  const messagesRef = useRef(messages);
+  messagesRef.current = messages;
+  const metaRef = useRef({
+    createdAt: conversation?.createdAt ?? Date.now(),
+    title: conversation?.title ?? '',
+  });
+  const abandonedRef = useRef(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
+  const persist = useCallback((): void => {
+    const current = messagesRef.current;
+    // An empty thread is deliberately never written: a "new chat" the user
+    // never spoke to must not appear in the history sheet as a blank row.
+    if (abandonedRef.current || current.length === 0 || current === persistedRef.current) return;
+    if (!metaRef.current.title) metaRef.current.title = titleFromMessages(current);
+    persistedRef.current = current;
+    void saveConversation({
+      id: conversationId,
+      title: metaRef.current.title,
+      createdAt: metaRef.current.createdAt,
+      updatedAt: Date.now(),
+      messages: current,
+    });
+  }, [conversationId]);
+
   useEffect(() => {
-    void saveChatHistory(messages);
-  }, [messages]);
+    if (messages === persistedRef.current || messages.length === 0) return;
+    timerRef.current = setTimeout(persist, WRITE_DEBOUNCE_MS);
+    return () => clearTimeout(timerRef.current);
+  }, [messages, persist]);
+
+  // The debounce's trailing edge never arrives if the OS suspends the tab
+  // first, which on a phone is an ordinary way for a chat to end.
+  // `visibilitychange` to hidden is the last callback a page is reliably given
+  // (Page Lifecycle API), so flush there rather than on `unload`.
+  const persistRef = useRef(persist);
+  persistRef.current = persist;
+  useEffect(() => {
+    function handleVisibility(): void {
+      if (document.visibilityState !== 'hidden') return;
+      clearTimeout(timerRef.current);
+      persistRef.current();
+    }
+    document.addEventListener('visibilitychange', handleVisibility);
+    // Switching conversations unmounts this component; flush whatever the
+    // debounce was still holding rather than dropping it.
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibility);
+      persistRef.current();
+    };
+  }, []);
+
+  /**
+   * Leaving this thread — switching, starting a new one, or deleting it. Stops
+   * the stream first: an in-flight response keeps updating `messages` after the
+   * component is gone otherwise, and the pending debounce would write the
+   * conversation back out, resurrecting a record the user just deleted.
+   */
+  function leave(): void {
+    stop();
+    clearTimeout(timerRef.current);
+  }
+
+  function selectConversation(id: string): void {
+    if (id === conversationId) {
+      setHistoryOpen(false);
+      return;
+    }
+    leave();
+    persist();
+    setHistoryOpen(false);
+    void onOpenConversation(id);
+  }
+
+  function startNewConversation(): void {
+    leave();
+    persist();
+    setHistoryOpen(false);
+    void onOpenConversation(undefined);
+  }
+
+  function removeConversation(id: string): void {
+    if (id === conversationId) {
+      leave();
+      abandonedRef.current = true;
+    }
+    setHistoryOpen(false);
+    void onDeleteConversation(id);
+  }
 
   // Watch the tool-part stream for `set_chat_location` reaching
   // `output-available` — the newest call across the whole conversation wins.
@@ -397,16 +683,6 @@ function ChatConversation({
     setInput('');
   }
 
-  // Clearing the conversation used to `window.location.reload()`, which also
-  // reset the active tab and discarded every other tab's in-memory state
-  // (search/compare results). Clearing React state directly keeps the blast
-  // radius to the chat, where it belongs.
-  async function clearConversation(): Promise<void> {
-    await clearChatHistory();
-    setMessages([]);
-    setActiveLocation(undefined);
-  }
-
   return (
     // Sized to exactly the space between header and nav so the composer can be
     // a normal flex child pinned at the bottom. It was previously `sticky`
@@ -414,6 +690,36 @@ function ChatConversation({
     // page scrolls — with a short conversation it just sat under the last
     // message with a large empty gap beneath it, drifting down as the chat grew.
     <div className="flex h-[calc(100dvh-var(--header-h,3.25rem)-var(--nav-clearance))] flex-col">
+      {/* The plan put these in the app header, but that header is global chrome
+          shared by all five tabs (App.tsx) and carries the product title; a
+          chat-only control there would have to be conditioned on the active
+          tab. A toolbar row inside the chat keeps the concern where it belongs
+          and costs one `shrink-0` line of the height budget. */}
+      <div className="flex shrink-0 items-center justify-between gap-2 pt-2">
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={() => {
+            void onRefreshSummaries();
+            setHistoryOpen(true);
+          }}
+          data-testid="chat-history-open"
+        >
+          <History /> Verlauf
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={startNewConversation}
+          disabled={messages.length === 0}
+          data-testid="chat-new-conversation"
+        >
+          <Plus /> Neu
+        </Button>
+      </div>
+
       <div className="min-h-0 flex-1 space-y-4 overflow-y-auto pt-3">
         {messages.length === 0 && (
           <div className="space-y-3 rounded-card bg-surface p-4 shadow-card">
@@ -491,14 +797,23 @@ function ChatConversation({
         {messages.length > 0 && (
           <button
             type="button"
-            onClick={() => void clearConversation()}
+            onClick={() => removeConversation(conversationId)}
             className="mx-auto mt-2 block text-xs text-faint underline"
+            data-testid="chat-delete-current"
           >
             Unterhaltung löschen
           </button>
         )}
       </div>
 
+      <ConversationHistorySheet
+        open={historyOpen}
+        onOpenChange={setHistoryOpen}
+        summaries={summaries}
+        activeId={conversationId}
+        onSelect={selectConversation}
+        onDelete={removeConversation}
+      />
       <ProductSheet product={selected} onClose={() => setSelected(undefined)} />
     </div>
   );
