@@ -13,6 +13,7 @@ import {
   NormalizedProduct,
   NormalizedPromotion,
   NormalizedStore,
+  AdapterCallOptions,
   ProductSearchFilters,
   PromotionSearchFilters,
   Result,
@@ -200,7 +201,10 @@ export class DennerPromotionsAdapter implements ChainAdapter {
     this.now = options.now ?? ((): Date => new Date());
   }
 
-  public async searchProducts(filters: ProductSearchFilters): Promise<Result<NormalizedProduct[]>> {
+  public async searchProducts(
+    filters: ProductSearchFilters,
+    options?: AdapterCallOptions
+  ): Promise<Result<NormalizedProduct[]>> {
     const query = filters.query.trim();
     if (!query) {
       return {
@@ -213,7 +217,7 @@ export class DennerPromotionsAdapter implements ChainAdapter {
     const products: NormalizedProduct[] = [];
     const warnings: SourceWarning[] = [];
 
-    const promotionResult = await this.searchProductsFromPromotions(filters);
+    const promotionResult = await this.searchProductsFromPromotions(filters, options);
     if (promotionResult.ok) {
       products.push(...promotionResult.data);
       if (promotionResult.metadata?.sourceWarnings) {
@@ -221,7 +225,7 @@ export class DennerPromotionsAdapter implements ChainAdapter {
       }
     }
 
-    const searchResult = await this.searchProductsFromSearchApi(filters);
+    const searchResult = await this.searchProductsFromSearchApi(filters, options);
     if (searchResult.ok) {
       const existingIds = new Set(products.map((p) => p.id));
       for (const product of searchResult.data) {
@@ -376,7 +380,7 @@ export class DennerPromotionsAdapter implements ChainAdapter {
     return this.delegate.lookupStoreProductAvailability(filters);
   }
 
-  private async loadPromotions(): Promise<LoadResult> {
+  private async loadPromotions(options?: AdapterCallOptions): Promise<LoadResult> {
     const cacheKey = `denner:promotions:${this.actionsUrl}`;
     const cached = await this.cache.get<DennerParsedPromotion[]>(cacheKey, { allowStale: true });
     if (cached && !cached.isStale) {
@@ -394,6 +398,7 @@ export class DennerPromotionsAdapter implements ChainAdapter {
         chain: 'denner',
         sourceType: 'retailer-web',
         confidence: 'medium',
+        init: options?.signal ? { signal: options.signal } : undefined,
       });
       const promotions = parseDennerPromotionsPage(result.data, this.actionsUrl);
       const record = await this.cache.set(
@@ -428,9 +433,10 @@ export class DennerPromotionsAdapter implements ChainAdapter {
   }
 
   private async searchProductsFromPromotions(
-    filters: ProductSearchFilters
+    filters: ProductSearchFilters,
+    options?: AdapterCallOptions
   ): Promise<Result<NormalizedProduct[]>> {
-    const loaded = await this.loadPromotions();
+    const loaded = await this.loadPromotions(options);
     if (!loaded.ok) {
       return { ok: true, data: [] };
     }
@@ -451,7 +457,8 @@ export class DennerPromotionsAdapter implements ChainAdapter {
   }
 
   private async searchProductsFromSearchApi(
-    filters: ProductSearchFilters
+    filters: ProductSearchFilters,
+    options?: AdapterCallOptions
   ): Promise<Result<NormalizedProduct[]>> {
     const query = filters.query.trim();
     const cacheKey = `denner:search:${query}`;
@@ -493,6 +500,7 @@ export class DennerPromotionsAdapter implements ChainAdapter {
         confidence: 'medium',
         init: {
           method: 'POST',
+          signal: options?.signal,
           body: JSON.stringify(body),
           headers: { 'Content-Type': 'application/json' },
         },

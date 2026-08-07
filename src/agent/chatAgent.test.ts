@@ -118,7 +118,14 @@ describe('runChatAgent', () => {
 
     // The adapter behind search_products was actually invoked — proves the
     // model's tool call was dispatched through the real tool layer, not stubbed out.
-    expect(searchProductsSpy).toHaveBeenCalledWith(expect.objectContaining({ query: 'milch' }));
+    // Second argument since 2026-08-07: every adapter call now carries a
+    // cancellation signal (tracker item 4), and asserting it is here keeps the
+    // threading honest — a search dispatched without one would pass the query
+    // assertion and silently lose the ability to be stopped.
+    expect(searchProductsSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ query: 'milch' }),
+      expect.objectContaining({ signal: expect.anything() })
+    );
     expect(steps).toHaveLength(2);
     expect(text).toContain('Vollmilch');
   });

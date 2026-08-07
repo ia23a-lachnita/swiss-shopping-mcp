@@ -19,6 +19,7 @@ import {
   NormalizedProduct,
   NormalizedPromotion,
   NormalizedStore,
+  AdapterCallOptions,
   ProductSearchFilters,
   PromotionSearchFilters,
   Result,
@@ -79,7 +80,10 @@ export class OttosLiveAdapter implements ChainAdapter {
     this.sourceClient = new SourceHttpClient({ rateLimitPerHostMs: 1_000, userAgent: IOS_SAFARI_UA });
   }
 
-  public async searchProducts(filters: ProductSearchFilters): Promise<Result<NormalizedProduct[]>> {
+  public async searchProducts(
+    filters: ProductSearchFilters,
+    options?: AdapterCallOptions
+  ): Promise<Result<NormalizedProduct[]>> {
     const query = filters.query.trim();
     if (!query) {
       return { ok: false, error: { code: 'INVALID_QUERY', message: 'Query must be a non-empty string.' } };
@@ -87,7 +91,7 @@ export class OttosLiveAdapter implements ChainAdapter {
 
     const limit = typeof filters.limit === 'number' ? filters.limit : DEFAULT_SEARCH_LIMIT;
     const searchUrl = `${BASE_URL}/products/search?query=${encodeURIComponent(query)}:relevance&pageSize=${limit}&fields=FULL`;
-    const loaded = await loadJson(searchUrl, 'ottos:search', this.cache, this.sourceClient, this.cacheTtlMs, 'ottos', OTTOS_PROVIDER);
+    const loaded = await loadJson(searchUrl, 'ottos:search', this.cache, this.sourceClient, this.cacheTtlMs, 'ottos', OTTOS_PROVIDER, options);
     if (!loaded.ok) {
       return { ok: false, error: loaded.error };
     }

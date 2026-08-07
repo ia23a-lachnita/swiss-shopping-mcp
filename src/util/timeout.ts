@@ -41,10 +41,19 @@ export function chainTimeoutMs(chain: string): number {
 }
 
 /**
- * Races `operation` against `timeoutMs`. If the timer fires first, resolves
- * to `onTimeout()` instead of waiting further — the underlying operation is
- * not cancelled, just no longer waited on, so a slow adapter can still
- * complete in the background without blocking the caller.
+ * Races `operation` against `timeoutMs`. If the timer fires first, resolves to
+ * `onTimeout()` instead of waiting further — this helper does not cancel
+ * anything, it only stops waiting.
+ *
+ * That is deliberate and it is only half of a deadline. Cancellation is
+ * cooperative: an operation has to accept a signal and honour it, and some
+ * cannot (Playwright exposes no `AbortSignal` at all). So the product fan-out
+ * pairs this with a real one — see `SearchService.searchOneChain`, which hands
+ * the adapter an `AbortSignal` *and* races it here. The signal stops the work;
+ * this race guarantees the caller is never held hostage by an operation that
+ * ignores it. Using either alone was a bug: the race alone leaked work for
+ * nobody (tracker item 4), the signal alone let one uncooperative adapter
+ * block every other chain.
  */
 export async function raceWithTimeout<T>(
   operation: () => Promise<T>,

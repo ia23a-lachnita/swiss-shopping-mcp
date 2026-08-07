@@ -1,4 +1,5 @@
 import {
+  AdapterCallOptions,
   Chain,
   ChainAdapter,
   NormalizedProduct,
@@ -27,7 +28,10 @@ export class UnsupportedChainAdapter implements ChainAdapter {
     this.reasons = reasons;
   }
 
-  public async searchProducts(_filters: ProductSearchFilters): Promise<Result<NormalizedProduct[]>> {
+  public async searchProducts(
+    _filters: ProductSearchFilters,
+    _options?: AdapterCallOptions
+  ): Promise<Result<NormalizedProduct[]>> {
     return this.notImplemented('productSearch');
   }
 

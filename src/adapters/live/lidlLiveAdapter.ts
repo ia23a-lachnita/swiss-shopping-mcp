@@ -6,6 +6,7 @@ import {
   parseLidlSearchPage,
   parseLidlStoresResponse,
 } from '../../parsers/lidl.js';
+import { isAbortError, throwIfAborted } from '../../util/cancellation.js';
 import { sortProducts } from '../../util/matcher.js';
 import {
   cacheableProvenance,
@@ -20,6 +21,7 @@ import {
   NormalizedProduct,
   NormalizedPromotion,
   NormalizedStore,
+  AdapterCallOptions,
   ProductSearchFilters,
   PromotionSearchFilters,
   Result,
@@ -117,8 +119,12 @@ export class LidlLiveAdapter implements ChainAdapter {
     };
   }
 
-  private async fetchHtml(url: string): Promise<string> {
+  // Note this one goes out through bare `fetch`, not `SourceHttpClient`, so
+  // before the signal existed it had no deadline of any kind. It now inherits
+  // the chain budget from the fan-out.
+  private async fetchHtml(url: string, options?: AdapterCallOptions): Promise<string> {
     const response = await fetch(url, {
+      signal: options?.signal,
       headers: {
         'User-Agent': LIDL_PLUS_UA,
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
@@ -139,21 +145,32 @@ export class LidlLiveAdapter implements ChainAdapter {
     return response.text();
   }
 
-  private async searchProductsFromWebsite(query: string): Promise<LidlParsedProduct[]> {
+  private async searchProductsFromWebsite(
+    query: string,
+    options?: AdapterCallOptions
+  ): Promise<LidlParsedProduct[]> {
     const searchUrl = `${SEARCH_URL}?q=${encodeURIComponent(query)}`;
 
     // Try server-side HTML scraping first (faster)
     try {
-      const html = await this.fetchHtml(searchUrl);
+      const html = await this.fetchHtml(searchUrl, options);
       const products = parseLidlSearchPage(html, searchUrl);
       if (products.length > 0) return products;
-    } catch {
-      // Fall through to Playwright
+    } catch (error) {
+      // A cancelled scrape must not "fall through" to Playwright — that would
+      // answer an abort by starting the most expensive path we have.
+      if (isAbortError(error)) throw error;
+      // Otherwise fall through to Playwright.
     }
 
-    // Fallback: use Playwright to render the page (handles client-side rendering)
+    // Playwright has no AbortSignal in its API, so cancellation here is a
+    // checkpoint before the expensive step rather than an interruption of one
+    // already running. Checked at the boundary because that is where the cost
+    // is: a browser render is seconds, the parse after it is milliseconds.
+    throwIfAborted(options?.signal, `lidl search for "${query}"`);
     const { searchProducts } = await import('./lidlBrowser.js');
     const browserProducts = await searchProducts(query);
+    throwIfAborted(options?.signal, `lidl search for "${query}"`);
     return browserProducts.map((bp) => ({
       id: bp.id,
       name: bp.name,
@@ -166,7 +183,10 @@ export class LidlLiveAdapter implements ChainAdapter {
     }));
   }
 
-  public async searchProducts(filters: ProductSearchFilters): Promise<Result<NormalizedProduct[]>> {
+  public async searchProducts(
+    filters: ProductSearchFilters,
+    options?: AdapterCallOptions
+  ): Promise<Result<NormalizedProduct[]>> {
     const query = filters.query.trim();
     if (!query) {
       return { ok: false, error: { code: 'INVALID_QUERY', message: 'Query must be a non-empty string.' } };
@@ -181,7 +201,7 @@ export class LidlLiveAdapter implements ChainAdapter {
     }
 
     try {
-      const products = await this.searchProductsFromWebsite(query);
+      const products = await this.searchProductsFromWebsite(query, options);
       const provenance = this.buildProvenance(SEARCH_URL);
       const record = await this.cache.set(
         cacheKey,
@@ -197,6 +217,10 @@ export class LidlLiveAdapter implements ChainAdapter {
         filters
       );
     } catch (error) {
+      // Cancellation is not a Lidl outage, and must not be answered with the
+      // stale cache below as though the search had merely failed.
+      if (isAbortError(error)) throw error;
+
       const warning = warningFromError(error, SEARCH_URL, `${LIDL_PROVIDER} search failed`, 'lidl', LIDL_PROVIDER);
 
       if (cached) {

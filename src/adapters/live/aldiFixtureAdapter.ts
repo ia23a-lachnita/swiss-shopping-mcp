@@ -2,6 +2,7 @@ import {
   ChainAdapter,
   NormalizedProduct,
   NormalizedStore,
+  AdapterCallOptions,
   ProductSearchFilters,
   PromotionSearchFilters,
   Result,
@@ -68,7 +69,12 @@ export class AldiFixtureAdapter implements ChainAdapter {
     );
   }
 
-  public async searchProducts(filters: ProductSearchFilters): Promise<Result<NormalizedProduct[]>> {
+  // Fixture data, entirely in memory: there is no I/O to cancel, so the signal
+  // is accepted for interface conformance and deliberately unused.
+  public async searchProducts(
+    filters: ProductSearchFilters,
+    _options?: AdapterCallOptions
+  ): Promise<Result<NormalizedProduct[]>> {
     const query = filters.query.trim();
     if (!query) {
       return {

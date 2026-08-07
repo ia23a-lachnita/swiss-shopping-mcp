@@ -28,11 +28,13 @@ import {
   searchStores as browserSearchStores,
   checkAvailability as browserCheckAvailability,
 } from './migrosBrowser.js';
+import { isAbortError, throwIfAborted } from '../../util/cancellation.js';
 import {
   ChainAdapter,
   NormalizedProduct,
   NormalizedPromotion,
   NormalizedStore,
+  AdapterCallOptions,
   ProductSearchFilters,
   PromotionSearchFilters,
   Result,
@@ -211,7 +213,10 @@ export class MigrosLiveAdapter implements ChainAdapter {
     };
   }
 
-  public async searchProducts(filters: ProductSearchFilters): Promise<Result<NormalizedProduct[]>> {
+  public async searchProducts(
+    filters: ProductSearchFilters,
+    options?: AdapterCallOptions
+  ): Promise<Result<NormalizedProduct[]>> {
     const query = filters.query.trim();
     if (!query) {
       return {
@@ -230,7 +235,7 @@ export class MigrosLiveAdapter implements ChainAdapter {
     }
 
     try {
-      const products = await this.searchAndFetchDetails(query, limit);
+      const products = await this.searchAndFetchDetails(query, limit, options);
       const provenance = this.buildProvenance(SEARCH_URL);
 
       const record = await this.cache.set(
@@ -248,12 +253,18 @@ export class MigrosLiveAdapter implements ChainAdapter {
         query
       );
     } catch (error) {
+      // Before the auth-retry and the stale-cache fallback below: a cancelled
+      // search must not re-authenticate and run the whole Playwright sequence
+      // a second time, and must not be answered with stale cache as though
+      // Migros had failed.
+      if (isAbortError(error)) throw error;
+
       const warning = warningFromError(error, SEARCH_URL, `${MIGROS_PROVIDER} API fetch failed`, 'migros', MIGROS_PROVIDER);
 
       if (this.isAuthError(error) && !this.authFailed) {
         this.invalidateAuth();
         try {
-          const products = await this.searchAndFetchDetails(query, limit);
+          const products = await this.searchAndFetchDetails(query, limit, options);
           const provenance = this.buildProvenance(SEARCH_URL);
           const record = await this.cache.set(cacheKey, { products }, cacheableProvenance(provenance), this.cacheTtlMs);
           return this.parseSearchResult({ products }, liveProvenanceWithCacheExpiry(provenance, record.expiresAt), [], filters, query);
@@ -280,8 +291,32 @@ export class MigrosLiveAdapter implements ChainAdapter {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private async searchAndFetchDetails(query: string, limit: number): Promise<MigrosApiProduct[]> {
+  /**
+   * Cancellation here is *checkpointed*, not interruptive, and that is a real
+   * limitation rather than an oversight.
+   *
+   * Playwright exposes no `AbortSignal` on `page.goto`/`waitForSelector`. The
+   * usual answer — close the page from an abort listener, which does tear down
+   * the in-flight navigation — is not available: this adapter drives one
+   * module-level shared page (`migrosBrowser.ts`), because that page holds the
+   * cleared Cloudflare session, so closing it to cancel one search would break
+   * every concurrent and subsequent search. Moving to a page per call would
+   * mean re-clearing Cloudflare each time, which is the cost the singleton
+   * exists to avoid.
+   *
+   * So each browser step runs to completion and the signal is checked between
+   * them. Worst case after an abort is one outstanding browser round-trip
+   * instead of the whole four-step sequence plus twenty enrichment fetches.
+   */
+  private async searchAndFetchDetails(
+    query: string,
+    limit: number,
+    options?: AdapterCallOptions
+  ): Promise<MigrosApiProduct[]> {
+    const context = `migros search for "${query}"`;
+    throwIfAborted(options?.signal, context);
     const token = await this.ensureAuth();
+    throwIfAborted(options?.signal, context);
 
     // Search via Playwright browser (bypasses Cloudflare)
     const searchResult = await browserSearchProducts(query, {
@@ -305,8 +340,10 @@ export class MigrosLiveAdapter implements ChainAdapter {
     if (productIds.length === 0) return [];
 
     const uids = productIds.slice(0, limit).map(Number);
+    throwIfAborted(options?.signal, context);
     // Fetch product details via Playwright browser
     const products = await this.fetchCards(uids, token);
+    throwIfAborted(options?.signal, context);
 
     // Fetch nutrition/ingredients from MGB endpoint for each product (in parallel, max 20)
     const enrichable = products.filter(p => p.id && !p.nutrition_facts).slice(0, 20);

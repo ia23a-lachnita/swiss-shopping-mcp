@@ -26,6 +26,7 @@ import {
   ChainAdapter,
   NormalizedProduct,
   NormalizedStore,
+  AdapterCallOptions,
   ProductSearchFilters,
   PromotionSearchFilters,
   Result,
@@ -129,7 +130,10 @@ export class AldiLiveAdapter implements ChainAdapter {
     this.maxProductPages = options.maxProductPages ?? DEFAULT_MAX_PRODUCT_PAGES;
   }
 
-  public async searchProducts(filters: ProductSearchFilters): Promise<Result<NormalizedProduct[]>> {
+  public async searchProducts(
+    filters: ProductSearchFilters,
+    options?: AdapterCallOptions
+  ): Promise<Result<NormalizedProduct[]>> {
     const query = filters.query.trim();
     if (!query) {
       return {
@@ -138,7 +142,7 @@ export class AldiLiveAdapter implements ChainAdapter {
       };
     }
 
-    const sitemap = await this.loadSitemap();
+    const sitemap = await this.loadSitemap(options);
     if (!sitemap.ok) {
       return { ok: false, error: sitemap.error };
     }
@@ -152,7 +156,7 @@ export class AldiLiveAdapter implements ChainAdapter {
     await batchAll(
       candidates,
       async (entry) => {
-        const result = await this.loadProduct(entry.loc);
+        const result = await this.loadProduct(entry.loc, options);
         productResults.push(result);
       },
       5
@@ -483,7 +487,7 @@ export class AldiLiveAdapter implements ChainAdapter {
     };
   }
 
-  private async loadSitemap(): Promise<LoadResult<AldiSitemapEntry[]>> {
+  private async loadSitemap(options?: AdapterCallOptions): Promise<LoadResult<AldiSitemapEntry[]>> {
     const cacheKey = `aldi:product-sitemap:${this.productSitemapUrl}`;
     const cached = await this.cache.get<AldiSitemapEntry[]>(cacheKey, { allowStale: true });
     if (cached && !cached.isStale) {
@@ -496,6 +500,7 @@ export class AldiLiveAdapter implements ChainAdapter {
         chain: 'aldi',
         sourceType: 'retailer-web',
         confidence: 'high',
+        init: options?.signal ? { signal: options.signal } : undefined,
       });
       const entries = parseAldiProductSitemap(result.data);
       const record = await this.cache.set(
@@ -535,7 +540,7 @@ export class AldiLiveAdapter implements ChainAdapter {
     }
   }
 
-  private async loadProduct(sourceUrl: string): Promise<LoadResult<AldiParsedProduct>> {
+  private async loadProduct(sourceUrl: string, options?: AdapterCallOptions): Promise<LoadResult<AldiParsedProduct>> {
     const cacheKey = `aldi:product-page:${sourceUrl}`;
     const cached = await this.cache.get<AldiParsedProduct>(cacheKey, { allowStale: true });
     if (cached && !cached.isStale) {
@@ -548,6 +553,7 @@ export class AldiLiveAdapter implements ChainAdapter {
         chain: 'aldi',
         sourceType: 'retailer-web',
         confidence: 'medium',
+        init: options?.signal ? { signal: options.signal } : undefined,
       });
       const product = parseAldiProductPage(result.data, sourceUrl);
       if (!product) {

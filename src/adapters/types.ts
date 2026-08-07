@@ -308,9 +308,25 @@ export interface ChainCatalogData {
   storeInventory?: Record<string, string[]>;
 }
 
+/**
+ * Cancellation for one adapter call.
+ *
+ * Deliberately a second parameter rather than a field on
+ * `ProductSearchFilters`: filters are *data* — spread, logged, and used to
+ * build cache keys — and a live object carrying abort listeners has no
+ * business in a cache key. Same shape the Fetch standard and Node's own APIs
+ * use, so callers do not have to learn a house convention.
+ */
+export interface AdapterCallOptions {
+  signal?: AbortSignal;
+}
+
 export interface ChainAdapter {
   chain: Chain;
-  searchProducts(filters: ProductSearchFilters): Promise<Result<NormalizedProduct[]>>;
+  searchProducts(
+    filters: ProductSearchFilters,
+    options?: AdapterCallOptions
+  ): Promise<Result<NormalizedProduct[]>>;
   searchPromotions(filters: PromotionSearchFilters): Promise<Result<NormalizedPromotion[]>>;
   findStores(filters: StoreSearchFilters): Promise<Result<NormalizedStore[]>>;
   getStoreAvailabilitySupport(): StoreAvailabilitySupport;

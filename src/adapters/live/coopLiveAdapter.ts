@@ -10,6 +10,7 @@ import {
 } from '../../parsers/coop.js';
 import { resolveLocationAsync } from '../../util/geo.js';
 import { SourceHttpClient } from '../../sources/sourceClient.js';
+import { isAbortError } from '../../util/cancellation.js';
 import { sortProducts } from '../../util/matcher.js';
 import {
   cacheableProvenance,
@@ -24,6 +25,7 @@ import {
   NormalizedProduct,
   NormalizedPromotion,
   NormalizedStore,
+  AdapterCallOptions,
   ProductSearchFilters,
   PromotionSearchFilters,
   Result,
@@ -132,7 +134,10 @@ export class CoopLiveAdapter implements ChainAdapter {
     };
   }
 
-  public async searchProducts(filters: ProductSearchFilters): Promise<Result<NormalizedProduct[]>> {
+  public async searchProducts(
+    filters: ProductSearchFilters,
+    options?: AdapterCallOptions
+  ): Promise<Result<NormalizedProduct[]>> {
     const query = filters.query.trim();
     if (!query) {
       return {
@@ -154,7 +159,7 @@ export class CoopLiveAdapter implements ChainAdapter {
         const toEnrich = parsed.data.slice(0, 5);
         const enriched = await Promise.all(
           toEnrich.map(async (p) => {
-            const detail = await this.fetchProductDetail(p.id);
+            const detail = await this.fetchProductDetail(p.id, options);
             if (!detail) return p;
             return {
               ...p,
@@ -175,6 +180,7 @@ export class CoopLiveAdapter implements ChainAdapter {
         chain: 'coop',
         sourceType: 'retailer-web',
         confidence: 'medium',
+        init: options?.signal ? { signal: options.signal } : undefined,
       });
 
       const provenance = this.buildProvenance(searchUrl);
@@ -199,7 +205,7 @@ export class CoopLiveAdapter implements ChainAdapter {
         const toEnrich = parsed.data.slice(0, 5);
         const enriched = await Promise.all(
           toEnrich.map(async (p) => {
-            const detail = await this.fetchProductDetail(p.id);
+            const detail = await this.fetchProductDetail(p.id, options);
             if (!detail) return p;
             return {
               ...p,
@@ -376,7 +382,8 @@ export class CoopLiveAdapter implements ChainAdapter {
   }
 
   private async fetchProductDetail(
-    productCode: string
+    productCode: string,
+    options?: AdapterCallOptions
   ): Promise<{ ingredients?: string; nutrition?: NormalizedProduct['nutrition'] } | undefined> {
     try {
       const detailUrl = `${BASE_URL}/products/${productCode}?fields=FULL`;
@@ -396,12 +403,17 @@ export class CoopLiveAdapter implements ChainAdapter {
         chain: 'coop',
         sourceType: 'retailer-web',
         confidence: 'medium',
+        init: options?.signal ? { signal: options.signal } : undefined,
       });
 
       const data = result.data;
       if (!data) return undefined;
       return this.parseDetailExtras(data);
-    } catch {
+    } catch (error) {
+      // Enrichment is best-effort and its failures are swallowed by design —
+      // but a cancellation must still stop the enrichment fan-out above rather
+      // than quietly enriching nothing for every one of the five products.
+      if (isAbortError(error)) throw error;
       return undefined;
     }
   }

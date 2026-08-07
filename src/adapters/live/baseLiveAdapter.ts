@@ -1,7 +1,9 @@
 import { FileTtlCache } from '../../cache/fileTtlCache.js';
 import { SourceClientError, SourceHttpClient } from '../../sources/sourceClient.js';
+import { isAbortError } from '../../util/cancellation.js';
 import { calculateMatchStrength, normalize, sortProducts } from '../../util/matcher.js';
 import {
+  AdapterCallOptions,
   Chain,
   NormalizedProduct,
   ProductSearchFilters,
@@ -284,7 +286,8 @@ export async function loadJson<T>(
   sourceClient: SourceHttpClient,
   cacheTtlMs: number,
   chain: Chain,
-  provider: string
+  provider: string,
+  options?: AdapterCallOptions
 ): Promise<LoadResult<T>> {
   const cacheKey = `${cachePrefix}:${url}`;
   const cached = await cache.get<T>(cacheKey, { allowStale: true });
@@ -298,6 +301,7 @@ export async function loadJson<T>(
       chain,
       sourceType: 'retailer-web',
       confidence: 'medium',
+      init: options?.signal ? { signal: options.signal } : undefined,
     });
     const record = await cache.set(
       cacheKey,
@@ -312,6 +316,12 @@ export async function loadJson<T>(
       warnings: [],
     };
   } catch (error) {
+    // A cancelled request has no opinion about the vendor. Degrading it to a
+    // source warning would serve stale cache as though the fetch had merely
+    // failed — the "fake fallback that hides an integration failure" the
+    // coding standards forbid, except here it would hide a *deliberate* stop.
+    if (isAbortError(error)) throw error;
+
     const warning = warningFromError(error, url, `${provider} API fetch failed`, chain, provider);
     if (cached) {
       return {
@@ -337,7 +347,8 @@ export async function loadText(
   sourceClient: SourceHttpClient,
   cacheTtlMs: number,
   chain: Chain,
-  provider: string
+  provider: string,
+  options?: AdapterCallOptions
 ): Promise<LoadResult<string>> {
   const cacheKey = `${cachePrefix}:${url}`;
   const cached = await cache.get<string>(cacheKey, { allowStale: true });
@@ -351,6 +362,7 @@ export async function loadText(
       chain,
       sourceType: 'retailer-web',
       confidence: 'medium',
+      init: options?.signal ? { signal: options.signal } : undefined,
     });
     const record = await cache.set(
       cacheKey,
@@ -365,6 +377,10 @@ export async function loadText(
       warnings: [],
     };
   } catch (error) {
+    // Same reasoning as `loadJson`: cancellation is not a vendor failure and
+    // must not be answered with stale cache.
+    if (isAbortError(error)) throw error;
+
     const warning = warningFromError(error, url, `${provider} source fetch failed`, chain, provider);
     if (cached) {
       return {

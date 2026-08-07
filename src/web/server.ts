@@ -1,4 +1,5 @@
 import { createServer, IncomingMessage, ServerResponse } from 'node:http';
+import { isAbortError } from '../util/cancellation.js';
 import { readFile, stat } from 'node:fs/promises';
 import { join, extname, normalize } from 'node:path';
 import { tmpdir } from 'node:os';
@@ -194,12 +195,15 @@ async function handleSearchProductsStream(
   });
 
   // The client closes the EventSource when the shopper edits the query and
-  // restarts mid-search. Stop writing into the dead socket at that point —
-  // the fan-out itself still runs to completion, which needs a real
-  // AbortController through ChainAdapter.searchProducts (tracker item 4).
+  // restarts mid-search. Two things have to happen then: stop writing into the
+  // dead socket, and stop the work. The second one is new (tracker item 4) —
+  // the fan-out used to run to completion for a socket that had already gone,
+  // driving seven chains and, for Migros, a headless browser.
   let clientGone = false;
+  const cancelSearch = new AbortController();
   req.on('close', () => {
     clientGone = true;
+    cancelSearch.abort();
   });
   const send = (event: string, data: unknown): void => {
     if (clientGone) return;
@@ -249,10 +253,22 @@ async function handleSearchProductsStream(
       MERGE_ALLOWANCE_MS,
   });
 
-  const result = await searchService.searchProducts(
-    { query, chains, maxPrice, category, limit },
-    { onChainProgress: (event) => send('progress', event) }
-  );
+  let result: Awaited<ReturnType<typeof searchService.searchProducts>>;
+  try {
+    result = await searchService.searchProducts(
+      { query, chains, maxPrice, category, limit },
+      { onChainProgress: (event) => send('progress', event), signal: cancelSearch.signal }
+    );
+  } catch (error) {
+    // The only rejection the search raises is its own cancellation, and the
+    // only thing that cancels it here is the client leaving — so there is
+    // nobody to tell. Anything else is a real fault and must not be swallowed.
+    if (isAbortError(error) && clientGone) {
+      res.end();
+      return;
+    }
+    throw error;
+  }
 
   if (result.ok) {
     send('done', { ok: true, data: result.data, metadata: result.metadata });

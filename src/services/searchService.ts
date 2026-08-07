@@ -22,6 +22,7 @@ import { sourceWarningFromError } from '../sources/warnings.js';
 import { buildTaxonomy } from '../util/taxonomyBuilder.js';
 import { resolveLocationAsync, distanceBetween } from '../util/geo.js';
 import { raceWithTimeout, ADAPTER_SOFT_TIMEOUT_MS, chainTimeoutMs } from '../util/timeout.js';
+import { isAbortError, throwIfAborted } from '../util/cancellation.js';
 import { ChainHealthBreaker } from './chainHealthBreaker.js';
 import { SearchResultCache } from './searchResultCache.js';
 
@@ -164,6 +165,16 @@ export interface ChainProgressEvent {
 export interface SearchProductsOptions {
   /** Called synchronously as each requested chain's vendor search resolves (parallel fan-out, so order is by real completion time, not request order). */
   onChainProgress?: (event: ChainProgressEvent) => void;
+  /**
+   * Cancels the whole fan-out. The web server aborts this when the client
+   * disconnects; without it the server kept driving seven chains, and up to a
+   * headless browser, for a socket that had already closed.
+   *
+   * Aborting makes `searchProducts` reject rather than resolve — there is no
+   * result to give a caller who is gone. Callers that cannot be cancelled (MCP
+   * tools, the chat agent) simply omit it and behave exactly as before.
+   */
+  signal?: AbortSignal;
 }
 
 export class SearchService {
@@ -255,6 +266,69 @@ export class SearchService {
   }
 
   /**
+   * One chain, under two deadlines: its own budget and the caller's.
+   *
+   * This replaces `raceWithTimeout`, whose contract was explicitly "the
+   * underlying operation is not cancelled, just no longer waited on". Blowing
+   * the budget now aborts the adapter's HTTP requests instead of leaving them
+   * running for nobody — tracker item 4.
+   *
+   * **What that costs, stated plainly:** a chain that overran used to finish in
+   * the background and its products still landed in the local catalog. They no
+   * longer do. Warming a cache from work nobody is waiting on needs an explicit
+   * detached queue (the `waitUntil` pattern), not an un-cancelled request; that
+   * queue is not built, and silently keeping the leak to preserve the side
+   * effect would be keeping the bug.
+   */
+  private async searchOneChain(
+    adapter: ChainAdapter,
+    filters: ProductSearchFilters,
+    budgetMs: number,
+    callerSignal: AbortSignal | undefined
+  ): Promise<Result<NormalizedProduct[]>> {
+    const budget = AbortSignal.timeout(budgetMs);
+    const signal = callerSignal ? AbortSignal.any([callerSignal, budget]) : budget;
+
+    try {
+      // Both mechanisms, deliberately. The signal is what makes the work
+      // *stop*; the race is what guarantees the fan-out moves on regardless.
+      // They are not redundant: an adapter is free to ignore its signal — a
+      // hung Playwright step cannot be interrupted at all — and dropping the
+      // race for the signal alone let exactly that adapter block every other
+      // chain indefinitely, which is the regression `searchService.test.ts`
+      // caught. Cancellation is cooperative; the deadline must not be.
+      return await raceWithTimeout(
+        () => adapter.searchProducts(filters, { signal }),
+        budgetMs,
+        () => ({
+          ok: false,
+          error: {
+            code: 'SOURCE_TIMEOUT',
+            message: `${adapter.chain} did not respond within ${budgetMs}ms.`,
+          },
+        } as Result<NormalizedProduct[]>)
+      );
+    } catch (error) {
+      if (!isAbortError(error)) throw error;
+
+      // Two aborts arrive on the same signal and mean opposite things. The
+      // caller going away ends the whole search — rethrow, because there is
+      // nobody left to hand a result to. A chain merely exceeding its own
+      // budget is a per-chain failure and keeps the exact `SOURCE_TIMEOUT`
+      // shape the rest of the pipeline already reports.
+      if (callerSignal?.aborted) throw error;
+
+      return {
+        ok: false,
+        error: {
+          code: 'SOURCE_TIMEOUT',
+          message: `${adapter.chain} did not respond within ${budgetMs}ms.`,
+        },
+      };
+    }
+  }
+
+  /**
    * The real search. Reports `chainsComplete` alongside the result: true only if
    * every requested vendor chain answered ok. That is the *only* correct input
    * to the cache-or-not decision — warnings alone are not, since the optional
@@ -298,7 +372,7 @@ export class SearchService {
     let respondedCount = 0;
     let productsSoFar = 0;
     const totalCount = relevantAdapters.length;
-    const adapterResults = await Promise.all(
+    const settledResults = await Promise.allSettled(
       relevantAdapters.map(async (adapter) => {
         const startMs = Date.now();
         const budgetMs = chainTimeoutMs(adapter.chain);
@@ -315,22 +389,17 @@ export class SearchService {
                 message: `${adapter.chain} is temporarily skipped after repeated failures.`,
               },
             } as Result<NormalizedProduct[]>)
-          : await raceWithTimeout(
-              () => adapter.searchProducts({ ...filters, query: vendorQuery, matchMode }),
-              budgetMs,
-              () => ({
-                ok: false,
-                error: {
-                  code: 'SOURCE_TIMEOUT',
-                  message: `${adapter.chain} did not respond within ${budgetMs}ms.`,
-                },
-              } as Result<NormalizedProduct[]>)
-            );
+          : await this.searchOneChain(adapter, { ...filters, query: vendorQuery, matchMode }, budgetMs, options.signal);
         const elapsedMs = Date.now() - startMs;
         // A skipped chain is not evidence about that chain's health, and its
         // 0ms "latency" would poison both the p75 ETA and the failure rate that
         // decides when to close the breaker again.
         if (!skipped) {
+          // Note this is only reached for outcomes the chain is responsible
+          // for: a cancellation rethrows out of `searchOneChain` and never
+          // arrives here. Recording it would let one shopper closing a tab
+          // book seven chain failures and trip the breaker on all of them —
+          // the `errorFilter` distinction Opossum and Cockatiel make.
           this.chainBreaker?.record(adapter.chain, result.ok);
           if (this.metrics) {
             this.metrics.recordLatency(adapter.chain, elapsedMs);
@@ -365,6 +434,23 @@ export class SearchService {
         return { chain: adapter.chain, result };
       })
     );
+
+    // `allSettled`, not `all`: a per-chain *domain* failure is a `Result` and
+    // resolves; a cancellation rejects. Collapsing the two — the first design
+    // here — would have meant reporting "the client hung up" as a vendor error
+    // code, which is the sort of fake fallback the coding standards forbid.
+    const cancellation = settledResults.find(
+      (entry): entry is PromiseRejectedResult => entry.status === 'rejected'
+    );
+    if (cancellation) {
+      // The only rejection `searchOneChain` lets through is the caller going
+      // away. There is no result to assemble and nobody waiting for one.
+      throw cancellation.reason;
+    }
+    const adapterResults = settledResults.map((entry) => (entry as PromiseFulfilledResult<{
+      chain: Chain;
+      result: Result<NormalizedProduct[]>;
+    }>).value);
 
     const successfulResults = adapterResults.filter((entry) => entry.result.ok);
     // Every requested chain answered — the only condition under which this
@@ -404,6 +490,10 @@ export class SearchService {
     // chain indistinguishable from a web that simply had nothing to add.
     let webError: unknown;
     if (this.webProductSearch && webSearchChains.length > 0) {
+      // The fan-out can finish just as the client leaves. Web augmentation is
+      // the most expensive remaining step (an 8s budget of its own), so it gets
+      // a checkpoint rather than being started for nobody.
+      throwIfAborted(options.signal, 'search');
       if (this.metrics) {
         this.metrics.recordWebSearch();
         this.metrics.recordWebSearchPerQuery(webSearchChains.length);

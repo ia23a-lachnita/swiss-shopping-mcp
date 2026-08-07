@@ -1,3 +1,4 @@
+import { abortableSleep, isAbortError, throwIfAborted } from '../util/cancellation.js';
 import {
   Chain,
   SourceConfidence,
@@ -79,12 +80,6 @@ export class SourceClientError extends Error {
 const DEFAULT_TIMEOUT_MS = 10_000;
 const DEFAULT_USER_AGENT = 'swiss-shopping-mcp/0.1 (+https://github.com/local/swiss-shopping-mcp)';
 
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => {
-    setTimeout(resolve, ms);
-  });
-}
-
 function shouldRetry(error: SourceClientError): boolean {
   return error.code === SourceWarningCode.SourceUnavailable || error.code === SourceWarningCode.SourceRateLimited;
 }
@@ -150,7 +145,11 @@ export class SourceHttpClient {
           break;
         }
 
-        await sleep(100 * (attempt + 1));
+        // Checked before the backoff, not after it: a cancelled request that
+        // hit a retryable 429 would otherwise sleep out its backoff and fire a
+        // second request that nobody is waiting for.
+        throwIfAborted(options.init?.signal ?? undefined, url);
+        await abortableSleep(100 * (attempt + 1), options.init?.signal ?? undefined, url);
       }
     }
 
@@ -169,10 +168,18 @@ export class SourceHttpClient {
   }
 
   private async fetchTextOnce(url: string, init: RequestInit | undefined, acceptHeader: string): Promise<string> {
-    await this.waitForHostSlot(url);
+    // Abort *before* queueing, not just before dispatch: a request that has
+    // already been cancelled must not sit out its rate-limit turn only to be
+    // thrown away on the far side.
+    throwIfAborted(init?.signal ?? undefined, url);
+    await this.waitForHostSlot(url, init?.signal ?? undefined);
 
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), this.timeoutMs);
+    // The caller's signal is combined with this client's own deadline rather
+    // than replacing it. Spreading `init` after the signal (as this did) let a
+    // caller's signal through by accident; spreading it before dropped the
+    // caller's entirely, which is why cancellation never reached the wire.
+    const timeoutSignal = AbortSignal.timeout(this.timeoutMs);
+    const signal = init?.signal ? AbortSignal.any([init.signal, timeoutSignal]) : timeoutSignal;
     const headers = new Headers(init?.headers);
     headers.set('user-agent', this.userAgent);
     headers.set('accept', acceptHeader);
@@ -181,7 +188,7 @@ export class SourceHttpClient {
       const response = await this.fetchImpl(url, {
         ...init,
         headers,
-        signal: controller.signal,
+        signal,
       });
 
       if (!response.ok) {
@@ -201,14 +208,25 @@ export class SourceHttpClient {
         throw error;
       }
 
+      // Whose abort was it? Both arrive here as the same DOMException, and the
+      // difference decides whether a chain gets blamed.
+      //
+      //   caller's signal  -> a cancellation: propagate untouched, so it never
+      //                       reaches the retry set or the circuit breaker. A
+      //                       shopper closing a tab must not mark a chain dead.
+      //   this client's own timeout -> the vendor did not answer in time, which
+      //                       is exactly what SOURCE_UNAVAILABLE means and has
+      //                       always meant. Unchanged behaviour.
+      if (isAbortError(error) && init?.signal?.aborted) {
+        throw error;
+      }
+
       const message = error instanceof Error ? error.message : String(error);
       throw new SourceClientError(SourceWarningCode.SourceUnavailable, message, url);
-    } finally {
-      clearTimeout(timeout);
     }
   }
 
-  private async waitForHostSlot(url: string): Promise<void> {
+  private async waitForHostSlot(url: string, signal: AbortSignal | undefined): Promise<void> {
     if (this.rateLimitPerHostMs <= 0) {
       return;
     }
@@ -219,10 +237,15 @@ export class SourceHttpClient {
     if (lastRequestAt !== undefined) {
       const waitMs = this.rateLimitPerHostMs - (now - lastRequestAt);
       if (waitMs > 0) {
-        await sleep(waitMs);
+        await abortableSleep(waitMs, signal, url);
       }
     }
 
+    // Only stamped once we are actually going to dispatch. An abort during the
+    // wait above throws past this line, which is correct: nothing was sent, so
+    // nothing consumed the slot and the next caller inherits the original
+    // schedule. No resource is held across the wait, so there is nothing to
+    // release on the abort path.
     this.lastRequestByHost.set(host, Date.now());
   }
 }
