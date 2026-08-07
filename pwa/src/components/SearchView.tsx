@@ -210,17 +210,25 @@ export function SearchView(): React.JSX.Element {
   const lastStraggler =
     progress?.pending.length === 1 ? CHAIN_LABELS[progress.pending[0]] : undefined;
 
+  // What pressing the button would fetch, versus what produced the results on
+  // screen. Narrowing the chain filter re-filters locally, but *widening* it
+  // needs a real refetch, so an added vendor has to count as dirty.
+  const isDirty =
+    submitted === undefined ||
+    query.trim() !== submitted.query ||
+    chains.length !== submitted.chains.length ||
+    chains.some((chain) => !submitted.chains.includes(chain));
+  const canSubmit = query.trim().length > 0 && chains.length > 0;
   // While a search runs, editing the query (or the chain selection) turns the
   // button back into an action: the shopper who mistyped should not have to
   // wait out a search they no longer want.
-  const restartable =
-    isFetching &&
-    submitted !== undefined &&
-    query.trim().length > 0 &&
-    chains.length > 0 &&
-    (query.trim() !== submitted.query ||
-      chains.length !== submitted.chains.length ||
-      chains.some((chain) => !submitted.chains.includes(chain)));
+  const restartable = isFetching && canSubmit && isDirty;
+  // The results on screen already answer exactly this query for exactly these
+  // vendors, so the button has nothing to do. It was already inert — an
+  // identical react-query key is deduped — but it stayed fully lit, so the only
+  // feedback was a press that did nothing. Errors stay retryable — tested with
+  // `!error` because react-query reports "no error" as `null`, not `undefined`.
+  const upToDate = !isFetching && !isDirty && data !== undefined && !error;
 
   function submit(event?: FormEvent): void {
     event?.preventDefault();
@@ -270,12 +278,20 @@ export function SearchView(): React.JSX.Element {
         <Button
           type="submit"
           className="w-full"
-          disabled={!query.trim()}
+          disabled={!canSubmit || upToDate}
           loading={isFetching && !restartable}
           loadingText="Wird gesucht…"
         >
-          <Search /> {restartable ? 'Neue Suche starten' : 'Suchen'}
+          <Search />{' '}
+          {restartable
+            ? 'Neue Suche starten'
+            : isDirty && data !== undefined
+              ? 'Neu suchen'
+              : 'Suchen'}
         </Button>
+        {chains.length === 0 && (
+          <p className="text-xs text-danger">Mindestens ein Händler muss ausgewählt sein.</p>
+        )}
       </form>
 
       {isFetching && (

@@ -78,11 +78,29 @@ function createOffer(product: NormalizedProduct, quantity: number): ChainPriceOf
   let baseUnit: string | undefined;
   let isEligibleForUnitComparison = false;
 
-  // Prefer vendor-provided per-unit price when available
+  // Prefer vendor-provided per-unit price when available.
+  //
+  // It must still be normalized to a canonical base unit. Chains publish the
+  // PBV Grundpreis in whatever denomination they like — Migros quotes bananas
+  // at CHF 0.30/100g, Coop the same fruit at CHF 3.20/kg — and passing those
+  // strings straight through put "0.30 / 100g" directly above "3.20 / kg" in
+  // the comparison, making the dearer product look ten times cheaper. It also
+  // broke `prepareOffersForComparison`, which treats a differing `baseUnit` as
+  // not comparable at all, so unit-price mode silently disqualified one of the
+  // only two chains that publish the field.
   const vendorUP = product.price.vendorUnitPrice;
   if (vendorUP && typeof vendorUP.value === 'number' && vendorUP.value > 0) {
-    baseUnitPrice = roundCurrency(vendorUP.value);
-    baseUnit = vendorUP.unit || undefined;
+    const canonical = vendorUP.unit ? getBaseUnitPrice(vendorUP.value, 1, vendorUP.unit) : undefined;
+    if (canonical) {
+      baseUnitPrice = roundCurrency(canonical.price);
+      baseUnit = canonical.unit;
+    } else {
+      // An unrecognised denomination (e.g. "Waschgang") is still the vendor's
+      // own figure and is better shown than dropped; it simply cannot be
+      // compared across chains, which the differing unit already encodes.
+      baseUnitPrice = roundCurrency(vendorUP.value);
+      baseUnit = vendorUP.unit || undefined;
+    }
     isEligibleForUnitComparison = true;
   }
 

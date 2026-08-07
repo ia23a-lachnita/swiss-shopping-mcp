@@ -298,6 +298,17 @@ export interface ChainPriceOffer {
   comparisonUnit?: string;
   comparisonEligible: boolean;
   ineligibleReason?: string;
+  /**
+   * The PBV `Grundpreis` — price normalized to CHF per kg / l / piece. The
+   * server has always computed and sent these; the client type simply omitted
+   * them, so the UI fell back to `unitPrice` / `comparisonUnit`, which under
+   * the default `packPrice` basis is the tautology "CHF 2.95 / pack".
+   *
+   * Only Migros and Coop publish the source fields today, so this is
+   * frequently absent — see the note on the Grundpreis line in CompareView.
+   */
+  baseUnitPrice?: number;
+  baseUnit?: string;
 }
 
 export interface PriceComparisonResult {

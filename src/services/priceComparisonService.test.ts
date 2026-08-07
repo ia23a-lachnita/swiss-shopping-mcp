@@ -188,6 +188,75 @@ describe('PriceComparisonService', () => {
     }
   });
 
+  // Regression: chains publish the PBV Grundpreis in whatever denomination they
+  // like, and the vendor-provided figure used to be passed through verbatim.
+  // Migros quotes bananas at CHF 0.30/100g and Coop the same fruit at
+  // CHF 3.20/kg, so the comparison rendered "0.30 / 100g" directly above
+  // "3.20 / kg" and the dearer product read as ten times cheaper.
+  it('normalizes a vendor-published unit price to a canonical base unit', async () => {
+    const migrosBanana = product('migros-banane', 'migros', 2.95);
+    migrosBanana.price.vendorUnitPrice = { value: 0.3, unit: '100g', display: '0.30/100g' };
+    const coopBanana = product('coop-banane', 'coop', 3.2);
+    coopBanana.price.vendorUnitPrice = { value: 3.2, unit: 'kg', display: '3.20/kg' };
+
+    const service = new PriceComparisonService([
+      adapterWithProducts('migros', [migrosBanana]),
+      adapterWithProducts('coop', [coopBanana]),
+    ]);
+
+    const result = await service.comparePrices({ query: 'banane' });
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      const migros = result.data.offers.find((offer) => offer.chain === 'migros');
+      const coop = result.data.offers.find((offer) => offer.chain === 'coop');
+      // Both land on the same unit, which is the whole point: 3.00/kg vs
+      // 3.20/kg is a 7% difference, not the 10x the raw figures implied.
+      expect(migros?.baseUnit).toBe('kg');
+      expect(migros?.baseUnitPrice).toBe(3);
+      expect(coop?.baseUnit).toBe('kg');
+      expect(coop?.baseUnitPrice).toBe(3.2);
+    }
+  });
+
+  it('keeps an unrecognised vendor denomination rather than dropping the figure', async () => {
+    const detergent = product('migros-waschmittel', 'migros', 12.9);
+    detergent.price.vendorUnitPrice = { value: 0.35, unit: 'Waschgang' };
+
+    const service = new PriceComparisonService([adapterWithProducts('migros', [detergent])]);
+    const result = await service.comparePrices({ query: 'waschmittel' });
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      // Not convertible to kg/l, so it stays as the vendor stated it. The
+      // differing unit is itself what marks it as not cross-comparable.
+      expect(result.data.offers[0]?.baseUnit).toBe('Waschgang');
+      expect(result.data.offers[0]?.baseUnitPrice).toBe(0.35);
+    }
+  });
+
+  it('lets a normalized vendor unit price rank against a computed one', async () => {
+    // Previously these two produced baseUnits of '100g' and 'kg', which
+    // `prepareOffersForComparison` treats as mutually incomparable — so
+    // unit-price mode disqualified one of the only chains publishing the field.
+    const migrosRice = product('migros-reis', 'migros', 4.2);
+    migrosRice.price.vendorUnitPrice = { value: 0.42, unit: '100g' };
+    const service = new PriceComparisonService([
+      adapterWithProducts('migros', [migrosRice]),
+      adapterWithProducts('coop', [product('coop-reis', 'coop', 2.5, { value: 500, per: 'g' })]),
+    ]);
+
+    const result = await service.comparePrices({ query: 'reis', comparisonBasis: 'unitPrice' });
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data.comparisonUnit).toBe('kg');
+      expect(result.data.offers.every((offer) => offer.comparisonEligible)).toBe(true);
+      // migros 4.20/kg vs coop 5.00/kg
+      expect(result.data.cheapestOffer?.chain).toBe('migros');
+    }
+  });
+
   it('defaults to one returned offer per chain but honors limitPerChain alternatives', async () => {
     const customService = new PriceComparisonService([
       adapterWithProducts('migros', [

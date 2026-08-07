@@ -7,6 +7,8 @@ import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 
 import { createServer } from './index.js';
 import { UnsupportedChainAdapter } from './adapters/unsupportedAdapter.js';
+import { ADAPTER_SOFT_TIMEOUT_MS } from './util/timeout.js';
+import { SearchService } from './services/searchService.js';
 import {
   Chain,
   ChainAdapter,
@@ -1369,20 +1371,33 @@ describe('16. Production Readiness Patterns', () => {
     expect(elapsed).toBeLessThan(2000);
   });
 
-  it('search_products returns within reasonable time', async () => {
+  // These two assert against the budget the system actually guarantees, not a
+  // number below it. A single chain is allowed ADAPTER_SOFT_TIMEOUT_MS (6s)
+  // before `raceWithTimeout` cuts it off, so the previous hard-coded 5000ms
+  // asserted something the code deliberately permits to be false — it failed at
+  // 5009ms and 5018ms on consecutive runs of an otherwise clean tree, which is
+  // the same "racing vendor latency" mistake this file's header comment records
+  // having already fixed once for the vitest timeout. What the test is for is
+  // catching a hang or a dropped timeout, and a ceiling derived from the
+  // constants still does that while no longer failing on an 18ms overshoot.
+  it('search_products returns within its configured timeout budget', async () => {
     const start = Date.now();
     const result = await callTool(client, 'search_products', { query: 'Toskanabrot' });
     const elapsed = Date.now() - start;
     expect(result.isError).not.toBe(true);
-    expect(elapsed).toBeLessThan(5000);
+    // Vendor fan-out, then the web-augmentation stage that follows it.
+    expect(elapsed).toBeLessThan(
+      ADAPTER_SOFT_TIMEOUT_MS + SearchService.webSearchSoftTimeoutMs + 2_000
+    );
   });
 
-  it('compare_prices returns within reasonable time', async () => {
+  it('compare_prices returns within its configured timeout budget', async () => {
     const start = Date.now();
     const result = await callTool(client, 'compare_prices', { query: 'Toskanabrot' });
     const elapsed = Date.now() - start;
     expect(result.isError).not.toBe(true);
-    expect(elapsed).toBeLessThan(5000);
+    // No web tier on this path — the fan-out is the whole budget.
+    expect(elapsed).toBeLessThan(ADAPTER_SOFT_TIMEOUT_MS + 2_000);
   });
 
   it('lookup_store_product_availability returns within reasonable time', async () => {

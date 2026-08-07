@@ -32,11 +32,22 @@ function CompareRowSkeleton(): React.JSX.Element {
   );
 }
 
+function roundCurrency(value: number): number {
+  return Math.round(value * 100) / 100;
+}
+
+function sameChains(a: Chain[], b: Chain[]): boolean {
+  return a.length === b.length && a.every((chain) => b.includes(chain));
+}
+
 export function CompareView(): React.JSX.Element {
   const [query, setQuery] = useState('');
   const [chains, setChains] = useState<Chain[]>([...ALL_CHAINS]);
   const [quantity, setQuantity] = useState(1);
-  const [submitted, setSubmitted] = useState<{ query: string; chains: Chain[]; quantity: number } | undefined>();
+  // Deliberately no `quantity`: it is a display multiplier applied client-side
+  // (see `offers` below), so changing it must not become part of the query key
+  // and trigger a network round trip to perform a multiplication.
+  const [submitted, setSubmitted] = useState<{ query: string; chains: Chain[] } | undefined>();
   const [openVendor, setOpenVendor] = useState<string>();
   const [selected, setSelected] = useState<Product | undefined>();
 
@@ -56,17 +67,53 @@ export function CompareView(): React.JSX.Element {
   const result = queryResult?.data;
   // Narrowing the chain filter after a search re-filters the already-fetched
   // offers instantly; checking a chain not part of the last submitted search
-  // shows nothing for it until "Preise vergleichen" is pressed again.
+  // shows nothing for it until "Preise vergleichen" is pressed again — which
+  // is what `isDirty` below re-enables the button for.
+  //
+  // The pack count is applied here rather than refetched. `effectivePrice` is
+  // the per-pack price and the server's own `totalPrice` is just that times the
+  // submitted quantity, so multiplying locally is exact arithmetic, not an
+  // estimate. Before this, moving the stepper with offers on screen changed
+  // nothing whatsoever until the next search.
   const offers = result
-    ? [...result.offers].filter((o) => chains.includes(o.chain)).sort((a, b) => a.totalPrice - b.totalPrice)
+    ? [...result.offers]
+        .filter((o) => chains.includes(o.chain))
+        .map((o) => ({ ...o, totalPrice: roundCurrency(o.effectivePrice * quantity) }))
+        .sort((a, b) => a.totalPrice - b.totalPrice)
     : [];
+
+  // A `Grundpreis` (CHF/kg, CHF/l) is only derivable for chains that publish a
+  // unit price — Migros and Coop today; Aldi and Lidl publish neither it nor a
+  // pack size. Showing "kein Grundpreis" on every row when *nobody* has one is
+  // pure noise, so the marker appears only when some other offer does have one
+  // and its absence would therefore make the comparison look uneven.
+  const anyBaseUnitPrice = offers.some((o) => o.baseUnitPrice !== undefined && o.baseUnit);
+
+  // What pressing the button would fetch, versus what produced the offers on
+  // screen. Quantity is absent on purpose: it never needs a round trip.
+  const isDirty =
+    submitted === undefined ||
+    query.trim() !== submitted.query ||
+    !sameChains(chains, submitted.chains);
+  const canSubmit = query.trim().length > 0 && chains.length > 0;
+  // Editing the query or the vendors mid-search turns the button back into an
+  // action, matching SearchView: nobody should have to wait out a comparison
+  // they have already changed their mind about.
+  const restartable = isFetching && canSubmit && isDirty;
+  // Nothing left to do — the offers on screen already answer exactly this
+  // query for exactly these vendors. The button was always inert here, since
+  // react-query dedupes an identical key, but it stayed fully lit, so the only
+  // feedback a shopper got was a press that did nothing. An error is excluded
+  // so a failed comparison can always be retried unchanged — tested against
+  // `!error` because react-query reports "no error" as `null`, not `undefined`.
+  const upToDate = !isFetching && !isDirty && result !== undefined && !error;
 
   function submit(event?: FormEvent): void {
     event?.preventDefault();
-    if (query.trim() && chains.length > 0) {
+    if (canSubmit) {
       (document.activeElement as HTMLElement | null)?.blur();
       void requestNotificationPermissionIfNeeded();
-      setSubmitted({ query: query.trim(), chains, quantity });
+      setSubmitted({ query: query.trim(), chains });
     }
   }
 
@@ -146,12 +193,20 @@ export function CompareView(): React.JSX.Element {
         <Button
           type="submit"
           className="w-full"
-          disabled={!query.trim()}
-          loading={isFetching}
+          disabled={!canSubmit || upToDate}
+          loading={isFetching && !restartable}
           loadingText="Wird verglichen…"
         >
-          <Scale /> Preise vergleichen
+          <Scale />{' '}
+          {restartable
+            ? 'Neuen Vergleich starten'
+            : isDirty && result !== undefined
+              ? 'Neu vergleichen'
+              : 'Preise vergleichen'}
         </Button>
+        {chains.length === 0 && (
+          <p className="text-xs text-danger">Mindestens ein Händler muss ausgewählt sein.</p>
+        )}
       </form>
 
       {isFetching && (
@@ -222,16 +277,27 @@ export function CompareView(): React.JSX.Element {
                         {i === 0 && <Badge variant="promo">Bestpreis</Badge>}
                       </div>
                       <p className="truncate text-sm font-medium">{offer.product.name}</p>
-                      {offer.comparisonEligible && offer.unitPrice && offer.comparisonUnit && (
+                      {/*
+                        The PBV Grundpreis, which is the only figure that makes
+                        two different pack sizes comparable. This used to render
+                        `unitPrice` / `comparisonUnit`, but the default
+                        comparison basis is `packPrice`, so that line said
+                        "CHF 2.95 / pack" next to a total of CHF 2.95.
+                      */}
+                      {offer.baseUnitPrice !== undefined && offer.baseUnit ? (
                         <p className="text-xs text-faint">
-                          <Price value={offer.unitPrice} className="text-xs" /> / {offer.comparisonUnit}
+                          <Price value={offer.baseUnitPrice} className="text-xs" /> / {offer.baseUnit}
                         </p>
+                      ) : (
+                        anyBaseUnitPrice && (
+                          <p className="text-xs text-faint/60">Kein Grundpreis</p>
+                        )
                       )}
                     </div>
                   </button>
                   <div className="shrink-0 text-right">
                     <Price value={offer.totalPrice} className="text-base font-bold" />
-                    {(result?.quantity ?? 1) > 1 && (
+                    {quantity > 1 && (
                       <p className="text-[0.65rem] text-faint">
                         à <Price value={offer.effectivePrice} className="text-[0.65rem]" />
                       </p>
